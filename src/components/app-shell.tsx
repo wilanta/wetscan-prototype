@@ -1,0 +1,284 @@
+"use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import {
+  Activity,
+  ArrowUpRight,
+  Bell,
+  BookOpen,
+  ChevronDown,
+  ChevronRight,
+  CircleHelp,
+  FileText,
+  FolderOpen,
+  LayoutDashboard,
+  Menu,
+  Moon,
+  Network,
+  Plug,
+  Radar,
+  RotateCcw,
+  Settings,
+  ShieldCheck,
+  Sun,
+  X,
+  Ghost,
+  BrainCircuit,
+} from "lucide-react";
+import { Logo } from "./logo";
+import { useDemo, toast } from "./demo-provider";
+import { Badge, Button, Modal } from "./ui";
+import { PROJECT } from "@/data/demo";
+const home = [
+  { href: "/app", label: "Overview", Icon: LayoutDashboard },
+  { href: "/app/projects", label: "Projects", Icon: FolderOpen },
+  { href: "/app/activity", label: "Workspace activity", Icon: Activity },
+];
+const protect = [
+  { href: `${PROJECT}/canvas`, label: "Canvas", Icon: Network },
+  { href: `${PROJECT}/guard`, label: "Guard", Icon: ShieldCheck },
+  { href: `${PROJECT}/sentinel`, label: "Sentinel", Icon: Radar },
+];
+const manage = [
+  { href: "/app/notifications", label: "Notifications", Icon: Bell },
+  { href: "/app/integrations", label: "Integrations", Icon: Plug },
+  { href: "/app/reports", label: "Reports", Icon: FileText },
+  { href: "/app/settings", label: "Team & settings", Icon: Settings },
+];
+export function AppShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const { state, dispatch, dark, setDark } = useDemo();
+  const [mobile, setMobile] = useState(false);
+  const [reset, setReset] = useState(false);
+  const section = pathname.includes("/canvas")
+    ? "Canvas"
+    : pathname.includes("/guard")
+      ? "Guard"
+      : pathname.includes("/sentinel")
+        ? "Sentinel"
+        : pathname.split("/").filter(Boolean).at(-1)?.replaceAll("-", " ") ||
+          "Overview";
+  function nav(items: typeof home) {
+    return items.map(({ href, label, Icon }) => {
+      const active =
+        href === "/app"
+          ? pathname === "/app"
+          : pathname === href ||
+            ((href.includes("/guard") || href.includes("/sentinel")) &&
+              pathname.startsWith(href));
+      return (
+        <div key={href}>
+          <Link
+            href={href}
+            className={`nav-link ${active ? "active" : ""}`}
+            aria-current={active ? "page" : undefined}
+            onClick={() => setMobile(false)}
+          >
+            <Icon size={18} />
+            <span>{label}</span>
+            {label === "Canvas" && <span className="nav-new">APP MAP</span>}
+            {label === "Guard" && <span className="nav-count">3</span>}
+            {label === "Sentinel" && <ChevronDown size={14} />}
+          </Link>
+          {label === "Sentinel" && (
+            <div className="nav-children">
+              <Link
+                href={`${PROJECT}/sentinel/ghost`}
+                onClick={() => setMobile(false)}
+                className={pathname.endsWith("/ghost") ? "active" : ""}
+              >
+                <Ghost size={15} />
+                Ghost
+              </Link>
+              <Link
+                href={`${PROJECT}/sentinel/intelligence`}
+                onClick={() => setMobile(false)}
+                className={pathname.endsWith("/intelligence") ? "active" : ""}
+              >
+                <BrainCircuit size={15} />
+                Intelligence
+              </Link>
+            </div>
+          )}
+        </div>
+      );
+    });
+  }
+  return (
+    <div className="app-shell">
+      <a className="skip-link" href="#main">
+        Skip to content
+      </a>
+      {mobile && (
+        <button
+          className="sidebar-scrim"
+          aria-label="Close navigation"
+          onClick={() => setMobile(false)}
+        />
+      )}
+      <aside className={`sidebar ${mobile ? "mobile-open" : ""}`}>
+        <div className="sidebar-brand">
+          <Link href="/" aria-label="WetScan home">
+            <Logo />
+          </Link>
+          <button
+            className="icon-button mobile-only"
+            aria-label="Close navigation"
+            onClick={() => setMobile(false)}
+          >
+            <X size={19} />
+          </button>
+        </div>
+        <Link className="workspace-switch" href="/app/settings">
+          <span className="workspace-monogram">N</span>
+          <div>
+            <strong>Northstar Studio</strong>
+            <small>Demo workspace</small>
+          </div>
+          <ChevronDown size={15} />
+        </Link>
+        <div className="sidebar-nav">
+          <div className="nav-group-label">WORKSPACE</div>
+          {nav(home)}
+          <div className="nav-group-label">PROTECT YOUR APP</div>
+          {nav(protect)}
+          <div className="nav-group-label">MANAGE</div>
+          {nav(manage)}
+        </div>
+        <div className="sidebar-bottom">
+          <div className="demo-card">
+            <div>
+              <span className="live-dot" />
+              <strong>You’re exploring a demo</strong>
+            </div>
+            <p>
+              Real clarity. Sample data.
+              <br />
+              Make yourself at home.
+            </p>
+            <Button variant="ghost" onClick={() => setReset(true)}>
+              <RotateCcw size={14} />
+              Reset demo
+            </Button>
+          </div>
+          <Modal
+            trigger={
+              <button className="nav-link help-button">
+                <CircleHelp size={18} />
+                Help & quick tour
+                <ArrowUpRight size={14} />
+              </button>
+            }
+            title="Your two-minute WetScan tour"
+            description="Everything here uses synthetic local fixtures. No real system is scanned."
+          >
+            <ol className="tour-list">
+              <li>Open Canvas and select Orders API.</li>
+              <li>View FIND-102, its evidence, and the example fix.</li>
+              <li>Simulate a suspicious request in Sentinel.</li>
+              <li>Advance the response, then run a separate verification.</li>
+              <li>Review notification previews, Ghost, and Intelligence.</li>
+            </ol>
+            <Link href="/app/reports" className="button secondary">
+              Read the demo report <BookOpen size={16} />
+            </Link>
+          </Modal>
+          <Link href="/app/settings" className="profile">
+            <span className="avatar">WD</span>
+            <div>
+              <strong>Wildhan & Daud</strong>
+              <small>Workspace owners</small>
+            </div>
+            <Settings size={16} />
+          </Link>
+        </div>
+      </aside>
+      <div className="app-main">
+        <header className="topbar">
+          <button
+            className="icon-button mobile-only"
+            onClick={() => setMobile(true)}
+            aria-label="Open navigation"
+          >
+            <Menu size={21} />
+          </button>
+          <div className="breadcrumbs">
+            <span className="desktop-context">Workspace</span>
+            <ChevronRight size={14} />
+            {pathname.startsWith(PROJECT) ? (
+              <>
+                <Link href={PROJECT}>{state.projectName}</Link>
+                <ChevronRight size={14} />
+              </>
+            ) : null}
+            <strong>
+              {pathname === "/app"
+                ? "Overview"
+                : section.charAt(0).toUpperCase() + section.slice(1)}
+            </strong>
+          </div>
+          <div className="topbar-actions">
+            <Badge tone="blue">Demo mode</Badge>
+            <button
+              className="icon-button"
+              title={dark ? "Switch to light theme" : "Switch to dark theme"}
+              aria-label={
+                dark ? "Switch to light theme" : "Switch to dark theme"
+              }
+              onClick={() => setDark(!dark)}
+            >
+              {dark ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            <Link
+              href="/app/notifications"
+              className="icon-button notification-icon"
+              aria-label={`Notifications, ${state.notifications.length} previews`}
+            >
+              <Bell size={18} />
+              {state.notifications.length > 0 && <span />}
+            </Link>
+            <Link
+              href="/app/settings"
+              className="avatar small"
+              aria-label="Open profile settings"
+            >
+              WD
+            </Link>
+          </div>
+        </header>
+        <main id="main" className="main-content">
+          {children}
+        </main>
+        <footer className="app-footer">
+          <span>
+            <ShieldCheck size={13} /> A clearer picture. A safer next step.
+          </span>
+          <span>Demo fixtures · No live protection</span>
+        </footer>
+      </div>
+      <Modal
+        open={reset}
+        onOpenChange={setReset}
+        title="Start fresh?"
+        description="Restore the original demo fixtures, project settings, incidents, and notification previews."
+      >
+        <div className="actions">
+          <Button variant="secondary" onClick={() => setReset(false)}>
+            Keep exploring
+          </Button>
+          <Button
+            onClick={() => {
+              dispatch({ type: "reset" });
+              setDark(false);
+              setReset(false);
+              toast.success("Demo reset to its initial state.");
+            }}
+          >
+            Reset demo
+          </Button>
+        </div>
+      </Modal>
+    </div>
+  );
+}

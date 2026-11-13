@@ -1,0 +1,29 @@
+{
+  "checks": [
+    {
+      "route": "/",
+      "violations": []
+    },
+    {
+      "route": "/app/projects/orderly-demo/guard/findings/FIND-102",
+      "violations": []
+    },
+    {
+      "route": "/app/projects/orderly-demo/sentinel",
+      "violations": []
+    },
+    {
+      "route": "/app/notifications",
+      "violations": []
+    },
+    {
+      "route": "/app/integrations",
+      "violations": []
+    },
+    {
+      "route": "/onboarding",
+      "violations": []
+    }
+  ],
+  "browserErrors": []
+}

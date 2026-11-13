@@ -1,0 +1,27 @@
+{
+  "contract": "../docs/design-contract.md; authoritative repository blueprint. Local application security workspace with Canvas, linked Guard evidence, truthful Sentinel outcomes, and preview-only notifications.",
+  "targetViewports": ["1440x900", "1280x900", "390x844"],
+  "accessibility": {
+    "status": "pass",
+    "evidence": "Chromium axe WCAG 2 A/AA and 2.1 AA checks found no violations on Overview/Canvas at each target width, dark Overview, and six additional representative screens. Browser tests exercised direct node Enter selection, dialog Escape/focus restoration, and mobile menu navigation. Reduced-motion styles and graph animation preference are implemented. Full screen-reader testing is not claimed."
+  },
+  "responsive": {
+    "status": "pass",
+    "evidence": "Measured no document overflow on Overview and Canvas at all three target widths. Reviewed saved desktop, narrow desktop, dark and phone captures. Phone Canvas offers a structured component list and suppresses graph-only controls. Desktop navigation exposes all groups at target height."
+  },
+  "contentStates": {
+    "loading": {"status":"pass","evidence":"Interaction scenario observed the disabled Running demo simulation button and captured scan-loading-1440.png before the simulated scan completed."},
+    "empty": {"status":"pass","evidence":"Reset walkthrough confirmed notifications return to Your previews will appear here; initial Sentinel shows an explained no-incidents state."},
+    "error": {"status":"pass","evidence":"Staging form rejected an unauthorized non-test hostname with an accessible inline error; valid explicitly authorized .test scope then saved successfully."},
+    "partial": {"status":"pass","evidence":"Sentinel and workspace coverage show synthetic detection separately from unconnected telemetry, simulated enforcement and unavailable real delivery. Verified outcomes are scope-limited."},
+    "success": {"status":"pass","evidence":"Primary walkthrough passed synthetic remediation/retest, separately verified incident outcome, paired notification previews, archive, explicit draft-rule approval and deterministic reset."},
+    "permission": {"status":"pass","evidence":"GitLab onboarding required acknowledging a demo-only connection and explained future read-only grants. Staging authorization was required. Draft rule approval required explicit review confirmation. No real OAuth success was asserted."}
+  },
+  "renderedEvidence": [
+    {"viewport":"1440x900","artifact":"overview-1440.png","observation":"Light workspace with operational summary, application map, next actions, full navigation and coverage boundary."},
+    {"viewport":"1280x900","artifact":"overview-1280.png","observation":"Narrow desktop preserves readable hierarchy and two-column overview without document overflow."},
+    {"viewport":"390x844","artifact":"canvas-390.png","observation":"Phone replaces the graph with keyboard and touch-selectable component rows; graph-only controls are suppressed."},
+    {"viewport":"1440x900","artifact":"overview-dark-1440.png","observation":"Complete dark surfaces, legible muted text, restrained semantic severity and provenance."},
+    {"viewport":"1440x900","artifact":"canvas-inspector-1440.png","observation":"Selected Orders API displays its evidence origin and linked FIND-102; directed relationships use distinct attachment points."}
+  ]
+}

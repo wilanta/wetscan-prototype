@@ -1,0 +1,35 @@
+{
+  "checks": [
+    {
+      "route": "/app",
+      "width": 1440,
+      "violations": []
+    },
+    {
+      "route": "/app/projects/orderly-demo/canvas",
+      "width": 1440,
+      "violations": []
+    },
+    {
+      "route": "/app",
+      "width": 1280,
+      "violations": []
+    },
+    {
+      "route": "/app/projects/orderly-demo/canvas",
+      "width": 1280,
+      "violations": []
+    },
+    {
+      "route": "/app",
+      "width": 390,
+      "violations": []
+    },
+    {
+      "route": "/app/projects/orderly-demo/canvas",
+      "width": 390,
+      "violations": []
+    }
+  ],
+  "darkViolations": []
+}
