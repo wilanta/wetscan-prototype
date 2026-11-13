@@ -19,12 +19,13 @@ export default function Landing() {
         </Link>
         <nav aria-label="Main navigation">
           <a href="#how-it-works">How it works</a>
-          <Link href="/onboarding">
-            Connect a repository <ArrowUpRight size={14} />
+          <Link href="/login">
+            Sign in <ArrowUpRight size={14} />
           </Link>
+          <Link href="/account">Account</Link>
         </nav>
-        <Link href="/demo" className="button primary">
-          Explore demo <ArrowRight size={16} />
+        <Link href="/onboarding" className="button primary">
+          Start for Free <ArrowRight size={16} />
         </Link>
       </header>
       <main id="main">
@@ -44,18 +45,18 @@ export default function Landing() {
               what needs attention, and what to do next.
             </p>
             <div className="hero-buttons">
-              <Link className="button primary large" href="/demo">
-                Explore the interactive demo <ArrowRight size={18} />
+              <Link className="button primary large" href="/onboarding">
+                Start for Free <ArrowRight size={18} />
               </Link>
-              <Link className="button secondary large" href="/onboarding">
+              <Link className="button secondary large" href="/login">
                 <GitBranch size={18} />
-                Connect your repository
+                Sign in to your workspace
               </Link>
             </div>
             <div className="hero-reassurance">
-              <Check size={15} /> No account needed <span>·</span>
-              <Check size={15} /> No API keys <span>·</span> Clearly labeled
-              demo data
+              <Check size={15} /> No credit card required <span>·</span>
+              <Check size={15} /> GitHub App integration <span>·</span> Clearly
+              labeled demo data
             </div>
           </div>
           <div className="hero-product">
