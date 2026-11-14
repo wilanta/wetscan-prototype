@@ -1,6 +1,7 @@
 // Test-only provider substitute. Production code never imports this module.
 import { generateKeyPairSync } from "node:crypto";
 import { basename } from "node:path";
+import { canvasSourceFixture } from "./canvas-source-fixture.mjs";
 if (
   process.env.WETSCAN_GITHUB_EXISTING_E2E !== "1" ||
   process.env.APP_URL !== "http://127.0.0.1:3109" ||
@@ -104,7 +105,10 @@ globalThis.fetch = async (input, init) => {
       body.permissions?.contents !== "read"
     )
       return json({}, 422);
-    return json({ token: "fixture-installation" });
+    return json({
+      token: "fixture-installation",
+      expires_at: new Date(Date.now() + 3600000).toISOString(),
+    });
   }
   if (
     url.pathname === "/installation/repositories" ||
@@ -123,5 +127,7 @@ globalThis.fetch = async (input, init) => {
   }
   if (url.pathname === "/installation/token" && init?.method === "DELETE")
     return new Response(null, { status: 204 });
+  const source = canvasSourceFixture(url);
+  if (source) return source;
   return json({}, 404);
 };

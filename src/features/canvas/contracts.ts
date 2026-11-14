@@ -16,6 +16,7 @@ export interface RepositorySnapshot {
   repositoryRef: string;
   revision: string;
   branch?: string;
+  diagnostics?: readonly import("./types").AnalysisDiagnostic[];
   listFiles(): Promise<readonly SnapshotEntry[]>;
   readTextFile(path: string): Promise<string | null>;
 }

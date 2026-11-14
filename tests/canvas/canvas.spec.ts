@@ -215,12 +215,13 @@ test("Trust roles, resources, expected matrix and confirmation export as unteste
 });
 test("workflow editor, forbidden transition, actor details and Integrity export send no requests", async ({
   page,
+  baseURL,
 }) => {
   const external: string[] = [];
   page.on("request", (request) => {
     if (
       /^https?:/.test(request.url()) &&
-      !request.url().startsWith("http://127.0.0.1:3214")
+      new URL(request.url()).origin !== new URL(baseURL!).origin
     )
       external.push(request.url());
   });

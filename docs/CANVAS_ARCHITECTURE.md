@@ -1,5 +1,11 @@
 # WetScan Canvas
 
+## Current integration
+
+The GitHub reader and real project route are now implemented locally on `integration/canvas-github-live`. Current behavior, test results, actual-provider evidence and remaining acceptance limits are in [CANVAS_GITHUB_INTEGRATION.md](CANVAS_GITHUB_INTEGRATION.md). The standalone feature implementation and validation notes below are historical; their references to a future reader/route describe the earlier phase.
+
+## Historical standalone Canvas phase
+
 Implementation on `feat/canvas-full-module`, based on fetched `master@7d9a285` (14 November 2026). No commit, push, merge, schema change or deployment is included. External integration status is tracked in [INTEGRATION_BACKLOG.md](INTEGRATION_BACKLOG.md); executed checks and limitations are in [CANVAS_VALIDATION.md](CANVAS_VALIDATION.md).
 
 ## Ownership and retained behavior

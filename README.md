@@ -1,17 +1,17 @@
 # WetScan 2.0 interactive prototype
 
-A local, clickable application-security workspace: **Canvas → Guard → Sentinel**, with Ghost and Intelligence nested under Sentinel. No account, API key, paid service, or security backend is needed.
+A local application-security workspace with Canvas, Guard and Sentinel demo flows. The existing GitHub App authentication and onboarding also connect selected real repositories to source-backed Canvas discovery. Guard/Sentinel scanning and runtime protection remain unavailable for real projects. See [local GitHub integration and acceptance evidence](docs/CANVAS_GITHUB_INTEGRATION.md).
 
 ## Run locally (PowerShell)
 
-Requirements: Node.js 22.20+ and npm. From this folder:
+Requirements: Node.js 22.20+ and npm. Preserve your existing `.env.local`; for a new setup, copy `.env.example` and configure the existing GitHub App and encrypted local auth store as described in [AUTH-ONBOARDING.md](docs/AUTH-ONBOARDING.md). From this folder:
 
 ```powershell
 npm ci
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000), then **Explore the interactive demo**. The workspace is also directly accessible at `/app`. To use a production preview:
+Open [http://localhost:3000](http://localhost:3000), log in and finish onboarding. In `/app/projects`, select **Open Canvas** for an authorized GitHub repository, or open Orderly Demo separately. `/app` and its deep links require the existing completed session. To use a production preview:
 
 ```powershell
 npm run build
@@ -33,7 +33,9 @@ Run only one server on port 3000 at a time. All fonts are bundled locally. Depen
 9. Notifications shows Telegram, email, WhatsApp, per-trigger preferences, preview logs, and unconfirmed delivery. Reports offers copy and browser printing.
 10. **Reset demo** restores every domain setting and fixture. A full browser reload also resets in-memory state.
 
-## Real versus simulated
+## Demo behavior and historical prototype scope
+
+The following table describes the original demo. Current GitHub authentication, onboarding and real source discovery are implemented separately; see [CANVAS_GITHUB_INTEGRATION.md](docs/CANVAS_GITHUB_INTEGRATION.md). Source observations never establish runtime verification.
 
 | Working locally                                                                       | Deliberately simulated or unavailable                                       |
 | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
@@ -44,9 +46,9 @@ Run only one server on port 3000 at a time. All fonts are bundled locally. Depen
 | Example remediation, workflow fixture test, draft rule approval                       | AI calls, automatic file changes, pull requests, deployed rules             |
 | Copy summary and print-friendly report                                                | Pentest certification or production security assurance                      |
 
-All people, repositories, commits, requests, findings, and advisories are fictional. ADV-009 is not a real CVE. `Verified` always applies only to its stated synthetic evidence scope. A detected event, accepted action, verified outcome, closed case, and delivered message are separate concepts. WhatsApp requires official business setup before live use.
+Within Orderly Demo, people, repositories, commits, requests, findings, and advisories are fictional. ADV-009 is not a real CVE. `Verified` always applies only to its stated synthetic evidence scope. A detected event, accepted action, verified outcome, closed case, and delivered message are separate concepts. WhatsApp requires official business setup before live use.
 
-The UI is English. Indonesian localization, billing/pricing, advanced Ghost isolation, real provider integrations, and backend retention scheduling are intentionally deferred. Quiet hours and retention are preference previews; no live scheduler runs. No secrets are accepted or persisted. Data and appearance live in React memory for the current tab; client-side navigation preserves them.
+The UI is English. Indonesian localization, billing/pricing, advanced Ghost isolation, real provider integrations, and backend retention scheduling are intentionally deferred. Quiet hours and retention are preference previews; no live scheduler runs. Authentication credentials stay in the existing encrypted server-side local store. Real Canvas edits are held only in page memory and lost on reload/navigation; demo annotations retain browser-only storage. Demo reducer data and appearance live in React memory for the current tab.
 
 ## Architecture and extension points
 

@@ -67,7 +67,7 @@ export function CanvasPage(props: CanvasProps) {
           </small>
         </div>
       )}
-      <ReactFlowProvider key={props.initialGraph?.projectRef ?? source}>
+      <ReactFlowProvider key={props.initialGraph ? `${props.initialGraph.projectRef}:${props.initialGraph.revision}` : source}>
         <CanvasWorkspace source={source} {...props} />
       </ReactFlowProvider>
     </div>
@@ -196,7 +196,7 @@ function CanvasWorkspace({
             ? "Annotations / positions / models saved in this browser only"
             : ports?.persistence
               ? "Persistence supplied by workspace adapter"
-              : "Edits in session memory only; not saved across sessions"}
+              : "Edits in page memory only; lost on reload or navigation"}
         </span>
       </div>
       <div className="canvas-toolbar">

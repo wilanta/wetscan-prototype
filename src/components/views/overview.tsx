@@ -27,6 +27,7 @@ import {
 } from "../ui";
 import { MiniMap } from "../mini-map";
 import { PROJECT } from "@/data/demo";
+import { RepositoryProjects } from "../repository-projects";
 export function Overview() {
   const { state } = useDemo();
   const { account, status, refresh, setOpen } = useDashboardAccountView();
@@ -69,6 +70,7 @@ export function Overview() {
         description="Here’s what’s happening across your apps. Let’s take it one step at a time."
         action={repositoryAction}
       />
+      <RepositoryProjects />
       <div className="welcome-strip">
         <span className="welcome-icon">
           <SparkleIcon />

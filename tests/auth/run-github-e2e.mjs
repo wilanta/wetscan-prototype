@@ -116,8 +116,11 @@ try {
     [
       join(root, "node_modules/@playwright/test/cli.js"),
       "test",
+      "--output=test-results/auth",
+      "--reporter=list",
       "tests/e2e/auth-onboarding.spec.ts",
       "tests/e2e/dashboard-session.spec.ts",
+      "tests/e2e/github-canvas.spec.ts",
       "tests/e2e/github-installation.spec.ts",
       "tests/e2e/github-existing-installation.spec.ts",
     ],

@@ -53,6 +53,12 @@ const manage = [
 ];
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const realProject = /^\/app\/projects\/github-[1-9]\d*(?:\/|$)/.test(
+    pathname,
+  );
+  const realProjectPath = realProject
+    ? pathname.split("/").slice(0, 4).join("/")
+    : "";
   const accountState = useDashboardAccount();
   const { account, status: accountStatus } = accountState;
   const { state, dispatch, dark, setDark } = useDemo();
@@ -162,49 +168,86 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="sidebar-nav">
           <div className="nav-group-label">WORKSPACE</div>
           {nav(home)}
-          <div className="nav-group-label">PROTECT YOUR APP</div>
-          {nav(protect)}
-          <div className="nav-group-label">MANAGE</div>
-          {nav(manage)}
+          <div className="nav-group-label">
+            {realProject ? "REPOSITORY" : "PROTECT YOUR APP"}
+          </div>
+          {nav(
+            realProject
+              ? [
+                  {
+                    href: `${realProjectPath}/canvas`,
+                    label: "Canvas",
+                    Icon: Network,
+                  },
+                ]
+              : protect,
+          )}
+          {realProject ? (
+            <Link className="nav-link" href={`${PROJECT}/canvas`}>
+              Open Orderly Demo
+            </Link>
+          ) : (
+            <>
+              <div className="nav-group-label">MANAGE</div>
+              {nav(manage)}
+            </>
+          )}
         </div>
         <div className="sidebar-bottom">
-          <div className="demo-card">
-            <div>
-              <span className="live-dot" />
-              <strong>You’re exploring a demo</strong>
+          {realProject ? (
+            <div className="demo-card">
+              <strong>GitHub source map</strong>
+              <p>
+                Guard: Not yet scanned
+                <br />
+                Sentinel: Monitoring not connected
+              </p>
             </div>
-            <p>
-              Real clarity. Sample data.
-              <br />
-              Make yourself at home.
-            </p>
-            <Button variant="ghost" onClick={() => setReset(true)}>
-              <RotateCcw size={14} />
-              Reset demo
-            </Button>
-          </div>
-          <Modal
-            trigger={
-              <button className="nav-link help-button">
-                <CircleHelp size={18} />
-                Help & quick tour
-                <ArrowUpRight size={14} />
-              </button>
-            }
-            title="Your two-minute WetScan tour"
-            description="Everything here uses synthetic local fixtures. No real system is scanned."
-          >
-            <ol className="tour-list">
-              <li>Open Canvas and select Orders API.</li>
-              <li>View FIND-102, its evidence, and the example fix.</li>
-              <li>Simulate a suspicious request in Sentinel.</li>
-              <li>Advance the response, then run a separate verification.</li>
-              <li>Review notification previews, Ghost, and Intelligence.</li>
-            </ol>
-            <Link href="/app/reports" className="button secondary">
-              Read the demo report <BookOpen size={16} />
-            </Link>
-          </Modal>
+          ) : (
+            <>
+              <div className="demo-card">
+                <div>
+                  <span className="live-dot" />
+                  <strong>You’re exploring a demo</strong>
+                </div>
+                <p>
+                  Real clarity. Sample data.
+                  <br />
+                  Make yourself at home.
+                </p>
+                <Button variant="ghost" onClick={() => setReset(true)}>
+                  <RotateCcw size={14} />
+                  Reset demo
+                </Button>
+              </div>
+              <Modal
+                trigger={
+                  <button className="nav-link help-button">
+                    <CircleHelp size={18} />
+                    Help & quick tour
+                    <ArrowUpRight size={14} />
+                  </button>
+                }
+                title="Your two-minute WetScan tour"
+                description="Everything here uses synthetic local fixtures. No real system is scanned."
+              >
+                <ol className="tour-list">
+                  <li>Open Canvas and select Orders API.</li>
+                  <li>View FIND-102, its evidence, and the example fix.</li>
+                  <li>Simulate a suspicious request in Sentinel.</li>
+                  <li>
+                    Advance the response, then run a separate verification.
+                  </li>
+                  <li>
+                    Review notification previews, Ghost, and Intelligence.
+                  </li>
+                </ol>
+                <Link href="/app/reports" className="button secondary">
+                  Read the demo report <BookOpen size={16} />
+                </Link>
+              </Modal>
+            </>
+          )}
           <button
             type="button"
             className="profile account-trigger"
@@ -250,7 +293,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </strong>
           </div>
           <div className="topbar-actions">
-            <Badge tone="blue">Demo mode</Badge>
+            <Badge tone="blue">
+              {realProject ? "GitHub source" : "Demo mode"}
+            </Badge>
             <button
               className="icon-button"
               title={dark ? "Switch to light theme" : "Switch to dark theme"}
@@ -261,14 +306,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             >
               {dark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <Link
-              href="/app/notifications"
-              className="icon-button notification-icon"
-              aria-label={`Notifications, ${state.notifications.length} previews`}
-            >
-              <Bell size={18} />
-              {state.notifications.length > 0 && <span />}
-            </Link>
+            {!realProject && (
+              <Link
+                href="/app/notifications"
+                className="icon-button notification-icon"
+                aria-label={`Notifications, ${state.notifications.length} previews`}
+              >
+                <Bell size={18} />
+                {state.notifications.length > 0 && <span />}
+              </Link>
+            )}
             <button
               type="button"
               className="avatar small"
@@ -289,7 +336,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <span>
             <ShieldCheck size={13} /> A clearer picture. A safer next step.
           </span>
-          <span>Demo fixtures · No live protection</span>
+          <span>
+            {realProject
+              ? "Source observations · Runtime unverified · No live protection"
+              : "Demo fixtures · No live protection"}
+          </span>
         </footer>
       </div>
       <DashboardAccountDialog state={accountState} />
