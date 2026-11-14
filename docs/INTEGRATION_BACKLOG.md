@@ -47,6 +47,11 @@ All external read/write endpoints must authorize workspace + project server-side
 3. Guard and Sentinel supply CAN-006/008 result adapters. They cannot replace generated architecture; `loadCanvas` validates graph/source scope and rejects demo results outside demo.
 4. Trust and Integrity runners need expanded evidence-bearing result contracts (CAN-009/010) and user-confirmed policies. Until then test plans remain unexecuted.
 5. Remaining provider metadata, source viewer, webhook and collaboration integrations require their own permission-aware acceptance tests. No item becomes LIVE_VERIFIED solely because a UI port exists.
+
+
+------
+
+
 # Guard integration backlog
 
 No external issues created. Dependencies require owner handoffs. No Auth, schema or other module changes are included.
