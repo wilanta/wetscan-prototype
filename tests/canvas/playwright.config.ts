@@ -13,7 +13,15 @@ export default defineConfig({
   expect: { timeout: 15000 },
   reporter: [
     ["list"],
-    ["html", { outputFolder: "playwright-report/canvas", open: "never" }],
+    [
+      "html",
+      {
+        outputFolder: fileURLToPath(
+          new URL("../../playwright-report/canvas", import.meta.url),
+        ),
+        open: "never",
+      },
+    ],
   ],
   use: {
     ...devices["Desktop Chrome"],

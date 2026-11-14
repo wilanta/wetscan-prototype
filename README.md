@@ -48,7 +48,7 @@ The following table describes the original demo. Current GitHub authentication, 
 
 Within Orderly Demo, people, repositories, commits, requests, findings, and advisories are fictional. ADV-009 is not a real CVE. `Verified` always applies only to its stated synthetic evidence scope. A detected event, accepted action, verified outcome, closed case, and delivered message are separate concepts. WhatsApp requires official business setup before live use.
 
-The UI is English. Indonesian localization, billing/pricing, advanced Ghost isolation, real provider integrations, and backend retention scheduling are intentionally deferred. Quiet hours and retention are preference previews; no live scheduler runs. Authentication credentials stay in the existing encrypted server-side local store. Real Canvas edits are held only in page memory and lost on reload/navigation; demo annotations retain browser-only storage. Demo reducer data and appearance live in React memory for the current tab.
+The UI is English. Indonesian localization, billing/pricing, advanced Ghost isolation, real provider integrations, and backend retention scheduling are intentionally deferred. Quiet hours and retention are preference previews; no live scheduler runs. Authentication credentials stay in the existing encrypted server-side local store. Real generated Canvas graphs use an authorized encrypted local cache (see [performance and layout details](docs/CANVAS_PERFORMANCE.md)). Manual edits remain in tab memory across client navigation and are lost on browser reload/session end; demo annotations retain browser-only storage. Demo reducer data and appearance live in React memory for the current tab.
 
 ## Architecture and extension points
 

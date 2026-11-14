@@ -1,5 +1,13 @@
 "use client";
-import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
+import { memo, type CSSProperties } from "react";
+import {
+  Handle,
+  Position,
+  useStore,
+  type Node,
+  type NodeProps,
+} from "@xyflow/react";
+import type { NodeSize } from "../graph/layout";
 import {
   AppWindow,
   Braces,
@@ -28,47 +36,70 @@ export type FlowComponent = Node<
     findingCount: number;
     demo: boolean;
     boundary: boolean;
+    size: NodeSize;
   },
   "component"
 >;
-export function GraphNode({ data, selected }: NodeProps<FlowComponent>) {
+export const GraphNode = memo(function GraphNode({
+  data,
+  selected,
+}: NodeProps<FlowComponent>) {
+  const textZoom = useStore((state) =>
+    Math.max(0.1, Math.round(state.transform[2] * 10) / 10),
+  );
+  const compact = textZoom < 0.6;
+  const titleSize = Math.max(17, Math.min(44, 12 / textZoom));
   const n = data.component;
   const Icon = icons[n.kind] ?? Braces;
+  if (n.kind === "service_group")
+    return (
+      <div
+        className={`architecture-group ${compact ? "compact" : ""} ${n.metadata?.collapsedComponents ? "is-collapsed" : ""}`}
+        style={
+          {
+            ...data.size,
+            "--node-title-size": `${titleSize}px`,
+          } as CSSProperties
+        }
+        title={n.label}
+      >
+        <Handle type="target" position={Position.Left} id="target-left" />
+        <Handle type="source" position={Position.Right} id="source-right" />
+        <Handle type="target" position={Position.Top} id="target-top" />
+        <Handle type="source" position={Position.Top} id="source-top" />
+        <Handle type="target" position={Position.Bottom} id="target-bottom" />
+        <Handle type="source" position={Position.Bottom} id="source-bottom" />
+        <Handle type="source" position={Position.Left} id="source-left" />
+        <Handle type="target" position={Position.Right} id="target-right" />
+        <span>Source boundary</span>
+        <strong>{n.label}</strong>
+        <small>Detected package / service group</small>
+        {n.metadata?.collapsedComponents && (
+          <small>
+            {n.metadata.collapsedComponents} components · Expand in explorer
+          </small>
+        )}
+      </div>
+    );
   return (
     <div
-      className={`graph-node ${selected ? "selected" : ""} ${data.findingCount ? "at-risk" : ""} ${data.security && data.findingCount ? "security-highlight" : ""}`}
+      className={`graph-node ${compact ? "compact" : ""} ${selected ? "selected" : ""} ${data.findingCount ? "at-risk" : ""} ${data.security && data.findingCount ? "security-highlight" : ""}`}
       style={
-        data.boundary ? { border: "2px dashed var(--primary)" } : undefined
+        {
+          ...data.size,
+          "--node-title-size": `${titleSize}px`,
+          ...(data.boundary ? { border: "2px dashed var(--primary)" } : {}),
+        } as CSSProperties
       }
+      title={n.label}
     >
       <Handle type="target" position={Position.Left} id="target-left" />
-      {n.kind === "api" && (
-        <>
-          <Handle
-            type="target"
-            position={Position.Top}
-            id="target-top"
-            style={{ left: "35%" }}
-          />
-          <Handle
-            type="source"
-            position={Position.Top}
-            id="source-top"
-            style={{ left: "75%" }}
-          />
-        </>
-      )}
-      {n.kind === "auth" && (
-        <Handle
-          type="source"
-          position={Position.Bottom}
-          id="source-bottom"
-          style={{ left: "35%" }}
-        />
-      )}
-      {n.kind === "telemetry" && (
-        <Handle type="target" position={Position.Bottom} id="target-bottom" />
-      )}
+      <Handle type="target" position={Position.Top} id="target-top" />
+      <Handle type="source" position={Position.Top} id="source-top" />
+      <Handle type="source" position={Position.Bottom} id="source-bottom" />
+      <Handle type="target" position={Position.Bottom} id="target-bottom" />
+      <Handle type="source" position={Position.Left} id="source-left" />
+      <Handle type="target" position={Position.Right} id="target-right" />
       <div className="graph-node-top">
         <span className={`node-icon ${n.kind}`}>
           <Icon size={20} />
@@ -76,7 +107,9 @@ export function GraphNode({ data, selected }: NodeProps<FlowComponent>) {
         <span className="node-kind">{n.kind}</span>
       </div>
       <strong>{n.label}</strong>
-      <small>{n.technology ?? "User-defined component"}</small>
+      <small title={n.technology}>
+        {n.technology ?? "User-defined component"}
+      </small>
       <div className="graph-node-footer">
         {data.findingCount ? (
           <>
@@ -96,4 +129,4 @@ export function GraphNode({ data, selected }: NodeProps<FlowComponent>) {
       <Handle type="source" position={Position.Right} id="source-right" />
     </div>
   );
-}
+});

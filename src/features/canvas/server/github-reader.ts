@@ -52,9 +52,17 @@ async function currentUserAccess(
   repositoryId: number,
   signal: AbortSignal,
 ) {
-  // App JWT alone never grants user access. Bound installation enumeration.
-  await verifyIdentity(session);
+  // Independent current-user checks run together, never from a cached grant.
   const token = await userToken(session);
+  const identity = verifyIdentity(session);
+  const repository = sourceRequest<Repo>(
+    `/repositories/${repositoryId}`,
+    token,
+    signal,
+  );
+  // Observe every promise, including if installation enumeration is denied.
+  const access = Promise.all([identity, repository]);
+  void access.catch(() => undefined);
   for (let page = 1; page <= 20; page++) {
     const data = await sourceRequest<{
       installations: {
@@ -78,20 +86,39 @@ async function currentUserAccess(
           i.suspended_at === null,
       )
     )
-      return validateRepo(
-        await sourceRequest<Repo>(
-          `/repositories/${repositoryId}`,
-          token,
-          signal,
-        ),
-        repositoryId,
-      );
+      return validateRepo((await access)[1], repositoryId);
     if (data.installations.length < 100) break;
   }
   throw new AuthError("installation_denied", 403);
 }
 
-// No private graph/source cache. Bound concurrent jobs without retaining account data.
+export async function authorizeCanvasProject(
+  sessionToken: string | undefined,
+  projectId: string,
+) {
+  const match = /^github-([1-9]\d{0,15})$/.exec(projectId);
+  const repositoryId = Number(match?.[1]);
+  if (!match || !Number.isSafeInteger(repositoryId))
+    throw new AuthError("repository_denied", 403);
+  return exclusive(async () => {
+    const { session, profile } = await canvasIdentity(sessionToken);
+    if (!profile.repositories.some((r) => r.id === repositoryId))
+      throw new AuthError("repository_denied", 403);
+    const [, repo] = await Promise.all([
+      verifyAppInstallation(profile.installationId!),
+      currentUserAccess(
+        session,
+        profile.installationId!,
+        repositoryId,
+        AbortSignal.timeout(20000),
+      ),
+    ]);
+    await saveSession(sessionToken!, session);
+    return { profile, session, repo };
+  });
+}
+
+// This reader retains no source cache; generated graphs use the separate authorized store.
 const running = new Set<string>();
 export class GitHubRepositorySnapshotReader implements AuthorizedRepositorySnapshotReader {
   constructor(private readonly sessionToken?: string) {}
@@ -127,13 +154,15 @@ export class GitHubRepositorySnapshotReader implements AuthorizedRepositorySnaps
       const { profile, repo } = await exclusive(async () => {
         const { session, profile } = await canvasIdentity(this.sessionToken);
         selected(profile);
-        await verifyAppInstallation(profile.installationId!);
-        const repo = await currentUserAccess(
-          session,
-          profile.installationId!,
-          repositoryId,
-          signal,
-        );
+        const [, repo] = await Promise.all([
+          verifyAppInstallation(profile.installationId!),
+          currentUserAccess(
+            session,
+            profile.installationId!,
+            repositoryId,
+            signal,
+          ),
+        ]);
         // Keep existing refresh-token rotation in the existing encrypted session store.
         await saveSession(this.sessionToken!, session);
         return { profile, repo };

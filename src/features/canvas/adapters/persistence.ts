@@ -15,6 +15,18 @@ export class MemoryCanvasPersistence implements CanvasPersistencePort {
     this.values.delete(projectRef);
   }
 }
+// Volatile tab memory only; graph data and credentials are never persisted here.
+const sessionOverlays = new Map<string, MemoryCanvasPersistence>();
+export function sessionCanvasPersistence(scope: string) {
+  let port = sessionOverlays.get(scope);
+  if (!port) {
+    if (sessionOverlays.size >= 12)
+      sessionOverlays.delete(sessionOverlays.keys().next().value!);
+    port = new MemoryCanvasPersistence();
+    sessionOverlays.set(scope, port);
+  }
+  return port;
+}
 /** Demo annotations only. No generated source, findings or incidents are stored. CAN-004. */
 export class DemoCanvasPersistence implements CanvasPersistencePort {
   private key(projectRef: string) {

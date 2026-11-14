@@ -1,5 +1,7 @@
 # Local GitHub Canvas integration
 
+Current cache, refresh, tab-memory editing and graph visualization behavior is documented in [CANVAS_PERFORMANCE.md](CANVAS_PERFORMANCE.md). The integration record below describes the original connection phase before those optimizations.
+
 Integration branch: `integration/canvas-github-live`. Integrated locally from `origin/master@1ed8457` and `origin/feat/canvas-full-module@0696879` with merge commit `0eeaf0f`. Both fetched on 14 November 2026. The existing checkout was clean; the existing sibling Canvas worktree was left untouched. No push, master merge, database or Vercel deployment is part of this work.
 
 ## Source reading and authorization

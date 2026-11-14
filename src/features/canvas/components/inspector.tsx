@@ -59,8 +59,12 @@ export function Inspector({
           <Network size={28} />
           <h2>{node?.label ?? edge?.description ?? edge?.relationship}</h2>
           <p>
-            {node?.description ??
-              `${graph.nodes.find((n) => n.id === edge?.source)?.label} → ${graph.nodes.find((n) => n.id === edge?.target)?.label}`}
+            {node
+              ? (node.description ??
+                (node.origin === "user_added"
+                  ? "User-added context. No generated source evidence is attached."
+                  : "Architecture context. Review the source evidence; runtime behavior is unverified."))
+              : `${graph.nodes.find((n) => n.id === edge?.source)?.label ?? "Unknown source"} → ${graph.nodes.find((n) => n.id === edge?.target)?.label ?? "Unknown target"}`}
           </p>
           <Badge>
             {item.origin.replace("_", " ")} ·{" "}

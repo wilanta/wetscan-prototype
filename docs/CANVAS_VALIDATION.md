@@ -1,5 +1,9 @@
 # Canvas validation record
 
+## Performance and visualization validation
+
+See [CANVAS_PERFORMANCE.md](CANVAS_PERFORMANCE.md) for measured production baseline/after results, real-provider versus fixture boundaries, cache/authorization regressions, ten visual graph families, screenshot paths and current limitations. Historical standalone results below are retained as historical evidence.
+
 ## Current integration validation
 
 The GitHub reader and real project route are now implemented locally on `integration/canvas-github-live`. Current behavior, test results, actual-provider evidence and remaining acceptance limits are in [CANVAS_GITHUB_INTEGRATION.md](CANVAS_GITHUB_INTEGRATION.md). The standalone feature implementation and validation notes below are historical; their references to a future reader/route describe the earlier phase.

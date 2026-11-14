@@ -87,7 +87,7 @@ export function useCanvas(
   const projectRef =
     supplied?.projectRef ??
     (key === "demo" ? demoProjectRef : `internal:${key}`);
-  const base = useMemo(() => {
+  const [base] = useState(() => {
     const overlay = emptyOverlay(projectRef);
     if (source.mode === "demo") {
       overlay.nodePositions = demoPositions;
@@ -95,8 +95,20 @@ export function useCanvas(
       const workflow = workflowTemplate(0, "demo-order");
       overlay.workflowModels = [workflow];
     }
+    if (supplied && supplied.nodes.length > 18) {
+      overlay.groups = supplied.nodes
+        .filter((n) => n.kind === "service_group")
+        .map((n) => ({
+          id: n.id,
+          label: n.label,
+          nodeIds: supplied.nodes
+            .filter((m) => m.groupId === n.id)
+            .map((m) => m.id),
+          collapsed: true,
+        }));
+    }
     return overlay;
-  }, [projectRef, source.mode]);
+  });
   const persistence = useMemo(
     () =>
       ports?.persistence ??
@@ -107,7 +119,23 @@ export function useCanvas(
   );
   const [data, setData] = useState<Awaited<
     ReturnType<typeof loadCanvas>
-  > | null>(null);
+  > | null>(() =>
+    supplied
+      ? {
+          graph: validateGraph(supplied),
+          security: {
+            projectRef: supplied.projectRef,
+            mode: "unavailable",
+            guard: "not_scanned",
+            sentinel: "not_monitored",
+            findings: [],
+            incidents: [],
+            message:
+              "Not yet scanned. Monitoring not connected. No security verification has been performed.",
+          },
+        }
+      : null,
+  );
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
   const [message, setMessage] = useState("");

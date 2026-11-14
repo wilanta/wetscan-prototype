@@ -10,6 +10,7 @@ export default defineConfig([
     "evidence/**",
     "test-results/**",
     "playwright-report/**",
+    "tests/canvas/playwright-report/**",
     "next-env.d.ts",
   ]),
 ]);

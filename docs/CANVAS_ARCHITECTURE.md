@@ -1,5 +1,9 @@
 # WetScan Canvas
 
+## Persistent cache and graph layout update
+
+Current local Canvas behavior is described in [CANVAS_PERFORMANCE.md](CANVAS_PERFORMANCE.md): encrypted private filesystem graph cache keyed by user/workspace, provider, repository/installation identity, commit, analyzer and schema; fresh GitHub authorization on reads; nonblocking revision checks and explicit update/reanalysis; stable dimension-aware Dagre layout with obstacle routing; compatible tab-memory edits across revision swaps. Cache does not grant permission or store tokens. Demo behavior and the existing source discovery engine are retained. The historical no-cache/page-memory-only descriptions below apply to earlier phases.
+
 ## Current integration
 
 The GitHub reader and real project route are now implemented locally on `integration/canvas-github-live`. Current behavior, test results, actual-provider evidence and remaining acceptance limits are in [CANVAS_GITHUB_INTEGRATION.md](CANVAS_GITHUB_INTEGRATION.md). The standalone feature implementation and validation notes below are historical; their references to a future reader/route describe the earlier phase.

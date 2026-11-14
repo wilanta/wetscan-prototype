@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import { useSearchParams } from "next/navigation";
 import { ReactFlowProvider, useReactFlow } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
@@ -22,7 +22,8 @@ import type { ArchitectureGraph } from "../types";
 import type { CanvasOverlaySource, CanvasPersistencePort } from "../contracts";
 import { useCanvas } from "../hooks/use-canvas";
 import { emptyFilters, filterGraph } from "../graph/model";
-import { layoutGraph } from "../graph/layout";
+import { layoutGraph, placeGraph } from "../graph/layout";
+import { architectureGroups, collapseGraph } from "../graph/groups";
 import { architectureExport, download, readableSummary } from "../export";
 import { nodeKinds } from "../types";
 import { ArchitectureFlow } from "./graph";
@@ -67,7 +68,7 @@ export function CanvasPage(props: CanvasProps) {
           </small>
         </div>
       )}
-      <ReactFlowProvider key={props.initialGraph ? `${props.initialGraph.projectRef}:${props.initialGraph.revision}` : source}>
+      <ReactFlowProvider key={props.initialGraph?.projectRef ?? source}>
         <CanvasWorkspace source={source} {...props} />
       </ReactFlowProvider>
     </div>
@@ -79,6 +80,15 @@ function CanvasWorkspace({
   ports,
 }: CanvasProps & { source: string }) {
   const { state, dark } = useDemo();
+  const desktop = useSyncExternalStore(
+    (listener) => {
+      const media = window.matchMedia("(min-width: 901px)");
+      media.addEventListener("change", listener);
+      return () => media.removeEventListener("change", listener);
+    },
+    () => window.matchMedia("(min-width: 901px)").matches,
+    () => true,
+  );
   const params = useSearchParams();
   const flow = useReactFlow();
   const controller = useCanvas(source, state, initialGraph, ports);
@@ -89,10 +99,19 @@ function CanvasWorkspace({
   const [filters, setFilters] = useState(emptyFilters);
   const [list, setList] = useState(false);
   const [environment, setEnvironment] = useState("current");
-  const allPositions = useMemo(
-    () => (graph ? { ...layoutGraph(graph), ...overlay.nodePositions } : {}),
-    [graph, overlay.nodePositions],
+  const [trace, setTrace] = useState<"direct" | "upstream" | "downstream">(
+    "direct",
   );
+  const [expanded, setExpanded] = useState(false);
+  const projected = useMemo(
+    () => (graph ? collapseGraph(graph, overlay) : null),
+    [graph, overlay],
+  );
+  const geometry = useMemo(
+    () => (projected ? placeGraph(projected, overlay.nodePositions) : null),
+    [projected, overlay.nodePositions],
+  );
+  const allPositions = geometry?.positions ?? {};
   const findings = useMemo(
     () =>
       (security?.findings ?? []).filter(
@@ -104,20 +123,7 @@ function CanvasWorkspace({
       ),
     [security, filters],
   );
-  const collapsedGroups = overlay.groups.filter((g) => g.collapsed);
-  const excluded = new Set([
-    ...overlay.hiddenNodeIds,
-    ...collapsedGroups.flatMap((g) => g.nodeIds),
-  ]);
-  const visibleGraph = graph
-    ? {
-        ...graph,
-        nodes: graph.nodes.filter((n) => !excluded.has(n.id)),
-        edges: graph.edges.filter(
-          (e) => !excluded.has(e.source) && !excluded.has(e.target),
-        ),
-      }
-    : null;
+  const visibleGraph = projected;
   const visible = visibleGraph
     ? filterGraph(visibleGraph, filters, [
         ...findings.map((f) => f.nodeId),
@@ -130,13 +136,18 @@ function CanvasWorkspace({
     setSelected(id);
     setEdgeId("");
     const point = allPositions[id];
-    if (point && !list)
-      void flow.setCenter(point.x + 110, point.y + 70, {
-        zoom: 0.85,
-        duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-          ? 0
-          : 300,
-      });
+    if (point && !list && desktop)
+      void flow.setCenter(
+        point.x + (geometry?.sizes[id]?.width ?? 232) / 2,
+        point.y + (geometry?.sizes[id]?.height ?? 170) / 2,
+        {
+          zoom: 0.85,
+          duration: window.matchMedia("(prefers-reduced-motion: reduce)")
+            .matches
+            ? 0
+            : 300,
+        },
+      );
   }
   const patchFilter = (key: keyof typeof filters, value: string | boolean) =>
     setFilters((f) => ({ ...f, [key]: value }));
@@ -160,7 +171,7 @@ function CanvasWorkspace({
     );
   return (
     <div
-      className="page canvas-page"
+      className={`page canvas-page ${expanded ? "map-expanded" : ""}`}
       onKeyDown={(e) => {
         if (e.key === "Escape") clear();
       }}
@@ -195,7 +206,7 @@ function CanvasWorkspace({
           {graph.mode === "demo"
             ? "Annotations / positions / models saved in this browser only"
             : ports?.persistence
-              ? "Persistence supplied by workspace adapter"
+              ? "Edits in tab memory; lost on browser reload or session end"
               : "Edits in page memory only; lost on reload or navigation"}
         </span>
       </div>
@@ -219,6 +230,34 @@ function CanvasWorkspace({
           ))}
         </div>
         <div className="canvas-tools">
+          <label>
+            Highlight{" "}
+            <select
+              aria-label="Highlight relationships"
+              value={trace}
+              onChange={(e) => setTrace(e.target.value as typeof trace)}
+            >
+              <option value="direct">Direct dependencies</option>
+              <option value="upstream">Upstream paths</option>
+              <option value="downstream">Downstream paths</option>
+            </select>
+          </label>
+          <Button variant="secondary" onClick={() => setExpanded(!expanded)}>
+            {expanded ? "Restore panels" : "Expand map"}
+          </Button>
+          {node?.kind === "service_group" && geometry && (
+            <Button
+              variant="secondary"
+              onClick={() =>
+                void flow.fitBounds(
+                  { ...allPositions[node.id], ...geometry.sizes[node.id] },
+                  { padding: 0.15 },
+                )
+              }
+            >
+              Fit selected group
+            </Button>
+          )}
           <label className="sr-only" htmlFor="canvas-environment">
             Environment
           </label>
@@ -323,6 +362,12 @@ function CanvasWorkspace({
       <p role="status" className={styles.feedback}>
         {controller.message}
       </p>
+      {geometry?.routingLimited && (
+        <p className="small-text">
+          This map reached the routing budget. Some connections use approximate
+          paths; inspect them in the connection list.
+        </p>
+      )}
       {environment === "production" ? (
         <div className="empty card">
           <Cloud size={35} />
@@ -523,6 +568,21 @@ function CanvasWorkspace({
                 )}
               </div>
               <div className={styles.groups}>
+                {architectureGroups(graph)
+                  .filter((g) => !overlay.groups.some((o) => o.id === g.id))
+                  .map((g) => (
+                    <Button
+                      key={g.id}
+                      variant="ghost"
+                      onClick={() =>
+                        controller.edit((o) => {
+                          o.groups.push({ ...g, collapsed: true });
+                        })
+                      }
+                    >
+                      Collapse group {g.label} ({g.nodeIds.length})
+                    </Button>
+                  ))}
                 {graph.nodes
                   .filter(
                     (n) =>
@@ -607,28 +667,32 @@ function CanvasWorkspace({
                       : "STATIC SOURCE MAP · RUNTIME UNKNOWN"}
                   </div>
                   <div className="flow-desktop">
-                    <ArchitectureFlow
-                      graph={graph}
-                      nodes={visible.nodes}
-                      edges={visible.edges}
-                      positions={allPositions}
-                      selected={selected}
-                      edgeId={edgeId}
-                      lens={lens}
-                      dark={dark}
-                      overlay={overlay}
-                      findings={findings}
-                      onSelect={choose}
-                      onEdge={(id) => {
-                        setEdgeId(id);
-                        setSelected("");
-                      }}
-                      onPosition={(id, p) =>
-                        controller.edit((o) => {
-                          o.nodePositions[id] = p;
-                        })
-                      }
-                    />
+                    {desktop && (
+                      <ArchitectureFlow
+                        graph={graph}
+                        nodes={visible.nodes}
+                        edges={visible.edges}
+                        positions={allPositions}
+                        geometry={geometry ?? undefined}
+                        trace={trace}
+                        selected={selected}
+                        edgeId={edgeId}
+                        lens={lens}
+                        dark={dark}
+                        overlay={overlay}
+                        findings={findings}
+                        onSelect={choose}
+                        onEdge={(id) => {
+                          setEdgeId(id);
+                          setSelected("");
+                        }}
+                        onPosition={(id, p) =>
+                          controller.edit((o) => {
+                            o.nodePositions[id] = p;
+                          })
+                        }
+                      />
+                    )}
                   </div>
                   <div
                     className="graph-list-fallback"

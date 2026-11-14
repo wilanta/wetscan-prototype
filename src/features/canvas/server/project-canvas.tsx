@@ -3,15 +3,9 @@ import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { AuthError } from "@/lib/auth/config";
 import { SESSION_COOKIE } from "@/lib/auth/session";
-import { CanvasPage } from "../components/canvas-page";
+import { LiveCanvas } from "../components/live-canvas";
 import { SourceError } from "../components/source-error";
-import { SnapshotCanvasSource } from "../adapters/snapshot-source";
-import { validateGraph } from "../validation";
-import {
-  canvasIdentity,
-  GitHubRepositorySnapshotReader,
-  workspaceScope,
-} from "./github-reader";
+import { projectCanvasService } from "./project-service";
 
 export async function ProjectCanvas({
   projectId,
@@ -21,22 +15,13 @@ export async function ProjectCanvas({
   revision?: string;
 }) {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
-  let graph;
+  let entry;
   try {
-    const { profile } = await canvasIdentity(token);
-    const snapshot = await new GitHubRepositorySnapshotReader(
-      token,
-    ).getSnapshot({
-      authenticatedWorkspaceId: workspaceScope(profile),
-      projectId,
-      revision,
-    });
-    graph = validateGraph(
-      await SnapshotCanvasSource(snapshot).loadGraph({
-        projectRef: snapshot.repositoryRef,
-        revision: snapshot.revision,
-      }),
-    );
+    if (revision !== undefined && !/^[a-f0-9]{40}$/.test(revision))
+      throw new AuthError("invalid_revision");
+    const service = projectCanvasService(token, projectId);
+    if (revision) await service.load("check", revision);
+    entry = await service.cached(revision);
   } catch (error) {
     if (error instanceof AuthError) {
       if (error.code === "unauthenticated") redirect("/login");
@@ -65,11 +50,12 @@ export async function ProjectCanvas({
             : "Source reading could not finish. Check your GitHub App connection, Contents read permission and repository selection, then retry.";
     return <SourceError message={message} />;
   }
-  // Serializable, validated output only. No source text, credentials or function ports.
   return (
-    <CanvasPage
-      key={`${graph.projectRef}:${graph.revision}`}
-      initialGraph={graph}
+    <LiveCanvas
+      key={projectId}
+      projectId={projectId}
+      initialEntry={entry}
+      revision={revision}
     />
   );
 }

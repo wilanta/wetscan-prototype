@@ -21,6 +21,7 @@ import {
 } from "@/components/views/manage";
 import { Projects, WorkspaceActivity } from "@/components/views/projects";
 import { ProjectCanvas } from "@/features/canvas/server/project-canvas";
+import { CanvasLoading } from "@/features/canvas/components/canvas-loading";
 export default async function Page({
   params,
   searchParams,
@@ -45,13 +46,7 @@ export default async function Page({
     const query = await searchParams;
     const revision = Array.isArray(query.revision) ? "invalid" : query.revision;
     return (
-      <Suspense
-        fallback={
-          <p role="status">
-            Reading authorized GitHub source and preparing your application map…
-          </p>
-        }
-      >
+      <Suspense fallback={<CanvasLoading authorization />}>
         <ProjectCanvas projectId={path[1]} revision={revision} />
       </Suspense>
     );

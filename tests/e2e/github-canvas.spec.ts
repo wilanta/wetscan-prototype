@@ -118,3 +118,147 @@ test("real project route requires authentication", async ({ page }) => {
   await page.goto("/app/projects/github-101/canvas");
   await expect(page).toHaveURL(/\/login$/);
 });
+test("Canvas cache endpoints reject missing sessions and cross-origin refreshes", async ({
+  request,
+}) => {
+  const missing = await request.get(
+    baseURL + "/api/canvas/github-101?operation=load",
+  );
+  expect(missing.status()).toBe(401);
+  expect(missing.headers()["cache-control"]).toContain("no-store");
+  expect(await missing.json()).toMatchObject({ clearGraph: true });
+  const crossOrigin = await request.post(baseURL + "/api/canvas/github-101", {
+    headers: { Origin: "https://untrusted.test" },
+    data: { action: "refresh" },
+  });
+  expect(crossOrigin.status()).toBe(403);
+});
+
+test("cached map stays visible during checks and refresh failures, preserves notes on revision swaps and clears on denial", async ({
+  page,
+}) => {
+  await page.route(
+    "https://github.com/login/oauth/authorize?*",
+    async (route) => {
+      const authorization = new URL(route.request().url()),
+        callback = new URL("/api/auth/github/callback", baseURL);
+      callback.search = new URLSearchParams({
+        code: "fixture-single-910",
+        state: authorization.searchParams.get("state")!,
+      }).toString();
+      await route.fulfill({
+        contentType: "text/html",
+        body: `<script>location.replace(${JSON.stringify(callback.toString())})</script>`,
+      });
+    },
+  );
+  await page.goto("/onboarding");
+  await page.getByLabel("Workspace name").fill("Canvas cache workspace");
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Install GitHub App", exact: true })
+    .click();
+  await page.locator('input[name="repositories"]').check();
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await page.locator('input[name="email"]').fill("canvas-cache@example.test");
+  await page.getByRole("button", { name: "Finish setup", exact: true }).click();
+  await page.goto("/app/projects/github-101/canvas");
+  await expect(page.locator(".component-list > button").first()).toBeVisible();
+  const cached = await page.request.get(
+    "/api/canvas/github-101?operation=load",
+  );
+  expect(cached.headers()["x-canvas-cache"]).toBe("HIT");
+  expect(cached.headers()["x-canvas-analysis-runs"]).toBe("0");
+  const entry = (await cached.json()).entry;
+  await page.reload();
+  await expect(page.locator(".component-explorer:visible")).toHaveCount(1);
+  await expect(page.getByLabel("Preparing architecture map")).toHaveCount(0);
+  await page.waitForLoadState("networkidle");
+  await expect(
+    page.getByRole("button", { name: "Check for updates", exact: true }),
+  ).toBeEnabled();
+  await page.locator(".component-list > button").first().click();
+  await page
+    .getByLabel("Canvas note", { exact: true })
+    .fill("Keep my compatible source annotation");
+  const beforeNodes = await page.locator(".react-flow__node").count();
+  let release!: () => void;
+  const wait = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route(
+    "**/api/canvas/github-101?operation=check",
+    async (route) => {
+      await wait;
+      await route.fulfill({
+        json: { state: "new_revision", revision: "b".repeat(40) },
+      });
+    },
+  );
+  await page
+    .getByRole("button", { name: "Check for updates", exact: true })
+    .click();
+  await expect(page.getByLabel("Repository revision status")).toContainText(
+    "Checking updates",
+  );
+  await expect(page.locator(".react-flow__node")).toHaveCount(beforeNodes);
+  release();
+  const update = page.getByRole("button", {
+    name: "Update map to bbbbbbb",
+    exact: true,
+  });
+  await expect(update).toBeVisible();
+  let attempt = 0;
+  await page.route(/\/api\/canvas\/github-101(?:\?.*)?$/, async (route) => {
+    if (route.request().method() !== "POST") return route.fallback();
+    attempt++;
+    if (attempt === 1)
+      return route.fulfill({
+        json: {
+          state: "refresh_failed",
+          message: "Fixture source refresh failed; previous graph retained.",
+        },
+      });
+    const graph = structuredClone(entry.graph);
+    graph.revision = "b".repeat(40);
+    graph.generatedAt = new Date().toISOString();
+    graph.evidence = graph.evidence.map((e: Record<string, unknown>) => ({
+      ...e,
+      sourceRevision: graph.revision,
+    }));
+    return route.fulfill({
+      json: { state: "ready", cached: false, entry: { ...entry, graph } },
+    });
+  });
+  await update.click();
+  await expect(page.locator("main").getByRole("alert")).toContainText(
+    "previous graph retained",
+  );
+  await expect(page.getByLabel("Canvas note", { exact: true })).toHaveValue(
+    "Keep my compatible source annotation",
+  );
+  await update.click();
+  await expect(
+    page.getByText("Revision: " + "b".repeat(40), { exact: true }).first(),
+  ).toBeVisible();
+  await expect(page.getByLabel("Canvas note", { exact: true })).toHaveValue(
+    "Keep my compatible source annotation",
+  );
+  await page.unroute("**/api/canvas/github-101?operation=check");
+  await page.route("**/api/canvas/github-101?operation=check", (route) =>
+    route.fulfill({
+      status: 403,
+      json: { clearGraph: true, error: "repository_denied" },
+    }),
+  );
+  await page
+    .getByRole("button", { name: "Check for updates", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", {
+      name: "Repository map unavailable",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.locator(".component-explorer")).toHaveCount(0);
+});
