@@ -4576,3 +4576,78 @@ tbody tr:hover {
     display: none;
   }
 }
+
+/* Session account details reuse the existing shell and dialog layout. */
+.profile.account-trigger {
+  width: 100%;
+  background: none;
+  color: inherit;
+  text-align: left;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  cursor: pointer;
+}
+.account-workspace > div,
+.profile.account-trigger > div {
+  min-width: 0;
+}
+.account-workspace strong,
+.profile.account-trigger strong,
+.profile.account-trigger small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dashboard-account {
+  display: grid;
+  gap: 16px;
+}
+.dashboard-account dd,
+.account-repositories {
+  overflow-wrap: anywhere;
+}
+.account-avatar-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink-muted);
+  font-size: 12px;
+}
+.account-repositories {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 12px;
+}
+.account-repositories small {
+  display: block;
+  color: var(--ink-muted);
+  margin-top: 4px;
+}
+
+/* Repository summary keeps the existing stat-card dimensions. */
+.repository-summary {
+  min-width: 0;
+}
+.repository-summary .repository-count,
+.repository-summary-more {
+  flex-shrink: 0;
+}
+.repository-summary .stat-value small {
+  min-width: 0;
+}
+.repository-summary-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.repository-summary .stat-bottom .button {
+  padding: 0;
+  min-height: 0;
+  height: auto;
+  border: 0;
+  background: none;
+  white-space: nowrap;
+}

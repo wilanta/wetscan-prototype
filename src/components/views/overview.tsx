@@ -15,8 +15,10 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { useDemo } from "../demo-provider";
+import { useDashboardAccountView } from "../dashboard-account";
 import {
   Badge,
+  Button,
   Card,
   LinkButton,
   PageHeader,
@@ -27,6 +29,32 @@ import { MiniMap } from "../mini-map";
 import { PROJECT } from "@/data/demo";
 export function Overview() {
   const { state } = useDemo();
+  const { account, status, refresh, setOpen } = useDashboardAccountView();
+  const repositoriesReady = status === "ready" && account.repositoriesAvailable;
+  const repositories = account.repositories;
+  const hasRepositories = repositoriesReady && repositories.length > 0;
+  const loadingRepositories = status === "loading";
+  const repositoryAction = repositoriesReady ? (
+    hasRepositories ? (
+      <Button type="button" variant="secondary" onClick={() => setOpen(true)}>
+        View repositories
+      </Button>
+    ) : (
+      <LinkButton href="/onboarding" secondary>
+        <Plus size={17} />
+        Connect repository
+      </LinkButton>
+    )
+  ) : (
+    <Button
+      type="button"
+      variant="secondary"
+      disabled={loadingRepositories}
+      onClick={refresh}
+    >
+      {loadingRepositories ? "Loading repositories..." : "Retry repositories"}
+    </Button>
+  );
   const open = state.incidents.filter((i) => i.status === "open").length;
   const progress =
     1 +
@@ -39,12 +67,7 @@ export function Overview() {
         eyebrow="YOUR SECURITY WORKSPACE"
         title="A little clarity for your next big thing."
         description="Here’s what’s happening across your apps. Let’s take it one step at a time."
-        action={
-          <LinkButton href="/onboarding" secondary>
-            <Plus size={17} />
-            Connect repository
-          </LinkButton>
-        }
+        action={repositoryAction}
       />
       <div className="welcome-strip">
         <span className="welcome-icon">
@@ -63,23 +86,65 @@ export function Overview() {
         </Link>
       </div>
       <div className="stats-grid">
-        <Card className="stat-card">
+        <Card
+          className="stat-card repository-summary"
+          aria-label="Connected repositories summary"
+        >
           <div className="stat-label">
-            <span>Apps in your workspace</span>
+            <span>Connected repositories</span>
             <span className="stat-icon blue">
               <Network size={20} />
             </span>
           </div>
           <div className="stat-value">
-            01
+            <span className="repository-count">
+              {repositoriesReady
+                ? String(repositories.length).padStart(2, "0")
+                : "--"}
+            </span>
             <small>
-              <span className="live-dot" />
-              Demo repository
+              {hasRepositories ? (
+                <>
+                  <span className="live-dot" />
+                  <span
+                    className="repository-summary-name"
+                    title={repositories[0].fullName}
+                  >
+                    {repositories[0].fullName}
+                  </span>
+                  {repositories.length > 1 && (
+                    <span className="repository-summary-more">
+                      +{repositories.length - 1} more
+                    </span>
+                  )}
+                </>
+              ) : repositoriesReady ? (
+                "No repositories selected"
+              ) : loadingRepositories ? (
+                "Loading repositories..."
+              ) : (
+                "Repository data unavailable"
+              )}
             </small>
           </div>
           <div className="stat-bottom">
-            Your first app, all in one place
-            <TextLink href="/app/projects">View app</TextLink>
+            <span>
+              {hasRepositories
+                ? "Saved repository selection"
+                : repositoriesReady
+                  ? "Connect your first repository"
+                  : "Saved selection unavailable"}
+            </span>
+            {hasRepositories && (
+              <Button
+                type="button"
+                variant="ghost"
+                className="text-link"
+                onClick={() => setOpen(true)}
+              >
+                View list <ArrowRight size={15} />
+              </Button>
+            )}
           </div>
         </Card>
         <Card className="stat-card">

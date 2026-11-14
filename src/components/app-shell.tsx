@@ -30,6 +30,11 @@ import { Logo } from "./logo";
 import { useDemo, toast } from "./demo-provider";
 import { Badge, Button, Modal } from "./ui";
 import { PROJECT } from "@/data/demo";
+import {
+  DashboardAccountDialog,
+  DashboardAccountProvider,
+  useDashboardAccount,
+} from "./dashboard-account";
 const home = [
   { href: "/app", label: "Overview", Icon: LayoutDashboard },
   { href: "/app/projects", label: "Projects", Icon: FolderOpen },
@@ -48,6 +53,8 @@ const manage = [
 ];
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const accountState = useDashboardAccount();
+  const { account, status: accountStatus } = accountState;
   const { state, dispatch, dark, setDark } = useDemo();
   const [mobile, setMobile] = useState(false);
   const [reset, setReset] = useState(false);
@@ -130,11 +137,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <X size={19} />
           </button>
         </div>
-        <Link className="workspace-switch" href="/app/settings">
-          <span className="workspace-monogram">N</span>
+        <Link
+          className="workspace-switch account-workspace"
+          href="/app/settings"
+          title={account.workspace}
+        >
+          <span className="workspace-monogram">{account.workspaceInitial}</span>
           <div>
-            <strong>Northstar Studio</strong>
-            <small>Demo workspace</small>
+            <strong>
+              {accountStatus === "loading"
+                ? "Loading workspace..."
+                : account.workspace}
+            </strong>
+            <small>
+              {accountStatus !== "ready"
+                ? "Account data unavailable"
+                : !account.repositoriesAvailable
+                  ? "Repository data unavailable"
+                  : `${account.repositories.length} connected ${account.repositories.length === 1 ? "repository" : "repositories"}`}
+            </small>
           </div>
           <ChevronDown size={15} />
         </Link>
@@ -184,14 +205,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               Read the demo report <BookOpen size={16} />
             </Link>
           </Modal>
-          <Link href="/app/settings" className="profile">
-            <span className="avatar">WD</span>
+          <button
+            type="button"
+            className="profile account-trigger"
+            aria-label="Open account menu"
+            onClick={() => {
+              setMobile(false);
+              accountState.setOpen(true);
+            }}
+          >
+            <span className="avatar" title="Avatar placeholder">
+              {account.initials}
+            </span>
             <div>
-              <strong>Wildhan & Daud</strong>
-              <small>Workspace owners</small>
+              <strong>{account.login}</strong>
+              <small>{account.email}</small>
             </div>
             <Settings size={16} />
-          </Link>
+          </button>
         </div>
       </aside>
       <div className="app-main">
@@ -238,17 +269,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Bell size={18} />
               {state.notifications.length > 0 && <span />}
             </Link>
-            <Link
-              href="/app/settings"
+            <button
+              type="button"
               className="avatar small"
-              aria-label="Open profile settings"
+              aria-label="Open account menu"
+              title="Your account and logout (avatar placeholder)"
+              onClick={() => accountState.setOpen(true)}
             >
-              WD
-            </Link>
+              {account.initials}
+            </button>
           </div>
         </header>
         <main id="main" className="main-content">
-          {children}
+          <DashboardAccountProvider value={accountState}>
+            {children}
+          </DashboardAccountProvider>
         </main>
         <footer className="app-footer">
           <span>
@@ -257,6 +292,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <span>Demo fixtures · No live protection</span>
         </footer>
       </div>
+      <DashboardAccountDialog state={accountState} />
       <Modal
         open={reset}
         onOpenChange={setReset}
