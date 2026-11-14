@@ -1,0 +1,71 @@
+{
+  "pin": {
+    "version": "1.33.1",
+    "sha256": "132e606e071bdd3928286fddc893198a6106a90820d46e21197e0ace1a23e0c1",
+    "url": "https://github.com/opengrep/opengrep/releases/download/v1.33.1/opengrep_windows_x86.exe",
+    "license": "LGPL-2.1",
+    "rulePack": "wetscan-synthetic-eval-v1"
+  },
+  "results": [
+    {
+      "target": "vulnerable.js",
+      "binarySha256": "132e606e071bdd3928286fddc893198a6106a90820d46e21197e0ace1a23e0c1",
+      "ruleSha256": "91a13737627d655c2bd3bc6b4a55b2d63204f99e2cbad349794d928e9e5186b2",
+      "targetSha256": "f064fdb4388d47b975cc03c6a68a40046e87bb83f042d03923e4783f815d4fba",
+      "durationMs": 8559,
+      "exitCode": 0,
+      "scannerVersion": "1.33.1",
+      "findings": [
+        {
+          "workspaceId": "synthetic-verification",
+          "projectId": "sast-fixture",
+          "mode": "demo",
+          "id": "984799a8b78912b8fa7464eb5a2f9c649f169a64e7ae457942e5c1956414a38a",
+          "title": "Dynamic evaluation of untrusted input needs review (synthetic fixture).",
+          "severity": "high",
+          "confidence": "medium",
+          "status": "potential",
+          "source": {
+            "engine": "sast",
+            "scanner": "opengrep",
+            "version": "1.33.1",
+            "ruleId": "wetscan-synthetic-eval",
+            "rulePack": "91a13737627d655c2bd3bc6b4a55b2d63204f99e2cbad349794d928e9e5186b2"
+          },
+          "location": {
+            "path": "vulnerable.js",
+            "line": 3
+          },
+          "evidence": [
+            {
+              "id": "80be9d2f3cd04006934fc2629dc9252a262cdfba7eb57423f551e44dde47444c",
+              "commit": "f064fdb4388d47b975cc03c6a68a40046e87bb83f042d03923e4783f815d4fba",
+              "recordedAt": "2026-11-14T08:37:02.312Z",
+              "summary": "Static rule matched this location. Review code and reachability; exploitation is not verified.",
+              "artifactDigest": "a410dd9f3b51f0f53d2cfbc824e49ee45a05b743d95c0061ddf646c94c04121a",
+              "synthetic": true
+            }
+          ]
+        }
+      ],
+      "purpose": "Actual CLI execution against reviewed synthetic fixture only"
+    },
+    {
+      "target": "fixed.js",
+      "binarySha256": "132e606e071bdd3928286fddc893198a6106a90820d46e21197e0ace1a23e0c1",
+      "ruleSha256": "91a13737627d655c2bd3bc6b4a55b2d63204f99e2cbad349794d928e9e5186b2",
+      "targetSha256": "f07b34f4009ebe6e895e94c2ae55c7ac0ca2dce66921cf906cf677cf2c9eff7c",
+      "durationMs": 3310,
+      "exitCode": 0,
+      "scannerVersion": "1.33.1",
+      "findings": [],
+      "purpose": "Actual CLI execution against reviewed synthetic fixture only"
+    }
+  ],
+  "limitations": [
+    "No customer code scanned",
+    "Host fixture harness is not a production sandbox",
+    "Clean static output is not verified_fixed",
+    "Fixture source SHA256 is a content version, not a Git commit"
+  ]
+}

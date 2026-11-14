@@ -1,0 +1,7 @@
+# Project-owned synthetic rule; no third-party rule-pack licensing dependency.
+rules:
+  - id: wetscan-synthetic-eval
+    languages: [javascript]
+    message: Dynamic evaluation of untrusted input needs review (synthetic fixture).
+    severity: ERROR
+    pattern: eval($INPUT)

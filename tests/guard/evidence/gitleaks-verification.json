@@ -1,0 +1,69 @@
+{
+  "pin": {
+    "version": "8.30.1",
+    "archiveSha256": "d29144deff3a68aa93ced33dddf84b7fdc26070add4aa0f4513094c8332afc4e",
+    "binarySha256": "17157e2ee8b76fc8b1d8bee607a250e34b8a8023c8bc81822d4b5ee4d78fcb7c",
+    "url": "https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_windows_x64.zip",
+    "license": "MIT",
+    "rulePack": "wetscan-synthetic-credential-v1"
+  },
+  "results": [
+    {
+      "target": "exposed.js",
+      "exitCode": 1,
+      "durationMs": 478,
+      "artifactDigest": "b5fc896e1e7127f5a85c0bf09c2a45cf90fa3a08565e799052116974dc9c68c7",
+      "targetSha256": "4161ed1c08526b4a189f9495c2c4ecad5d9f749f634abdab44bff85479c2a655",
+      "ruleSha256": "33fd97e24c3d08d8bc241d35ffdfe3fe3ad5c3257fab7f5d21b191e07e6d8550",
+      "findings": [
+        {
+          "workspaceId": "synthetic-verification",
+          "projectId": "secret-fixture",
+          "mode": "demo",
+          "id": "174df4c81876278ec022c525c5ab3ad87659c2eb456ce260d6e151416d23addc",
+          "title": "Potential exposed credential",
+          "severity": "high",
+          "confidence": "medium",
+          "status": "potential",
+          "source": {
+            "engine": "secrets",
+            "scanner": "gitleaks",
+            "version": "8.30.1",
+            "ruleId": "wetscan-synthetic-credential",
+            "rulePack": "33fd97e24c3d08d8bc241d35ffdfe3fe3ad5c3257fab7f5d21b191e07e6d8550"
+          },
+          "location": {
+            "path": "exposed.js",
+            "line": 2
+          },
+          "evidence": [
+            {
+              "id": "c6da6f01eeadedaeb5e468b60b3ae1c726e987ad1f515e5c35821a46c626ec54",
+              "commit": "4161ed1c08526b4a189f9495c2c4ecad5d9f749f634abdab44bff85479c2a655",
+              "recordedAt": "2026-11-14T08:37:06.271Z",
+              "summary": "Matched value intentionally omitted. Rotate any real credential and review history.",
+              "artifactDigest": "b5fc896e1e7127f5a85c0bf09c2a45cf90fa3a08565e799052116974dc9c68c7",
+              "synthetic": true
+            }
+          ]
+        }
+      ],
+      "purpose": "Actual Gitleaks CLI against nonfunctional synthetic marker only"
+    },
+    {
+      "target": "clean.js",
+      "exitCode": 0,
+      "durationMs": 487,
+      "artifactDigest": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "targetSha256": "9e0bade021f6baaf921e3c8250806125af1aee6719af81cb1e569b9e4444b1ee",
+      "ruleSha256": "33fd97e24c3d08d8bc241d35ffdfe3fe3ad5c3257fab7f5d21b191e07e6d8550",
+      "findings": [],
+      "purpose": "Actual Gitleaks CLI against nonfunctional synthetic marker only"
+    }
+  ],
+  "limitations": [
+    "Synthetic custom rule only; not a production provider rule-pack test",
+    "No customer code or history scanned",
+    "Fixture source SHA256 is used as evidence version, not a Git commit"
+  ]
+}
