@@ -20,10 +20,14 @@ import {
   Settings,
 } from "@/components/views/manage";
 import { Projects, WorkspaceActivity } from "@/components/views/projects";
+import { ProjectCanvas } from "@/features/canvas/server/project-canvas";
+import { CanvasLoading } from "@/features/canvas/components/canvas-loading";
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: Promise<{ path: string[] }>;
+  searchParams: Promise<{ revision?: string | string[] }>;
 }) {
   const { path } = await params;
   const route = path.join("/");
@@ -33,6 +37,20 @@ export default async function Page({
   if (route === "integrations") return <Integrations />;
   if (route === "reports") return <Reports />;
   if (route === "settings") return <Settings />;
+  if (
+    path.length === 3 &&
+    path[0] === "projects" &&
+    /^github-[1-9]\d*$/.test(path[1]) &&
+    path[2] === "canvas"
+  ) {
+    const query = await searchParams;
+    const revision = Array.isArray(query.revision) ? "invalid" : query.revision;
+    return (
+      <Suspense fallback={<CanvasLoading authorization />}>
+        <ProjectCanvas projectId={path[1]} revision={revision} />
+      </Suspense>
+    );
+  }
   if (path[0] !== "projects" || path[1] !== "orderly-demo") notFound();
   const rest = path.slice(2).join("/");
   if (!rest) return <Projects hub />;

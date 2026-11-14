@@ -1,11 +1,13 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import fs from "node:fs";
+import { mockDemoAccount } from "../canvas/demo-session";
+test.beforeEach(async ({ page }) => mockDemoAccount(page));
 const project = "/app/projects/orderly-demo";
 test("scan loading, graph controls, edge inspection, mobile navigation and representative accessibility", async ({
   page,
 }) => {
-  fs.mkdirSync("evidence", { recursive: true });
+  fs.mkdirSync("test-results/canvas-regression", { recursive: true });
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(`${project}/guard`);
@@ -17,7 +19,7 @@ test("scan loading, graph controls, edge inspection, mobile navigation and repre
     page.getByRole("button", { name: "Running demo simulation…" }),
   ).toBeDisabled();
   await page.screenshot({
-    path: "evidence/scan-loading-1440.png",
+    path: "test-results/canvas-regression/scan-loading-1440.png",
     fullPage: true,
   });
   await expect(page.getByRole("dialog")).toHaveCount(0);
@@ -42,7 +44,10 @@ test("scan loading, graph controls, edge inspection, mobile navigation and repre
   const edgeBox = await readEdge.boundingBox();
   expect(edgeBox).not.toBeNull();
   // A horizontal SVG path has a zero-height DOM box; click its painted stroke.
-  await page.mouse.click(edgeBox!.x + edgeBox!.width * 0.85, edgeBox!.y + edgeBox!.height / 2);
+  await page.mouse.click(
+    edgeBox!.x + edgeBox!.width * 0.85,
+    edgeBox!.y + edgeBox!.height / 2,
+  );
   await expect(
     page
       .locator(".inspector")
@@ -54,7 +59,7 @@ test("scan loading, graph controls, edge inspection, mobile navigation and repre
     page.getByRole("link", { name: "View evidence", exact: true }),
   ).toBeVisible();
   await page.screenshot({
-    path: "evidence/canvas-inspector-1440.png",
+    path: "test-results/canvas-regression/canvas-inspector-1440.png",
     fullPage: true,
   });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -78,6 +83,24 @@ test("scan loading, graph controls, edge inspection, mobile navigation and repre
   const checks = [];
   await page.setViewportSize({ width: 1440, height: 900 });
   for (const route of routes) {
+    if (route === "/onboarding")
+      await page.route("**/api/onboarding", (request) =>
+        request.fulfill({
+          json: {
+            authenticated: false,
+            step: "workspace",
+            connected: false,
+            profile: {
+              login: "",
+              workspace: "",
+              repositories: [],
+              email: "",
+              securityNotifications: true,
+              productUpdates: false,
+            },
+          },
+        }),
+      );
     await page.goto(route);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     const result = await new AxeBuilder({ page })
@@ -87,13 +110,13 @@ test("scan loading, graph controls, edge inspection, mobile navigation and repre
     expect(result.violations, route).toEqual([]);
     if (route === "/" || route.endsWith("FIND-102"))
       await page.screenshot({
-        path: `evidence/${route === "/" ? "landing" : "finding"}-1440.png`,
+        path: `test-results/canvas-regression/${route === "/" ? "landing" : "finding"}-1440.png`,
         fullPage: true,
       });
   }
   expect(errors).toEqual([]);
   fs.writeFileSync(
-    "evidence/interaction-checks.json",
+    "test-results/canvas-regression/interaction-checks.json",
     JSON.stringify({ checks, browserErrors: errors }, null, 2),
   );
 });

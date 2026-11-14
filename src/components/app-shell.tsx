@@ -53,6 +53,9 @@ const manage = [
 ];
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const realProject = /^\/app\/projects\/github-[1-9]\d*\/canvas$/.test(
+    pathname,
+  );
   const accountState = useDashboardAccount();
   const { account, status: accountStatus } = accountState;
   const { state, dispatch, dark, setDark } = useDemo();
@@ -84,6 +87,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             <Icon size={18} />
             <span>{label}</span>
+            {realProject && (label === "Guard" || label === "Sentinel") && (
+              <span className="nav-new">DEMO</span>
+            )}
             {label === "Canvas" && <span className="nav-new">APP MAP</span>}
             {label === "Guard" && <span className="nav-count">3</span>}
             {label === "Sentinel" && <ChevronDown size={14} />}
@@ -163,7 +169,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="nav-group-label">WORKSPACE</div>
           {nav(home)}
           <div className="nav-group-label">PROTECT YOUR APP</div>
-          {nav(protect)}
+          {nav(
+            protect.map((item) =>
+              realProject && item.label === "Canvas"
+                ? { ...item, href: pathname }
+                : item,
+            ),
+          )}
           <div className="nav-group-label">MANAGE</div>
           {nav(manage)}
         </div>
@@ -171,12 +183,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="demo-card">
             <div>
               <span className="live-dot" />
-              <strong>You’re exploring a demo</strong>
+              <strong>
+                {realProject ? "GitHub source map" : "You’re exploring a demo"}
+              </strong>
             </div>
             <p>
-              Real clarity. Sample data.
-              <br />
-              Make yourself at home.
+              {realProject ? (
+                "Guard: Not yet scanned · Sentinel: Monitoring not connected. Other security views open Orderly Demo."
+              ) : (
+                <>
+                  Real clarity. Sample data.
+                  <br />
+                  Make yourself at home.
+                </>
+              )}
             </p>
             <Button variant="ghost" onClick={() => setReset(true)}>
               <RotateCcw size={14} />
@@ -250,7 +270,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </strong>
           </div>
           <div className="topbar-actions">
-            <Badge tone="blue">Demo mode</Badge>
+            <Badge tone="blue">
+              {realProject ? "GitHub source" : "Demo mode"}
+            </Badge>
             <button
               className="icon-button"
               title={dark ? "Switch to light theme" : "Switch to dark theme"}
@@ -289,7 +311,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <span>
             <ShieldCheck size={13} /> A clearer picture. A safer next step.
           </span>
-          <span>Demo fixtures · No live protection</span>
+          <span>
+            {realProject
+              ? "Source observations · Runtime unverified · No live protection"
+              : "Demo fixtures · No live protection"}
+          </span>
         </footer>
       </div>
       <DashboardAccountDialog state={accountState} />

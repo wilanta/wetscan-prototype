@@ -6,9 +6,11 @@ export default defineConfig([
   ...nextTs,
   globalIgnores([
     ".next/**",
+    "tests/canvas/fixture/.next/**",
     "evidence/**",
     "test-results/**",
     "playwright-report/**",
+    "tests/canvas/playwright-report/**",
     "next-env.d.ts",
   ]),
 ]);
