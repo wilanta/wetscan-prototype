@@ -1,248 +1,192 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import { useSearchParams } from "next/navigation";
-import {
-  Background,
-  Controls,
-  Handle,
-  MarkerType,
-  Position,
-  ReactFlow,
-  ReactFlowProvider,
-  useReactFlow,
-  type Node,
-  type NodeProps,
-} from "@xyflow/react";
+import { ReactFlowProvider, useReactFlow } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import {
-  AppWindow,
-  ArrowRight,
-  Braces,
-  CheckCircle2,
   ChevronRight,
   Cloud,
-  Database,
-  GitBranch,
   Info,
-  KeyRound,
-  Layers,
   List,
-  LockKeyhole,
   Maximize,
   Network,
-  Radio,
   Search,
   ShieldCheck,
+  LockKeyhole,
   Workflow,
-  X,
+  Braces,
+  ArrowRight,
 } from "lucide-react";
+import { Badge, Button, LinkButton, PageHeader } from "@/components/ui";
+import { useDemo } from "@/components/demo-provider";
+import type { ArchitectureGraph } from "@/features/canvas/types";
+import type {
+  CanvasOverlaySource,
+  CanvasPersistencePort,
+} from "@/features/canvas/contracts";
+import { useCanvas } from "@/features/canvas/hooks/use-canvas";
+import { emptyFilters, filterGraph } from "@/features/canvas/graph/model";
+import { layoutGraph, placeGraph } from "@/features/canvas/graph/layout";
 import {
-  nodes as fixtures,
-  edges as fixtureEdges,
-  PROJECT,
-  findings,
-} from "@/data/demo";
-import type { AppNode } from "@/domain/types";
-import { Badge, Button, LinkButton, Notice, PageHeader } from "../ui";
-import { useDemo } from "../demo-provider";
-const icons: Record<string, typeof Braces> = {
-  frontend: AppWindow,
-  api: Braces,
-  auth: KeyRound,
-  database: Database,
-  repository: GitBranch,
-  release: Workflow,
-  hosting: Cloud,
-  telemetry: Radio,
-};
-type ComponentNode = Node<
-  { component: AppNode; mode: string; fixed: boolean },
-  "component"
->;
-function GraphNode({ data, selected }: NodeProps<ComponentNode>) {
-  const n = data.component;
-  const Icon = icons[n.kind] || Braces;
+  architectureGroups,
+  collapseGraph,
+} from "@/features/canvas/graph/groups";
+import {
+  architectureExport,
+  download,
+  readableSummary,
+} from "@/features/canvas/export";
+import { nodeKinds } from "@/features/canvas/types";
+import { ArchitectureFlow } from "@/features/canvas/components/graph";
+import { icons } from "@/features/canvas/components/graph-node";
+import { Inspector } from "@/features/canvas/components/inspector";
+import { TrustLens } from "@/features/canvas/components/trust-lens";
+import { WorkflowLens } from "@/features/canvas/components/workflow-lens";
+import { ManualEditor } from "@/features/canvas/components/manual-editor";
+import styles from "@/features/canvas/components/canvas.module.css";
+import { demoComponentOrder } from "@/features/canvas/adapters/demo-source";
+export interface CanvasProps {
+  initialGraph?: ArchitectureGraph;
+  source?: string;
+  ports?: {
+    overlays?: CanvasOverlaySource;
+    persistence?: CanvasPersistencePort;
+  };
+}
+export function Canvas({ source = "demo", ...props }: CanvasProps) {
   return (
-    <div
-      className={`graph-node ${selected ? "selected" : ""} ${n.id === "orders-api" && !data.fixed ? "at-risk" : ""} ${data.mode === "Security" && n.id === "orders-api" ? "security-highlight" : ""}`}
-    >
-      <Handle type="target" position={Position.Left} id="target-left" />
-      {n.kind === "api" && (
-        <>
-          <Handle
-            type="target"
-            position={Position.Top}
-            id="target-top"
-            style={{ left: "35%" }}
-          />
-          <Handle
-            type="source"
-            position={Position.Top}
-            id="source-top"
-            style={{ left: "75%" }}
-          />
-        </>
-      )}
-      {n.kind === "auth" && (
-        <Handle
-          type="source"
-          position={Position.Bottom}
-          id="source-bottom"
-          style={{ left: "35%" }}
-        />
-      )}
-      {n.kind === "telemetry" && (
-        <Handle type="target" position={Position.Bottom} id="target-bottom" />
-      )}
-      <div className="graph-node-top">
-        <span className={`node-icon ${n.kind}`}>
-          <Icon size={20} />
-        </span>
-        <span className="node-kind">{n.kind}</span>
-        {n.evidenceOrigin === "verified" && <CheckCircle2 size={13} />}
-      </div>
-      <strong>{n.label}</strong>
-      <small>{n.tech}</small>
-      <div className="graph-node-footer">
-        {n.id === "orders-api" && !data.fixed ? (
-          <>
-            <span className="severity-dot high" />1 finding to review
-          </>
-        ) : (
-          <>
-            <span className={`origin-dot ${n.evidenceOrigin}`} />
-            {n.evidenceOrigin.replace("_", " ")}{" "}
-            <span className="demo-origin">· demo</span>
-          </>
-        )}
-      </div>
-      <Handle type="source" position={Position.Right} id="source-right" />
+    <div className={styles.root}>
+      <ReactFlowProvider key={props.initialGraph?.projectRef ?? source}>
+        <CanvasWorkspace source={source} {...props} />
+      </ReactFlowProvider>
     </div>
   );
 }
-const nodeTypes = { component: GraphNode };
-export function Canvas() {
-  return (
-    <ReactFlowProvider>
-      <CanvasInner />
-    </ReactFlowProvider>
-  );
-}
-function CanvasInner() {
+function CanvasWorkspace({
+  source,
+  initialGraph,
+  ports,
+}: CanvasProps & { source: string }) {
   const { state, dark } = useDemo();
-  const searchParams = useSearchParams();
-  const [selected, setSelected] = useState(searchParams.get("node") || "");
-  const [edge, setEdge] = useState("");
-  const [mode, setMode] = useState("Architecture");
-  const [search, setSearch] = useState("");
-  const [verified, setVerified] = useState(false);
-  const [list, setList] = useState(false);
-  const [role, setRole] = useState("Customer");
-  const [environment, setEnvironment] = useState("staging");
+  const desktop = useSyncExternalStore(
+    (listener) => {
+      const media = window.matchMedia("(min-width: 901px)");
+      media.addEventListener("change", listener);
+      return () => media.removeEventListener("change", listener);
+    },
+    () => window.matchMedia("(min-width: 901px)").matches,
+    () => true,
+  );
+  const params = useSearchParams();
   const flow = useReactFlow();
-  const components = fixtures.filter(
-    (n) =>
-      (!verified || n.evidenceOrigin === "verified") &&
-      n.label.toLowerCase().includes(search.toLowerCase()),
+  const controller = useCanvas(source, state, initialGraph, ports);
+  const { graph, overlay, security } = controller;
+  const [selected, setSelected] = useState(params.get("node") ?? "");
+  const [edgeId, setEdgeId] = useState("");
+  const [lens, setLens] = useState("Architecture");
+  const [role, setRole] = useState("Customer");
+  const [filters, setFilters] = useState(emptyFilters);
+  const [list, setList] = useState(false);
+  const [environment, setEnvironment] = useState("current");
+  const [trace, setTrace] = useState<"direct" | "upstream" | "downstream">(
+    "direct",
   );
-  const graphNodes = useMemo<ComponentNode[]>(
+  const [expanded, setExpanded] = useState(false);
+  const projected = useMemo(
+    () => (graph ? collapseGraph(graph, overlay) : null),
+    [graph, overlay],
+  );
+  const geometry = useMemo(
+    () => (projected ? placeGraph(projected, overlay.nodePositions) : null),
+    [projected, overlay.nodePositions],
+  );
+  const allPositions = geometry?.positions ?? {};
+  const findings = useMemo(
     () =>
-      fixtures
-        .filter((n) => !verified || n.evidenceOrigin === "verified")
-        .map((n) => ({
-          id: n.id,
-          type: "component",
-          position: { x: n.x, y: n.y },
-          data: {
-            component:
-              n.kind === "repository"
-                ? {
-                    ...n,
-                    tech: `${state.provider === "github" ? "GitHub" : "GitLab"} · ${state.branch}`,
-                  }
-                : n,
-            mode,
-            fixed: state.findingStatus === "verified_fixed",
-          },
-          selected: n.id === selected,
-          ariaLabel: `${n.label}, ${n.kind}, ${n.evidenceOrigin} in demo`,
-        })),
-    [
-      verified,
-      mode,
-      state.findingStatus,
-      state.provider,
-      state.branch,
-      selected,
-    ],
+      (security?.findings ?? []).filter(
+        (f) =>
+          (!filters.severity || f.severity === filters.severity) &&
+          (!filters.status || f.status === filters.status) &&
+          (!filters.source || f.source === filters.source) &&
+          (!filters.priority || f.priority === filters.priority),
+      ),
+    [security, filters],
   );
-  const graphEdges = useMemo(
-    () =>
-      fixtureEdges
-        .filter((e) => !verified || e.evidenceOrigin === "verified")
-        .map((e) => ({
-          ...e,
-          selected: e.id === edge,
-          sourceHandle:
-            e.id === "identity"
-              ? "source-bottom"
-              : e.id === "observe"
-                ? "source-top"
-                : "source-right",
-          targetHandle:
-            e.id === "identity"
-              ? "target-top"
-              : e.id === "observe"
-                ? "target-bottom"
-                : "target-left",
-          type: "smoothstep",
-          animated: mode === "Security" && e.source === "orders-api",
-          label: e.label,
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 14,
-            height: 14,
-            color:
-              mode === "Security" && e.source === "orders-api"
-                ? "#c5752a"
-                : "#a2aec5",
-          },
-          style: {
-            stroke:
-              mode === "Security" && e.source === "orders-api"
-                ? "#c5752a"
-                : "var(--graph-edge)",
-            strokeWidth: 1.5,
-            strokeDasharray:
-              e.evidenceOrigin === "inferred" ? "5 5" : undefined,
-          },
-          labelStyle: { fontSize: 10, fill: "var(--ink-muted)" },
-          labelBgStyle: { fill: "var(--surface)" },
-          ariaLabel: `${e.source} to ${e.target}, ${e.label}`,
-        })),
-    [verified, mode, edge],
-  );
-  const component = fixtures.find((n) => n.id === selected);
-  const connection = fixtureEdges.find((e) => e.id === edge);
+  const visibleGraph = projected;
+  const visible = visibleGraph
+    ? filterGraph(visibleGraph, filters, [
+        ...findings.map((f) => f.nodeId),
+        ...(security?.incidents.map((i) => i.nodeId) ?? []),
+      ])
+    : { nodes: [], edges: [] };
+  if (graph?.mode === "demo") {
+    visible.nodes = [...visible.nodes].sort(
+      (a, b) =>
+        (demoComponentOrder.indexOf(a.id) < 0
+          ? Infinity
+          : demoComponentOrder.indexOf(a.id)) -
+        (demoComponentOrder.indexOf(b.id) < 0
+          ? Infinity
+          : demoComponentOrder.indexOf(b.id)),
+    );
+  }
+  const node = visible.nodes.find((n) => n.id === selected);
+  const edge = visible.edges.find((e) => e.id === edgeId);
   function choose(id: string) {
     setSelected(id);
-    setEdge("");
-    const n = fixtures.find((n) => n.id === id);
-    if (n && !list)
-      flow.setCenter(n.x + 110, n.y + 70, {
-        zoom: 0.85,
-        duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-          ? 0
-          : 300,
-      });
+    setEdgeId("");
+    const point = allPositions[id];
+    if (point && !list && desktop)
+      void flow.setCenter(
+        point.x + (geometry?.sizes[id]?.width ?? 232) / 2,
+        point.y + (geometry?.sizes[id]?.height ?? 170) / 2,
+        {
+          zoom: 0.85,
+          duration: window.matchMedia("(prefers-reduced-motion: reduce)")
+            .matches
+            ? 0
+            : 300,
+        },
+      );
   }
+  const patchFilter = (key: keyof typeof filters, value: string | boolean) =>
+    setFilters((f) => ({ ...f, [key]: value }));
+  const clear = () => {
+    setSelected("");
+    setEdgeId("");
+  };
+  if (controller.error)
+    return (
+      <div className="page">
+        <h1>Canvas data unavailable</h1>
+        <p role="alert">{controller.error}</p>
+        <Button onClick={() => window.location.reload()}>Retry Canvas</Button>
+      </div>
+    );
+  if (!graph || !security)
+    return (
+      <div className="page" role="status">
+        Preparing your application map…
+      </div>
+    );
   return (
-    <div className="page canvas-page">
+    <div
+      className={`page canvas-page ${expanded ? "map-expanded" : ""}`}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") clear();
+      }}
+    >
       <PageHeader
         eyebrow="UNDERSTAND YOUR APP"
         title="Everything is connected."
         description="Follow the connections. Find the context. Know your next step."
-        action={<Badge tone="blue">Demo architecture</Badge>}
+        action={
+          <Badge tone="blue">
+            {graph.mode === "demo"
+              ? "Demo architecture"
+              : `${graph.mode} · source observations`}
+          </Badge>
+        }
       />
       <div className="canvas-toolbar">
         <div className="segmented" aria-label="Canvas lens">
@@ -254,9 +198,9 @@ function CanvasInner() {
           ].map(({ label, Icon }) => (
             <button
               key={label}
-              aria-pressed={mode === label}
-              className={mode === label ? "selected" : ""}
-              onClick={() => setMode(label)}
+              aria-pressed={lens === label}
+              className={lens === label ? "selected" : ""}
+              onClick={() => setLens(label)}
             >
               <Icon size={16} />
               {label}
@@ -264,15 +208,140 @@ function CanvasInner() {
           ))}
         </div>
         <div className="canvas-tools">
-          <label className="sr-only" htmlFor="environment">
+          <details className={styles.tools}>
+            <summary>Map tools</summary>
+            <div className={styles.toolPanel}>
+              <div className={styles.metadata}>
+                <span>
+                  {graph.projectRef} · {graph.branch ?? "branch unknown"}
+                </span>
+                <span>
+                  Revision:{" "}
+                  {graph.mode === "demo"
+                    ? `${state.branch} · ${graph.revision}`
+                    : graph.revision}
+                </span>
+                <span>
+                  {graph.mode === "demo" ? "Fixture date" : "Last analyzed"}:{" "}
+                  {graph.generatedAt}
+                </span>
+                <span>
+                  {graph.mode === "demo"
+                    ? "Annotations / positions / models saved in this browser only"
+                    : ports?.persistence
+                      ? "Edits in tab memory; lost on browser reload or session end"
+                      : "Edits in page memory only; lost on reload or navigation"}
+                </span>
+              </div>
+              <label>
+                Highlight{" "}
+                <select
+                  aria-label="Highlight relationships"
+                  value={trace}
+                  onChange={(e) => setTrace(e.target.value as typeof trace)}
+                >
+                  <option value="direct">Direct dependencies</option>
+                  <option value="upstream">Upstream paths</option>
+                  <option value="downstream">Downstream paths</option>
+                </select>
+              </label>
+              <Button
+                variant="secondary"
+                onClick={() => setExpanded(!expanded)}
+              >
+                {expanded ? "Restore panels" : "Expand map"}
+              </Button>
+              {node?.kind === "service_group" && geometry && (
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    void flow.fitBounds(
+                      { ...allPositions[node.id], ...geometry.sizes[node.id] },
+                      { padding: 0.15 },
+                    )
+                  }
+                >
+                  Fit selected group
+                </Button>
+              )}
+              <div className={styles.actions}>
+                <Button
+                  variant="secondary"
+                  disabled={!controller.canUndo}
+                  onClick={controller.undo}
+                >
+                  Undo Canvas edit
+                </Button>
+                <Button
+                  variant="secondary"
+                  disabled={!controller.canRedo}
+                  onClick={controller.redo}
+                >
+                  Redo Canvas edit
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    controller.edit((o) => {
+                      o.nodePositions = layoutGraph(graph);
+                    })
+                  }
+                >
+                  Auto layout
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    controller.edit((o) => {
+                      o.nodePositions = controller.initialPositions;
+                    })
+                  }
+                >
+                  Reset layout
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    download(
+                      "canvas-architecture.json",
+                      architectureExport(controller.sourceGraph!, overlay),
+                    )
+                  }
+                >
+                  Export architecture JSON
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    download("canvas-summary.txt", readableSummary(graph), true)
+                  }
+                >
+                  Export readable summary
+                </Button>
+                <Button variant="ghost" onClick={() => void controller.reset()}>
+                  Reset Canvas edits
+                </Button>
+              </div>
+              <p role="status" className={styles.feedback}>
+                {controller.message}
+              </p>
+            </div>
+          </details>
+          <label className="sr-only" htmlFor="canvas-environment">
             Environment
           </label>
           <select
-            id="environment"
+            id="canvas-environment"
             value={environment}
             onChange={(e) => setEnvironment(e.target.value)}
           >
-            <option value="staging">Staging</option>
+            <option value="current">
+              {graph.mode === "demo"
+                ? "Staging"
+                : graph.environment === "unknown"
+                  ? "Unknown · source snapshot"
+                  : graph.environment}
+            </option>
             <option value="production">Production · no map</option>
           </select>
           <button
@@ -285,9 +354,9 @@ function CanvasInner() {
           </button>
           <Button
             variant="secondary"
-            disabled={list}
+            disabled={list || lens === "Workflows"}
             onClick={() =>
-              flow.fitView({
+              void flow.fitView({
                 padding: 0.15,
                 duration: window.matchMedia("(prefers-reduced-motion: reduce)")
                   .matches
@@ -301,84 +370,310 @@ function CanvasInner() {
           </Button>
         </div>
       </div>
+      {geometry?.routingLimited && (
+        <p className="small-text">
+          This map reached the routing budget. Some connections use approximate
+          paths; inspect them in the connection list.
+        </p>
+      )}
       {environment === "production" ? (
         <div className="empty card">
           <Cloud size={35} />
           <h2>No production map yet</h2>
           <p>
-            The sample architecture covers staging only. No production resources
-            are connected.
+            No production resources are connected. Source configuration does not
+            establish a deployment.
           </p>
-          <Button onClick={() => setEnvironment("staging")}>
-            Return to demo staging
+          <Button onClick={() => setEnvironment("current")}>
+            {graph.mode === "demo"
+              ? "Return to demo staging"
+              : "Return to source snapshot"}
           </Button>
         </div>
       ) : (
         <>
+          {lens === "Security" && (
+            <section aria-label="Security coverage" className={styles.security}>
+              <strong>{security.message}</strong>
+              <p>
+                Guard:{" "}
+                {security.guard === "not_scanned"
+                  ? "Not yet scanned"
+                  : security.guard}{" "}
+                · Sentinel:{" "}
+                {security.sentinel === "not_monitored"
+                  ? "Monitoring not connected"
+                  : security.sentinel}
+              </p>
+              <div className="canvas-form-row">
+                {(
+                  [
+                    ["severity", ["critical", "high", "medium", "low", "info"]],
+                    [
+                      "status",
+                      Array.from(
+                        new Set(security.findings.map((f) => f.status)),
+                      ),
+                    ],
+                    ["source", ["Guard", "Sentinel", "Manual"]],
+                    ["priority", ["review", "resolved"]],
+                  ] as const
+                ).map(([name, choices]) => (
+                  <label key={name}>
+                    Security {name}
+                    <select
+                      aria-label={`Security ${name}`}
+                      value={filters[name]}
+                      onChange={(e) => patchFilter(name, e.target.value)}
+                    >
+                      <option value="">All {name}</option>
+                      {choices.map((v) => (
+                        <option key={v} value={v}>
+                          {v}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ))}
+                <label className="check-line">
+                  <input
+                    type="checkbox"
+                    checked={filters.affected}
+                    onChange={(e) => patchFilter("affected", e.target.checked)}
+                  />
+                  Only affected components
+                </label>
+              </div>
+              <ul>
+                {findings.map((f) => (
+                  <li key={f.id}>
+                    <button onClick={() => choose(f.nodeId)}>
+                      {f.severity} · {f.id}: {f.title} · {f.status} ·{" "}
+                      {f.simulated ? "Demo / Simulated" : f.source}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              {!findings.length && (
+                <p>
+                  No results from the selected coverage / filters. This does not
+                  mean the app is secure.
+                </p>
+              )}
+            </section>
+          )}
+          {(selected || edgeId) && !node && !edge && (
+            <div className="notice">
+              <Info size={17} />
+              <div>
+                Selected item is hidden or no longer in this revision. Clear
+                filters or unhide components to inspect it.
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setFilters(emptyFilters);
+                    controller.edit((o) => {
+                      o.hiddenNodeIds = [];
+                      o.groups = o.groups.map((g) => ({
+                        ...g,
+                        collapsed: false,
+                      }));
+                    });
+                  }}
+                >
+                  Clear filters and reveal selection
+                </Button>
+              </div>
+            </div>
+          )}
           <div className="canvas-workspace">
-            <aside className="component-explorer">
+            <aside
+              className="component-explorer"
+              aria-label="Component explorer"
+            >
               <div className="explorer-heading">
                 <strong>Components</strong>
-                <span>{components.length}</span>
+                <span>{visible.nodes.length}</span>
               </div>
               <div className="search-input">
                 <Search size={15} />
                 <input
                   aria-label="Find a component"
                   placeholder="Find a component…"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  value={filters.search}
+                  onChange={(e) => patchFilter("search", e.target.value)}
                 />
               </div>
               <label className="check-line verified-filter">
                 <input
                   type="checkbox"
-                  checked={verified}
-                  onChange={(e) => setVerified(e.target.checked)}
+                  checked={filters.origin === "verified"}
+                  onChange={(e) =>
+                    patchFilter("origin", e.target.checked ? "verified" : "")
+                  }
                 />
                 Verified only
               </label>
+              <details className={styles.filters}>
+                <summary>Filters</summary>
+                <label>
+                  Component kind
+                  <select
+                    aria-label="Component kind"
+                    value={filters.kind}
+                    onChange={(e) => patchFilter("kind", e.target.value)}
+                  >
+                    <option value="">All kinds</option>
+                    {nodeKinds.map((k) => (
+                      <option key={k} value={k}>
+                        {k.replaceAll("_", " ")}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Evidence source
+                  <select
+                    aria-label="Evidence source"
+                    value={filters.origin}
+                    onChange={(e) => patchFilter("origin", e.target.value)}
+                  >
+                    <option value="">All provenance</option>
+                    <option value="verified">
+                      Verified source observation
+                    </option>
+                    <option value="inferred">Inferred</option>
+                    <option value="user_added">User-added</option>
+                  </select>
+                </label>
+                <Button
+                  variant="ghost"
+                  onClick={() => setFilters(emptyFilters)}
+                >
+                  Clear filters
+                </Button>
+              </details>
               <div className="component-list">
-                {components.map((n) => {
-                  const Icon = icons[n.kind] || Braces;
+                {visible.nodes.map((n) => {
+                  const Icon = icons[n.kind] ?? Braces;
                   return (
                     <button
                       key={n.id}
+                      aria-pressed={selected === n.id}
                       className={selected === n.id ? "selected" : ""}
                       onClick={() => choose(n.id)}
                     >
                       <Icon size={16} />
                       <span>
                         {n.label}
-                        <small>{n.kind}</small>
+                        <small>
+                          {graph.mode === "demo" && n.kind === "ci"
+                            ? "release"
+                            : n.kind}
+                        </small>
                       </span>
-                      {n.findingIds.length > 0 && (
-                        <span className="component-issue">1</span>
+                      {findings.some((f) => f.nodeId === n.id) && (
+                        <span className="component-issue">
+                          {findings.filter((f) => f.nodeId === n.id).length}
+                        </span>
                       )}
                     </button>
                   );
                 })}
-                {!components.length && (
+                {!visible.nodes.length && (
                   <p className="muted">
-                    No components match. Clear your search to try again.
+                    No components match. Clear your search or choose another
+                    snapshot to recover.
                   </p>
                 )}
               </div>
+              <div className={styles.groups}>
+                {architectureGroups(graph)
+                  .filter((g) => !overlay.groups.some((o) => o.id === g.id))
+                  .map((g) => (
+                    <Button
+                      key={g.id}
+                      variant="ghost"
+                      onClick={() =>
+                        controller.edit((o) => {
+                          o.groups.push({ ...g, collapsed: true });
+                        })
+                      }
+                    >
+                      Collapse group {g.label} ({g.nodeIds.length})
+                    </Button>
+                  ))}
+                {graph.nodes
+                  .filter(
+                    (n) =>
+                      n.kind === "service_group" &&
+                      !overlay.groups.some((g) => g.id === n.id),
+                  )
+                  .map((n) => (
+                    <Button
+                      key={n.id}
+                      variant="ghost"
+                      onClick={() =>
+                        controller.edit((o) => {
+                          o.groups.push({
+                            id: n.id,
+                            label: n.label,
+                            nodeIds: graph.nodes
+                              .filter((member) => member.groupId === n.id)
+                              .map((member) => member.id),
+                            collapsed: true,
+                          });
+                        })
+                      }
+                    >
+                      Collapse group {n.label}
+                    </Button>
+                  ))}
+                {overlay.groups.map((g) => (
+                  <Button
+                    key={g.id}
+                    variant="ghost"
+                    onClick={() =>
+                      controller.edit((o) => {
+                        o.groups.find((v) => v.id === g.id)!.collapsed =
+                          !g.collapsed;
+                      })
+                    }
+                  >
+                    {g.collapsed ? "Expand" : "Collapse"} group {g.label}
+                  </Button>
+                ))}
+              </div>
+              {overlay.hiddenNodeIds.length > 0 && (
+                <Button
+                  variant="secondary"
+                  onClick={() =>
+                    controller.edit((o) => {
+                      o.hiddenNodeIds = [];
+                    })
+                  }
+                >
+                  Unhide {overlay.hiddenNodeIds.length} components
+                </Button>
+              )}
               <div className="explorer-bottom">
-                <GitBranch size={14} />
-                {state.branch}
-                <span>· a1b2c3d</span>
-                <small>Synthetic commit</small>
+                <span>
+                  {graph.mode === "demo"
+                    ? state.branch
+                    : (graph.branch ?? "unknown")}{" "}
+                  · {graph.revision}
+                </span>
+                <small>
+                  {graph.mode === "demo"
+                    ? "Synthetic commit"
+                    : "Pinned internal / authorized source revision"}
+                </small>
               </div>
             </aside>
-            <div className={`graph-area ${list ? "list-mode" : ""}`}>
-              {mode === "Architecture" && (
-                <div className="graph-caption">
-                  <span className="live-dot" />
-                  ORDERLY · STAGING ARCHITECTURE
-                </div>
-              )}
-              {mode === "Trust" && (
+            <div
+              className={`graph-area ${list ? "list-mode" : ""} ${lens === "Workflows" ? styles.workflowArea : ""}`}
+            >
+              {lens === "Trust" && graph.mode === "demo" && (
                 <div className="lens-note">
                   <strong>Who should access an order?</strong>
                   <label>
@@ -402,7 +697,7 @@ function CanvasInner() {
                   </p>
                 </div>
               )}
-              {mode === "Workflows" ? (
+              {lens === "Workflows" && graph.mode === "demo" ? (
                 <div className="workflow-canvas">
                   <Badge tone="blue">Integrity · workflow overlay</Badge>
                   <h2>An order should stay locked.</h2>
@@ -426,74 +721,92 @@ function CanvasInner() {
                     <br />
                     Fixture: update accepted with status 200.
                   </p>
-                  <LinkButton href={`${PROJECT}/guard/integrity`}>
+                  <LinkButton href="/app/projects/orderly-demo/guard/integrity">
                     Inspect the workflow test <ArrowRight size={16} />
                   </LinkButton>
                 </div>
               ) : (
                 <>
+                  {lens === "Architecture" && (
+                    <div className="graph-caption">
+                      <span className="live-dot" />
+                      {graph.mode === "demo"
+                        ? "ORDERLY · STAGING ARCHITECTURE"
+                        : "STATIC SOURCE MAP · RUNTIME UNKNOWN"}
+                    </div>
+                  )}
                   <div className="flow-desktop">
-                    <ReactFlow<ComponentNode>
-                      nodes={graphNodes}
-                      edges={graphEdges}
-                      nodeTypes={nodeTypes}
-                      onNodesChange={(changes) => {
-                        for (const change of changes) {
-                          if (change.type === "select" && change.selected) {
-                            setSelected(change.id);
-                            setEdge("");
-                          }
+                    {desktop && (
+                      <ArchitectureFlow
+                        graph={graph}
+                        nodes={visible.nodes}
+                        edges={visible.edges}
+                        positions={allPositions}
+                        geometry={geometry ?? undefined}
+                        trace={trace}
+                        selected={selected}
+                        edgeId={edgeId}
+                        lens={lens}
+                        dark={dark}
+                        overlay={overlay}
+                        findings={findings}
+                        onSelect={choose}
+                        onEdge={(id) => {
+                          setEdgeId(id);
+                          setSelected("");
+                        }}
+                        onPosition={(id, p) =>
+                          controller.edit((o) => {
+                            o.nodePositions[id] = p;
+                          })
                         }
-                      }}
-                      onEdgesChange={(changes) => {
-                        for (const change of changes) {
-                          if (change.type === "select" && change.selected) {
-                            setEdge(change.id);
-                            setSelected("");
-                          }
-                        }
-                      }}
-                      onNodeClick={(_, node) => {
-                        setSelected(node.id);
-                        setEdge("");
-                      }}
-                      onEdgeClick={(_, e) => {
-                        setEdge(e.id);
-                        setSelected("");
-                      }}
-                      nodesDraggable={false}
-                      nodesConnectable={false}
-                      fitView
-                      fitViewOptions={{ padding: 0.15 }}
-                      minZoom={0.3}
-                      maxZoom={1.5}
-                      colorMode={dark ? "dark" : "light"}
-                      proOptions={{ hideAttribution: true }}
-                    >
-                      <Background
-                        color={dark ? "#364157" : "#d7dfec"}
-                        gap={22}
-                        size={1}
                       />
-                      <Controls showInteractive={false} />
-                    </ReactFlow>
+                    )}
                   </div>
-                  <div className="graph-list-fallback">
-                    {components.map((n) => {
-                      const Icon = icons[n.kind] || Braces;
+                  <div
+                    className="graph-list-fallback"
+                    aria-label="Accessible component list"
+                  >
+                    {visible.nodes.map((n) => {
+                      const Icon = icons[n.kind] ?? Network;
                       return (
                         <button key={n.id} onClick={() => choose(n.id)}>
                           <Icon size={22} />
                           <span>
                             <strong>{n.label}</strong>
-                            <small>{n.tech}</small>
+                            <small>
+                              {n.technology ?? n.kind} · {n.origin}
+                            </small>
                           </span>
                           <ChevronRight size={16} />
                         </button>
                       );
                     })}
                   </div>
-                  {!selected && !edge && (
+                  <div
+                    className="graph-edge-list"
+                    aria-label="Accessible connection list"
+                  >
+                    {visible.edges.map((e) => (
+                      <button
+                        key={e.id}
+                        onClick={() => {
+                          setEdgeId(e.id);
+                          setSelected("");
+                        }}
+                      >
+                        <Network size={20} />
+                        <span>
+                          {graph.nodes.find((n) => n.id === e.source)?.label} →{" "}
+                          {graph.nodes.find((n) => n.id === e.target)?.label}
+                          <small>
+                            {e.description ?? e.relationship} · {e.origin}
+                          </small>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  {!selected && !edgeId && (
                     <div className="graph-hint">
                       <Info size={16} />
                       Click any component or connection to see what WetScan
@@ -503,173 +816,73 @@ function CanvasInner() {
                 </>
               )}
             </div>
-            <aside
-              className={`inspector ${component || connection ? "has-selection" : ""}`}
-            >
-              <div className="inspector-heading">
-                <span>INSPECTOR</span>
-                {(component || connection) && (
-                  <button
-                    aria-label="Clear selection"
-                    className="icon-button"
-                    onClick={() => {
-                      setSelected("");
-                      setEdge("");
-                    }}
-                  >
-                    <X size={16} />
-                  </button>
-                )}
-              </div>
-              {component ? (
-                <>
-                  <span className={`inspector-icon ${component.kind}`}>
-                    {(() => {
-                      const Icon = icons[component.kind] || Braces;
-                      return <Icon size={25} />;
-                    })()}
-                  </span>
-                  <h2>{component.label}</h2>
-                  <p>{component.description}</p>
-                  <Badge
-                    tone={
-                      component.evidenceOrigin === "verified"
-                        ? "green"
-                        : "neutral"
-                    }
-                  >
-                    {component.evidenceOrigin.replace("_", " ")} · demo fixture
-                  </Badge>
-                  <dl className="inspector-meta">
-                    <div>
-                      <dt>Component</dt>
-                      <dd>{component.kind}</dd>
-                    </div>
-                    <div>
-                      <dt>Environment</dt>
-                      <dd>Staging</dd>
-                    </div>
-                    <div>
-                      <dt>Source</dt>
-                      <dd>Synthetic app map</dd>
-                    </div>
-                    <div>
-                      <dt>Owner</dt>
-                      <dd>Northstar Studio</dd>
-                    </div>
-                  </dl>
-                  <h3>What needs attention</h3>
-                  {component.id === "orders-api" ? (
-                    <div className="inspector-finding">
-                      <Badge tone="amber">
-                        High · {state.findingStatus.replaceAll("_", " ")}
-                      </Badge>
-                      <strong>Who can see an order?</strong>
-                      <p>
-                        A customer may read another customer’s order details.
-                      </p>
-                      <LinkButton href={`${PROJECT}/guard/findings/FIND-102`}>
-                        View evidence <ArrowRight size={15} />
-                      </LinkButton>
-                      <small>FIND-102 · Synthetic API test</small>
-                    </div>
-                  ) : component.findingIds.length > 0 ? (
-                    <div className="inspector-finding">
-                      <Badge>Inferred · demo fixture</Badge>
-                      <strong>
-                        {
-                          findings.find((f) => f.id === component.findingIds[0])
-                            ?.title
-                        }
-                      </strong>
-                      <LinkButton
-                        href={`${PROJECT}/guard/findings/${component.findingIds[0]}`}
-                      >
-                        View evidence <ArrowRight size={15} />
-                      </LinkButton>
-                    </div>
-                  ) : (
-                    <p className="muted small-text">
-                      No linked findings in this fixture. This does not
-                      establish security coverage.
-                    </p>
-                  )}
-                  <h3>Related activity</h3>
-                  {state.incidents.length && component.id === "orders-api" ? (
-                    <LinkButton
-                      secondary
-                      href={`${PROJECT}/sentinel/incidents/${state.incidents.at(-1)!.id}`}
-                    >
-                      View simulated incident
-                    </LinkButton>
-                  ) : (
-                    <p className="muted small-text">
-                      No runtime source connected.
-                    </p>
-                  )}
-                </>
-              ) : connection ? (
-                <>
-                  <Network size={28} />
-                  <h2>{connection.label}</h2>
-                  <p>
-                    {fixtures.find((n) => n.id === connection.source)?.label} →{" "}
-                    {fixtures.find((n) => n.id === connection.target)?.label}
-                  </p>
-                  <Badge>{connection.evidenceOrigin} · demo</Badge>
-                  <Notice>
-                    Describes a synthetic architecture relationship.{" "}
-                    {connection.evidenceOrigin === "inferred"
-                      ? "The actual relationship has not been established."
-                      : "Confirmed only in the fixture definition."}
-                  </Notice>
-                  <p>
-                    Identity and authorization remain separate. A connection
-                    alone does not prove access is permitted.
-                  </p>
-                </>
-              ) : (
-                <div className="inspector-empty">
-                  <span>
-                    <Layers size={28} />
-                  </span>
-                  <h3>A little more context.</h3>
-                  <p>
-                    Select a component to understand its role, evidence, and
-                    what needs attention.
-                  </p>
-                  <Button
-                    variant="secondary"
-                    onClick={() => choose("orders-api")}
-                  >
-                    Explore Orders API
-                    <ArrowRight size={15} />
-                  </Button>
-                </div>
-              )}
-            </aside>
+            <Inspector
+              graph={graph}
+              node={node}
+              edge={edge}
+              controller={controller}
+              security={security}
+              choose={choose}
+              clear={clear}
+              related={(id) => patchFilter("relatedId", id)}
+              workflow={() => setLens("Workflows")}
+            />
           </div>
+          {lens === "Trust" && (
+            <TrustLens controller={controller} graph={graph} />
+          )}
+          {lens === "Workflows" && (
+            <WorkflowLens controller={controller} graph={graph} dark={dark} />
+          )}
+          <ManualEditor graph={graph} controller={controller} />
           <div className="canvas-legend">
             <div>
-              <span>
-                <i className="origin-dot verified" />
-                Verified
-              </span>
-              <span>
-                <i className="origin-dot inferred" />
-                Inferred
-              </span>
-              <span>
-                <i className="origin-dot user_added" />
-                User-added
-              </span>
+              {(["verified", "inferred", "user_added"] as const).map(
+                (origin) => (
+                  <span key={origin}>
+                    <i className={`origin-dot ${origin}`} />
+                    {origin.replace("_", " ")}
+                  </span>
+                ),
+              )}
               <span>
                 <i className="severity-dot high" />
                 Finding to review
               </span>
             </div>
-            <small>All provenance is scoped to demo fixtures</small>
+            <small>
+              {graph.mode === "demo"
+                ? "All provenance is scoped to demo fixtures"
+                : "Verified source ≠ deployed, connected or secure"}
+            </small>
           </div>
+          <details className={styles.coverage}>
+            <summary>
+              Discovery coverage and limitations · {graph.diagnostics.length}{" "}
+              diagnostics
+            </summary>
+            <p>
+              Partial map. Inferred relationships need confirmation. User-added
+              content has not been automatically verified.
+            </p>
+            {graph.coverage.map((c) => (
+              <p key={c.capability}>
+                <strong>
+                  {c.capability} · {c.status}
+                </strong>{" "}
+                — {c.detail}
+              </p>
+            ))}
+            {graph.diagnostics.map((d, i) => (
+              <p key={`${d.code}:${i}`}>
+                {d.code}: {d.message} {d.sourcePath}
+              </p>
+            ))}
+            <p>
+              Source discovery only. Scan and runtime verification require
+              connected evidence.
+            </p>
+          </details>
         </>
       )}
     </div>

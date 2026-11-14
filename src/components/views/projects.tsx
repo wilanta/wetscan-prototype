@@ -19,6 +19,7 @@ import {
 } from "../ui";
 import { PROJECT } from "@/data/demo";
 import { MiniMap } from "../mini-map";
+import { RepositoryProjects } from "../repository-projects";
 export function Projects({ hub = false }: { hub?: boolean }) {
   const { state } = useDemo();
   return (
@@ -38,6 +39,7 @@ export function Projects({ hub = false }: { hub?: boolean }) {
           </LinkButton>
         }
       />
+      {!hub && <RepositoryProjects />}
       {!hub ? (
         <Card className="project-directory">
           <div className="app-identity">

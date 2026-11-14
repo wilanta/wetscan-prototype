@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-14",
+  "scope": "Local production build; one currently selected authorized repository; existing saved identity; actual GitHub APIs, no provider mocks",
+  "checkedAt": "2026-11-14T08:19:52.450Z",
+  "pinnedRevision": "36f78ca8bc4b5c287d272775d116262786a704de",
+  "source": {
+    "nodes": 9,
+    "edges": 6,
+    "evidence": 53,
+    "diagnostics": ["dependency_usage_required", "github_excluded_paths"]
+  },
+  "browser": {
+    "inspector": "passed",
+    "guard": "Not yet scanned",
+    "sentinel": "Monitoring not connected",
+    "cache": "HIT; zero analysis runs; browser reload passed",
+    "browserErrors": [],
+    "screenshots": "Architecture, Trust, Workflows at 1440x900, 1280x900, 390x844; architecture also dark"
+  },
+  "cacheBenchmark": {
+    "analysisRuns": 0,
+    "cache": "HIT",
+    "openingsMs": [2853.46, 1023.77, 2318.34]
+  },
+  "uiHostEvidence": "Committed master and integrated screenshots use an explicitly synthetic public account; actual source and account screenshots are kept in ignored test-results only",
+  "limitations": [
+    "No fresh actual OAuth ceremony",
+    "Only one selected actual repository available",
+    "No scan, runtime telemetry, Trust verification, Integrity execution, CI or deployment claim"
+  ]
+}

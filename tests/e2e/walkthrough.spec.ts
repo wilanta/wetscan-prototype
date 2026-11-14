@@ -1,20 +1,25 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import fs from "node:fs";
+import { mockDemoAccount } from "../canvas/demo-session";
+test.beforeEach(async ({ page }) => mockDemoAccount(page));
 const base = "/app/projects/orderly-demo";
 test("primary walkthrough, incident outcomes, decoy, rule approval and reset", async ({
   page,
 }) => {
   await page.goto("/");
-  await page
-    .getByRole("link", { name: "Explore the interactive demo" })
-    .click();
+  await expect(
+    page.getByRole("link", { name: "Start for Free", exact: true }).first(),
+  ).toBeVisible();
+  // Master replaced the old landing CTA with authenticated onboarding. The
+  // existing /demo entry still forwards to the workspace for this UI fixture.
+  await page.goto("/demo");
   await expect(
     page.getByRole("heading", {
       name: "A little clarity for your next big thing.",
     }),
   ).toBeVisible();
-  await page.getByRole("link", { name: "View app", exact: true }).click();
+  await page.getByRole("link", { name: "Projects", exact: true }).click();
   await page.getByRole("link", { name: "Open project", exact: true }).click();
   await page.getByRole("link", { name: "Open Canvas", exact: true }).click();
   await page
@@ -139,25 +144,44 @@ test("failure and pending paths do not claim neutralization", async ({
     page.getByText("Neutralization verified — scope-limited", { exact: true }),
   ).toHaveCount(0);
 });
-test("onboarding exposes only honest GitHub and GitLab demo connections", async ({
+test("current onboarding requires a GitHub connection and never claims OAuth success from a demo", async ({
   page,
 }) => {
+  await page.route("**/api/onboarding", (route) =>
+    route.fulfill({
+      json: {
+        authenticated: false,
+        step: "github",
+        connected: false,
+        profile: {
+          login: "",
+          workspace: "Demo review",
+          repositories: [],
+          email: "",
+          securityNotifications: true,
+          productUpdates: false,
+        },
+      },
+    }),
+  );
+  await page.route("**/api/auth/github/start", (route) =>
+    route.fulfill({ status: 503, json: { error: "configuration" } }),
+  );
   await page.goto("/onboarding");
-  await page.getByRole("button", { name: /GitLab/ }).click();
-  await page.getByRole("button", { name: "Continue", exact: true }).click();
   await page
-    .getByLabel(
-      "I understand this is a demo connection, with no OAuth success implied.",
-    )
-    .check();
-  await page
-    .getByRole("button", { name: "Explore demo repositories", exact: true })
+    .getByRole("button", { name: "Install GitHub App", exact: true })
     .click();
-  await page.getByRole("button", { name: "Continue", exact: true }).click();
-  await page.getByRole("button", { name: "Create demo project" }).click();
-  await page
-    .getByRole("link", { name: "Explore your application map" })
-    .click();
+  await expect(
+    page
+      .getByRole("alert")
+      .filter({ hasText: "Authentication is not configured" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Connect GitHub", exact: true }),
+  ).toBeVisible();
+  await page.unroute("**/api/onboarding");
+  await mockDemoAccount(page);
+  await page.goto(`${base}/canvas`);
   await expect(
     page.getByRole("heading", { name: "Everything is connected." }),
   ).toBeVisible();
@@ -165,7 +189,7 @@ test("onboarding exposes only honest GitHub and GitLab demo connections", async 
 test("desktop and mobile rendered accessibility, dark theme, and screenshots", async ({
   page,
 }) => {
-  fs.mkdirSync("evidence", { recursive: true });
+  fs.mkdirSync("test-results/canvas-regression", { recursive: true });
   const checks = [];
   for (const [width, height] of [
     [1440, 900],
@@ -187,7 +211,7 @@ test("desktop and mobile rendered accessibility, dark theme, and screenshots", a
       checks.push({ route, width, violations: result.violations });
       expect(result.violations).toEqual([]);
       await page.screenshot({
-        path: `evidence/${route.endsWith("canvas") ? "canvas" : "overview"}-${width}.png`,
+        path: `test-results/canvas-regression/${route.endsWith("canvas") ? "canvas" : "overview"}-${width}.png`,
         fullPage: true,
       });
     }
@@ -197,7 +221,7 @@ test("desktop and mobile rendered accessibility, dark theme, and screenshots", a
   await page.getByRole("button", { name: "Switch to dark theme" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await page.screenshot({
-    path: "evidence/overview-dark-1440.png",
+    path: "test-results/canvas-regression/overview-dark-1440.png",
     fullPage: true,
   });
   const darkResult = await new AxeBuilder({ page })
@@ -208,7 +232,7 @@ test("desktop and mobile rendered accessibility, dark theme, and screenshots", a
   await page.keyboard.press("Tab");
   await page.keyboard.press("Tab");
   fs.writeFileSync(
-    "evidence/accessibility.json",
+    "test-results/canvas-regression/accessibility.json",
     JSON.stringify({ checks, darkViolations: darkResult.violations }, null, 2),
   );
 });

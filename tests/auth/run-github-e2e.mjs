@@ -104,7 +104,8 @@ try {
       .privateKey.export({ type: "pkcs8", format: "pem" })
       .toString(),
   });
-  await run([next, "build"], buildEnv);
+  if (process.env.AUTH_E2E_SKIP_BUILD !== "1")
+    await run([next, "build"], buildEnv);
   await server(3107);
   await server(3108, "github-fixture.mjs", "WETSCAN_GITHUB_E2E");
   await server(
@@ -116,8 +117,11 @@ try {
     [
       join(root, "node_modules/@playwright/test/cli.js"),
       "test",
+      "--output=test-results/auth",
+      "--reporter=list",
       "tests/e2e/auth-onboarding.spec.ts",
       "tests/e2e/dashboard-session.spec.ts",
+      "tests/e2e/github-canvas.spec.ts",
       "tests/e2e/github-installation.spec.ts",
       "tests/e2e/github-existing-installation.spec.ts",
     ],

@@ -212,7 +212,7 @@ export function startFlow(
   }).toString();
   return url.toString();
 }
-function appJwt() {
+export function appJwt() {
   const app = githubConfig();
   const now = Math.floor(Date.now() / 1000);
   const header = Buffer.from(
