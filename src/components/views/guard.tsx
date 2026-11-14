@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { GuardWorkbench } from "@/features/guard/workbench";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -126,6 +127,7 @@ export function Guard({ section = "" }: { section?: string }) {
         action={<SimulateScan />}
       />
       <GuardTabs active={section} />
+      <GuardWorkbench section={section} />
       {section === "/findings" ? (
         <FindingsList />
       ) : section === "/scans" ? (
@@ -735,6 +737,7 @@ export function Integrity() {
         description="Check that important actions follow the workflow you intended."
       />
       <GuardTabs active="/integrity" />
+      <GuardWorkbench section="/integrity" />
       <div className="two-columns">
         <Card>
           <SectionHeading title="Define the invariant">
@@ -851,6 +854,7 @@ export function Remediation() {
         description="Understand the proposed change before you apply it."
       />
       <GuardTabs active="/remediation" />
+      <GuardWorkbench section="/remediation" />
       <Notice>
         AI is not configured. Suggestions are prewritten examples and require
         your review.

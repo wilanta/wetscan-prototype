@@ -1,0 +1,6 @@
+# Project-owned synthetic rule. This does not detect real provider credentials.
+title = "WetScan controlled test rule"
+[[rules]]
+id = "wetscan-synthetic-credential"
+description = "Synthetic fixture marker only"
+regex = '''WS_TEST_SECRET_[A-Z0-9]{24}'''

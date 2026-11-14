@@ -1,0 +1,94 @@
+.panel {
+  margin: 0 0 24px;
+  min-width: 0;
+}
+.toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+.toolbar select,
+.toolbar input {
+  max-width: 100%;
+}
+.scroll {
+  overflow-x: auto;
+  margin: 16px 0;
+}
+.scroll table {
+  min-width: 600px;
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.scroll td,
+.scroll th {
+  padding: 12px 10px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border, #cbd5e1);
+}
+.meta {
+  overflow-wrap: anywhere;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.item {
+  border: 1px solid var(--border, #cbd5e1);
+  border-radius: 12px;
+  padding: 12px;
+  min-width: 0;
+}
+.stack {
+  display: grid;
+  gap: 12px;
+}
+.panel pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.panel fieldset {
+  border: 1px solid var(--border, #cbd5e1);
+  border-radius: 12px;
+  padding: 16px;
+}
+.panel summary {
+  cursor: pointer;
+}
+.panel textarea {
+  width: 100%;
+}
+@media (max-width: 600px) {
+  .toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .toolbar > * {
+    width: 100%;
+  }
+  .scroll table {
+    min-width: 540px;
+  }
+}
+@media print {
+  .actions,
+  .toolbar button {
+    display: none;
+  }
+  .scroll {
+    overflow: visible;
+  }
+  .scroll table {
+    min-width: 0;
+  }
+}

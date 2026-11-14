@@ -1,0 +1,341 @@
+{
+  "pin": {
+    "version": "0.76.2",
+    "binarySha256": "dd07adf881a72b54d1a922191d62fa939938df2155be85a727da93b67b24e617",
+    "archiveSha256": "691f737a7e5566a673c3a74dab9160552ec32101e953b659e5c77443d16dddb6",
+    "url": "https://github.com/aquasecurity/trivy/releases/download/v0.76.2/trivy_0.76.2_windows-64bit.zip",
+    "license": "Apache-2.0",
+    "folder": "wetscan-guard-tools-trivy-0.76.2",
+    "filename": "trivy.exe"
+  },
+  "results": [
+    {
+      "variant": "vulnerable",
+      "exitCode": 0,
+      "durationMs": 914,
+      "artifactDigest": "f7489c592ff75c515314f83bd9652bf6f1b6656c2344f8b1fdd169a1700c7c3c",
+      "targetSha256": "021f61d28aa79ed6cef64d6de6ebb8fc254073a0bbcb6c7d98866177d0391eff",
+      "provenance": "Embedded Trivy checks from checksum-pinned binary; policy update disabled; no Terraform execution",
+      "findings": [
+        {
+          "workspaceId": "synthetic-verification",
+          "projectId": "trivy-fixture",
+          "mode": "demo",
+          "id": "b056eac2ac0ede27c7808173a7875c91034bc835ad7d8a7b85a559ca408d3323",
+          "title": "S3 Access block should block public ACL",
+          "severity": "high",
+          "confidence": "medium",
+          "status": "potential",
+          "source": {
+            "engine": "iac",
+            "scanner": "trivy",
+            "version": "0.76.2",
+            "ruleId": "AWS-0086",
+            "rulePack": "embedded-dd07adf881a72b54d1a922191d62fa939938df2155be85a727da93b67b24e617"
+          },
+          "location": {
+            "path": "main.tf"
+          },
+          "evidence": [
+            {
+              "id": "674fa758d2ac130dac4d2b57c809735403cd627ee2ba35fa217209b753d4429b",
+              "commit": "021f61d28aa79ed6cef64d6de6ebb8fc254073a0bbcb6c7d98866177d0391eff",
+              "recordedAt": "2026-11-14T08:37:09.904Z",
+              "summary": "Review this scanner finding in the authorized scope. No exploit was executed.",
+              "artifactDigest": "f7489c592ff75c515314f83bd9652bf6f1b6656c2344f8b1fdd169a1700c7c3c",
+              "synthetic": true
+            }
+          ]
+        },
+        {
+          "workspaceId": "synthetic-verification",
+          "projectId": "trivy-fixture",
+          "mode": "demo",
+          "id": "26cb8bee7ef62216ef7e524bd47dad15a667fdd25c999d6c5835006ef33c55bd",
+          "title": "S3 Access block should block public policy",
+          "severity": "high",
+          "confidence": "medium",
+          "status": "potential",
+          "source": {
+            "engine": "iac",
+            "scanner": "trivy",
+            "version": "0.76.2",
+            "ruleId": "AWS-0087",
+            "rulePack": "embedded-dd07adf881a72b54d1a922191d62fa939938df2155be85a727da93b67b24e617"
+          },
+          "location": {
+            "path": "main.tf"
+          },
+          "evidence": [
+            {
+              "id": "3f2c0dffbd109ccf8f826c88bc8f9f02d07761d3cf982e90515dbcc00474c31f",
+              "commit": "021f61d28aa79ed6cef64d6de6ebb8fc254073a0bbcb6c7d98866177d0391eff",
+              "recordedAt": "2026-11-14T08:37:09.904Z",
+              "summary": "Review this scanner finding in the authorized scope. No exploit was executed.",
+              "artifactDigest": "f7489c592ff75c515314f83bd9652bf6f1b6656c2344f8b1fdd169a1700c7c3c",
+              "synthetic": true
+            }
+          ]
+        },
+        {
+          "workspaceId": "synthetic-verification",
+          "projectId": "trivy-fixture",
+          "mode": "demo",
+          "id": "34af463c029241dde51f09f66bfed6b216f3b189209d4e593f8886f4605b75ed",
+          "title": "S3 Bucket Logging",
+          "severity": "low",
+          "confidence": "medium",
+          "status": "potential",
+          "source": {
+            "engine": "iac",
+            "scanner": "trivy",
+            "version": "0.76.2",
+            "ruleId": "AWS-0089",
+            "rulePack": "embedded-dd07adf881a72b54d1a922191d62fa939938df2155be85a727da93b67b24e617"
+          },
+          "location": {
+            "path": "main.tf"
+          },
+          "evidence": [
+            {
+              "id": "fa21623a36770ed68852d2abefb6e092552dbd3b82accf6eb99566e87e818cac",
+              "commit": "021f61d28aa79ed6cef64d6de6ebb8fc254073a0bbcb6c7d98866177d0391eff",
+              "recordedAt": "2026-11-14T08:37:09.904Z",
+              "summary": "Review this scanner finding in the authorized scope. No exploit was executed.",
+              "artifactDigest": "f7489c592ff75c515314f83bd9652bf6f1b6656c2344f8b1fdd169a1700c7c3c",
+              "synthetic": true
+            }
+          ]
+        },
+        {
+          "workspaceId": "synthetic-verification",
+          "projectId": "trivy-fixture",
+          "mode": "demo",
+          "id": "81d6584c8fa03d229ba4ed2332c6ed5f239b644f3b4dd4b33ed0941dd68d9371",
+          "title": "S3 Data should be versioned",
+          "severity": "medium",
+          "confidence": "medium",
+          "status": "potential",
+          "source": {
+            "engine": "iac",
+            "scanner": "trivy",
+            "version": "0.76.2",
+            "ruleId": "AWS-0090",
+            "rulePack": "embedded-dd07adf881a72b54d1a922191d62fa939938df2155be85a727da93b67b24e617"
+          },
+          "location": {
+            "path": "main.tf"
+          },
+          "evidence": [
+            {
+              "id": "8337ec8b79adf18b21e1fa959964cb6af86ce30d2ff73bff0d3982b26aa8babe",
+              "commit": "021f61d28aa79ed6cef64d6de6ebb8fc254073a0bbcb6c7d98866177d0391eff",
+              "recordedAt": "2026-11-14T08:37:09.904Z",
+              "summary": "Review this scanner finding in the authorized scope. No exploit was executed.",
+              "artifactDigest": "f7489c592ff75c515314f83bd9652bf6f1b6656c2344f8b1fdd169a1700c7c3c",
+              "synthetic": true
+            }
+          ]
+        },
+        {
+          "workspaceId": "synthetic-verification",
+          "projectId": "trivy-fixture",
+          "mode": "demo",
+          "id": "9bb2aa5c28c1cf1a12535d26f02db90b51e0e7406575c39fd257c0af87746523",
+          "title": "S3 Access Block should Ignore Public ACL",
+          "severity": "high",
+          "confidence": "medium",
+          "status": "potential",
+          "source": {
+            "engine": "iac",
+            "scanner": "trivy",
+            "version": "0.76.2",
+            "ruleId": "AWS-0091",
+            "rulePack": "embedded-dd07adf881a72b54d1a922191d62fa939938df2155be85a727da93b67b24e617"
+          },
+          "location": {
+            "path": "main.tf"
+          },
+          "evidence": [
+            {
+              "id": "53aa1f145deb64b38270a0b77be1ea47fa2005b85600a5595c88751094141522",
+              "commit": "021f61d28aa79ed6cef64d6de6ebb8fc254073a0bbcb6c7d98866177d0391eff",
+              "recordedAt": "2026-11-14T08:37:09.904Z",
+              "summary": "Review this scanner finding in the authorized scope. No exploit was executed.",
+              "artifactDigest": "f7489c592ff75c515314f83bd9652bf6f1b6656c2344f8b1fdd169a1700c7c3c",
+              "synthetic": true
+            }
+          ]
+        },
+        {
+          "workspaceId": "synthetic-verification",
+          "projectId": "trivy-fixture",
+          "mode": "demo",
+          "id": "bcf2d5fb4ebd5de2e2f6f7c4c1c5a95849377fa6a1935302d01dc4b70d77dfcc",
+          "title": "S3 Access block should restrict public bucket to limit access",
+          "severity": "high",
+          "confidence": "medium",
+          "status": "potential",
+          "source": {
+            "engine": "iac",
+            "scanner": "trivy",
+            "version": "0.76.2",
+            "ruleId": "AWS-0093",
+            "rulePack": "embedded-dd07adf881a72b54d1a922191d62fa939938df2155be85a727da93b67b24e617"
+          },
+          "location": {
+            "path": "main.tf"
+          },
+          "evidence": [
+            {
+              "id": "a54488efd73711d4502f2650994d5a55d7447ccb4244e704041df697299b7c9e",
+              "commit": "021f61d28aa79ed6cef64d6de6ebb8fc254073a0bbcb6c7d98866177d0391eff",
+              "recordedAt": "2026-11-14T08:37:09.904Z",
+              "summary": "Review this scanner finding in the authorized scope. No exploit was executed.",
+              "artifactDigest": "f7489c592ff75c515314f83bd9652bf6f1b6656c2344f8b1fdd169a1700c7c3c",
+              "synthetic": true
+            }
+          ]
+        },
+        {
+          "workspaceId": "synthetic-verification",
+          "projectId": "trivy-fixture",
+          "mode": "demo",
+          "id": "fd6e8bbfbb2369ca6a3d0b64e4106ab8c6d452a92ce02e129b962b92eac7c7f9",
+          "title": "S3 encryption should use Customer Managed Keys",
+          "severity": "high",
+          "confidence": "medium",
+          "status": "potential",
+          "source": {
+            "engine": "iac",
+            "scanner": "trivy",
+            "version": "0.76.2",
+            "ruleId": "AWS-0132",
+            "rulePack": "embedded-dd07adf881a72b54d1a922191d62fa939938df2155be85a727da93b67b24e617"
+          },
+          "location": {
+            "path": "main.tf"
+          },
+          "evidence": [
+            {
+              "id": "dd79be8d3365c122e3d95b835fed9ce89a1cc5bbf71c1013f05b0d83f2c20c23",
+              "commit": "021f61d28aa79ed6cef64d6de6ebb8fc254073a0bbcb6c7d98866177d0391eff",
+              "recordedAt": "2026-11-14T08:37:09.904Z",
+              "summary": "Review this scanner finding in the authorized scope. No exploit was executed.",
+              "artifactDigest": "f7489c592ff75c515314f83bd9652bf6f1b6656c2344f8b1fdd169a1700c7c3c",
+              "synthetic": true
+            }
+          ]
+        }
+      ],
+      "targetedFindingCount": 4
+    },
+    {
+      "variant": "fixed",
+      "exitCode": 0,
+      "durationMs": 870,
+      "artifactDigest": "c99b5e0747adac22934a6beac9a83a63078ccf3cb1f4768d0fe174971c8e925a",
+      "targetSha256": "e4e30bbb442bc89c0e785e51a7940bddb928eb1517298f759e262b01d1e99a0f",
+      "provenance": "Embedded Trivy checks from checksum-pinned binary; policy update disabled; no Terraform execution",
+      "findings": [
+        {
+          "workspaceId": "synthetic-verification",
+          "projectId": "trivy-fixture",
+          "mode": "demo",
+          "id": "34af463c029241dde51f09f66bfed6b216f3b189209d4e593f8886f4605b75ed",
+          "title": "S3 Bucket Logging",
+          "severity": "low",
+          "confidence": "medium",
+          "status": "potential",
+          "source": {
+            "engine": "iac",
+            "scanner": "trivy",
+            "version": "0.76.2",
+            "ruleId": "AWS-0089",
+            "rulePack": "embedded-dd07adf881a72b54d1a922191d62fa939938df2155be85a727da93b67b24e617"
+          },
+          "location": {
+            "path": "main.tf"
+          },
+          "evidence": [
+            {
+              "id": "8967730f6a6355c6508a44dc90e3b09d1bd9c43f4de799e00d317c03f7bf0c1b",
+              "commit": "e4e30bbb442bc89c0e785e51a7940bddb928eb1517298f759e262b01d1e99a0f",
+              "recordedAt": "2026-11-14T08:37:11.117Z",
+              "summary": "Review this scanner finding in the authorized scope. No exploit was executed.",
+              "artifactDigest": "c99b5e0747adac22934a6beac9a83a63078ccf3cb1f4768d0fe174971c8e925a",
+              "synthetic": true
+            }
+          ]
+        },
+        {
+          "workspaceId": "synthetic-verification",
+          "projectId": "trivy-fixture",
+          "mode": "demo",
+          "id": "81d6584c8fa03d229ba4ed2332c6ed5f239b644f3b4dd4b33ed0941dd68d9371",
+          "title": "S3 Data should be versioned",
+          "severity": "medium",
+          "confidence": "medium",
+          "status": "potential",
+          "source": {
+            "engine": "iac",
+            "scanner": "trivy",
+            "version": "0.76.2",
+            "ruleId": "AWS-0090",
+            "rulePack": "embedded-dd07adf881a72b54d1a922191d62fa939938df2155be85a727da93b67b24e617"
+          },
+          "location": {
+            "path": "main.tf"
+          },
+          "evidence": [
+            {
+              "id": "361ce4ef66c2c90343b86f93ce374e992874bebe162411437a5f77a1f9659837",
+              "commit": "e4e30bbb442bc89c0e785e51a7940bddb928eb1517298f759e262b01d1e99a0f",
+              "recordedAt": "2026-11-14T08:37:11.117Z",
+              "summary": "Review this scanner finding in the authorized scope. No exploit was executed.",
+              "artifactDigest": "c99b5e0747adac22934a6beac9a83a63078ccf3cb1f4768d0fe174971c8e925a",
+              "synthetic": true
+            }
+          ]
+        },
+        {
+          "workspaceId": "synthetic-verification",
+          "projectId": "trivy-fixture",
+          "mode": "demo",
+          "id": "fd6e8bbfbb2369ca6a3d0b64e4106ab8c6d452a92ce02e129b962b92eac7c7f9",
+          "title": "S3 encryption should use Customer Managed Keys",
+          "severity": "high",
+          "confidence": "medium",
+          "status": "potential",
+          "source": {
+            "engine": "iac",
+            "scanner": "trivy",
+            "version": "0.76.2",
+            "ruleId": "AWS-0132",
+            "rulePack": "embedded-dd07adf881a72b54d1a922191d62fa939938df2155be85a727da93b67b24e617"
+          },
+          "location": {
+            "path": "main.tf"
+          },
+          "evidence": [
+            {
+              "id": "b471331b63625d9abbc507ee6db0689b583a820fd619e32d91805fe8dea49f11",
+              "commit": "e4e30bbb442bc89c0e785e51a7940bddb928eb1517298f759e262b01d1e99a0f",
+              "recordedAt": "2026-11-14T08:37:11.117Z",
+              "summary": "Review this scanner finding in the authorized scope. No exploit was executed.",
+              "artifactDigest": "c99b5e0747adac22934a6beac9a83a63078ccf3cb1f4768d0fe174971c8e925a",
+              "synthetic": true
+            }
+          ]
+        }
+      ],
+      "targetedFindingCount": 0
+    }
+  ],
+  "limitations": [
+    "Controlled static fixture only; no customer scan",
+    "No code/package/Terraform execution",
+    "No production sandbox or egress enforcement",
+    "Fixture source SHA256 is a content version, not a Git commit"
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "pin": {
+    "version": "2.7.1",
+    "binarySha256": "7121dcf420aefbbf89a7f0050c4d3094e079ff93afd334dfc96f16b02ec85800",
+    "url": "https://github.com/google/osv-scanner/releases/download/v2.7.1/osv-scanner_windows_amd64.exe",
+    "license": "Apache-2.0",
+    "folder": "wetscan-guard-tools-osv-2.7.1",
+    "filename": "osv-scanner.exe"
+  },
+  "results": [
+    {
+      "variant": "vulnerable",
+      "exitCode": 1,
+      "durationMs": 984,
+      "artifactDigest": "ea55d1a3e7d9038cfaefac3d0cd8702f1866d5d73f9e63d1d015b7fb84589c5c",
+      "targetSha256": "d3bf860dd371b8575228df26255eaf3badf73d670ca07cc1e2c6c294e317f163",
+      "provenance": "Actual official OSV advisory query for a synthetic lockfile; no package installation, resolution or call analysis",
+      "findings": [
+        {
+          "workspaceId": "synthetic-verification",
+          "projectId": "osv-fixture",
+          "mode": "demo",
+          "id": "d590252d525b0b989314cda012ffa1f612e44e5d94b7fd215213c513d0196537",
+          "title": "Dependency advisory: GHSA-vh95-rmgr-6w4m",
+          "severity": "medium",
+          "confidence": "medium",
+          "status": "potential",
+          "source": {
+            "engine": "sca",
+            "scanner": "osv-scanner",
+            "version": "2.7.1",
+            "ruleId": "GHSA-vh95-rmgr-6w4m",
+            "rulePack": "OSV advisory service queried at recordedAt"
+          },
+          "location": {
+            "path": "package-lock.json",
+            "package": "minimist",
+            "installedVersion": "0.0.8"
+          },
+          "evidence": [
+            {
+              "id": "1b28ad53adad9360a2abf89d095dc03d962c677b643a3064a4270847325fe5b7",
+              "commit": "d3bf860dd371b8575228df26255eaf3badf73d670ca07cc1e2c6c294e317f163",
+              "recordedAt": "2026-11-14T08:37:07.931Z",
+              "summary": "OSV advisory matched an installed package. Severity is conservative pending advisory/CVSS review; reachability is not verified.",
+              "artifactDigest": "ea55d1a3e7d9038cfaefac3d0cd8702f1866d5d73f9e63d1d015b7fb84589c5c",
+              "synthetic": true
+            }
+          ]
+        },
+        {
+          "workspaceId": "synthetic-verification",
+          "projectId": "osv-fixture",
+          "mode": "demo",
+          "id": "e50d5d35ed64c90588ed19cb5c71d401e259b366561df554cc5f33a91c98d4d0",
+          "title": "Dependency advisory: GHSA-xvch-5gv4-984h",
+          "severity": "medium",
+          "confidence": "medium",
+          "status": "potential",
+          "source": {
+            "engine": "sca",
+            "scanner": "osv-scanner",
+            "version": "2.7.1",
+            "ruleId": "GHSA-xvch-5gv4-984h",
+            "rulePack": "OSV advisory service queried at recordedAt"
+          },
+          "location": {
+            "path": "package-lock.json",
+            "package": "minimist",
+            "installedVersion": "0.0.8"
+          },
+          "evidence": [
+            {
+              "id": "cf07248a9560eeac9b75dfcf6a4797d8b8c0a50d3ee0ce31fd3cc2c202c0c03c",
+              "commit": "d3bf860dd371b8575228df26255eaf3badf73d670ca07cc1e2c6c294e317f163",
+              "recordedAt": "2026-11-14T08:37:07.931Z",
+              "summary": "OSV advisory matched an installed package. Severity is conservative pending advisory/CVSS review; reachability is not verified.",
+              "artifactDigest": "ea55d1a3e7d9038cfaefac3d0cd8702f1866d5d73f9e63d1d015b7fb84589c5c",
+              "synthetic": true
+            }
+          ]
+        }
+      ],
+      "targetedFindingCount": 2,
+      "inventory": [
+        {
+          "name": "minimist",
+          "version": "0.0.8",
+          "ecosystem": "npm",
+          "license": null,
+          "sourcePath": "package-lock.json"
+        }
+      ]
+    },
+    {
+      "variant": "fixed",
+      "exitCode": 0,
+      "durationMs": 575,
+      "artifactDigest": "428c3e616bce3ae166ea939528cd6966ae1610fe0c8d121482931c55c593d4d6",
+      "targetSha256": "2ae11c46d493475cbfc2361c59a967fa85d295245ef23ddd60693f59468c1de8",
+      "provenance": "Actual official OSV advisory query for a synthetic lockfile; no package installation, resolution or call analysis",
+      "findings": [],
+      "targetedFindingCount": 0,
+      "inventory": [
+        {
+          "name": "minimist",
+          "version": "1.2.8",
+          "ecosystem": "npm",
+          "license": null,
+          "sourcePath": "package-lock.json"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Controlled static fixture only; no customer scan",
+    "No code/package/Terraform execution",
+    "No production sandbox or egress enforcement",
+    "Fixture source SHA256 is a content version, not a Git commit",
+    "Advisory dataset is online/time-varying; recorded normalized advisories are evidence for this run only",
+    "OSV fallback severity is medium pending CVSS review"
+  ]
+}
