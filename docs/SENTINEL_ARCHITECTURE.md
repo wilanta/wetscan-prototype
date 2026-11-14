@@ -1,5 +1,9 @@
 # Sentinel S00 architecture audit
 
+**Current S01 finalization, 14 November 2026:** H01 provisioning, 14/14 real PostgreSQL acceptance, development up/up idempotency and the separate Windows private-IPC worker lifecycle retest passed. The owner explicitly authorized final review, commit, push and a PR to `master`; merging, deployment, new migrations, worker activation and S02 remain outside this task. The worker is stopped. See [current validation](SENTINEL_S01_VALIDATION.md) and [acceptance history](SENTINEL_H01_ACCEPTANCE.md). The preparation-stage status and S00 audit below are historical; their pending-H01 statements do not describe the accepted local instance.
+
+**S01 status update, 14 November 2026:** this historical S00 audit/contract freeze is retained below. S00 merged at `ec6838b77cf14a126cb3c4d1a7f8d86d70d85665`; the owner's subsequent explicit S01 task authorizes platform implementation and SQL preparation only. See [S01 architecture](SENTINEL_S01_ARCHITECTURE.md), [migration review](SENTINEL_S01_MIGRATION_REVIEW.md), [H01 setup](SENTINEL_H01_SETUP.md) and [S01 validation](SENTINEL_S01_VALIDATION.md). H01 still blocks provisioning/connection and migration application. Historical statements below about absent DB dependencies/S01 scope describe S00, not the prepared S01 packet. Guard fixture/live boundaries and all ownership decisions remain unchanged.
+
 Scope: architecture and contract alignment only, based on the complete 333-line `WetScan_Sentinel_Development_Playbook_v1.1_Guard_Aligned.md` supplied from Downloads. Its later packet prompts are reference material, not authorization to execute S01-S11. See [H10 compatibility sheet](SENTINEL_COMPATIBILITY.md), [packet backlog](SENTINEL_INTEGRATION_BACKLOG.md), [human actions](SENTINEL_HUMAN_ACTIONS.md), and [validation](SENTINEL_VALIDATION.md).
 
 ## Current evidence and compatibility

@@ -4,5 +4,7 @@ next-env.d.ts
 *.tsbuildinfo
 .env*
 !.env.example
+!.env.sentinel.example
+.local/sentinel/
 test-results/
 playwright-report/

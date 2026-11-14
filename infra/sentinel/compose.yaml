@@ -1,0 +1,48 @@
+name: wetscan-sentinel-local
+services:
+  postgres:
+    image: ${SENTINEL_POSTGRES_IMAGE:?Set a reviewed PostgreSQL 17 image digest}
+    environment:
+      POSTGRES_DB: wetscan_dev
+      POSTGRES_USER: wetscan_bootstrap
+      POSTGRES_PASSWORD_FILE: /run/secrets/bootstrap_password
+      TZ: UTC
+    ports:
+      - "127.0.0.1:${SENTINEL_DB_PORT:-55432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    secrets:
+      - bootstrap_password
+    command:
+      [
+        postgres,
+        -c,
+        max_connections=40,
+        -c,
+        shared_buffers=128MB,
+        -c,
+        log_statement=none,
+        -c,
+        timezone=UTC,
+      ]
+    mem_limit: 1g
+    cpus: 2
+    pids_limit: 128
+    shm_size: 128mb
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 30s
+    healthcheck:
+      test:
+        [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: "no"
+volumes:
+  postgres_data:
+    external: true
+    name: ${SENTINEL_DB_VOLUME:?Explicitly approve and create a NEW external development volume}
+secrets:
+  bootstrap_password:
+    file: ${SENTINEL_DB_BOOTSTRAP_PASSWORD_FILE:?Provide an ignored local secret file}

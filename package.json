@@ -10,6 +10,11 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "sentinel:db": "node --env-file-if-exists=.env.sentinel.local --import tsx scripts/sentinel-db.ts",
+    "sentinel:worker": "node --env-file-if-exists=.env.sentinel.local --max-old-space-size=256 --import tsx worker/sentinel/main.ts",
+    "sentinel:worker:smoke": "node --env-file-if-exists=.env.sentinel.local --import tsx scripts/sentinel-worker-smoke.ts",
+    "sentinel:health": "node --env-file-if-exists=.env.sentinel.local --import tsx scripts/sentinel-health.ts",
+    "test:platform:postgres": "node --env-file-if-exists=.env.sentinel.test.local --import tsx scripts/sentinel-postgres-test.ts",
     "format": "prettier --write src tests *.ts *.mjs README.md docs/*.md"
   },
   "dependencies": {
@@ -21,16 +26,19 @@
     "clsx": "2.1.1",
     "lucide-react": "1.72.0",
     "next": "16.4.6",
+    "pg": "8.23.1",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "sonner": "2.0.8",
-    "tailwind-merge": "3.7.0"
+    "tailwind-merge": "3.7.0",
+    "tsx": "4.23.15"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
     "@playwright/test": "1.65.0",
     "@tailwindcss/postcss": "4.3.5",
     "@types/node": "26.6.6",
+    "@types/pg": "8.23.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "eslint": "9.39.5",

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "status": "WAITING_USER",
+  "approvedBy": "",
+  "approvedAt": "",
+  "target": {
+    "host": "127.0.0.1",
+    "port": 55432,
+    "database": "wetscan_dev",
+    "marker": ""
+  },
+  "actions": [],
+  "migrationPlanSha256": ""
+}
