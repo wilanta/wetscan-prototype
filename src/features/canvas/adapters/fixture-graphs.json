@@ -1,0 +1,921 @@
+{
+  "a": {
+    "schemaVersion": 1,
+    "analyzerVersion": "canvas-next-ts/1.0.0",
+    "projectRef": "internal:a",
+    "mode": "snapshot",
+    "revision": "example-a-v1",
+    "branch": "example",
+    "environment": "unknown",
+    "generatedAt": "2026-11-14T00:00:00.000Z",
+    "nodes": [
+      {
+        "id": "internal%3Aa:api:src%2Fapp%2F(store)%2Fapi%2Forders%2F%5Bid%5D%2Froute.ts",
+        "kind": "api",
+        "label": "/api/orders/[id]",
+        "technology": "App Router",
+        "evidenceIds": [
+          "internal%3Aa:evidence:src%2Fapp%2F(store)%2Fapi%2Forders%2F%5Bid%5D%2Froute.ts%3A1%3AApp%20Router%3A%20%2Fapi%2Forders%2F%5Bid%5D%3B%20exported%20methods%20GET%2C%20PATCH.",
+          "internal%3Aa:evidence:src%2Fapp%2F(store)%2Fapi%2Forders%2F%5Bid%5D%2Froute.ts%3A3%3AGET%20is%20a%20statically%20exported%20HTTP%20method.%20Request%20authorization%20and%20runtime%20results%20are%20not%20tested.",
+          "internal%3Aa:evidence:src%2Fapp%2F(store)%2Fapi%2Forders%2F%5Bid%5D%2Froute.ts%3A4%3APATCH%20is%20a%20statically%20exported%20HTTP%20method.%20Request%20authorization%20and%20runtime%20results%20are%20not%20tested."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified.",
+        "metadata": {
+          "route": "/api/orders/[id]",
+          "methods": "GET, PATCH"
+        }
+      },
+      {
+        "id": "internal%3Aa:auth:Clerk",
+        "kind": "auth",
+        "label": "Clerk",
+        "technology": "Clerk",
+        "evidenceIds": [
+          "internal%3Aa:evidence:src%2Fapp%2F(store)%2Fapi%2Forders%2F%5Bid%5D%2Froute.ts%3A1%3AClerk%20imported%20and%20referenced%20in%20source.%20This%20proves%20source%20usage%2C%20not%20a%20provisioned%20service%20or%20runtime%20connection."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified."
+      },
+      {
+        "id": "internal%3Aa:database:Prisma",
+        "kind": "database",
+        "label": "Prisma",
+        "technology": "Prisma",
+        "evidenceIds": [
+          "internal%3Aa:evidence:src%2Flib%2Fdb.ts%3A1%3APrisma%20imported%20and%20referenced%20in%20source.%20This%20proves%20source%20usage%2C%20not%20a%20provisioned%20service%20or%20runtime%20connection."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified."
+      },
+      {
+        "id": "internal%3Aa:database:schema%3Apostgresql",
+        "kind": "database",
+        "label": "postgresql schema",
+        "technology": "Prisma schema",
+        "evidenceIds": [
+          "internal%3Aa:evidence:prisma%2Fschema.prisma%3A1%3APrisma%20schema%20configures%20postgresql.%20No%20database%20connection%20or%20provisioning%20verified."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified."
+      },
+      {
+        "id": "internal%3Aa:frontend:app",
+        "kind": "frontend",
+        "label": "Web application",
+        "technology": "Next.js · React · TypeScript",
+        "evidenceIds": [
+          "internal%3Aa:evidence:package.json%3A1%3APackage%20manifest%20identifies%20installed%20framework%20dependencies%3B%20installation%20alone%20does%20not%20prove%20use."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified.",
+        "metadata": {
+          "packageManager": "npm",
+          "framework": "Next.js",
+          "version": "16.4.6"
+        }
+      },
+      {
+        "id": "internal%3Aa:hosting:vercel.json",
+        "kind": "hosting",
+        "label": "Hosting configuration",
+        "technology": "vercel.json",
+        "evidenceIds": [
+          "internal%3Aa:evidence:vercel.json%3A1%3ADeployment%20configuration%20exists.%20Provider%20connection%20and%20deployment%20have%20not%20been%20verified."
+        ],
+        "origin": "inferred",
+        "status": "inferred",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified."
+      },
+      {
+        "id": "internal%3Aa:repository:root",
+        "kind": "repository",
+        "label": "internal:a",
+        "technology": "local_test · example",
+        "origin": "inferred",
+        "status": "inferred",
+        "evidenceIds": [],
+        "description": "Repository identity supplied by snapshot metadata; access authorization belongs to the source adapter."
+      }
+    ],
+    "edges": [
+      {
+        "id": "internal%3Aa:edge:internal%253Aa%3Aapi%3Asrc%252Fapp%252F(store)%252Fapi%252Forders%252F%255Bid%255D%252Froute.ts%3Einternal%253Aa%3Aauth%3AClerk%3Aimports",
+        "source": "internal%3Aa:api:src%2Fapp%2F(store)%2Fapi%2Forders%2F%5Bid%5D%2Froute.ts",
+        "target": "internal%3Aa:auth:Clerk",
+        "relationship": "imports",
+        "evidenceIds": [
+          "internal%3Aa:evidence:src%2Fapp%2F(store)%2Fapi%2Forders%2F%5Bid%5D%2Froute.ts%3A1%3AClerk%20imported%20and%20referenced%20in%20source.%20This%20proves%20source%20usage%2C%20not%20a%20provisioned%20service%20or%20runtime%20connection."
+        ],
+        "origin": "verified",
+        "description": "Direct source import and reference; runtime data flow unknown."
+      },
+      {
+        "id": "internal%3Aa:edge:internal%253Aa%3Aapi%3Asrc%252Fapp%252F(store)%252Fapi%252Forders%252F%255Bid%255D%252Froute.ts%3Einternal%253Aa%3Adatabase%3APrisma%3Aimports",
+        "source": "internal%3Aa:api:src%2Fapp%2F(store)%2Fapi%2Forders%2F%5Bid%5D%2Froute.ts",
+        "target": "internal%3Aa:database:Prisma",
+        "relationship": "imports",
+        "evidenceIds": [
+          "internal%3Aa:evidence:src%2Flib%2Fdb.ts%3A1%3APrisma%20imported%20and%20referenced%20in%20source.%20This%20proves%20source%20usage%2C%20not%20a%20provisioned%20service%20or%20runtime%20connection.",
+          "internal%3Aa:evidence:src%2Fapp%2F(store)%2Fapi%2Forders%2F%5Bid%5D%2Froute.ts%3A1%3AStatic%20import%20chain%20reaches%20the%20referenced%20SDK%20wrapper.%20Aliases%20support%20conventional%20%40%2Fsrc%20only%3B%20runtime%20execution%20is%20unknown."
+        ],
+        "origin": "verified",
+        "description": "Reachable static import chain; runtime data flow unknown."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "internal%3Aa:evidence:package.json%3A1%3APackage%20manifest%20identifies%20installed%20framework%20dependencies%3B%20installation%20alone%20does%20not%20prove%20use.",
+        "kind": "manifest",
+        "sourcePath": "package.json",
+        "startLine": 1,
+        "summary": "Package manifest identifies installed framework dependencies; installation alone does not prove use.",
+        "origin": "verified",
+        "sourceRevision": "example-a-v1"
+      },
+      {
+        "id": "internal%3Aa:evidence:prisma%2Fschema.prisma%3A1%3APrisma%20schema%20configures%20postgresql.%20No%20database%20connection%20or%20provisioning%20verified.",
+        "kind": "config",
+        "sourcePath": "prisma/schema.prisma",
+        "startLine": 1,
+        "summary": "Prisma schema configures postgresql. No database connection or provisioning verified.",
+        "origin": "verified",
+        "sourceRevision": "example-a-v1"
+      },
+      {
+        "id": "internal%3Aa:evidence:src%2Fapp%2F(store)%2Fapi%2Forders%2F%5Bid%5D%2Froute.ts%3A1%3AApp%20Router%3A%20%2Fapi%2Forders%2F%5Bid%5D%3B%20exported%20methods%20GET%2C%20PATCH.",
+        "kind": "source_file",
+        "sourcePath": "src/app/(store)/api/orders/[id]/route.ts",
+        "startLine": 1,
+        "summary": "App Router: /api/orders/[id]; exported methods GET, PATCH.",
+        "origin": "verified",
+        "sourceRevision": "example-a-v1"
+      },
+      {
+        "id": "internal%3Aa:evidence:src%2Fapp%2F(store)%2Fapi%2Forders%2F%5Bid%5D%2Froute.ts%3A1%3AClerk%20imported%20and%20referenced%20in%20source.%20This%20proves%20source%20usage%2C%20not%20a%20provisioned%20service%20or%20runtime%20connection.",
+        "kind": "source_file",
+        "sourcePath": "src/app/(store)/api/orders/[id]/route.ts",
+        "startLine": 1,
+        "summary": "Clerk imported and referenced in source. This proves source usage, not a provisioned service or runtime connection.",
+        "origin": "verified",
+        "sourceRevision": "example-a-v1"
+      },
+      {
+        "id": "internal%3Aa:evidence:src%2Fapp%2F(store)%2Fapi%2Forders%2F%5Bid%5D%2Froute.ts%3A1%3AStatic%20import%20chain%20reaches%20the%20referenced%20SDK%20wrapper.%20Aliases%20support%20conventional%20%40%2Fsrc%20only%3B%20runtime%20execution%20is%20unknown.",
+        "kind": "source_file",
+        "sourcePath": "src/app/(store)/api/orders/[id]/route.ts",
+        "startLine": 1,
+        "summary": "Static import chain reaches the referenced SDK wrapper. Aliases support conventional @/src only; runtime execution is unknown.",
+        "origin": "verified",
+        "sourceRevision": "example-a-v1"
+      },
+      {
+        "id": "internal%3Aa:evidence:src%2Fapp%2F(store)%2Fapi%2Forders%2F%5Bid%5D%2Froute.ts%3A3%3AGET%20is%20a%20statically%20exported%20HTTP%20method.%20Request%20authorization%20and%20runtime%20results%20are%20not%20tested.",
+        "kind": "source_file",
+        "sourcePath": "src/app/(store)/api/orders/[id]/route.ts",
+        "startLine": 3,
+        "summary": "GET is a statically exported HTTP method. Request authorization and runtime results are not tested.",
+        "origin": "verified",
+        "sourceRevision": "example-a-v1"
+      },
+      {
+        "id": "internal%3Aa:evidence:src%2Fapp%2F(store)%2Fapi%2Forders%2F%5Bid%5D%2Froute.ts%3A4%3APATCH%20is%20a%20statically%20exported%20HTTP%20method.%20Request%20authorization%20and%20runtime%20results%20are%20not%20tested.",
+        "kind": "source_file",
+        "sourcePath": "src/app/(store)/api/orders/[id]/route.ts",
+        "startLine": 4,
+        "summary": "PATCH is a statically exported HTTP method. Request authorization and runtime results are not tested.",
+        "origin": "verified",
+        "sourceRevision": "example-a-v1"
+      },
+      {
+        "id": "internal%3Aa:evidence:src%2Flib%2Fdb.ts%3A1%3APrisma%20imported%20and%20referenced%20in%20source.%20This%20proves%20source%20usage%2C%20not%20a%20provisioned%20service%20or%20runtime%20connection.",
+        "kind": "source_file",
+        "sourcePath": "src/lib/db.ts",
+        "startLine": 1,
+        "summary": "Prisma imported and referenced in source. This proves source usage, not a provisioned service or runtime connection.",
+        "origin": "verified",
+        "sourceRevision": "example-a-v1"
+      },
+      {
+        "id": "internal%3Aa:evidence:vercel.json%3A1%3ADeployment%20configuration%20exists.%20Provider%20connection%20and%20deployment%20have%20not%20been%20verified.",
+        "kind": "config",
+        "sourcePath": "vercel.json",
+        "startLine": 1,
+        "summary": "Deployment configuration exists. Provider connection and deployment have not been verified.",
+        "origin": "verified",
+        "sourceRevision": "example-a-v1"
+      }
+    ],
+    "diagnostics": [
+      {
+        "code": "dependency_usage_required",
+        "severity": "info",
+        "message": "3 integration dependencies declared; services require concrete source usage."
+      }
+    ],
+    "coverage": [
+      {
+        "capability": "nextjs-typescript",
+        "status": "supported",
+        "detail": "App/Pages routes, static imports and supported SDK usage; source observations only."
+      },
+      {
+        "capability": "runtime-connections",
+        "status": "unsupported",
+        "detail": "No code executed, network accessed, deployment checked or security test run."
+      },
+      {
+        "capability": "generic-frameworks-openapi",
+        "status": "partial",
+        "detail": "Manifest identification only; Express/Nest/Vite endpoint analysis and OpenAPI are not implemented (CAN-016)."
+      },
+      {
+        "capability": "source-coverage",
+        "status": "partial",
+        "detail": "9 readable files, 805 bytes; 0 excluded. Static observations never establish security or runtime coverage. Analyzer canvas-next-ts/1.0.0."
+      }
+    ]
+  },
+  "b": {
+    "schemaVersion": 1,
+    "analyzerVersion": "canvas-next-ts/1.0.0",
+    "projectRef": "internal:b",
+    "mode": "snapshot",
+    "revision": "example-b-v1",
+    "branch": "example",
+    "environment": "unknown",
+    "generatedAt": "2026-11-14T00:00:00.000Z",
+    "nodes": [
+      {
+        "id": "internal%3Ab:api:pages%2Fapi%2Fpayments%2Findex.ts",
+        "kind": "api",
+        "label": "/api/payments",
+        "technology": "Pages Router · request methods not statically resolved",
+        "evidenceIds": [
+          "internal%3Ab:evidence:pages%2Fapi%2Fpayments%2Findex.ts%3A1%3APages%20Router%20%C2%B7%20request%20methods%20not%20statically%20resolved%3A%20%2Fapi%2Fpayments%3B%20HTTP%20methods%20unknown."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified.",
+        "metadata": {
+          "route": "/api/payments",
+          "methods": "unknown"
+        }
+      },
+      {
+        "id": "internal%3Ab:ci:.github%2Fworkflows%2Fcheck.yml",
+        "kind": "ci",
+        "label": "CI workflow",
+        "technology": "GitHub Actions configuration",
+        "evidenceIds": [
+          "internal%3Ab:evidence:.github%2Fworkflows%2Fcheck.yml%3A1%3ACI%20workflow%20file%20exists.%20Successful%20runs%20and%20deployment%20are%20unknown."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified."
+      },
+      {
+        "id": "internal%3Ab:external_service:Stripe",
+        "kind": "external_service",
+        "label": "Stripe",
+        "technology": "Stripe",
+        "evidenceIds": [
+          "internal%3Ab:evidence:pages%2Fapi%2Fpayments%2Findex.ts%3A1%3AStripe%20imported%20and%20referenced%20in%20source.%20This%20proves%20source%20usage%2C%20not%20a%20provisioned%20service%20or%20runtime%20connection."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified."
+      },
+      {
+        "id": "internal%3Ab:frontend:app",
+        "kind": "frontend",
+        "label": "Web application",
+        "technology": "Next.js",
+        "evidenceIds": [
+          "internal%3Ab:evidence:package.json%3A1%3APackage%20manifest%20identifies%20installed%20framework%20dependencies%3B%20installation%20alone%20does%20not%20prove%20use."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified.",
+        "metadata": {
+          "packageManager": "unknown",
+          "framework": "Next.js",
+          "version": "16"
+        }
+      },
+      {
+        "id": "internal%3Ab:repository:root",
+        "kind": "repository",
+        "label": "internal:b",
+        "technology": "local_test · example",
+        "origin": "inferred",
+        "status": "inferred",
+        "evidenceIds": [],
+        "description": "Repository identity supplied by snapshot metadata; access authorization belongs to the source adapter."
+      }
+    ],
+    "edges": [
+      {
+        "id": "internal%3Ab:edge:internal%253Ab%3Aapi%3Apages%252Fapi%252Fpayments%252Findex.ts%3Einternal%253Ab%3Aexternal_service%3AStripe%3Aimports",
+        "source": "internal%3Ab:api:pages%2Fapi%2Fpayments%2Findex.ts",
+        "target": "internal%3Ab:external_service:Stripe",
+        "relationship": "imports",
+        "evidenceIds": [
+          "internal%3Ab:evidence:pages%2Fapi%2Fpayments%2Findex.ts%3A1%3AStripe%20imported%20and%20referenced%20in%20source.%20This%20proves%20source%20usage%2C%20not%20a%20provisioned%20service%20or%20runtime%20connection."
+        ],
+        "origin": "verified",
+        "description": "Direct source import and reference; runtime data flow unknown."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "internal%3Ab:evidence:.github%2Fworkflows%2Fcheck.yml%3A1%3ACI%20workflow%20file%20exists.%20Successful%20runs%20and%20deployment%20are%20unknown.",
+        "kind": "config",
+        "sourcePath": ".github/workflows/check.yml",
+        "startLine": 1,
+        "summary": "CI workflow file exists. Successful runs and deployment are unknown.",
+        "origin": "verified",
+        "sourceRevision": "example-b-v1"
+      },
+      {
+        "id": "internal%3Ab:evidence:package.json%3A1%3APackage%20manifest%20identifies%20installed%20framework%20dependencies%3B%20installation%20alone%20does%20not%20prove%20use.",
+        "kind": "manifest",
+        "sourcePath": "package.json",
+        "startLine": 1,
+        "summary": "Package manifest identifies installed framework dependencies; installation alone does not prove use.",
+        "origin": "verified",
+        "sourceRevision": "example-b-v1"
+      },
+      {
+        "id": "internal%3Ab:evidence:pages%2Fapi%2Fpayments%2Findex.ts%3A1%3APages%20Router%20%C2%B7%20request%20methods%20not%20statically%20resolved%3A%20%2Fapi%2Fpayments%3B%20HTTP%20methods%20unknown.",
+        "kind": "source_file",
+        "sourcePath": "pages/api/payments/index.ts",
+        "startLine": 1,
+        "summary": "Pages Router · request methods not statically resolved: /api/payments; HTTP methods unknown.",
+        "origin": "verified",
+        "sourceRevision": "example-b-v1"
+      },
+      {
+        "id": "internal%3Ab:evidence:pages%2Fapi%2Fpayments%2Findex.ts%3A1%3AStripe%20imported%20and%20referenced%20in%20source.%20This%20proves%20source%20usage%2C%20not%20a%20provisioned%20service%20or%20runtime%20connection.",
+        "kind": "source_file",
+        "sourcePath": "pages/api/payments/index.ts",
+        "startLine": 1,
+        "summary": "Stripe imported and referenced in source. This proves source usage, not a provisioned service or runtime connection.",
+        "origin": "verified",
+        "sourceRevision": "example-b-v1"
+      }
+    ],
+    "diagnostics": [
+      {
+        "code": "dependency_usage_required",
+        "severity": "info",
+        "message": "2 integration dependencies declared; services require concrete source usage."
+      }
+    ],
+    "coverage": [
+      {
+        "capability": "nextjs-typescript",
+        "status": "supported",
+        "detail": "App/Pages routes, static imports and supported SDK usage; source observations only."
+      },
+      {
+        "capability": "runtime-connections",
+        "status": "unsupported",
+        "detail": "No code executed, network accessed, deployment checked or security test run."
+      },
+      {
+        "capability": "generic-frameworks-openapi",
+        "status": "partial",
+        "detail": "Manifest identification only; Express/Nest/Vite endpoint analysis and OpenAPI are not implemented (CAN-016)."
+      },
+      {
+        "capability": "source-coverage",
+        "status": "partial",
+        "detail": "4 readable files, 383 bytes; 0 excluded. Static observations never establish security or runtime coverage. Analyzer canvas-next-ts/1.0.0."
+      }
+    ]
+  },
+  "c": {
+    "schemaVersion": 1,
+    "analyzerVersion": "canvas-next-ts/1.0.0",
+    "projectRef": "internal:c",
+    "mode": "snapshot",
+    "revision": "example-c-v1",
+    "branch": "example",
+    "environment": "unknown",
+    "generatedAt": "2026-11-14T00:00:00.000Z",
+    "nodes": [
+      {
+        "id": "internal%3Ac:api:src%2Fapp%2Fapi%2Fauth%2Fgithub%2Froute.ts",
+        "kind": "api",
+        "label": "/api/auth/github",
+        "technology": "App Router",
+        "evidenceIds": [
+          "internal%3Ac:evidence:src%2Fapp%2Fapi%2Fauth%2Fgithub%2Froute.ts%3A1%3AApp%20Router%3A%20%2Fapi%2Fauth%2Fgithub%3B%20exported%20methods%20GET.",
+          "internal%3Ac:evidence:src%2Fapp%2Fapi%2Fauth%2Fgithub%2Froute.ts%3A2%3AGET%20is%20a%20statically%20exported%20HTTP%20method.%20Request%20authorization%20and%20runtime%20results%20are%20not%20tested."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified.",
+        "metadata": {
+          "route": "/api/auth/github",
+          "methods": "GET"
+        }
+      },
+      {
+        "id": "internal%3Ac:api:src%2Fapp%2Fapi%2Fonboarding%2Froute.ts",
+        "kind": "api",
+        "label": "/api/onboarding",
+        "technology": "App Router",
+        "evidenceIds": [
+          "internal%3Ac:evidence:src%2Fapp%2Fapi%2Fonboarding%2Froute.ts%3A1%3AApp%20Router%3A%20%2Fapi%2Fonboarding%3B%20exported%20methods%20POST.",
+          "internal%3Ac:evidence:src%2Fapp%2Fapi%2Fonboarding%2Froute.ts%3A2%3APOST%20is%20a%20statically%20exported%20HTTP%20method.%20Request%20authorization%20and%20runtime%20results%20are%20not%20tested."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified.",
+        "metadata": {
+          "route": "/api/onboarding",
+          "methods": "POST"
+        }
+      },
+      {
+        "id": "internal%3Ac:auth:Custom%20auth%20source",
+        "kind": "auth",
+        "label": "Custom auth source",
+        "technology": "Custom auth source",
+        "evidenceIds": [
+          "internal%3Ac:evidence:src%2Fapp%2Fapi%2Fauth%2Fgithub%2Froute.ts%3A1%3ACustom%20auth%20source%20imported%20and%20referenced%20in%20source.%20This%20proves%20source%20usage%2C%20not%20a%20provisioned%20service%20or%20runtime%20connection.",
+          "internal%3Ac:evidence:src%2Fapp%2Fapi%2Fonboarding%2Froute.ts%3A1%3ACustom%20auth%20source%20imported%20and%20referenced%20in%20source.%20This%20proves%20source%20usage%2C%20not%20a%20provisioned%20service%20or%20runtime%20connection."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified."
+      },
+      {
+        "id": "internal%3Ac:frontend:app",
+        "kind": "frontend",
+        "label": "Web application",
+        "technology": "Next.js · React",
+        "evidenceIds": [
+          "internal%3Ac:evidence:package.json%3A1%3APackage%20manifest%20identifies%20installed%20framework%20dependencies%3B%20installation%20alone%20does%20not%20prove%20use."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified.",
+        "metadata": {
+          "packageManager": "unknown",
+          "framework": "Next.js",
+          "version": "16"
+        }
+      },
+      {
+        "id": "internal%3Ac:repository:root",
+        "kind": "repository",
+        "label": "internal:c",
+        "technology": "local_test · example",
+        "origin": "inferred",
+        "status": "inferred",
+        "evidenceIds": [],
+        "description": "Repository identity supplied by snapshot metadata; access authorization belongs to the source adapter."
+      }
+    ],
+    "edges": [
+      {
+        "id": "internal%3Ac:edge:internal%253Ac%3Aapi%3Asrc%252Fapp%252Fapi%252Fauth%252Fgithub%252Froute.ts%3Einternal%253Ac%3Aauth%3ACustom%2520auth%2520source%3Aimports",
+        "source": "internal%3Ac:api:src%2Fapp%2Fapi%2Fauth%2Fgithub%2Froute.ts",
+        "target": "internal%3Ac:auth:Custom%20auth%20source",
+        "relationship": "imports",
+        "evidenceIds": [
+          "internal%3Ac:evidence:src%2Fapp%2Fapi%2Fauth%2Fgithub%2Froute.ts%3A1%3ACustom%20auth%20source%20imported%20and%20referenced%20in%20source.%20This%20proves%20source%20usage%2C%20not%20a%20provisioned%20service%20or%20runtime%20connection."
+        ],
+        "origin": "verified",
+        "description": "Direct source import and reference; runtime data flow unknown."
+      },
+      {
+        "id": "internal%3Ac:edge:internal%253Ac%3Aapi%3Asrc%252Fapp%252Fapi%252Fonboarding%252Froute.ts%3Einternal%253Ac%3Aauth%3ACustom%2520auth%2520source%3Aimports",
+        "source": "internal%3Ac:api:src%2Fapp%2Fapi%2Fonboarding%2Froute.ts",
+        "target": "internal%3Ac:auth:Custom%20auth%20source",
+        "relationship": "imports",
+        "evidenceIds": [
+          "internal%3Ac:evidence:src%2Fapp%2Fapi%2Fonboarding%2Froute.ts%3A1%3ACustom%20auth%20source%20imported%20and%20referenced%20in%20source.%20This%20proves%20source%20usage%2C%20not%20a%20provisioned%20service%20or%20runtime%20connection."
+        ],
+        "origin": "verified",
+        "description": "Direct source import and reference; runtime data flow unknown."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "internal%3Ac:evidence:package.json%3A1%3APackage%20manifest%20identifies%20installed%20framework%20dependencies%3B%20installation%20alone%20does%20not%20prove%20use.",
+        "kind": "manifest",
+        "sourcePath": "package.json",
+        "startLine": 1,
+        "summary": "Package manifest identifies installed framework dependencies; installation alone does not prove use.",
+        "origin": "verified",
+        "sourceRevision": "example-c-v1"
+      },
+      {
+        "id": "internal%3Ac:evidence:src%2Fapp%2Fapi%2Fauth%2Fgithub%2Froute.ts%3A1%3AApp%20Router%3A%20%2Fapi%2Fauth%2Fgithub%3B%20exported%20methods%20GET.",
+        "kind": "source_file",
+        "sourcePath": "src/app/api/auth/github/route.ts",
+        "startLine": 1,
+        "summary": "App Router: /api/auth/github; exported methods GET.",
+        "origin": "verified",
+        "sourceRevision": "example-c-v1"
+      },
+      {
+        "id": "internal%3Ac:evidence:src%2Fapp%2Fapi%2Fauth%2Fgithub%2Froute.ts%3A1%3ACustom%20auth%20source%20imported%20and%20referenced%20in%20source.%20This%20proves%20source%20usage%2C%20not%20a%20provisioned%20service%20or%20runtime%20connection.",
+        "kind": "source_file",
+        "sourcePath": "src/app/api/auth/github/route.ts",
+        "startLine": 1,
+        "summary": "Custom auth source imported and referenced in source. This proves source usage, not a provisioned service or runtime connection.",
+        "origin": "verified",
+        "sourceRevision": "example-c-v1"
+      },
+      {
+        "id": "internal%3Ac:evidence:src%2Fapp%2Fapi%2Fauth%2Fgithub%2Froute.ts%3A2%3AGET%20is%20a%20statically%20exported%20HTTP%20method.%20Request%20authorization%20and%20runtime%20results%20are%20not%20tested.",
+        "kind": "source_file",
+        "sourcePath": "src/app/api/auth/github/route.ts",
+        "startLine": 2,
+        "summary": "GET is a statically exported HTTP method. Request authorization and runtime results are not tested.",
+        "origin": "verified",
+        "sourceRevision": "example-c-v1"
+      },
+      {
+        "id": "internal%3Ac:evidence:src%2Fapp%2Fapi%2Fonboarding%2Froute.ts%3A1%3AApp%20Router%3A%20%2Fapi%2Fonboarding%3B%20exported%20methods%20POST.",
+        "kind": "source_file",
+        "sourcePath": "src/app/api/onboarding/route.ts",
+        "startLine": 1,
+        "summary": "App Router: /api/onboarding; exported methods POST.",
+        "origin": "verified",
+        "sourceRevision": "example-c-v1"
+      },
+      {
+        "id": "internal%3Ac:evidence:src%2Fapp%2Fapi%2Fonboarding%2Froute.ts%3A1%3ACustom%20auth%20source%20imported%20and%20referenced%20in%20source.%20This%20proves%20source%20usage%2C%20not%20a%20provisioned%20service%20or%20runtime%20connection.",
+        "kind": "source_file",
+        "sourcePath": "src/app/api/onboarding/route.ts",
+        "startLine": 1,
+        "summary": "Custom auth source imported and referenced in source. This proves source usage, not a provisioned service or runtime connection.",
+        "origin": "verified",
+        "sourceRevision": "example-c-v1"
+      },
+      {
+        "id": "internal%3Ac:evidence:src%2Fapp%2Fapi%2Fonboarding%2Froute.ts%3A2%3APOST%20is%20a%20statically%20exported%20HTTP%20method.%20Request%20authorization%20and%20runtime%20results%20are%20not%20tested.",
+        "kind": "source_file",
+        "sourcePath": "src/app/api/onboarding/route.ts",
+        "startLine": 2,
+        "summary": "POST is a statically exported HTTP method. Request authorization and runtime results are not tested.",
+        "origin": "verified",
+        "sourceRevision": "example-c-v1"
+      }
+    ],
+    "diagnostics": [],
+    "coverage": [
+      {
+        "capability": "nextjs-typescript",
+        "status": "supported",
+        "detail": "App/Pages routes, static imports and supported SDK usage; source observations only."
+      },
+      {
+        "capability": "runtime-connections",
+        "status": "unsupported",
+        "detail": "No code executed, network accessed, deployment checked or security test run."
+      },
+      {
+        "capability": "generic-frameworks-openapi",
+        "status": "partial",
+        "detail": "Manifest identification only; Express/Nest/Vite endpoint analysis and OpenAPI are not implemented (CAN-016)."
+      },
+      {
+        "capability": "source-coverage",
+        "status": "partial",
+        "detail": "5 readable files, 635 bytes; 0 excluded. Static observations never establish security or runtime coverage. Analyzer canvas-next-ts/1.0.0."
+      }
+    ]
+  },
+  "d": {
+    "schemaVersion": 1,
+    "analyzerVersion": "canvas-next-ts/1.0.0",
+    "projectRef": "internal:d",
+    "mode": "snapshot",
+    "revision": "example-d-v1",
+    "branch": "example",
+    "environment": "unknown",
+    "generatedAt": "2026-11-14T00:00:00.000Z",
+    "nodes": [
+      {
+        "id": "internal%3Ad:repository:root",
+        "kind": "repository",
+        "label": "internal:d",
+        "technology": "local_test · example",
+        "origin": "inferred",
+        "status": "inferred",
+        "evidenceIds": [],
+        "description": "Repository identity supplied by snapshot metadata; access authorization belongs to the source adapter."
+      }
+    ],
+    "edges": [],
+    "evidence": [],
+    "diagnostics": [
+      {
+        "code": "size_limit",
+        "severity": "warning",
+        "message": "A file was excluded by the byte budget."
+      },
+      {
+        "code": "excluded_files",
+        "severity": "info",
+        "message": "4 unsafe, unsupported, binary or symlink entries excluded without exposing content."
+      },
+      {
+        "code": "malformed_manifest",
+        "severity": "warning",
+        "message": "A package manifest is malformed; its contents were not retained.",
+        "sourcePath": "package.json"
+      },
+      {
+        "code": "unknown_framework",
+        "severity": "warning",
+        "message": "No supported framework manifest found. The map is partial."
+      },
+      {
+        "code": "malformed_source",
+        "severity": "warning",
+        "message": "Syntax errors prevented reliable analysis of a source file.",
+        "sourcePath": "src/app/api/bad/route.ts"
+      }
+    ],
+    "coverage": [
+      {
+        "capability": "nextjs-typescript",
+        "status": "supported",
+        "detail": "App/Pages routes, static imports and supported SDK usage; source observations only."
+      },
+      {
+        "capability": "runtime-connections",
+        "status": "unsupported",
+        "detail": "No code executed, network accessed, deployment checked or security test run."
+      },
+      {
+        "capability": "generic-frameworks-openapi",
+        "status": "partial",
+        "detail": "Manifest identification only; Express/Nest/Vite endpoint analysis and OpenAPI are not implemented (CAN-016)."
+      },
+      {
+        "capability": "source-coverage",
+        "status": "partial",
+        "detail": "2 readable files, 40 bytes; 4 excluded. Static observations never establish security or runtime coverage. Analyzer canvas-next-ts/1.0.0."
+      }
+    ]
+  },
+  "e": {
+    "schemaVersion": 1,
+    "analyzerVersion": "canvas-next-ts/1.0.0",
+    "projectRef": "internal:e",
+    "mode": "snapshot",
+    "revision": "example-e-v1",
+    "branch": "example",
+    "environment": "unknown",
+    "generatedAt": "2026-11-14T00:00:00.000Z",
+    "nodes": [
+      {
+        "id": "internal%3Ae:api:apps%2Fadmin%2Fsrc%2Fapp%2Fapi%2Faudit%2Froute.ts",
+        "kind": "api",
+        "label": "/api/audit",
+        "technology": "App Router",
+        "evidenceIds": [
+          "internal%3Ae:evidence:apps%2Fadmin%2Fsrc%2Fapp%2Fapi%2Faudit%2Froute.ts%3A1%3AApp%20Router%3A%20%2Fapi%2Faudit%3B%20exported%20methods%20GET.",
+          "internal%3Ae:evidence:apps%2Fadmin%2Fsrc%2Fapp%2Fapi%2Faudit%2Froute.ts%3A1%3AGET%20is%20a%20statically%20exported%20HTTP%20method.%20Request%20authorization%20and%20runtime%20results%20are%20not%20tested."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "groupId": "internal%3Ae:service_group:apps%2Fadmin%2F",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified.",
+        "metadata": {
+          "route": "/api/audit",
+          "methods": "GET"
+        }
+      },
+      {
+        "id": "internal%3Ae:api:apps%2Fshop%2Fsrc%2Fapp%2Fapi%2Fcache%2Froute.ts",
+        "kind": "api",
+        "label": "/api/cache",
+        "technology": "App Router",
+        "evidenceIds": [
+          "internal%3Ae:evidence:apps%2Fshop%2Fsrc%2Fapp%2Fapi%2Fcache%2Froute.ts%3A1%3AApp%20Router%3A%20%2Fapi%2Fcache%3B%20exported%20methods%20GET.",
+          "internal%3Ae:evidence:apps%2Fshop%2Fsrc%2Fapp%2Fapi%2Fcache%2Froute.ts%3A2%3AGET%20is%20a%20statically%20exported%20HTTP%20method.%20Request%20authorization%20and%20runtime%20results%20are%20not%20tested."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "groupId": "internal%3Ae:service_group:apps%2Fshop%2F",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified.",
+        "metadata": {
+          "route": "/api/cache",
+          "methods": "GET"
+        }
+      },
+      {
+        "id": "internal%3Ae:cache:apps%2Fshop%2FRedis%20client",
+        "kind": "cache",
+        "label": "Redis client",
+        "technology": "Redis client",
+        "evidenceIds": [
+          "internal%3Ae:evidence:apps%2Fshop%2Fsrc%2Fapp%2Fapi%2Fcache%2Froute.ts%3A1%3ARedis%20client%20imported%20and%20referenced%20in%20source.%20This%20proves%20source%20usage%2C%20not%20a%20provisioned%20service%20or%20runtime%20connection."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "groupId": "internal%3Ae:service_group:apps%2Fshop%2F",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified."
+      },
+      {
+        "id": "internal%3Ae:frontend:apps%2Fadmin%2F",
+        "kind": "frontend",
+        "label": "apps/admin/application",
+        "technology": "Next.js · React",
+        "evidenceIds": [
+          "internal%3Ae:evidence:apps%2Fadmin%2Fpackage.json%3A1%3APackage%20manifest%20identifies%20installed%20framework%20dependencies%3B%20installation%20alone%20does%20not%20prove%20use."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "groupId": "internal%3Ae:service_group:apps%2Fadmin%2F",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified.",
+        "metadata": {
+          "packageManager": "unknown",
+          "framework": "Next.js",
+          "version": "16"
+        }
+      },
+      {
+        "id": "internal%3Ae:frontend:apps%2Fshop%2F",
+        "kind": "frontend",
+        "label": "apps/shop/application",
+        "technology": "Next.js · React",
+        "evidenceIds": [
+          "internal%3Ae:evidence:apps%2Fshop%2Fpackage.json%3A1%3APackage%20manifest%20identifies%20installed%20framework%20dependencies%3B%20installation%20alone%20does%20not%20prove%20use."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "groupId": "internal%3Ae:service_group:apps%2Fshop%2F",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified.",
+        "metadata": {
+          "packageManager": "unknown",
+          "framework": "Next.js",
+          "version": "16"
+        }
+      },
+      {
+        "id": "internal%3Ae:repository:root",
+        "kind": "repository",
+        "label": "internal:e",
+        "technology": "local_test · example",
+        "origin": "inferred",
+        "status": "inferred",
+        "evidenceIds": [],
+        "description": "Repository identity supplied by snapshot metadata; access authorization belongs to the source adapter."
+      },
+      {
+        "id": "internal%3Ae:service_group:apps%2Fadmin%2F",
+        "kind": "service_group",
+        "label": "apps/admin",
+        "evidenceIds": [
+          "internal%3Ae:evidence:apps%2Fadmin%2Fpackage.json%3A1%3APackage%20manifest%20identifies%20installed%20framework%20dependencies%3B%20installation%20alone%20does%20not%20prove%20use."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified."
+      },
+      {
+        "id": "internal%3Ae:service_group:apps%2Fshop%2F",
+        "kind": "service_group",
+        "label": "apps/shop",
+        "evidenceIds": [
+          "internal%3Ae:evidence:apps%2Fshop%2Fpackage.json%3A1%3APackage%20manifest%20identifies%20installed%20framework%20dependencies%3B%20installation%20alone%20does%20not%20prove%20use."
+        ],
+        "origin": "verified",
+        "status": "observed_in_source",
+        "description": "Observed in this source revision. Availability, deployment and runtime behavior have not been verified."
+      }
+    ],
+    "edges": [
+      {
+        "id": "internal%3Ae:edge:internal%253Ae%3Aapi%3Aapps%252Fshop%252Fsrc%252Fapp%252Fapi%252Fcache%252Froute.ts%3Einternal%253Ae%3Acache%3Aapps%252Fshop%252FRedis%2520client%3Aimports",
+        "source": "internal%3Ae:api:apps%2Fshop%2Fsrc%2Fapp%2Fapi%2Fcache%2Froute.ts",
+        "target": "internal%3Ae:cache:apps%2Fshop%2FRedis%20client",
+        "relationship": "imports",
+        "evidenceIds": [
+          "internal%3Ae:evidence:apps%2Fshop%2Fsrc%2Fapp%2Fapi%2Fcache%2Froute.ts%3A1%3ARedis%20client%20imported%20and%20referenced%20in%20source.%20This%20proves%20source%20usage%2C%20not%20a%20provisioned%20service%20or%20runtime%20connection."
+        ],
+        "origin": "verified",
+        "description": "Direct source import and reference; runtime data flow unknown."
+      }
+    ],
+    "evidence": [
+      {
+        "id": "internal%3Ae:evidence:apps%2Fadmin%2Fpackage.json%3A1%3APackage%20manifest%20identifies%20installed%20framework%20dependencies%3B%20installation%20alone%20does%20not%20prove%20use.",
+        "kind": "manifest",
+        "sourcePath": "apps/admin/package.json",
+        "startLine": 1,
+        "summary": "Package manifest identifies installed framework dependencies; installation alone does not prove use.",
+        "origin": "verified",
+        "sourceRevision": "example-e-v1"
+      },
+      {
+        "id": "internal%3Ae:evidence:apps%2Fadmin%2Fsrc%2Fapp%2Fapi%2Faudit%2Froute.ts%3A1%3AApp%20Router%3A%20%2Fapi%2Faudit%3B%20exported%20methods%20GET.",
+        "kind": "source_file",
+        "sourcePath": "apps/admin/src/app/api/audit/route.ts",
+        "startLine": 1,
+        "summary": "App Router: /api/audit; exported methods GET.",
+        "origin": "verified",
+        "sourceRevision": "example-e-v1"
+      },
+      {
+        "id": "internal%3Ae:evidence:apps%2Fadmin%2Fsrc%2Fapp%2Fapi%2Faudit%2Froute.ts%3A1%3AGET%20is%20a%20statically%20exported%20HTTP%20method.%20Request%20authorization%20and%20runtime%20results%20are%20not%20tested.",
+        "kind": "source_file",
+        "sourcePath": "apps/admin/src/app/api/audit/route.ts",
+        "startLine": 1,
+        "summary": "GET is a statically exported HTTP method. Request authorization and runtime results are not tested.",
+        "origin": "verified",
+        "sourceRevision": "example-e-v1"
+      },
+      {
+        "id": "internal%3Ae:evidence:apps%2Fshop%2Fpackage.json%3A1%3APackage%20manifest%20identifies%20installed%20framework%20dependencies%3B%20installation%20alone%20does%20not%20prove%20use.",
+        "kind": "manifest",
+        "sourcePath": "apps/shop/package.json",
+        "startLine": 1,
+        "summary": "Package manifest identifies installed framework dependencies; installation alone does not prove use.",
+        "origin": "verified",
+        "sourceRevision": "example-e-v1"
+      },
+      {
+        "id": "internal%3Ae:evidence:apps%2Fshop%2Fsrc%2Fapp%2Fapi%2Fcache%2Froute.ts%3A1%3AApp%20Router%3A%20%2Fapi%2Fcache%3B%20exported%20methods%20GET.",
+        "kind": "source_file",
+        "sourcePath": "apps/shop/src/app/api/cache/route.ts",
+        "startLine": 1,
+        "summary": "App Router: /api/cache; exported methods GET.",
+        "origin": "verified",
+        "sourceRevision": "example-e-v1"
+      },
+      {
+        "id": "internal%3Ae:evidence:apps%2Fshop%2Fsrc%2Fapp%2Fapi%2Fcache%2Froute.ts%3A1%3ARedis%20client%20imported%20and%20referenced%20in%20source.%20This%20proves%20source%20usage%2C%20not%20a%20provisioned%20service%20or%20runtime%20connection.",
+        "kind": "source_file",
+        "sourcePath": "apps/shop/src/app/api/cache/route.ts",
+        "startLine": 1,
+        "summary": "Redis client imported and referenced in source. This proves source usage, not a provisioned service or runtime connection.",
+        "origin": "verified",
+        "sourceRevision": "example-e-v1"
+      },
+      {
+        "id": "internal%3Ae:evidence:apps%2Fshop%2Fsrc%2Fapp%2Fapi%2Fcache%2Froute.ts%3A2%3AGET%20is%20a%20statically%20exported%20HTTP%20method.%20Request%20authorization%20and%20runtime%20results%20are%20not%20tested.",
+        "kind": "source_file",
+        "sourcePath": "apps/shop/src/app/api/cache/route.ts",
+        "startLine": 2,
+        "summary": "GET is a statically exported HTTP method. Request authorization and runtime results are not tested.",
+        "origin": "verified",
+        "sourceRevision": "example-e-v1"
+      },
+      {
+        "id": "internal%3Ae:evidence:package.json%3A1%3APackage%20manifest%20identifies%20installed%20framework%20dependencies%3B%20installation%20alone%20does%20not%20prove%20use.",
+        "kind": "manifest",
+        "sourcePath": "package.json",
+        "startLine": 1,
+        "summary": "Package manifest identifies installed framework dependencies; installation alone does not prove use.",
+        "origin": "verified",
+        "sourceRevision": "example-e-v1"
+      }
+    ],
+    "diagnostics": [
+      {
+        "code": "dependency_usage_required",
+        "severity": "info",
+        "message": "1 integration dependencies declared; services require concrete source usage."
+      }
+    ],
+    "coverage": [
+      {
+        "capability": "nextjs-typescript",
+        "status": "supported",
+        "detail": "App/Pages routes, static imports and supported SDK usage; source observations only."
+      },
+      {
+        "capability": "runtime-connections",
+        "status": "unsupported",
+        "detail": "No code executed, network accessed, deployment checked or security test run."
+      },
+      {
+        "capability": "generic-frameworks-openapi",
+        "status": "partial",
+        "detail": "Manifest identification only; Express/Nest/Vite endpoint analysis and OpenAPI are not implemented (CAN-016)."
+      },
+      {
+        "capability": "source-coverage",
+        "status": "partial",
+        "detail": "6 readable files, 330 bytes; 0 excluded. Static observations never establish security or runtime coverage. Analyzer canvas-next-ts/1.0.0."
+      }
+    ]
+  }
+}
