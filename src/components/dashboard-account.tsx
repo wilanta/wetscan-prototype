@@ -87,7 +87,7 @@ export function useDashboardAccount() {
       if (!response.ok) throw new Error("Logout failed");
       setAccount(dashboardAccount());
       // Full navigation also discards the dashboard's in-memory client cache.
-      window.location.replace("/login");
+      window.location.replace("/");
     } catch {
       setLogoutError("Could not log out. Please try again.");
       setLoggingOut(false);

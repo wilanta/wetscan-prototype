@@ -105,7 +105,10 @@ test("dashboard shows saved account data and logout invalidates protected routes
   )!;
   await accountMenu(page);
   await page.getByRole("button", { name: "Log out", exact: true }).click();
-  await expect(page).toHaveURL(baseURL + "/login");
+  await expect(page).toHaveURL(baseURL + "/");
+  await expect(
+    page.getByRole("link", { name: "Start for Free", exact: true }).first(),
+  ).toBeVisible();
   expect(
     (await context.cookies()).some((item) => item.name === "wetscan_session"),
   ).toBe(false);
@@ -257,7 +260,10 @@ test("failed logout keeps the session and offers retry instead of claiming succe
   ).toBe(true);
   await page.unroute("**/api/auth/logout");
   await dialog.getByRole("button", { name: "Log out", exact: true }).click();
-  await expect(page).toHaveURL(baseURL + "/login");
+  await expect(page).toHaveURL(baseURL + "/");
+  await expect(
+    page.getByRole("link", { name: "Start for Free", exact: true }).first(),
+  ).toBeVisible();
 });
 test("a restored dashboard checks the existing session again after logout in another tab", async ({
   page,
