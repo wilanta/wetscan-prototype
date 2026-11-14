@@ -1,6 +1,8 @@
 # S00 compatibility freeze / H10 review sheet
 
-14 November 2026 (Asia/Jakarta). Audited local and remote `master`: `3f05e3cb70aaa7c21246dd6ae902635e57f463fb`, including Guard merge `ba5c95e`. Working tree was clean. Implementation branch: `feat/sentinel-s00-contract-alignment`. H10 is **APPROVED**: the owner's approval and owner-reported confirmation of Daud's approval are recorded below, both dated 14 November 2026 (Asia/Jakarta), with no amendments. S01 and migrations remain unauthorized.
+**Current S01 status, 14 November 2026:** the separate H01 owner approvals and actual local acceptance are complete: 14/14 PostgreSQL tests, development migration/idempotency and Windows private-parent IPC worker shutdown/restart passed. Final review/commit/push/PR publication are explicitly authorized; no merge, deployment, worker startup, further migration or S02. The worker remains stopped. [Current evidence](SENTINEL_H01_ACCEPTANCE.md) and [validation](SENTINEL_S01_VALIDATION.md) supersede preparation-stage pending-H01 statements below. All H10 decisions, Daud's owner-reported provenance, identity limitations and ownership boundaries remain unchanged.
+
+14 November 2026 (Asia/Jakarta). S00 audited master `3f05e3cb70aaa7c21246dd6ae902635e57f463fb`, including Guard merge `ba5c95e`, on `feat/sentinel-s00-contract-alignment`. H10 is **APPROVED**: the owner's approval and owner-reported confirmation of Daud's approval are recorded below, both dated 14 November 2026 (Asia/Jakarta), with no amendments. S00 subsequently merged as PR #2 at `ec6838b77cf14a126cb3c4d1a7f8d86d70d85665`. The new explicit S01 task authorizes implementation and migration-file preparation on `feat/sentinel-s01-platform`; H01 target provisioning/connection and migration application remain unapproved.
 
 ## H10 approval record
 
@@ -21,7 +23,7 @@ The owner's approved scope is:
 6. Distinct telemetry, Guard audit events and inventory provenance.
 7. Existing Auth, Canvas, Guard and Demo Mode ownership boundaries.
 
-The approval record is sufficient under the owner's instruction: both decisions and dates are documented, and the owner explicitly confirmed Daud had no amendments. H10 is therefore **APPROVED** for S00 architecture/compatibility. Commit, validation and PR publication targeting `master` are authorized; automatic merge is not. **Do not begin S01 or create/apply PostgreSQL migrations.** The separate H01 instance/database configuration and initial migration application have not been approved by this H10 record.
+The approval record is sufficient under the owner's instruction: both decisions and dates are documented, and the owner explicitly confirmed Daud had no amendments. H10 is therefore **APPROVED** for the frozen architecture/compatibility decisions. The later explicit S01 task supersedes the earlier prohibition on preparing S01 code/SQL files; it does not authorize database connections/provisioning or migration application. The separate H01 exact instance/database configuration and initial migration application remain **WAITING_USER**. See the [S01 architecture](SENTINEL_S01_ARCHITECTURE.md), [migration review](SENTINEL_S01_MIGRATION_REVIEW.md) and [H01 setup](SENTINEL_H01_SETUP.md). No S01 merge/deployment or S02 work is authorized.
 
 ## Compatibility decisions
 
@@ -48,4 +50,4 @@ Canonical storage/cache/dedupe scope is the tuple **`[mode, workspaceId, project
 
 **No-touch list:** `src/features/guard/**`, `worker/guard/**`, `src/lib/auth/**`, `/api/auth/**`, onboarding, `src/features/canvas/**`, `src/components/demo-provider.tsx`, `src/domain/**`, `src/data/demo/**`, original Guard/Sentinel/Manage UI and app-shell/router. S00 writes only `src/features/sentinel/**`, `tests/sentinel/**`, and Sentinel documentation. Any later route/view seam needs a narrow owner handoff.
 
-**Exact H10 approval:** owner **and Daud** accept the identity/ref/rename behavior, schema ownership and migration boundaries, module-isolated jobs/outbox, separate worker budgets, reserved audit/inventory/telemetry distinctions, and no-touch list above. Record names/date/changes here or in a review. H10 approval allows planning S01; starting S01 still requires an explicit task and H01 local DB configuration/migration authorization. No third-party registration is needed for H10.
+**Exact H10 approval:** owner **and Daud** accept the identity/ref/rename behavior, schema ownership and migration boundaries, module-isolated jobs/outbox, separate worker budgets, reserved audit/inventory/telemetry distinctions, and no-touch list above. Both approval records are retained above. The subsequent explicit S01 task authorizes preparation; H01 still controls target configuration, provisioning/connection and migration application. No third-party registration is needed for H10. S01's worker memory flag caps V8 old-space rather than total process RSS; that limitation and the proposed development budgets require H01 operator acceptance before activation.
