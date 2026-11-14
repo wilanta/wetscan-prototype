@@ -6,9 +6,10 @@ import {
   type CallbackStage,
 } from "@/lib/auth/diagnostics";
 import {
-  accessibleRepositories,
+  discoverInstallations,
+  linkInstallation,
   exchangeCode,
-  githubRequest,
+  verifyIdentity,
   startFlow,
   validState,
   verifyAppInstallation,
@@ -84,6 +85,8 @@ export async function GET(request: NextRequest) {
       }
 
       stage = "authorization";
+      if (query.has("installation_id") || query.has("setup_action"))
+        throw new AuthError("invalid_callback");
       if (
         flow.kind === "verify" &&
         (!Number.isSafeInteger(flow.installationId) ||
@@ -96,18 +99,7 @@ export async function GET(request: NextRequest) {
         throw new AuthError("github_cancelled");
       await exchangeCode(code, flow.verifier, session);
       stage = "identity";
-      const identity = await githubRequest<{ id: number; login: string }>(
-        "/user",
-        session.userToken!,
-      );
-      if (
-        !Number.isSafeInteger(identity.id) ||
-        identity.id < 1 ||
-        !identity.login
-      )
-        throw new AuthError("github_denied");
-      if (session.githubId && session.githubId !== identity.id)
-        throw new AuthError("account_mismatch", 403);
+      const identity = await verifyIdentity(session);
       session.githubId = identity.id;
       const existing = await profileFor(session);
       const profile: Profile = existing ?? {
@@ -120,23 +112,33 @@ export async function GET(request: NextRequest) {
         productUpdates: false,
       };
       profile.login = identity.login;
-      if (flow.kind === "verify" && flow.installationId) {
-        stage = "repositories";
-        const repositories = await accessibleRepositories(
-          session,
-          flow.installationId,
-        );
-        if (!profile.completedAt) {
-          profile.installationId = flow.installationId;
-          profile.repositories = profile.repositories.filter((repo) =>
-            repositories.some((available) => available.id === repo.id),
-          );
+      let destination = profile.completedAt ? "/app" : "/onboarding";
+      if (
+        !profile.completedAt &&
+        (flow.kind === "verify" || flow.kind === "connect")
+      ) {
+        stage = "installation";
+        const storedId = flow.installationId ?? profile.installationId;
+        const installations = storedId
+          ? undefined
+          : await discoverInstallations(session);
+        const id =
+          storedId ??
+          (installations?.length === 1 ? installations[0].id : undefined);
+        if (id) {
+          stage = "repositories";
+          await linkInstallation(session, profile, id);
+        } else if (installations!.length > 1) {
+          session.installationChoices = installations;
+        } else {
+          delete session.installationChoices;
+          destination = startFlow(session, "install");
         }
       }
       stage = "session_rotation";
       await writeRecord("user-" + identity.id, profile);
       const rotated = await rotateSession(token, session);
-      const response = redirect(profile.completedAt ? "/app" : "/onboarding");
+      const response = redirect(destination);
       setSessionCookie(response, rotated);
       return response;
     } catch (error) {

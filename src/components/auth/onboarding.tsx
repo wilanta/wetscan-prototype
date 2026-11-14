@@ -11,7 +11,11 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Badge, Button, Card, Notice } from "@/components/ui";
-import type { OnboardingState, Repository } from "@/lib/auth/types";
+import type {
+  InstallationChoice,
+  OnboardingState,
+  Repository,
+} from "@/lib/auth/types";
 import { authFetch, errorMessage } from "./api";
 
 const steps = [
@@ -141,13 +145,23 @@ export function Onboarding({ initialError = "" }: { initialError?: string }) {
       setBusy(false);
     }
   }
-  async function connect() {
+  async function connect(installationId?: number) {
     await run(async () => {
-      const result = await authFetch<{ url: string }>(
+      const result = await authFetch<
+        { url: string } | { installations: InstallationChoice[] }
+      >(
         "/api/auth/github/start",
-        { intent: "install" },
+        installationId
+          ? { intent: "select", installationId }
+          : { intent: "install" },
       );
-      window.location.assign(result.url);
+      if ("url" in result) window.location.assign(result.url);
+      else
+        setState((current) =>
+          current
+            ? { ...current, installations: result.installations }
+            : current,
+        );
     });
   }
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -284,10 +298,29 @@ export function Onboarding({ initialError = "" }: { initialError?: string }) {
                       </p>
                     </div>
                     <Notice>
-                      You will leave WetScan to install the GitHub App, then
-                      authorize your GitHub identity so we can verify your
-                      access. Organization approval may be required.
+                      Authorize your GitHub identity so we can find an existing
+                      installation. If none is available, GitHub will ask you to
+                      install the App. Organization approval may be required.
                     </Notice>
+                    {!!state.installations?.length && (
+                      <div
+                        className="repository-options"
+                        aria-label="GitHub installations"
+                      >
+                        <p>Choose a GitHub App installation to connect.</p>
+                        {state.installations.map((installation) => (
+                          <Button
+                            key={installation.id}
+                            type="button"
+                            variant="secondary"
+                            disabled={busy}
+                            onClick={() => void connect(installation.id)}
+                          >
+                            Connect {installation.account}
+                          </Button>
+                        ))}
+                      </div>
+                    )}
                     <div className="onboarding-controls">
                       <Button
                         type="button"
@@ -297,7 +330,11 @@ export function Onboarding({ initialError = "" }: { initialError?: string }) {
                         <ArrowLeft size={16} />
                         Back
                       </Button>
-                      <Button type="button" onClick={connect}>
+                      <Button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void connect()}
+                      >
                         <GitBranch size={18} />
                         {busy ? "Connecting..." : "Install GitHub App"}
                       </Button>

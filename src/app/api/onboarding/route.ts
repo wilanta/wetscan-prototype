@@ -27,6 +27,10 @@ function state(session?: Session, profile?: Profile): OnboardingState {
             ? "repositories"
             : "account",
     connected: !!profile?.installationId,
+    installations:
+      profile && !profile.installationId
+        ? session?.installationChoices
+        : undefined,
     profile: {
       login: profile?.login ?? "",
       workspace: profile?.workspace || session?.workspace || "",

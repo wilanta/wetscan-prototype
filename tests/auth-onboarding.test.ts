@@ -263,7 +263,7 @@ describe("server auth and onboarding security", () => {
       (await proxy(request("/app/projects/orderly-demo/canvas", token))).status,
     ).toBe(200);
   });
-  it("starts a real GitHub App installation URL and resumes saved workspace", async () => {
+  it("starts OAuth discovery before installation and resumes saved workspace", async () => {
     mockGitHub();
     const { token } = await newSession({
       workspace: "Test",
@@ -274,10 +274,10 @@ describe("server auth and onboarding security", () => {
     );
     const url = new URL((await response.json()).url);
     expect(url.origin + url.pathname).toBe(
-      "https://github.com/apps/test-only-app/installations/new",
+      "https://github.com/login/oauth/authorize",
     );
     expect(url.searchParams.get("state")).toHaveLength(64);
-    expect((await getSession(token))?.flow?.kind).toBe("install");
+    expect((await getSession(token))?.flow?.kind).toBe("connect");
   });
   it("requires valid state, expires flows, and consumes cancelled callbacks", async () => {
     const { token, session } = await newSession();

@@ -1,7 +1,13 @@
 import "server-only";
-import { createHash, randomBytes, sign, timingSafeEqual } from "node:crypto";
+import {
+  createHash,
+  createPrivateKey,
+  randomBytes,
+  sign,
+  timingSafeEqual,
+} from "node:crypto";
 import { AuthError, githubCallbackUrl, githubConfig } from "./config";
-import type { Repository, Session } from "./types";
+import type { InstallationChoice, Profile, Repository, Session } from "./types";
 
 type GitHubRepository = {
   id: number;
@@ -12,6 +18,7 @@ type GitHubRepository = {
 type Installation = {
   id: number;
   app_id: number;
+  account?: { login?: string };
   suspended_at: string | null;
   permissions?: { metadata?: string; contents?: string };
 };
@@ -30,6 +37,29 @@ type TokenResponse = {
   refresh_token?: string;
   error?: string;
 };
+function githubHttpError(response: Response, app = false) {
+  if (response.status === 401)
+    return new AuthError(
+      app ? "github_app_credentials" : "github_expired",
+      app ? 503 : 401,
+    );
+  if (
+    response.status === 429 ||
+    (response.status === 403 &&
+      (response.headers.get("x-ratelimit-remaining") === "0" ||
+        response.headers.has("retry-after")))
+  )
+    return new AuthError("github_rate_limited", 429);
+  if (response.status === 403) return new AuthError("github_denied", 403);
+  if (response.status === 404) return new AuthError("github_not_found", 404);
+  if (response.status === 422) return new AuthError("github_validation", 422);
+  if (response.status === 400)
+    return new AuthError("github_invalid_request", 400);
+  return new AuthError(
+    response.status >= 500 ? "github_unavailable" : "github_response",
+    502,
+  );
+}
 export async function githubRequest<T>(
   path: string,
   token: string,
@@ -48,6 +78,8 @@ export async function githubRequest<T>(
     cache: "no-store",
     signal: AbortSignal.timeout(20000),
     redirect: "error",
+  }).catch(() => {
+    throw new AuthError("github_unavailable", 502);
   });
   if (
     !response.ok &&
@@ -61,16 +93,10 @@ export async function githubRequest<T>(
     path.endsWith("/access_tokens")
   )
     throw new AuthError("github_permissions", 403);
-  if (!response.ok)
-    throw new AuthError(
-      response.status === 401
-        ? "github_expired"
-        : response.status === 403 || response.status === 429
-          ? "github_denied"
-          : "github_unavailable",
-      502,
-    );
-  return response.json() as Promise<T>;
+  if (!response.ok) throw githubHttpError(response, path.startsWith("/app"));
+  return response.json().catch(() => {
+    throw new AuthError("github_response", 502);
+  }) as Promise<T>;
 }
 async function tokenRequest(
   body: Record<string, string>,
@@ -87,11 +113,24 @@ async function tokenRequest(
     cache: "no-store",
     signal: AbortSignal.timeout(20000),
     redirect: "error",
+  }).catch(() => {
+    throw new AuthError("github_unavailable", 502);
   });
-  if (!response.ok) throw new AuthError("github_unavailable", 502);
-  const result = (await response.json()) as TokenResponse;
-  if (!result.access_token || result.error)
+  if (!response.ok) throw githubHttpError(response);
+  const result = (await response.json().catch(() => {
+    throw new AuthError("github_response", 502);
+  })) as TokenResponse;
+  if (result.error === "incorrect_client_credentials")
+    throw new AuthError("github_app_credentials", 503);
+  if (result.error === "redirect_uri_mismatch")
+    throw new AuthError("github_setup_misconfigured", 503);
+  if (
+    result.error === "bad_verification_code" ||
+    result.error === "expired_token"
+  )
     throw new AuthError("github_expired", 401);
+  if (result.error || !result.access_token)
+    throw new AuthError("github_oauth_error", 400);
   return result;
 }
 function applyToken(session: Session, token: TokenResponse) {
@@ -140,7 +179,7 @@ export function validState(actual: string | null, expected: string) {
 }
 export function startFlow(
   session: Session,
-  kind: "install" | "login" | "verify",
+  kind: NonNullable<Session["flow"]>["kind"],
   installationId?: number,
 ) {
   const app = githubConfig();
@@ -183,13 +222,43 @@ function appJwt() {
     JSON.stringify({ iat: now - 60, exp: now + 540, iss: app.id }),
   ).toString("base64url");
   const unsigned = header + "." + payload;
-  return (
-    unsigned +
-    "." +
-    sign("RSA-SHA256", Buffer.from(unsigned), app.privateKey).toString(
-      "base64url",
-    )
-  );
+  let keyFailure = "pem_decode_failed";
+  try {
+    const header =
+      /^-----BEGIN (RSA PRIVATE KEY|PRIVATE KEY)-----(?:\n|$)/.exec(
+        app.privateKey,
+      );
+    if (!header) {
+      keyFailure = "missing_pem_header";
+      throw new AuthError("github_app_key_invalid", 503);
+    }
+    if (!app.privateKey.endsWith("-----END " + header[1] + "-----")) {
+      keyFailure = "missing_pem_footer";
+      throw new AuthError("github_app_key_invalid", 503);
+    }
+    const key = createPrivateKey({ key: app.privateKey, format: "pem" });
+    // RS256 requires an RSA private key; other key types can produce an
+    // incompatible signature even when Node accepts the SHA-256 digest name.
+    if (key.asymmetricKeyType !== "rsa") {
+      keyFailure = "unsupported_key_type";
+      throw new AuthError("github_app_key_invalid", 503);
+    }
+    return (
+      unsigned +
+      "." +
+      sign("RSA-SHA256", Buffer.from(unsigned), key).toString("base64url")
+    );
+  } catch {
+    // Fixed categories only; never include the key, decoder message or stack.
+    console.warn(
+      "[WetScan auth] GitHub App signing failed",
+      JSON.stringify({
+        reason: "github_app_key_invalid",
+        detail: keyFailure,
+      }),
+    );
+    throw new AuthError("github_app_key_invalid", 503);
+  }
 }
 export async function verifyAppConfiguration() {
   const app = githubConfig();
@@ -300,4 +369,61 @@ export async function accessibleRepositories(
       redirect: "error",
     }).catch(() => undefined);
   }
+}
+
+// A user token is required: App JWT enumeration alone does not prove user access.
+export async function discoverInstallations(
+  session: Session,
+): Promise<InstallationChoice[]> {
+  const token = await userToken(session);
+  const choices = new Map<number, InstallationChoice>();
+  for (let page = 1; ; page++) {
+    const data = await githubRequest<{ installations: Installation[] }>(
+      "/user/installations?per_page=100&page=" + page,
+      token,
+    );
+    for (const item of data.installations) {
+      if (
+        Number.isSafeInteger(item.id) &&
+        item.id > 0 &&
+        String(item.app_id) === githubConfig().id &&
+        !item.suspended_at
+      ) {
+        choices.set(item.id, {
+          id: item.id,
+          account: item.account?.login || "Installation " + item.id,
+        });
+      }
+    }
+    if (data.installations.length < 100) return [...choices.values()];
+  }
+}
+export async function verifyIdentity(session: Session) {
+  const identity = await githubRequest<{ id: number; login: string }>(
+    "/user",
+    await userToken(session),
+  );
+  if (!Number.isSafeInteger(identity.id) || identity.id < 1 || !identity.login)
+    throw new AuthError("github_denied", 403);
+  if (session.githubId && session.githubId !== identity.id)
+    throw new AuthError("account_mismatch", 403);
+  return identity;
+}
+export async function linkInstallation(
+  session: Session,
+  profile: Profile,
+  installationId: number,
+) {
+  await verifyAppInstallation(installationId);
+  // Also checks /user/installations and intersects app grants with user repositories.
+  const repositories = await accessibleRepositories(session, installationId);
+  profile.repositories =
+    profile.installationId === installationId
+      ? profile.repositories.filter((repo) =>
+          repositories.some((available) => available.id === repo.id),
+        )
+      : [];
+  profile.installationId = installationId;
+  delete session.installationChoices;
+  delete session.flow;
 }

@@ -25,6 +25,34 @@ export function authRoute(
       if (request.method !== "GET") requireOrigin(request);
       return await work();
     } catch (error) {
+      if (!(error instanceof AuthError)) {
+        const systemCode = (error as { code?: unknown } | null)?.code;
+        const operation = (error as { syscall?: unknown } | null)?.syscall;
+        // Fixed fields only: never log messages, stacks, headers or query values.
+        console.warn(
+          "[WetScan auth] Request failed",
+          JSON.stringify({
+            reason: "server_error",
+            operation:
+              typeof operation === "string" &&
+              ["rename", "open", "unlink", "read", "write"].includes(operation)
+                ? operation
+                : "unknown",
+            route:
+              request.nextUrl.pathname === "/api/onboarding/repositories"
+                ? "repositories"
+                : "auth",
+            kind: error instanceof TypeError ? "type_error" : "internal_error",
+            systemCode:
+              typeof systemCode === "string" &&
+              ["EACCES", "EPERM", "ENOENT", "EIO", "ENOSPC"].includes(
+                systemCode,
+              )
+                ? systemCode
+                : "none",
+          }),
+        );
+      }
       return json(
         { error: error instanceof AuthError ? error.code : "server_error" },
         error instanceof AuthError ? error.status : 500,

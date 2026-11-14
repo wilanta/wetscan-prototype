@@ -64,7 +64,13 @@ export function githubConfig() {
     slug,
     clientId: required("GITHUB_APP_CLIENT_ID"),
     clientSecret: required("GITHUB_APP_CLIENT_SECRET"),
-    privateKey: required("GITHUB_APP_PRIVATE_KEY").replace(/\\n/g, "\n"),
+    privateKey: required("GITHUB_APP_PRIVATE_KEY")
+      .trim()
+      .replace(/^(['"])([\s\S]*)\1$/, "$2")
+      .replace(/\\+r\\+n/g, "\n")
+      .replace(/\\+n/g, "\n")
+      .replace(/\r\n/g, "\n")
+      .trim(),
   };
 }
 

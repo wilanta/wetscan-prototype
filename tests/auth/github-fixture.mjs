@@ -46,13 +46,22 @@ globalThis.fetch = async (input, init) => {
     url.pathname === "/login/oauth/access_token"
   ) {
     const body = JSON.parse(init?.body ?? "{}");
+    const code = /^(e2e-fixture|e2e-before-install)-code(?:-(\d+))?$/.exec(
+      body.code ?? "",
+    );
     if (
-      body.code !== "e2e-fixture-code" ||
+      !code ||
       !body.code_verifier ||
       body.redirect_uri !== process.env.APP_URL + "/api/auth/github/callback"
     )
       return json({ error: "bad_verification_code" });
-    return json({ access_token: "e2e-user-token", expires_in: 28800 });
+    return json({
+      access_token:
+        (code[1] === "e2e-before-install"
+          ? "e2e-before-install-token-"
+          : "e2e-user-token-") + (code[2] ?? "8111"),
+      expires_in: 28800,
+    });
   }
   if (url.origin !== "https://api.github.com")
     throw new Error("External network disabled in GitHub E2E fixture");
@@ -66,10 +75,21 @@ globalThis.fetch = async (input, init) => {
   if (url.pathname === "/app/installations/77")
     return json({ id: 77, app_id: 123, suspended_at: null, permissions });
   if (url.pathname === "/user")
-    return json({ id: 8111, login: "fixture-user" });
+    return json({
+      id: Number(
+        /-(\d+)$/.exec(
+          new Headers(init?.headers).get("authorization") ?? "",
+        )?.[1] ?? 8111,
+      ),
+      login: "fixture-user",
+    });
   if (url.pathname === "/user/installations")
     return json({
-      installations: [{ id: 77, app_id: 123, suspended_at: null }],
+      installations: new Headers(init?.headers)
+        .get("authorization")
+        ?.startsWith("Bearer e2e-before-install-token-")
+        ? []
+        : [{ id: 77, app_id: 123, suspended_at: null }],
     });
   if (url.pathname === "/app/installations/77/access_tokens") {
     const body = JSON.parse(init?.body ?? "{}");

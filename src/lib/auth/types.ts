@@ -15,6 +15,10 @@ export interface Profile {
   productUpdates: boolean;
   completedAt?: string;
 }
+export interface InstallationChoice {
+  id: number;
+  account: string;
+}
 export interface Session {
   expiresAt: number;
   workspace: string;
@@ -22,10 +26,11 @@ export interface Session {
   userToken?: string;
   tokenExpiresAt?: number;
   refreshToken?: string;
+  installationChoices?: InstallationChoice[];
   flow?: {
     state: string;
     expiresAt: number;
-    kind: "install" | "login" | "verify";
+    kind: "install" | "login" | "verify" | "connect";
     verifier?: string;
     installationId?: number;
   };
@@ -43,4 +48,5 @@ export interface OnboardingState {
     | "repositories"
   >;
   connected: boolean;
+  installations?: InstallationChoice[];
 }

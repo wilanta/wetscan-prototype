@@ -87,3 +87,31 @@ Sources:
 - https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app
 - https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-an-installation-access-token-for-a-github-app
 - https://docs.github.com/en/rest/apps/installations
+
+## Existing installation discovery
+
+The onboarding Install GitHub App action first verifies any stored installation with both the App JWT and the current GitHub user token. Without a valid user authorization it starts OAuth with a fresh state and PKCE verifier, then calls GET /user/installations (paginated). One accessible installation is verified and linked automatically. Multiple installations are displayed as choices; their display metadata is kept in the encrypted session so a reload preserves the choice screen. Every submitted ID is revalidated with the App and user APIs, including IDs that were not in the displayed list. Zero installations proceeds to the new-installation URL with a separate one-time state.
+
+The Setup URL handles both setup_action=install and setup_action=update. It verifies the installation against the App, issues fresh OAuth state, checks the user identity and installation membership, and then links the installation. A 303 alone is not proof of connection: tests also assert persisted connected progress and the actual repository selection UI/API. Existing installations never require navigating to GitHub settings or using browser Back. If a user separately edits repository access in GitHub settings and GitHub does not invoke the Setup URL, WetScan cannot turn that Save into a callback. Existing connections can refresh repository grants from the existing Refresh repositories control; no Back-based completion logic was added.
+
+GitHub errors distinguish expired user authorization, invalid App authentication, permission denial, rate limiting, missing resources, validation failures, invalid provider responses and OAuth errors. Callback diagnostics retain only fixed error codes and presence flags. No provider response bodies, authorization headers, codes, state values or credentials are logged.
+
+Run the focused browser regression suite with:
+
+```sh
+node tests/auth/run-github-e2e.mjs
+```
+
+The runner disables dotenv loading with tests/auth/skip-dotenv.cjs, builds the application, starts isolated production servers on 127.0.0.1 ports 3107, 3108 and 3109, and runs auth-onboarding.spec.ts, github-installation.spec.ts and github-existing-installation.spec.ts through Playwright. The ports must be unused. Microsoft Edge is the default installed browser; AUTH_TEST_BROWSER_CHANNEL can select another installed Playwright channel. Each server has a separate temporary encrypted Auth store and generated test-only configuration, removed on exit.
+
+Only the 3109 server preloads tests/auth/github-existing-fixture.mjs via Node --import, guarded by WETSCAN_GITHUB_EXISTING_E2E=1, the exact test origin and a temporary-store path. It cannot affect the previous E2E suites on ports 3107/3108. The previous installation regression retains its assertions and uses an isolated pre-install OAuth identity before exercising the existing setup callback. These are provider-substituted E2E tests, not proof of a successful live GitHub installation. No new deployment environment variables, dependencies or database schema are required.
+
+The Windows Auth store retries only transient EPERM/EACCES errors during atomic rename, with five bounded backoffs (380 ms total). It never deletes the prior record to replace it; permanent failures leave that record intact and still return a server error. Internal request diagnostics expose only fixed route/error categories and allowlisted filesystem operation/error codes.
+
+## GitHub App signing-key failures
+
+A local OpenSSL ERR_OSSL_UNSUPPORTED from appJwt occurs before GET /app, OAuth, or installation discovery: the configured key cannot be decoded for JWT signing. It previously escaped as HTTP 500 server_error. The backend now parses a PEM RSA private key explicitly and maps unsupported, malformed, encrypted-without-passphrase, or non-RSA keys to HTTP 503 github_app_key_invalid. Callback errors preserve the same safe configuration code. Raw OpenSSL exceptions and key material are never returned or logged.
+
+GITHUB_APP_PRIVATE_KEY supports PEM with actual LF/CRLF line breaks, escaped \n, or escaped \r\n. Whitespace around the PEM and one matching pair of transport quotes are removed; double-escaped newline sequences are normalized before parsing. Base64 blobs, file paths, and placeholders are not valid values for this variable; there is no implicit private-key file loading. Correct invalid key material through the local secret configuration and restart the server. Do not paste credentials into diagnostics or reports. Existing state, PKCE, session cookies, and installation/user-access verification are unchanged.
+
+The fixed signing diagnostics distinguish missing_pem_header, missing_pem_footer, unsupported_key_type and pem_decode_failed without printing any key input. A header-only value is incomplete and must not be repaired by inventing key bytes or skipping verification. For multiline dotenv configuration, enclose the entire PEM (including matching BEGIN and END lines) in one pair of double quotes, or use escaped newlines inside a quoted value. See https://nextjs.org/docs/app/guides/environment-variables#loading-environment-variables. Check configuration precedence locally if an edited value is not the value used by the server; do not paste key contents into diagnostics.

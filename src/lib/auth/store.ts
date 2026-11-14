@@ -7,6 +7,7 @@ import {
 } from "node:crypto";
 import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
 import { authConfig } from "./config";
 
 // A small, encrypted, single-process store. No existing database/schema is changed.
@@ -55,7 +56,25 @@ export async function writeRecord(record: string, value: unknown) {
       mode: 0o600,
       flag: "wx",
     });
-    await rename(temporary, target);
+    // Windows scanners can briefly deny atomic replacement after a read.
+    // Keep the existing record intact; never fall back to delete + write.
+    const backoff = [10, 20, 50, 100, 200];
+    for (let attempt = 0; ; attempt++) {
+      try {
+        await rename(temporary, target);
+        break;
+      } catch (error) {
+        if (
+          process.platform !== "win32" ||
+          attempt >= backoff.length ||
+          !["EPERM", "EACCES"].includes(
+            (error as NodeJS.ErrnoException).code ?? "",
+          )
+        )
+          throw error;
+        await delay(backoff[attempt]);
+      }
+    }
   } finally {
     await unlink(temporary).catch((error: NodeJS.ErrnoException) => {
       if (error.code !== "ENOENT") throw error;

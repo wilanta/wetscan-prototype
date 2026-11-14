@@ -19,6 +19,14 @@ const safeCodes = new Set([
   "github_expired",
   "github_denied",
   "github_unavailable",
+  "github_app_credentials",
+  "github_app_key_invalid",
+  "github_rate_limited",
+  "github_not_found",
+  "github_validation",
+  "github_invalid_request",
+  "github_response",
+  "github_oauth_error",
   "github_permissions",
   "github_app_mismatch",
   "installation_denied",
@@ -28,7 +36,7 @@ const safeCodes = new Set([
 export function callbackErrorCode(error: unknown) {
   return error instanceof AuthError && safeCodes.has(error.code)
     ? error.code
-    : "github_unavailable";
+    : "server_error";
 }
 export function logCallbackFailure(
   error: unknown,

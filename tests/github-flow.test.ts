@@ -158,7 +158,7 @@ afterAll(async () => {
 });
 
 describe("GitHub installation and OAuth regression", () => {
-  it("checks the registered app before returning an installation URL", async () => {
+  it("checks the registered app before OAuth discovery and preserves installation URL generation", async () => {
     const fetcher = github();
     const { token } = await newSession({
       workspace: "Test",
@@ -168,7 +168,8 @@ describe("GitHub installation and OAuth regression", () => {
       req("/api/auth/github/start", token, { intent: "install" }),
     );
     const location = new URL((await response.json()).url);
-    expect(location.pathname).toBe("/apps/test-only-app/installations/new");
+    expect(location.pathname).toBe("/login/oauth/authorize");
+    expect(location.searchParams.get("code_challenge_method")).toBe("S256");
     const session = (await getSession(token))!;
     expect(location.searchParams.get("state")).toBe(session.flow!.state);
     expect(session.expiresAt).toBeGreaterThanOrEqual(session.flow!.expiresAt);
@@ -177,6 +178,11 @@ describe("GitHub installation and OAuth regression", () => {
     ).toBe(true);
     expect(response.headers.get("set-cookie")).toContain("SameSite=lax");
     expect(response.headers.get("set-cookie")).toContain("HttpOnly");
+    const installation = new URL(startFlow(session, "install"));
+    expect(installation.origin + installation.pathname).toBe(
+      "https://github.com/apps/test-only-app/installations/new",
+    );
+    expect(installation.searchParams.get("state")).toBe(session.flow!.state);
   });
   it("rejects a mismatched slug before users can install the wrong app", async () => {
     github({ slug: "different-app" });

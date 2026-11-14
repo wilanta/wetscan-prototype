@@ -4,6 +4,56 @@ const baseURL =
   process.env.AUTH_GITHUB_TEST_BASE_URL ?? "http://127.0.0.1:3108";
 test.use({ channel: process.env.AUTH_TEST_BROWSER_CHANNEL, baseURL });
 
+async function beforeInstallation(
+  page: import("@playwright/test").Page,
+  identity = 8111,
+) {
+  await page.route(
+    "https://github.com/login/oauth/authorize?*",
+    async (route) => {
+      const authorization = new URL(route.request().url());
+      const callback = new URL("/api/auth/github/callback", baseURL);
+      callback.search = new URLSearchParams({
+        code: "e2e-before-install-code-" + identity,
+        state: authorization.searchParams.get("state")!,
+      }).toString();
+      await route.fulfill({
+        contentType: "text/html",
+        body:
+          "<script>location.replace(" +
+          JSON.stringify(callback.toString()) +
+          ")</script>",
+      });
+    },
+  );
+  await page.route("**/api/auth/github/callback?*", async (route) => {
+    const incoming = new URL(route.request().url());
+    if (!incoming.searchParams.has("code")) {
+      await route.fallback();
+      return;
+    }
+    const response = await route.fetch({ maxRedirects: 0 });
+    const location = response.headers().location;
+    if (location?.startsWith("https://github.com/apps/")) {
+      // OAuth discovery now precedes installation. Reset browser navigation so
+      // the existing installation route fixture also handles this redirect.
+      const headers: Record<string, string> = {
+        ...response.headers(),
+        "content-type": "text/html",
+      };
+      delete headers.location;
+      delete headers["content-length"];
+      await route.fulfill({
+        response,
+        status: 200,
+        headers,
+        body:
+          "<script>location.replace(" + JSON.stringify(location) + ")</script>",
+      });
+    } else await route.fulfill({ response });
+  });
+}
+
 test("installation setup and separate OAuth return to repository selection with the session intact", async ({
   page,
   context,
@@ -66,6 +116,7 @@ test("installation setup and separate OAuth return to repository selection with 
       headers: { ...response.headers(), location: callback.toString() },
     });
   });
+  await beforeInstallation(page);
   await page.goto("/onboarding");
   await page
     .getByLabel("Workspace name")
@@ -119,6 +170,7 @@ test("a missing cross-site session fails safely instead of looping to the GitHub
       });
     },
   );
+  await beforeInstallation(page, 8112);
   await page.goto("/onboarding");
   await page.getByLabel("Workspace name").fill("Missing Cookie Regression");
   await page.getByRole("button", { name: "Continue", exact: true }).click();

@@ -19,6 +19,19 @@ export const authMessages: Record<string, string> = {
   github_expired: "GitHub authorization expired. Sign in again to continue.",
   github_denied:
     "GitHub denied the request or its rate limit was reached. Check permissions and try again.",
+  github_app_key_invalid:
+    "GitHub App signing is not configured correctly. Ask the administrator to provide a valid RSA private key in PEM format.",
+  github_app_credentials:
+    "GitHub App authentication failed. Ask the administrator to check the server configuration.",
+  github_rate_limited: "GitHub rate limit reached. Wait before trying again.",
+  github_not_found: "The requested GitHub resource was not found.",
+  github_validation:
+    "GitHub rejected the request parameters. Restart the connection.",
+  github_invalid_request:
+    "GitHub rejected the request. Restart the connection.",
+  github_response: "GitHub returned an unexpected response. Please retry.",
+  github_oauth_error:
+    "GitHub user authorization failed. Restart the connection.",
   github_unavailable: "GitHub is unavailable. Please retry in a moment.",
   installation_denied:
     "This GitHub App installation is not accessible to your account.",
