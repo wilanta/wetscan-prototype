@@ -25,6 +25,12 @@ const tasks = {
     "--config",
     "tests/guard/g01/legacy-regression.config.ts",
   ],
+  detection: [
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "tests/sentinel/detection.playwright.config.ts",
+  ],
   sentinel: [
     "node_modules/@playwright/test/cli.js",
     "test",
@@ -35,7 +41,7 @@ const tasks = {
 const kind = process.argv[2];
 if (!Object.hasOwn(tasks, kind))
   throw new Error(
-    "Choose an explicit safe regression group: auth/canvas/legacy/sentinel",
+    "Choose an explicit safe regression group: auth/canvas/legacy/sentinel/detection",
   );
 if (kind === "auth") env.AUTH_E2E_SKIP_BUILD = "1";
 const child = spawn(process.execPath, tasks[kind], {

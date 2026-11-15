@@ -2,7 +2,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import type { WorkerControl } from "../sentinel/lifecycle";
 import { within } from "../sentinel/lifecycle";
 import { executeLease } from "../sentinel/executor";
-import type { JobHandler } from "../sentinel/executor";
+import type { LeaseAwareJobHandler } from "../sentinel/executor";
 import type { DurableJobPort } from "../../src/features/sentinel/platform-contracts";
 import type { Scope } from "../../src/features/guard/contracts";
 import { LiveGuardError } from "../../src/features/guard/live/model";
@@ -11,7 +11,7 @@ export interface GuardWorkerDependencies {
   control: WorkerControl;
   scopes(): Promise<Scope[]>;
   queue(scope: Scope): DurableJobPort;
-  handler: JobHandler;
+  handler: LeaseAwareJobHandler;
   verifyReady(): Promise<void>;
   close(): Promise<void>;
   report(event: { module: "guard"; phase: string; reason?: string }): void;
@@ -52,8 +52,10 @@ export async function runGuardWorker(input: GuardWorkerDependencies) {
     listen("disconnect", requestStop);
   }
   const inFlight = new Set<Promise<void>>();
-  const trackedHandler: JobHandler = (job, signal) => {
-    const task = Promise.resolve().then(() => input.handler(job, signal));
+  const trackedHandler: LeaseAwareJobHandler = (job, signal, currentLease) => {
+    const task = Promise.resolve().then(() =>
+      input.handler(job, signal, currentLease),
+    );
     inFlight.add(task);
     void task.finally(() => inFlight.delete(task)).catch(() => undefined);
     return task;

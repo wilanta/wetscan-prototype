@@ -1,5 +1,31 @@
 # G01 proposed migration and privilege review
 
+## Current finalization status - 15 November 2026
+
+See [GUARD_G01_FINALIZATION.md](GUARD_G01_FINALIZATION.md) for the current audit, implementation, test results and exact remaining approval checklist. Overall **PARTIALLY COMPLETE**, real acceptance **BLOCKED**. Latest user explicitly authorizes candidate commit/push despite the known baseline Sentinel failure; the earlier publication hold below is historical and superseded. No Sentinel fix/assertion edit, G02, real SQL/provider/worker/container operation, merge or deploy is performed. Current old Guard HEAD is92ee6fa, preserved; do not restore historical7207a16 state. New producer is prepare_only, lease getter is now forwarded, snapshot request mismatch/concurrency and sandbox identity/evidence boundaries are fixed; earlier descriptions of missing implementations describe their historical phase.
+
+
+## Actual candidate plan - 15 November 2026
+
+New candidate based onf7bfeef includes0003_detection. Running its actual node --import tsx worker/guard/plan.ts produced Guard aggregate b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d and platformc3e39f6fd43ee6eb2fbf5b244778955aab4cabb8a11ed3c66d791cf99a252a94. [JSON artifact](GUARD_G01_S03_MIGRATION_PLAN.json) records all exact versions/checksums and unchanged five Guard artifact hashes. Guard0001pair8bdea256... is unchanged. No SQL change/schema application/DB connection; approval NOT_GRANTED.
+
+The old444596... plan below belongs to the preserved old Guard baseline, not this candidate. A compatibility test rejects that old aggregate before migration connection. Exact target/actions/roles/expiry and S03-aware preservation approvals remain required. Publication is also held by the user after an unchanged Sentinel browser gate failed; see [integration validation](GUARD_G01_S03_INTEGRATION_VALIDATION.md). Do not infer permission from source hashes or attempt a Sentinel downgrade.
+
+
+## Static S03 candidate hash - 15 November 2026
+
+[Baseline review](GUARD_G01_S03_BASELINE_REVIEW.md) reproduces old and candidate hashes directly from reviewed Git SQL blobs, with zero DB connections. Unchanged five Guard files + exactf7bfeef three-version platform plan yield candidate aggregate b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d. Platform plan:c3e39f6fd43ee6eb2fbf5b244778955aab4cabb8a11ed3c66d791cf99a252a94;0003pair:4f0ee1cebdbdc81b835f719ef13c9cb703dfb5f440193765dfa0a61635fb6168. Guard0001pair8bdea256... and all file hashes below stay unchanged; no Guard schema-version bump/SQL edit is required solely for S03.
+
+This preview does not replace the current local444596... executable plan or grant permission. After owner-authorized candidate creation/alignment, reproduce the actual plan, review combined behavior and obtain fresh exact-target/purpose/action/hash approval. Preserve exact ledger validation; no Sentinel downgrade, populated DB reset or ledger edit to force a match. No migration/runtime/database operation occurred.
+
+
+## Current baseline warning - 15 November 2026
+
+No SQL file or Guard SQL hash changed in the resolver/launcher continuation, and no DB connection/mutation occurred. Exact launch, app-role and worker-role target/action approvals remain ungranted; Wil's general implementation approval does not supply them. Expected target is checked before credential loading in the new launcher path.
+
+**Master has advanced externally to S03/f7bfeef and includes0003_detection.** The aggregate and two-version platform ledger below are valid only for isolated Guard HEAD7207a16. Do not authorize/apply that old plan to an S03 target. Owner instruction for baseline alignment, shared compatibility review, regenerated aggregate/ledger and fresh exact-target approval are required first. Nothing is rebased/merged or changed in shared migration files. See GUARD_G01_WORKER_AUTH_REVIEW.md.
+
+
 15 November 2026. Status: PREPARATION_ONLY / BLOCKED_BY_APPROVAL. No PostgreSQL connection, database/role creation, migration, reset, down, runtime activation or historical Sentinel acceptance suite was run.
 
 ## Exact reviewed plan

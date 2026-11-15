@@ -54,6 +54,9 @@ All external read/write endpoints must authorize workspace + project server-side
 
 # Guard integration backlog
 
+Current G01 finalization: see [GUARD_G01_FINALIZATION.md](GUARD_G01_FINALIZATION.md). Local producer/resolver/launcher, strict request/latest-lease forwarding and daemon/image evidence binding verified. Status PARTIALLY COMPLETE; Live GitHub/DB/RLS/worker/sandbox acceptance still BLOCKED. Latest user permits candidate publication despite known Sentinel baseline failure; prior hold below is superseded. No Sentinel/G02 work or runtime permission inferred.
+
+
 No external issues created. Dependencies require owner handoffs. G01 adds Guard-only implementation and proposed, UNAPPLIED schema/role/platform-access artifacts; no Auth/shared platform/Sentinel source or applied schema changes. See GUARD_G01_MIGRATION_REVIEW.md for the explicit approval gate.
 
 ## GRD-001 - Authorized GitHub snapshot and project grants
@@ -101,6 +104,10 @@ No external issues created. Dependencies require owner handoffs. G01 adds Guard-
 - Issue reference: not created.
 
 - G01 update (15 November 2026): GuardPostgresQueue reuses S01 durable contracts and lease methods, overrides only admission/claim; separate lifecycle/IPC/prepare handler and real empty-queue child-process restart fixture added. PARTIALLY_IMPLEMENTED: concrete trusted Auth resolver/process composition missing; main launcher refuses activation. Real queue/lease/crash acceptance and orphan supervisor remain unverified. See docs/agent-handoffs/HANDOFF_GUARD_G01.md and docs/GUARD_G01_VALIDATION.md.
+
+- G01 resolver follow-up (15 November 2026): concrete Auth-process private-IPC broker/resolver and bounded exact-job prepare-only launcher/bootstrap added;567-unit/Guard5/Auth21/Sentinel5 fixture checks pass. No Live activation/target acceptance. Existing Auth unchanged; no credential in queue/child. Master S03 drift now requires approved baseline alignment, new plan hashes and combined validation before runtime. See GUARD_G01_WORKER_AUTH_REVIEW.md. Earlier interface-only notes are historical.
+
+- G01+S03 candidate (15 November 2026): authorized isolated f7bfeefcandidate prepared with old worktree unchanged;707units/typecheck/lint/build/42focused contracts pass. Existing browser59/60pass; unchanged S03form/loading validation race fails. User declined Sentinel changes and held commit/push. Actual Guard aggregateb63e1e...; real runtime/DB/source/sandbox acceptance still unapproved. See GUARD_G01_S03_INTEGRATION_VALIDATION.md.
 
 ## GRD-005 - Hardened scanner sandbox
 

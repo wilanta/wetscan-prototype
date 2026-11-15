@@ -1,19 +1,30 @@
 import { LiveGuardError } from "../../src/features/guard/live/model";
-/** No dotenv loader or automatic DB/worker activation. Auth broker/runtime target approval is a separate owner handoff. */
+import { receiveWorkerBoot, startApprovedWorker } from "./bootstrap";
+/** No dotenv, ambient Auth store or automatic DB activation. Direct CLI invocation remains denied. */
 async function main() {
-  // Existing Auth store serializes only inside one Node process; do not share refresh-token writes with a second process.
-  // A fresh-auth broker/capability resolver must be approved before installing the standalone process bindings.
-  throw new LiveGuardError("approval_required");
+  if (
+    process.env.GUARD_WORKER_LAUNCH !== "1" ||
+    !process.connected ||
+    !process.send
+  )
+    throw new LiveGuardError("approval_required");
+  const approval = await receiveWorkerBoot(process);
+  await startApprovedWorker({
+    approval,
+    environment: process.env,
+    control: process,
+  });
 }
-main().catch((error) => {
+main().catch(() => {
   console.error(
     JSON.stringify({
       module: "guard",
-      status: "not_started",
-      reason: error instanceof LiveGuardError ? error.code : "not_configured",
+      status: "not_started_or_failed",
+      reason: "worker_unavailable",
       databaseMigration: "never_automatic",
       scannerExecution: "G02_NOT_CONFIGURED",
     }),
   );
   process.exitCode = 2;
+  if (process.connected) process.disconnect?.();
 });

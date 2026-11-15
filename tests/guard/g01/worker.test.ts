@@ -100,3 +100,37 @@ it("rejects a lease from the wrong module before running any handler", async () 
   await expect(runGuardWorker(f.input)).rejects.toThrow();
   expect(f.input.handler).not.toHaveBeenCalled();
 });
+
+it("forwards the executor's renewed lease into the Guard handler", async () => {
+  const { brokerFixture } = await import("./broker-fixture");
+  const b = await brokerFixture(),
+    f = setup();
+  const renewed = {
+    ...b.lease,
+    job: { ...b.lease.job, revision: 3 },
+    expiresAt: new Date(Date.now() + 45000).toISOString(),
+  };
+  vi.mocked(f.queue.claim).mockResolvedValue([b.lease]);
+  vi.mocked(f.queue.heartbeat).mockResolvedValue(renewed);
+  vi.useFakeTimers();
+  try {
+    const handler = vi.fn<
+      import("../../../worker/sentinel/executor").LeaseAwareJobHandler
+    >(async (_job, _signal, latest) => {
+      await new Promise((done) => setTimeout(done, 5100));
+      expect(latest()).toEqual(renewed);
+    });
+    const task = runGuardWorker({
+      ...f.input,
+      workerId: b.lease.workerId,
+      handler,
+    });
+    await vi.advanceTimersByTimeAsync(5200);
+    await task;
+    expect(handler).toHaveBeenCalledOnce();
+    expect(f.queue.heartbeat).toHaveBeenCalledOnce();
+    expect(f.queue.complete).toHaveBeenCalledWith(renewed);
+  } finally {
+    vi.useRealTimers();
+  }
+});
