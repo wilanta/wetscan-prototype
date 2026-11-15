@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { LiveTelemetry } from "@/features/sentinel/components/live-telemetry";
 import {
   ArrowLeft,
   ArrowRight,
@@ -86,7 +87,24 @@ export function SimulateThreat() {
     </Button>
   );
 }
-export function Sentinel({ section = "" }: { section?: string }) {
+export function Sentinel({
+  section = "",
+  projectId,
+}: {
+  section?: string;
+  projectId?: string;
+}) {
+  return projectId ? (
+    <LiveTelemetry
+      projectId={projectId}
+      section={section}
+      key={`${projectId}:${section}`}
+    />
+  ) : (
+    <DemoSentinel section={section} />
+  );
+}
+function DemoSentinel({ section = "" }: { section?: string }) {
   const { state } = useDemo();
   const [paused, setPaused] = useState(false);
   const [filter, setFilter] = useState("all");

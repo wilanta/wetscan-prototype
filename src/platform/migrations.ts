@@ -10,9 +10,9 @@ export interface Migration {
   down: string;
   checksum: string;
 }
-export async function migrationPlan(
-  directory = join(process.cwd(), "migrations", "sentinel"),
-) {
+export async function migrationPlan() {
+  // Fixed repository-owned scope also bounds Next's server output tracing.
+  const directory = join(process.cwd(), "migrations", "sentinel");
   const files = (await readdir(directory))
     .filter((f) => /^\d{4}_[a-z_]+\.up\.sql$/.test(f))
     .sort();
@@ -99,7 +99,38 @@ export async function applyMigrations(
         );
       }
     } else {
-      if (applied.length !== migrations.length || migrations.length !== 1)
+      if (!applied.length || applied.length > migrations.length)
+        throw new PlatformError("target_denied");
+      const latest = migrations[applied.length - 1];
+      if (latest.version === "0002_telemetry") {
+        await client.query(
+          "LOCK TABLE sentinel.telemetry_sources,sentinel.telemetry_credentials,sentinel.telemetry_events,sentinel.telemetry_batches,platform.jobs IN ACCESS EXCLUSIVE MODE",
+        );
+        for (const table of [
+          "sentinel.telemetry_sources",
+          "sentinel.telemetry_credentials",
+          "sentinel.telemetry_events",
+          "sentinel.telemetry_batches",
+        ]) {
+          const occupied = await client.query(
+            `SELECT EXISTS(SELECT 1 FROM ${table} LIMIT 1) AS occupied`,
+          );
+          if (occupied.rows[0].occupied)
+            throw new PlatformError("target_denied");
+        }
+        const jobs = await client.query(
+          "SELECT EXISTS(SELECT 1 FROM platform.jobs WHERE module='sentinel' AND kind='sentinel.telemetry.accepted') AS occupied",
+        );
+        if (jobs.rows[0].occupied) throw new PlatformError("target_denied");
+        await client.query(latest.down);
+        await client.query(
+          "DELETE FROM platform.schema_migrations WHERE version=$1",
+          [latest.version],
+        );
+        await client.query("COMMIT");
+        return;
+      }
+      if (latest.version !== "0001_foundation" || applied.length !== 1)
         throw new PlatformError("target_denied");
       await client.query(
         "LOCK TABLE platform.jobs,platform.job_attempts,platform.notification_outbox,platform.notification_attempts,platform.worker_heartbeats,platform.module_limits,sentinel.project_bindings IN ACCESS EXCLUSIVE MODE",

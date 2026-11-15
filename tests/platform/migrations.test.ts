@@ -8,7 +8,10 @@ describe("migration review/runner protocol - no SQL execution", () => {
       b = await migrationPlan();
     expect(a.sha256).toMatch(/^[a-f0-9]{64}$/);
     expect(a.sha256).toBe(b.sha256);
-    expect(a.migrations.map((m) => m.version)).toEqual(["0001_foundation"]);
+    expect(a.migrations.map((m) => m.version)).toEqual([
+      "0001_foundation",
+      "0002_telemetry",
+    ]);
     expect(a.migrations[0].up).toContain("FORCE ROW LEVEL SECURITY");
     expect(a.migrations[0].up).toContain("wetscan_sentinel_worker");
     expect(a.migrations[0].up).toContain("lease_token");
@@ -56,7 +59,7 @@ describe("migration review/runner protocol - no SQL execution", () => {
       rows: sql.includes("to_regclass")
         ? [{ ledger: "exists" }]
         : sql.includes("SELECT version,checksum")
-          ? [plan.migrations[0]]
+          ? plan.migrations
           : [],
       rowCount: 0,
     });
@@ -91,4 +94,77 @@ describe("migration review/runner protocol - no SQL execution", () => {
     expect(compose).not.toContain("docker-entrypoint-initdb.d");
     expect(compose).not.toContain("worker/guard");
   });
+  it("telemetry up is additive, forced-RLS, and never grants worker credentials", async () => {
+    const m = (await migrationPlan()).migrations[1];
+    expect(m.up.match(/CREATE TABLE sentinel\./g)).toHaveLength(4);
+    expect(m.up).toContain("FORCE ROW LEVEL SECURITY");
+    expect(m.up).toContain("wetscan.workspace");
+    expect(m.up).not.toMatch(
+      /GRANT[^;]*telemetry_credentials[^;]*TO wetscan_sentinel_worker/,
+    );
+    expect(m.up).not.toMatch(
+      /(?:DROP|TRUNCATE|ALTER TABLE) (?:platform\.|sentinel\.project_bindings)/,
+    );
+    expect(m.down).not.toMatch(/CASCADE|platform\.|project_bindings/);
+    expect((await migrationPlan()).migrations[0].checksum).toBe(
+      "dd061a60b123284882f154c438de3a171d60967b7b07a4e07200b6693f4eb778",
+    );
+  });
+  it("reverses only empty telemetry, preserving populated foundation and its ledger", async () => {
+    const plan = await migrationPlan(),
+      c = new RecordingClient();
+    c.respond = async (sql) => ({
+      rows: sql.includes("to_regclass")
+        ? [{ ledger: "exists" }]
+        : sql.includes("SELECT version,checksum")
+          ? plan.migrations
+          : sql.includes("SELECT EXISTS")
+            ? [{ occupied: false }]
+            : [],
+      rowCount: 1,
+    });
+    await applyMigrations(fakePool(c), plan.migrations, "down");
+    expect(
+      c.calls.find((call) =>
+        call.sql.startsWith("DELETE FROM platform.schema_migrations"),
+      )?.values,
+    ).toEqual(["0002_telemetry"]);
+    expect(c.calls.some((call) => call.sql.includes("DROP SCHEMA"))).toBe(
+      false,
+    );
+    expect(
+      c.calls.some((call) =>
+        call.sql.includes("SELECT 1 FROM sentinel.project_bindings"),
+      ),
+    ).toBe(false);
+    expect(c.calls.at(-1)?.sql).toBe("COMMIT");
+  });
+  it.each(["sources", "credentials", "events", "batches", "jobs"])(
+    "refuses reversing populated S02 %s",
+    async (table) => {
+      const plan = await migrationPlan(),
+        c = new RecordingClient();
+      c.respond = async (sql) => ({
+        rows: sql.includes("to_regclass")
+          ? [{ ledger: "exists" }]
+          : sql.includes("SELECT version,checksum")
+            ? plan.migrations
+            : sql.includes("SELECT EXISTS")
+              ? [
+                  {
+                    occupied: sql.includes(
+                      table === "jobs" ? "platform.jobs" : `telemetry_${table}`,
+                    ),
+                  },
+                ]
+              : [],
+        rowCount: 1,
+      });
+      await expect(
+        applyMigrations(fakePool(c), plan.migrations, "down"),
+      ).rejects.toThrow("target_denied");
+      expect(c.calls.some((call) => call.sql.startsWith("DROP"))).toBe(false);
+      expect(c.calls.at(-1)?.sql).toBe("ROLLBACK");
+    },
+  );
 });

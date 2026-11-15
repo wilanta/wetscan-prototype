@@ -53,9 +53,10 @@ const manage = [
 ];
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const realProject = /^\/app\/projects\/github-[1-9]\d*\/canvas$/.test(
-    pathname,
-  );
+  const realProject =
+    /^\/app\/projects\/github-[1-9]\d*\/(?:canvas|sentinel(?:\/(?:activity|sources))?)$/.test(
+      pathname,
+    );
   const accountState = useDashboardAccount();
   const { account, status: accountStatus } = accountState;
   const { state, dispatch, dark, setDark } = useDemo();
@@ -71,6 +72,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           "Overview";
   function nav(items: typeof home) {
     return items.map(({ href, label, Icon }) => {
+      if (label === "Sentinel" && realProject) {
+        const projectId = pathname.split("/")[3];
+        href = `/app/projects/${projectId}/sentinel`;
+      }
       const active =
         href === "/app"
           ? pathname === "/app"
@@ -87,7 +92,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             <Icon size={18} />
             <span>{label}</span>
-            {realProject && (label === "Guard" || label === "Sentinel") && (
+            {realProject && label === "Guard" && (
               <span className="nav-new">DEMO</span>
             )}
             {label === "Canvas" && <span className="nav-new">APP MAP</span>}
@@ -172,7 +177,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {nav(
             protect.map((item) =>
               realProject && item.label === "Canvas"
-                ? { ...item, href: pathname }
+                ? {
+                    ...item,
+                    href: `/app/projects/${pathname.split("/")[3]}/canvas`,
+                  }
                 : item,
             ),
           )}
@@ -189,7 +197,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
             <p>
               {realProject ? (
-                "Guard: Not yet scanned · Sentinel: Monitoring not connected. Other security views open Orderly Demo."
+                "Guard: Not yet scanned · Open Sentinel to check telemetry sources. Ghost and Intelligence open Orderly Demo."
               ) : (
                 <>
                   Real clarity. Sample data.

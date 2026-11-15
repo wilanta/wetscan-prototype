@@ -15,6 +15,8 @@
     "sentinel:worker:smoke": "node --env-file-if-exists=.env.sentinel.local --import tsx scripts/sentinel-worker-smoke.ts",
     "sentinel:health": "node --env-file-if-exists=.env.sentinel.local --import tsx scripts/sentinel-health.ts",
     "test:platform:postgres": "node --env-file-if-exists=.env.sentinel.test.local --import tsx scripts/sentinel-postgres-test.ts",
+    "test:sentinel:postgres": "node --env-file-if-exists=.env.sentinel.test.local --import tsx scripts/sentinel-telemetry-test.ts",
+    "sentinel:emit": "node --env-file-if-exists=.env.sentinel.emitter.local --import tsx scripts/sentinel-emit.ts",
     "format": "prettier --write src tests *.ts *.mjs README.md docs/*.md"
   },
   "dependencies": {
