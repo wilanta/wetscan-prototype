@@ -1,0 +1,49 @@
+{
+  "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+  "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+  "approvalSource": "Explicit owner chat approval of exact request/job for maximum 55 minutes, scope WORKER_RECOVERY_2c18db66.md; execute in order and stop on failure",
+  "approvedBy": "WetScan owner/operator (explicit chat approval)",
+  "approvedAt": "2026-11-15T16:00:19.000Z",
+  "expiresAt": "2026-11-15T16:54:19.000Z",
+  "timestampBasis": "First clock observation after explicit approval; expiry conservatively limited to 54 minutes from that observation, below approved 55-minute maximum",
+  "operations": {
+    "sourceOnlyAttempts": 0,
+    "enqueueCalls": 2,
+    "durableJobs": 1,
+    "workerLaunches": 1,
+    "mode": "prepare_only",
+    "workerSnapshotAcquisition": 1,
+    "retainedEvidence": true,
+    "dockerOrScanner": false
+  },
+  "target": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "wetscan_s01_test_guardg01",
+    "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f"
+  },
+  "scope": "Two identical enqueues for one exact durable job and one prepare_only worker with scoped observers and owned cleanup; fresh explicit approval required; no source-only repeat, scanner, Docker or G02",
+  "previousPermitArchive": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate\\.local\\sentinel\\guard-g01-unblock\\worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7\\history-job-2c18db66-20261115T160019Z",
+  "previousPermitHashes": [
+    {
+      "file": "db-app-approval.json",
+      "sha256": "b2d45786aed0aad32d4ecd5bad718630799538093d7eea85ea9b7eaeb81734db"
+    },
+    {
+      "file": "db-worker-approval.json",
+      "sha256": "1d35834ee2c0ea5aa7e59191cd79157cf5aa410e22e5f0526d33b4f1aa91612d"
+    },
+    {
+      "file": "preparation-approval.json",
+      "sha256": "c85defe780cffce9b195e626522eb0b8a37d87c900196bd5305fc28e1ec7722d"
+    },
+    {
+      "file": "worker-approval.json",
+      "sha256": "82435b8aecada093ba235108477d26fb1f9a99b4fbe800b2973dc0d80baa9c39"
+    }
+  ],
+  "sourceOnlyPermitChanged": false,
+  "historicalMarkersChanged": false,
+  "startedEnqueue": false,
+  "startedWorker": false
+}

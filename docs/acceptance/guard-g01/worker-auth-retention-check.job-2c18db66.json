@@ -1,0 +1,48 @@
+{
+  "checkedAt": "2026-11-15T16:22:45.063Z",
+  "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+  "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+  "archivedPermitHashesVerified": [
+    {
+      "file": "db-app-approval.json",
+      "sha256": "b2d45786aed0aad32d4ecd5bad718630799538093d7eea85ea9b7eaeb81734db"
+    },
+    {
+      "file": "db-worker-approval.json",
+      "sha256": "1d35834ee2c0ea5aa7e59191cd79157cf5aa410e22e5f0526d33b4f1aa91612d"
+    },
+    {
+      "file": "preparation-approval.json",
+      "sha256": "c85defe780cffce9b195e626522eb0b8a37d87c900196bd5305fc28e1ec7722d"
+    },
+    {
+      "file": "worker-approval.json",
+      "sha256": "82435b8aecada093ba235108477d26fb1f9a99b4fbe800b2973dc0d80baa9c39"
+    }
+  ],
+  "preexistingOtherFilesMetadataVerified": 19,
+  "activePermits": [
+    {
+      "file": "db-app-approval.json",
+      "sha256": "93624dcd295d751cc95941b2f1f3c419bfebd65a4de45fb2d2bed9a1e490ec0f",
+      "matchesActivatedTemplate": true
+    },
+    {
+      "file": "db-worker-approval.json",
+      "sha256": "01f0590e78710dbe84c82f50c9cf4506b867cf010ce05e3a47453a0457818a3a",
+      "matchesActivatedTemplate": true
+    },
+    {
+      "file": "preparation-approval.json",
+      "sha256": "d50c3ef3bd74cf9ab73f610d42849ba051badd8282bf1f56ccb6b152ac2e5bee",
+      "matchesActivatedTemplate": true
+    },
+    {
+      "file": "worker-approval.json",
+      "sha256": "947871cee9fbc287724fdffbb2cc2fe559911ded218193390cdd3e762c4a9bbc",
+      "matchesActivatedTemplate": true
+    }
+  ],
+  "sourceOnlyPermitAndLegacyMarkersChanged": false,
+  "credentialsReadByAgent": false
+}

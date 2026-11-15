@@ -20,6 +20,9 @@ export async function prepareGuardJob(
   lease: JobLease,
   signal: AbortSignal,
   currentLease: () => JobLease = () => lease,
+  foundationProbe?: {
+    execute(snapshot: import("../../src/features/guard/contracts").AuthorizedSnapshot, lease: JobLease, signal: AbortSignal): Promise<{ manifest: string; specDigest: string }>;
+  },
 ) {
   const activeLease = () => {
     const fresh = currentLease();
@@ -71,17 +74,25 @@ export async function prepareGuardJob(
     },
     signal,
   );
+  let probe: { manifest: string; specDigest: string } | undefined;
+  let writeGrant = grant;
   try {
     if (signal.aborted) throw new LiveGuardError("execution_not_ready");
+    if (foundationProbe) probe = await foundationProbe.execute(snapshot,activeLease(),signal);
     const again = await resolver.resolve(activeLease(), signal);
     authorize(again.grant, current.job, "scan");
     if (again.grant.actorId !== grant.actorId)
       throw new LiveGuardError("not_found", 404);
+    if (foundationProbe) writeGrant = again.grant;
   } finally {
     await snapshots.dispose(snapshot);
   }
   // G01 prepare outcome only. Never manufacture engine completion. G02 must install a separately approved handler.
   const job = transition(current.job, "failed", grant.actorId);
+  if (probe) {
+    if (!/^[a-f0-9]{64}$/.test(probe.manifest) || !/^[a-f0-9]{64}$/.test(probe.specDigest)) throw new LiveGuardError("source_integrity");
+    job.audit.push({actorId:grant.actorId,at:new Date().toISOString(),action:"foundation_sandbox_verified",subjectId:job.id,reason:`G01 trusted probe ${probe.specDigest}; manifest ${probe.manifest}; no scanner ran.`});
+  }
   job.audit.push({
     actorId: grant.actorId,
     at: new Date().toISOString(),
@@ -92,5 +103,5 @@ export async function prepareGuardJob(
   const coverage =
     "coverage" in snapshot ? (snapshot as GuardSnapshot).coverage : undefined;
   activeLease();
-  await store.update(grant, job, current.revision, fence, coverage);
+  await store.update(writeGrant, job, current.revision, fence, coverage);
 }

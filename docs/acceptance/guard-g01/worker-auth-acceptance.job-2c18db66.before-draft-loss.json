@@ -1,0 +1,42 @@
+{
+  "updatedAt": "2026-11-15T16:02:40.025Z",
+  "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+  "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+  "status": "AWAITING_OWNER_FIRST_ENQUEUE",
+  "approvedAt": "2026-11-15T16:00:19.000Z",
+  "expiresAt": "2026-11-15T16:54:19.000Z",
+  "permitActivation": "FOUR_ACTIVE_OLD_BYTES_ARCHIVED",
+  "restrictedActivationAttempt": "EPERM before first write; normal reviewed execution succeeded",
+  "beforeObserver": {
+    "artifact": "worker-auth-observer-before.job-2c18db66.json",
+    "sha256": "88124f595054a9b5059d6c681d477d0eee7584752507fe26cbb7faa97223a728",
+    "sourceArtifact": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate\\.local\\sentinel\\guard-g01-unblock\\worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7\\observer-1794758524044.json",
+    "scan": null,
+    "queueCount": 0,
+    "attemptCount": 0,
+    "heartbeatCount": 0,
+    "readOnly": true
+  },
+  "unauthenticatedCheck": {
+    "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+    "startedAt": "2026-11-15T16:02:03.115Z",
+    "finishedAt": "2026-11-15T16:02:05.708Z",
+    "method": "GET",
+    "path": "/api/guard/projects/github-839286157/scans",
+    "cookiesSent": false,
+    "tokensSent": false,
+    "httpStatus": 401,
+    "contentType": "application/json",
+    "error": "unauthenticated",
+    "passed": true
+  },
+  "enqueueResponses": [],
+  "workerLaunches": 0,
+  "currentAuthProof": "REQUIRED_FROM_EXISTING_BACKEND_RESPONSE",
+  "scannerExecution": "NOT_RUN",
+  "sandboxExecution": "NOT_RUN",
+  "g02Started": false,
+  "sentinelMutation": false,
+  "sourceOnlyRepeat": false,
+  "stopOnFailure": true
+}

@@ -174,3 +174,50 @@ it("rejects a session revoked before the final evidence read", async () => {
   await expect(preparationRequest(f.input)).rejects.toThrow();
   expect(f.get).toHaveBeenCalledOnce();
 });
+
+it("waits beyond 45s and still requires fresh Auth and stored audit/coverage", async () => {
+  vi.useFakeTimers();
+  try {
+    const f = await setup();
+    vi.mocked(launchApprovedGuardWorker).mockResolvedValue({
+      stop: f.stop,
+      done: new Promise((done) => setTimeout(() => done({
+        processExit: 0, scannerExecution: "NOT_RUN" as const,
+      }), 50000)),
+    });
+    f.get.mockResolvedValueOnce({ job: f.job, coverage: null }).mockResolvedValueOnce({
+      job: { ...f.job, audit: [...f.job.audit, { action: "foundation_prepared" }] },
+      coverage: f.snapshot.coverage,
+    });
+    const task = preparationRequest(f.input);
+    await vi.advanceTimersByTimeAsync(49999);
+    expect(f.stop).not.toHaveBeenCalled();
+    expect(authorizeGuardProject).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(await task).toMatchObject({ preparation: "verified", scannerExecution: "NOT_RUN" });
+    expect(authorizeGuardProject).toHaveBeenCalledOnce();
+    expect(f.get).toHaveBeenCalledTimes(2);
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+it("stops a worker that exceeds the 90s request deadline", async () => {
+  vi.useFakeTimers();
+  try {
+    const f = await setup();
+    vi.mocked(launchApprovedGuardWorker).mockResolvedValue({
+      stop: f.stop, done: new Promise(() => {}),
+    });
+    const assertion = expect(preparationRequest(f.input)).rejects.toThrow("shutdown_deadline");
+    await vi.advanceTimersByTimeAsync(89999);
+    expect(f.stop).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    await assertion;
+    expect(f.stop).toHaveBeenCalledOnce();
+    expect(authorizeGuardProject).not.toHaveBeenCalled();
+    expect(f.get).toHaveBeenCalledOnce();
+  } finally {
+    vi.useRealTimers();
+  }
+});

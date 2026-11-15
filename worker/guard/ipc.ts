@@ -1,3 +1,4 @@
+import { guardPreparationTiming } from "./timing";
 import { randomUUID } from "node:crypto";
 import type { ChildProcess } from "node:child_process";
 import { LiveGuardError } from "../../src/features/guard/live/model";
@@ -148,7 +149,7 @@ export function attachGuardBroker(
     await Promise.allSettled(tasks.map((t) => t.task));
   };
 }
-export function guardRpcClient(port: GuardIpcPort, timeoutMs = 25000) {
+export function guardRpcClient(port: GuardIpcPort, timeoutMs: number = guardPreparationTiming.rpcMs) {
   const pending = new Map<
     string,
     { finish(error?: Error, result?: unknown): void; cancel(): void }

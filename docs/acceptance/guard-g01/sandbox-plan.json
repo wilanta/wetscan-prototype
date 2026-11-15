@@ -1,0 +1,70 @@
+{
+  "planSha256": "368b9b515529b88d2271a5e309113e6b0a4289de2bcf4ccd7453127f09dbc89d",
+  "plan": {
+    "schemaVersion": 1,
+    "status": "WAITING_USER",
+    "purpose": "trusted synthetic sandbox controls ONLY; not G02 scanning or connected-worker acceptance",
+    "endpoint": "npipe:////./pipe/dockerDesktopLinuxEngine",
+    "daemonId": "c1c9b326-b14b-4797-8c28-77e288102e53",
+    "daemonVersion": "29.7.2",
+    "kernelVersion": "6.18.54.1-microsoft-standard-WSL2",
+    "docker": "C:/Users/HP VICTUS/AppData/Local/Programs/DockerDesktop/resources/bin/docker.exe",
+    "image": "docker.io/library/python@sha256:d76f585fb0d5107dd47143da5e61554fd9cae656a30f3470f815cb8475769b6a",
+    "platform": "linux/amd64",
+    "imageId": "VERIFY_AFTER_APPROVED_PULL",
+    "source": "C:\\Users\\HPVICT~1\\AppData\\Local\\Temp\\wetscan-g01-snapshot-f31fa008-6766-4be7-99a7-51445b6cb3e4",
+    "sourceFiles": {
+      "probe.py": "18681751ff9eac39b7e6ba5c64951457924382478a42aa276de53a17cd13dc5d",
+      "fixture.txt": "b5777c99e02fd7ce25745ea7f4c49c1c360255f10e5d1966d963c4bb77632136"
+    },
+    "runId": "f31fa008-6766-4be7-99a7-51445b6cb3e4",
+    "containerNames": [
+      "wetscan-guard-1799fc70-bafe-4815-bb76-a4bb0560261b",
+      "wetscan-guard-eca3ff49-16f3-4c66-a711-95417e322d80",
+      "wetscan-guard-9885a680-83c3-458b-889f-064c0b9ef958",
+      "wetscan-guard-4b1a6abf-38b8-4bba-a552-a537e04c5bdc",
+      "wetscan-guard-10eca4b8-05c3-4073-9d3a-64d2caa310fe",
+      "wetscan-guard-62e5c18b-89a6-43c8-922f-7d76a977f923"
+    ],
+    "allowedActions": [
+      "pull_exact_digest",
+      "create_owned_containers",
+      "inspect_owned_containers",
+      "start_owned_containers",
+      "stop_owned_containers",
+      "remove_owned_containers"
+    ],
+    "limits": {
+      "cpu": 1,
+      "memoryBytes": 268435456,
+      "memorySwapBytes": 268435456,
+      "pids": 64,
+      "network": "none",
+      "ipc": "none",
+      "user": "65532:65532",
+      "readOnlyRoot": true,
+      "readOnlySource": true,
+      "tmpfs": "/tmp:rw,noexec,nosuid,nodev,size=16777216",
+      "capDrop": "ALL",
+      "securityOpt": "no-new-privileges",
+      "outputBytes": 65536,
+      "executionTimeoutMs": 5000,
+      "timeoutProbeMs": 1500,
+      "cancelProbeMs": 500
+    },
+    "cases": [
+      "controls",
+      "output",
+      "timeout",
+      "cancellation",
+      "memory",
+      "orphan_cleanup"
+    ],
+    "approvedAt": "",
+    "expiresAt": "",
+    "approvalWindow": "60 minutes from explicit owner approval; source fixtures retained for review; only these newly created containers may be removed; image retained",
+    "harnessSha256": "54e3ae75f183fd897159fb1a3db92e0660ed183b4550b0117d9d8b5b4981653b",
+    "attempt": 2,
+    "priorAttempt": "497ce65f-0ea8-4e81-a56c-e749e5e95394: daemon pipe absent before pull/create; prior evidence and .used retained"
+  }
+}

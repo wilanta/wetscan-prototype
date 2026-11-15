@@ -1,0 +1,92 @@
+{
+  "kind": "guard_exact_job_operator_observer",
+  "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+  "observedAt": "2026-11-15T16:21:18.933Z",
+  "readOnly": true,
+  "currentAuthProof": "SEPARATE_EXISTING_BACKEND_RESPONSE_REQUIRED",
+  "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+  "scope": {
+    "mode": "live",
+    "workspaceId": "github-user-145520313:testing",
+    "projectId": "github-839286157",
+    "actorId": "github-user-145520313"
+  },
+  "bindingMatches": true,
+  "scan": {
+    "status": "failed",
+    "revision": 3,
+    "repositoryId": "839286157",
+    "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+    "audit": [
+      {
+        "at": "2026-11-15T16:12:37.120Z",
+        "action": "queued",
+        "actorId": "github-user-145520313",
+        "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+      },
+      {
+        "at": "2026-11-15T16:19:21.807Z",
+        "action": "preparing",
+        "actorId": "github-user-145520313",
+        "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+      },
+      {
+        "at": "2026-11-15T16:20:03.324Z",
+        "action": "failed",
+        "actorId": "github-user-145520313",
+        "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+      },
+      {
+        "at": "2026-11-15T16:20:03.324Z",
+        "action": "foundation_prepared",
+        "actorId": "github-user-145520313",
+        "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+      }
+    ]
+  },
+  "queue": [
+    {
+      "job_id": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+      "state": "completed",
+      "attempts": 1,
+      "fence": "1",
+      "lease_owner": null,
+      "lease_until": null,
+      "cancel_requested": false
+    }
+  ],
+  "attempts": [
+    {
+      "attempt": 1,
+      "worker_id": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+      "outcome": "completed",
+      "started_at": "2026-11-15T16:19:21.342Z",
+      "finished_at": "2026-11-15T16:20:03.347Z"
+    }
+  ],
+  "heartbeats": [
+    {
+      "worker_id": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+      "status": "stopped",
+      "last_seen_at": "2026-11-15T16:20:03.352Z"
+    }
+  ],
+  "foundationPrepared": true,
+  "coverage": {
+    "status": "partial",
+    "retrievedFiles": 82,
+    "eligibleFiles": 90,
+    "bytes": 175159,
+    "treeTruncated": false,
+    "exclusionCounts": {
+      "sensitive_path": 1,
+      "file_size": 4,
+      "binary": 4
+    }
+  },
+  "storedPreparationVerified": true,
+  "scannerExecution": "NOT_RUN",
+  "sandboxExecution": "NOT_RUN",
+  "authSessionCreated": false,
+  "leaseTokensSelected": false
+}

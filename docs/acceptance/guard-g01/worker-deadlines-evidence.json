@@ -1,0 +1,238 @@
+{
+  "updatedAt": "2026-11-15T15:57:12.776Z",
+  "classification": "PARTIALLY_COMPLETE",
+  "candidate": {
+    "cwd": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate",
+    "writableRoot": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate",
+    "branch": "feat/guard-g01-s03-integration",
+    "head": "1b28fb88ae65a29902e0f1f314efdce44ed3c643",
+    "stagedIndexSha256": "40d77c02186b074dacfd2fe3a6f2816d89a7e59d5f279cbe8be8c75c9c716c4f",
+    "indexPreserved": true
+  },
+  "patch": {
+    "sha256": "f8836520118e7a44ed57e2f562ff29a31e6f776532eb951f863bd9628e2f5326",
+    "beforeHashesVerified": true,
+    "gitApplyCheck": "PASS",
+    "installed": true,
+    "lineEndingNote": "git apply produced CRLF; all normalized contents exactly equal proposed v3"
+  },
+  "repairFiles": [
+    {
+      "file": "worker/guard/timing.ts",
+      "beforeRawSha256": null,
+      "actualRawSha256": "dc617252992f530ddeda64e58dd91bff5a2ea8f403d0f12a11c921b5f8cf47df",
+      "actualNormalizedSha256": "b7a6c3807e1003ef5df2d4da38aadae4717cf28338c153d31e73809eb39ac9ca",
+      "expectedNormalizedSha256": "b7a6c3807e1003ef5df2d4da38aadae4717cf28338c153d31e73809eb39ac9ca"
+    },
+    {
+      "file": "worker/guard/runtime.ts",
+      "beforeRawSha256": "e43ec9f79c78219765e7dbe9d9ad184134d7f693cdc870c19e263ffe1aa49ab9",
+      "actualRawSha256": "75f6abe2b0495dad182299d30b9a6ee512c61e29889b7e9c12dbca580fd55fc3",
+      "actualNormalizedSha256": "d152d4dd952267264d79ecd08e69468ff6f2be6ebe4af703ffa4a50871744a76",
+      "expectedNormalizedSha256": "d152d4dd952267264d79ecd08e69468ff6f2be6ebe4af703ffa4a50871744a76"
+    },
+    {
+      "file": "worker/guard/ipc.ts",
+      "beforeRawSha256": "190714e8e9cfa3f80f3b8b0211bc90c4a3d81d3ed8ae5a7a49795cc1f5925210",
+      "actualRawSha256": "fe98f3978ee864e0f9f8c5a888031478a4f4bf20af4c16249411b7594118d281",
+      "actualNormalizedSha256": "eadbcea81fa639713e0c1012072664cfd59e6a57f84ff1695e7e080c95e89557",
+      "expectedNormalizedSha256": "eadbcea81fa639713e0c1012072664cfd59e6a57f84ff1695e7e080c95e89557"
+    },
+    {
+      "file": "src/features/guard/live/preparation-request.ts",
+      "beforeRawSha256": "ad21cffcdc26fcd22b123491d71ffcf7deae9648f998f0e54294f50caa0d8d78",
+      "actualRawSha256": "d8132ddc41a94b6b22156597c2bdbcd1866526180aed61f124322ff8c8d89a73",
+      "actualNormalizedSha256": "1257a3ab8c0cc2fe5f7433362140e0e0e765154d011d92041823d1869542523c",
+      "expectedNormalizedSha256": "1257a3ab8c0cc2fe5f7433362140e0e0e765154d011d92041823d1869542523c"
+    }
+  ],
+  "deadlinesMs": {
+    "source": 45000,
+    "rpc": 55000,
+    "handler": 60000,
+    "request": 90000,
+    "authGrant": 60000,
+    "lease": 30000,
+    "heartbeat": 5000
+  },
+  "checks": {
+    "typecheck": {
+      "command": "node node_modules/typescript/bin/tsc --noEmit",
+      "exitCode": 0,
+      "classification": "STATIC_VERIFIED"
+    },
+    "lint": {
+      "command": "node node_modules/eslint/bin/eslint.js .",
+      "exitCode": 0,
+      "classification": "STATIC_VERIFIED"
+    },
+    "focused": {
+      "command": "node --require ./tests/auth/skip-dotenv.cjs node_modules/vitest/vitest.mjs run tests/guard/g01/preparation-deadlines.test.ts tests/guard/g01/preparation-request.test.ts tests/guard/g01/ipc.test.ts tests/guard/g01/worker.test.ts",
+      "passed": 22,
+      "failed": 0,
+      "exitCode": 0,
+      "classification": "UNIT_VERIFIED"
+    },
+    "restrictedUnit": {
+      "artifact": "test-results/guard-g01-unblock/deadlines-candidate-unit.json",
+      "artifactSha256": "fbe866e7cb95911698ad164f01d1fb87a3040a44ae92c553d882b3bd6b750e4a",
+      "success": false,
+      "total": 798,
+      "passed": 787,
+      "failed": 11,
+      "files": 64,
+      "startedAt": "2026-11-15T15:47:30.008Z",
+      "failedFiles": [
+        "tests/platform/cli.test.ts",
+        "tests/sentinel/detection-acceptance-safety.test.ts",
+        "tests/guard/g01/broker-process.test.ts",
+        "tests/guard/g01/worker-process.test.ts"
+      ],
+      "exitCode": 1,
+      "classification": "FAILED_IN_RESTRICTED_SANDBOX",
+      "note": "11 child-process assertions failed. Direct tsx initialization independently produced uv_os_get_passwd ENOMEM; original failures retained."
+    },
+    "normalUnit": {
+      "artifact": "test-results/guard-g01-unblock/deadlines-candidate-normal-unit.json",
+      "artifactSha256": "fa9c4794c4bc12317aa210ee02e32cf5308e7f6ac687ec536a4ee886dcd466c8",
+      "success": true,
+      "total": 798,
+      "passed": 798,
+      "failed": 0,
+      "files": 64,
+      "startedAt": "2026-11-15T15:48:44.062Z",
+      "failedFiles": [],
+      "command": "node --require ./tests/auth/skip-dotenv.cjs node_modules/vitest/vitest.mjs run --reporter=json --outputFile=test-results/guard-g01-unblock/deadlines-candidate-normal-unit.json",
+      "exitCode": 0,
+      "execution": "separately approved normal execution",
+      "classification": "UNIT_VERIFIED"
+    },
+    "buildAndGuard": {
+      "command": "node tests/guard/run-e2e.mjs",
+      "productionBuild": "PASS",
+      "passed": 7,
+      "failed": 0,
+      "exitCode": 0,
+      "classification": "INTEGRATION_VERIFIED_FIXTURE",
+      "evidenceSource": "Tool stdout and exit result; no live credentials or providers"
+    },
+    "auth": {
+      "command": "node tests/guard/g01/run-regression.mjs auth",
+      "passed": 21,
+      "failed": 0,
+      "exitCode": 0,
+      "classification": "INTEGRATION_VERIFIED_FIXTURE",
+      "evidenceSource": "Tool stdout and exit result"
+    },
+    "restrictedCanvas": {
+      "command": "node tests/guard/g01/run-regression.mjs canvas",
+      "passedAssertions": 17,
+      "cleanExit": false,
+      "exitCode": 1,
+      "classification": "TEARDOWN_INCOMPLETE",
+      "cleanup": "Verified owned runner PID28144 and creation time1794757799363, then stopped only its process tree after teardown stalled. No user app process was targeted."
+    },
+    "normalCanvas": {
+      "command": "node tests/guard/g01/run-regression.mjs canvas --output=test-results/guard-g01-deadlines-canvas-normal",
+      "status": "PASS",
+      "execution": "separately approved normal execution; isolated fixture output",
+      "passed": 17,
+      "failed": 0,
+      "exitCode": 0,
+      "classification": "INTEGRATION_VERIFIED_FIXTURE",
+      "artifact": "test-results/guard-g01-deadlines-canvas-normal/.last-run.json",
+      "artifactSha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "duration": "2.3m from runner stdout",
+      "evidenceSource": "Tool stdout/exit result and retained Playwright .last-run.json; normal teardown completed"
+    },
+    "migrationPlan": {
+      "command": "node --require ./tests/auth/skip-dotenv.cjs --import tsx worker/guard/plan.ts",
+      "sha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d",
+      "unchanged": true,
+      "exitCode": 0,
+      "databaseOperations": 0,
+      "note": "Restricted tsx initialization failed; approved normal offline execution succeeded"
+    },
+    "observerOffline": {
+      "command": "node --require ./tests/auth/skip-dotenv.cjs --import tsx tests/guard/g01/worker-observer.acceptance.ts",
+      "status": "READY_PENDING_EXECUTION_APPROVAL",
+      "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+      "exitCode": 0,
+      "databaseConnections": 0,
+      "authSessionCreated": false,
+      "workerStarted": false
+    },
+    "packet": {
+      "canonicalDigestVerified": true,
+      "currentAndRetainedNewCopyByteIdentical": true,
+      "previousPacketCanonicalDigestVerified": true,
+      "actualImplementationHashesVerified": 41,
+      "templates": "4 WAITING_USER; timestamps blank; no active permits written"
+    },
+    "diffCheck": {
+      "command": "git diff --check",
+      "exitCode": 0
+    }
+  },
+  "priorSourceEvidence": {
+    "provenance": "Carry-forward from CONTINUE_G01.md: owner supplied matching actual HTTP200 and protected recovery journal; private journal not reread by this agent",
+    "attemptId": "c5ca98b2-40ec-4561-b60c-fb430eae82dc",
+    "approvalDigest": "2fcce4dd8c25520093aebeb3a7c0c825706295c6f80ea7383a532710c5cdd84f",
+    "startedAt": "2026-11-15T15:04:19.593Z",
+    "finishedAt": "2026-11-15T15:05:00.178Z",
+    "durationMs": 40585,
+    "repositoryId": "839286157",
+    "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+    "tree": "6742145fe7c45640fa9b5d1d2666ca9d45966c57",
+    "snapshotDigest": "1e60da8781c233b4d352e09d305340002b1368331a275f645404bfd2a5ab543e",
+    "files": 82,
+    "bytes": 175159,
+    "eligibleFiles": 90,
+    "coverage": "partial",
+    "treeTruncated": false,
+    "exclusions": {
+      "sensitive": 1,
+      "size": 4,
+      "binary": 4
+    },
+    "cleanup": "verified",
+    "scannerExecution": "NOT_RUN",
+    "scanAccepted": false
+  },
+  "newApproval": {
+    "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+    "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+    "status": "NOT_APPROVED",
+    "maximumMinutes": 55,
+    "enqueueCalls": 2,
+    "durableJobs": 1,
+    "workerLaunches": 1,
+    "execution": "prepare_only",
+    "sourceOnlyRepeat": false
+  },
+  "boundaries": {
+    "secretsRead": false,
+    "dotenvRead": false,
+    "dotenvChanged": false,
+    "authSessionStoreRead": false,
+    "liveWorkerStarted": false,
+    "liveEnqueue": false,
+    "activePermitsChanged": false,
+    "oldMarkersChanged": false,
+    "masterChanged": false,
+    "databaseSchemaOrRolesChanged": false,
+    "dockerOrScannerExecuted": false,
+    "g02Started": false,
+    "syntheticUnitAndBrowserProcessesExecuted": true
+  },
+  "openGates": [
+    "Fresh exact-job runtime approval and live Auth/stored foundation_prepared/coverage evidence",
+    "Exact durable job/queue/lease/fence/heartbeat/attempt/cleanup evidence",
+    "Integrated enforcing sandbox and live security-negative/crash-restart gates",
+    "External Sentinel preservation is unobserved; isolated G01 fixture proof does not cover it"
+  ],
+  "continuation": {
+    "path": "C:/Users/HP VICTUS/AppData/Local/Temp/wetscan-g01-worker-recovery-oYzKZx/CONTINUE_G01.md",
+    "sha256": "fa5a2a1292dff93a90bbad70d9f2d65762b4a7336a989a263a5f404c43275544"
+  }
+}

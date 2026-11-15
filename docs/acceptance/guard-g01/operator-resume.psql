@@ -1,0 +1,16 @@
+-- Resume ONLY after exact new bundle approval; no credential literals.
+\set ON_ERROR_STOP on
+\o 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/postgres-resume-11-resume-readonly-preflight.txt'
+\i 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/docs/acceptance/guard-g01/11-resume-readonly-preflight.sql'
+\o 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/postgres-resume-10-resume-guard-platform-access.txt'
+\i 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/docs/acceptance/guard-g01/10-resume-guard-platform-access.sql'
+\o 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/postgres-resume-08-guard-schema.txt'
+\i 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/docs/acceptance/guard-g01/08-guard-schema.sql'
+\o 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/postgres-resume-09-readonly-security-verification.txt'
+\i 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/docs/acceptance/guard-g01/09-readonly-security-verification.sql'
+\o 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/postgres-resume-12-post-resume-readonly-verification.txt'
+\i 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/docs/acceptance/guard-g01/12-post-resume-readonly-verification.sql'
+\o 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/postgres-resume-06-preservation-observer.txt'
+\i 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/docs/acceptance/guard-g01/06-preservation-observer.sql'
+\o
+\echo Approved Guard resume finished; inspect all results before claiming acceptance.

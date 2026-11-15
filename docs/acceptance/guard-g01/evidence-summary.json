@@ -1,0 +1,552 @@
+{
+  "updatedAt": "2026-11-15T21:03:07.884524+07:00",
+  "classification": "PARTIALLY_COMPLETE",
+  "database": {
+    "initialApprovedBundle": "e6f3b28cd49ac8c875a20b034338645dc4e14a8f81036e200f453f0337a05f01",
+    "resumeApprovedBundle": "fab43564e7c93293fa7d1149b7da980a33e7a526974e53e46772d98c695a3bfb",
+    "guardMigrationHash": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d",
+    "preResumeOperatorEvidence": {
+      "source": "Owner-supplied JSON from normal authenticated pgAdmin execution of 13-recovery-readonly-state.sql; not agent browser control",
+      "recordedAt": "2026-11-15T12:44:10.629598+00:00",
+      "state": {
+        "owner": "wetscan_guard_migrator",
+        "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f",
+        "database": "wetscan_s01_test_guardg01",
+        "operator": "postgres",
+        "guardScans": null,
+        "serverPort": 5432,
+        "guardBudget": null,
+        "guardPolicies": 0,
+        "serverVersion": "18.6",
+        "sentinelBudget": 2,
+        "activeGuardJobs": 0,
+        "platformVersions": [
+          {
+            "version": "0001_foundation",
+            "checksum": "dd061a60b123284882f154c438de3a171d60967b7b07a4e07200b6693f4eb778"
+          },
+          {
+            "version": "0002_telemetry",
+            "checksum": "d1b67dc680f5bf3c2cbe585dca2427abf9d7ba9f29479c69b851f66b91c1f5a3"
+          },
+          {
+            "version": "0003_detection",
+            "checksum": "4f0ee1cebdbdc81b835f719ef13c9cb703dfb5f440193765dfa0a61635fb6168"
+          }
+        ],
+        "guardLedgerExists": false,
+        "guardSchemaExists": false,
+        "operatorSuperuser": true,
+        "guardPlatformUsage": false,
+        "guardPlatformGrants": 0
+      },
+      "sqlMutation": false
+    },
+    "resumeOutcome": "LIVE_VERIFIED Guard migration/ledger/FORCE RLS and isolated before-after preservation from owner18 JSON; app/worker runtime tests still awaiting protected credential provisioning and fresh unexpired permit",
+    "originalFailure": "07:30 new row violates row-level security policy for module_limits",
+    "markers": "PRESERVED; previous psql resume exit2 plus EEXIST; no marker deletion/reset",
+    "cliAuthentication": "Owner reported FATAL password authentication failed for postgres on localhost(::1):5432; both IP families require password and share same listener PID; no password reset",
+    "postResumeEvidence": {
+      "source": "Owner-supplied actual normal pgAdmin execution of18-readonly-initial-observer-comparison.sql; no agent computer control",
+      "recordedAt": "2026-11-15T20:06:18.619193+07:00",
+      "result": {
+        "scope": "isolated G01 database; external Sentinel database not observed",
+        "state": {
+          "owner": "wetscan_guard_migrator",
+          "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f",
+          "database": "wetscan_s01_test_guardg01",
+          "operator": "postgres",
+          "guardScans": "<table xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\n<row>\n  <rows>0</rows>\n</row>\n\n</table>\n",
+          "serverPort": 5432,
+          "guardBudget": 1,
+          "guardPolicies": 7,
+          "serverVersion": "18.6",
+          "sentinelBudget": 2,
+          "activeGuardJobs": 0,
+          "platformVersions": [
+            {
+              "version": "0001_foundation",
+              "checksum": "dd061a60b123284882f154c438de3a171d60967b7b07a4e07200b6693f4eb778"
+            },
+            {
+              "version": "0002_telemetry",
+              "checksum": "d1b67dc680f5bf3c2cbe585dca2427abf9d7ba9f29479c69b851f66b91c1f5a3"
+            },
+            {
+              "version": "0003_detection",
+              "checksum": "4f0ee1cebdbdc81b835f719ef13c9cb703dfb5f440193765dfa0a61635fb6168"
+            }
+          ],
+          "guardLedgerExists": true,
+          "guardSchemaExists": true,
+          "operatorSuperuser": true,
+          "guardPlatformUsage": true,
+          "guardPlatformGrants": 24
+        },
+        "preserved": true,
+        "afterSha256": "45e7cfe26767e26ad96ceda0dd2a53649a10ea7a5453844ac50ee30867e1095d",
+        "beforeSha256": "45e7cfe26767e26ad96ceda0dd2a53649a10ea7a5453844ac50ee30867e1095d",
+        "guardMigration": [
+          {
+            "version": "0001_guard",
+            "checksum": "8bdea256cdd5ab79b1525f43bd40508acf25e57502a72162ae6b5233dd55693b"
+          }
+        ],
+        "guardRlsForced": true,
+        "differentSections": [],
+        "moduleLimitsRlsForced": true,
+        "initialObserverSourceSha256": "184ee7bff8e22b308ffac213ce28ff554d7b87a1d6b47f0cb6d7145caa8fea80"
+      }
+    },
+    "runtimeTests": [
+      {
+        "runner": "tests/guard/g01/postgres.acceptance.ts",
+        "command": [
+          "node",
+          "--require",
+          "./tests/auth/skip-dotenv.cjs",
+          "--import",
+          "tsx",
+          "tests/guard/g01/postgres.acceptance.ts"
+        ],
+        "startedAt": "2026-11-15T13:10:40.597385+00:00",
+        "endedAt": "2026-11-15T13:10:42.589533+00:00",
+        "exitCode": 0,
+        "output": ".local\\sentinel\\guard-g01-unblock\\postgres.acceptance.runtime.log",
+        "services": "real approved PostgreSQL; synthetic Guard metadata; existing guarded credential mechanism",
+        "requestSha256": "286a7a3d97e01786b1364387c849c27d09e230000d6093d47bb6206a79978e41",
+        "result": {
+          "group": "guard_g01_postgres",
+          "passed": 14,
+          "dependency": "real PostgreSQL with synthetic metadata only",
+          "retainedFixtures": true,
+          "providerAcceptance": "NOT_RUN",
+          "sentinelPreservationObserver": "SEPARATE_OPERATOR_GATE"
+        }
+      },
+      {
+        "runner": "tests/guard/g01/postgres-context.acceptance.ts",
+        "command": [
+          "node",
+          "--require",
+          "./tests/auth/skip-dotenv.cjs",
+          "--import",
+          "tsx",
+          "tests/guard/g01/postgres-context.acceptance.ts"
+        ],
+        "startedAt": "2026-11-15T13:10:42.590887+00:00",
+        "endedAt": "2026-11-15T13:10:43.365119+00:00",
+        "exitCode": 0,
+        "output": ".local\\sentinel\\guard-g01-unblock\\postgres-context.acceptance.runtime.log",
+        "services": "real approved PostgreSQL; synthetic Guard metadata; existing guarded credential mechanism",
+        "requestSha256": "286a7a3d97e01786b1364387c849c27d09e230000d6093d47bb6206a79978e41",
+        "result": {
+          "group": "guard_g01_postgres_context",
+          "classification": "LIVE_VERIFIED_DATABASE_SYNTHETIC_METADATA",
+          "passed": 11,
+          "checks": [
+            "wetscan_guard_app_least_privilege",
+            "wetscan_guard_worker_least_privilege",
+            "scoped_row_exists",
+            "app_missing_identity_cannot_read_existing_row",
+            "app_missing_identity_cannot_update_existing_row",
+            "worker_missing_identity_cannot_read_existing_row",
+            "worker_missing_identity_cannot_update_existing_row",
+            "app_insert_without_identity_rejected_42501",
+            "denied_insert_not_persisted",
+            "existing_scoped_row_intact",
+            "owned_fixture_cancelled_retained"
+          ],
+          "retainedFixtures": true,
+          "workspaceId": "github-user-7:g01-context-f448f175-11d8-46f4-9d68-082361418f10",
+          "jobId": "1e621d5bebe345a9f3188d5e447db1a3376f35c556fbb45240d57a81c57dcf1a",
+          "providerAcceptance": "NOT_RUN",
+          "workerProcess": "NOT_RUN"
+        }
+      }
+    ],
+    "postRuntimePreservation": {
+      "source": "Owner-supplied actual SQL18 result AFTER both real PostgreSQL runtime suites",
+      "recordedAt": "2026-11-15T21:03:07.884524+07:00",
+      "result": {
+        "scope": "isolated G01 database; external Sentinel database not observed",
+        "state": {
+          "owner": "wetscan_guard_migrator",
+          "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f",
+          "database": "wetscan_s01_test_guardg01",
+          "operator": "postgres",
+          "guardScans": "<table xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\n<row>\n  <rows>2</rows>\n</row>\n\n</table>\n",
+          "serverPort": 5432,
+          "guardBudget": 1,
+          "guardPolicies": 7,
+          "serverVersion": "18.6",
+          "sentinelBudget": 2,
+          "activeGuardJobs": 0,
+          "platformVersions": [
+            {
+              "version": "0001_foundation",
+              "checksum": "dd061a60b123284882f154c438de3a171d60967b7b07a4e07200b6693f4eb778"
+            },
+            {
+              "version": "0002_telemetry",
+              "checksum": "d1b67dc680f5bf3c2cbe585dca2427abf9d7ba9f29479c69b851f66b91c1f5a3"
+            },
+            {
+              "version": "0003_detection",
+              "checksum": "4f0ee1cebdbdc81b835f719ef13c9cb703dfb5f440193765dfa0a61635fb6168"
+            }
+          ],
+          "guardLedgerExists": true,
+          "guardSchemaExists": true,
+          "operatorSuperuser": true,
+          "guardPlatformUsage": true,
+          "guardPlatformGrants": 24
+        },
+        "preserved": true,
+        "afterSha256": "45e7cfe26767e26ad96ceda0dd2a53649a10ea7a5453844ac50ee30867e1095d",
+        "beforeSha256": "45e7cfe26767e26ad96ceda0dd2a53649a10ea7a5453844ac50ee30867e1095d",
+        "guardMigration": [
+          {
+            "version": "0001_guard",
+            "checksum": "8bdea256cdd5ab79b1525f43bd40508acf25e57502a72162ae6b5233dd55693b"
+          }
+        ],
+        "guardRlsForced": true,
+        "differentSections": [],
+        "moduleLimitsRlsForced": true,
+        "initialObserverSourceSha256": "184ee7bff8e22b308ffac213ce28ff554d7b87a1d6b47f0cb6d7145caa8fea80"
+      }
+    },
+    "credentialStatus": "Owner provisioned normal PostgreSQL roles and private purpose files; only authorised existing Guard runtime consumed them. Agent did not inspect/output values. Initial admin CLI password failure remains unreset; pgAdmin operator connection and Guard app/worker connections verified.",
+    "acceptance": "LIVE_VERIFIED: Guard schema/ledger/FORCE RLS;14 persistence/queue checks+11 context/least-privilege checks; matching initial-before/final-after isolated preservation;2 fixture scans retained,0active leases"
+  },
+  "sandbox": {
+    "sourceArtifactSha256": "73515d97c675fc2d6eb0f7fec50aca42337094f561108a4afd933be303419b8b",
+    "planSha256": "368b9b515529b88d2271a5e309113e6b0a4289de2bcf4ccd7453127f09dbc89d",
+    "startedAt": "2026-11-15T12:13:39.709Z",
+    "endedAt": "2026-11-15T12:13:58.286Z",
+    "status": "PASS",
+    "image": {
+      "reference": "docker.io/library/python@sha256:d76f585fb0d5107dd47143da5e61554fd9cae656a30f3470f815cb8475769b6a",
+      "imageId": "sha256:d76f585fb0d5107dd47143da5e61554fd9cae656a30f3470f815cb8475769b6a",
+      "repoDigests": [
+        "python@sha256:d76f585fb0d5107dd47143da5e61554fd9cae656a30f3470f815cb8475769b6a"
+      ]
+    },
+    "daemon": {
+      "ID": "c1c9b326-b14b-4797-8c28-77e288102e53",
+      "KernelVersion": "6.18.54.1-microsoft-standard-WSL2",
+      "version": "29.7.2"
+    },
+    "privateHostSource": {
+      "verified": true,
+      "aclSha256": "272cbb3f2497b20903005008188732c9fb8ea0e1adaf3c8e50a557c52193e862",
+      "scope": "new synthetic fixture only"
+    },
+    "cases": [
+      {
+        "case": "controls",
+        "container": "wetscan-guard-1799fc70-bafe-4815-bb76-a4bb0560261b",
+        "startedAt": "2026-11-15T12:13:49.541Z",
+        "status": "PASS",
+        "inspectVerified": true,
+        "durationMs": 743,
+        "controls": {
+          "cpu": true,
+          "forbidden_filesystem": true,
+          "memory": true,
+          "no_host_secrets": true,
+          "no_network": true,
+          "no_socket": true,
+          "non_root": true,
+          "pids": true,
+          "read_only_root": true,
+          "read_only_source": true,
+          "scratch": true,
+          "source_readable": true
+        },
+        "cleanup": "REMOVED_OWNED_CONTAINER",
+        "endedAt": "2026-11-15T12:13:50.943Z"
+      },
+      {
+        "case": "output",
+        "container": "wetscan-guard-eca3ff49-16f3-4c66-a711-95417e322d80",
+        "startedAt": "2026-11-15T12:13:50.943Z",
+        "status": "PASS",
+        "inspectVerified": true,
+        "durationMs": 513,
+        "outputLimitBytes": 65536,
+        "cleanup": "REMOVED_OWNED_CONTAINER",
+        "endedAt": "2026-11-15T12:13:52.115Z"
+      },
+      {
+        "case": "timeout",
+        "container": "wetscan-guard-9885a680-83c3-458b-889f-064c0b9ef958",
+        "startedAt": "2026-11-15T12:13:52.115Z",
+        "status": "PASS",
+        "inspectVerified": true,
+        "durationMs": 1511,
+        "cleanup": "REMOVED_OWNED_CONTAINER",
+        "endedAt": "2026-11-15T12:13:54.348Z"
+      },
+      {
+        "case": "cancellation",
+        "container": "wetscan-guard-4b1a6abf-38b8-4bba-a552-a537e04c5bdc",
+        "startedAt": "2026-11-15T12:13:54.348Z",
+        "status": "PASS",
+        "inspectVerified": true,
+        "durationMs": 512,
+        "cleanup": "REMOVED_OWNED_CONTAINER",
+        "endedAt": "2026-11-15T12:13:55.587Z"
+      },
+      {
+        "case": "memory",
+        "container": "wetscan-guard-10eca4b8-05c3-4073-9d3a-64d2caa310fe",
+        "startedAt": "2026-11-15T12:13:55.587Z",
+        "status": "PASS",
+        "inspectVerified": true,
+        "durationMs": 1031,
+        "oomKilled": true,
+        "cleanup": "REMOVED_OWNED_CONTAINER",
+        "endedAt": "2026-11-15T12:13:57.254Z"
+      },
+      {
+        "case": "orphan_cleanup",
+        "container": "wetscan-guard-62e5c18b-89a6-43c8-922f-7d76a977f923",
+        "startedAt": "2026-11-15T12:13:57.254Z",
+        "status": "PASS",
+        "inspectVerified": true,
+        "durationMs": 303,
+        "cleanup": "REMOVED_OWNED_CONTAINER",
+        "endedAt": "2026-11-15T12:13:58.283Z"
+      }
+    ],
+    "sourceUnchanged": true,
+    "cleanupVerification": {
+      "runId": "f31fa008-6766-4be7-99a7-51445b6cb3e4",
+      "checkedAt": "2026-11-15T12:29:49.390Z",
+      "status": "PASS",
+      "exitCode": 0,
+      "remainingOwnedContainers": [],
+      "scope": "only this approved acceptance run label, no unrelated resource inspection"
+    },
+    "connectedWorker": "NOT_TESTED",
+    "productionAttestation": "NOT_ISSUED"
+  },
+  "credentials": "Existing.env.local/secret stores never inspected by agent or overwritten. Normal application credential loader consumed designated purpose files only after explicit exact-target runtime approval; no values in tools/log/report. Ignored non-secret sidecars are preparation only.",
+  "localValidation": [
+    {
+      "name": "typecheck",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "startedAt": "2026-11-15T13:51:16.228192+00:00",
+      "endedAt": "2026-11-15T13:51:20.187739+00:00",
+      "exitCode": 0,
+      "artifact": "test-results\\guard-g01-unblock\\private-snapshot-final-typecheck.log",
+      "dependencies": "fixtures except real private filesystem/IPC; no live provider/DB/Docker"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "."
+      ],
+      "startedAt": "2026-11-15T13:51:20.188929+00:00",
+      "endedAt": "2026-11-15T13:51:34.374356+00:00",
+      "exitCode": 0,
+      "artifact": "test-results\\guard-g01-unblock\\private-snapshot-final-lint.log",
+      "dependencies": "fixtures except real private filesystem/IPC; no live provider/DB/Docker"
+    },
+    {
+      "name": "unit",
+      "command": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "--reporter=json",
+        "--outputFile=test-results/guard-g01-unblock/private-snapshot-final-unit.json"
+      ],
+      "startedAt": "2026-11-15T13:51:34.375678+00:00",
+      "endedAt": "2026-11-15T13:51:42.899356+00:00",
+      "exitCode": 0,
+      "artifact": "test-results\\guard-g01-unblock\\private-snapshot-final-unit.log",
+      "dependencies": "fixtures except real private filesystem/IPC; no live provider/DB/Docker",
+      "passed": 782,
+      "failed": 0,
+      "files": 63
+    },
+    {
+      "name": "guard-build-e2e",
+      "command": [
+        "node",
+        "tests/guard/run-e2e.mjs"
+      ],
+      "startedAt": "2026-11-15T13:51:42.930477+00:00",
+      "endedAt": "2026-11-15T13:52:27.594183+00:00",
+      "exitCode": 0,
+      "artifact": "test-results\\guard-g01-unblock\\private-snapshot-final-guard-build-e2e.log",
+      "dependencies": "fixtures except real private filesystem/IPC; no live provider/DB/Docker",
+      "passed": 7
+    },
+    {
+      "name": "auth",
+      "command": [
+        "node",
+        "tests/guard/g01/run-regression.mjs",
+        "auth"
+      ],
+      "startedAt": "2026-11-15T13:52:27.594943+00:00",
+      "endedAt": "2026-11-15T13:53:45.456210+00:00",
+      "exitCode": 0,
+      "artifact": "test-results\\guard-g01-unblock\\private-snapshot-final-auth.log",
+      "dependencies": "fixtures except real private filesystem/IPC; no live provider/DB/Docker",
+      "passed": 21
+    },
+    {
+      "name": "canvas",
+      "command": [
+        "node",
+        "tests/guard/g01/run-regression.mjs",
+        "canvas"
+      ],
+      "startedAt": "2026-11-15T13:53:45.457104+00:00",
+      "endedAt": "2026-11-15T13:55:27.533800+00:00",
+      "exitCode": 0,
+      "artifact": "test-results\\guard-g01-unblock\\private-snapshot-final-canvas.log",
+      "dependencies": "fixtures except real private filesystem/IPC; no live provider/DB/Docker",
+      "passed": 17
+    }
+  ],
+  "snapshotPrivacyFix": {
+    "finding": "Default new empty Windows temp directory inherited another account read ACE",
+    "implementation": [
+      "src/features/guard/live/snapshot-directory.ts",
+      "src/features/guard/live/snapshot.ts"
+    ],
+    "enforcement": "Verify owned empty direct-temp generated root, protected owner+SYSTEM DACL before source writes; POSIX0700; fail closed; scrubbed bounded OS calls; no existing-root ACL change",
+    "targetedTests": 28,
+    "fullUnitCount": 782,
+    "providerLiveSource": "NOT_RUN"
+  },
+  "workerPlan": {
+    "path": "WORKER_AUTH_PLAN.md",
+    "requestSha256": "d138ea8c79eaf51130f6aab1cf1b8a3fe14f725fb070f75b4da43d8669fdaace",
+    "jobId": "ed1db52330e28a2340652da778f02e4cd1c0b9628d663f7685c5856647ccee0c",
+    "status": "REVIEW_REQUIRED_NOT_APPROVED",
+    "sourceDraft": "Owner-exported existing normal UI preparation request; offline binding SHA verified",
+    "workerStarted": false
+  },
+  "latestWorkerRecovery": {
+    "updatedAt": "2026-11-15T15:57:12.776Z",
+    "classification": "PARTIALLY_COMPLETE",
+    "evidence": "worker-deadlines-evidence.json",
+    "evidenceSha256": "07ad4979c70ee1421a708b915096f5411196e715c186b7dee5af554fed496de4",
+    "checkpoint": "WORKER_RECOVERY_2c18db66.md",
+    "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+    "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+    "installedPatch": true,
+    "validation": {
+      "typecheck": "PASS",
+      "lint": "PASS",
+      "unit": "798/798",
+      "productionBuild": "PASS",
+      "guard": "7/7",
+      "auth": "21/21",
+      "canvas": "17/17"
+    },
+    "earlierFailuresRetained": true,
+    "runtimeApproval": "REQUIRED_NEW_EXACT_JOB",
+    "runtimeExecuted": false
+  },
+  "latestWorkerAuthAcceptance": {
+    "updatedAt": "2026-11-15T16:27:23.007Z",
+    "classification": "LIVE_VERIFIED_CONNECTED_WORKER_AUTH_PREPARE_ONLY",
+    "status": "PASS_PREPARE_ONLY_G01_PARTIALLY_COMPLETE",
+    "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+    "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+    "report": "WORKER_AUTH_ACCEPTANCE_2c18db66.md",
+    "result": "worker-auth-acceptance-result.job-2c18db66.json",
+    "resultSha256": "266077748295d01f30a60b1184ebc6438fd00e8c08d94eaf39fb2ddbec3206ab",
+    "httpStatus": 200,
+    "enqueueCalls": 2,
+    "durableJobCount": 1,
+    "workerLaunches": 1,
+    "attemptDurationMs": 42005,
+    "leaseRenewalAdvancesObservedAtLeast": 6,
+    "heartbeatRunningThenStopped": true,
+    "foundationPrepared": true,
+    "coverage": {
+      "status": "partial",
+      "retrievedFiles": 82,
+      "eligibleFiles": 90,
+      "bytes": 175159,
+      "treeTruncated": false,
+      "exclusionCounts": {
+        "sensitive_path": 1,
+        "file_size": 4,
+        "binary": 4
+      }
+    },
+    "cleanup": "VERIFIED_THROUGH_ENFORCED_DISPOSAL_PIPELINE_AND_ACTUAL_AUTHENTICATED_RESULT",
+    "postRunPreservation": {
+      "status": "LIVE_VERIFIED_ISOLATED_FIXTURE",
+      "artifact": "worker-auth-sql18-postrun.job-2c18db66.json",
+      "sha256": "357d5e03fc7995b09ada6cc220e4700fda04f31fbc6637add0b0310744825464",
+      "ownerActualPgAdminResult": true,
+      "rollbackConfirmed": true,
+      "beforeSha256": "45e7cfe26767e26ad96ceda0dd2a53649a10ea7a5453844ac50ee30867e1095d",
+      "afterSha256": "45e7cfe26767e26ad96ceda0dd2a53649a10ea7a5453844ac50ee30867e1095d",
+      "differentSections": [],
+      "guardScans": 3,
+      "activeGuardLeases": 0,
+      "fullTargetMarkerIndependentlyVerified": true,
+      "copyFormattingLimitationsDisclosed": true,
+      "externalSentinel": "NOT_OBSERVED"
+    },
+    "openGates": [
+      "Actual worker-to-enforcing-sandbox integration",
+      "Remaining live security-negative/revocation/cancellation/timeout cases",
+      "Actual DB-backed crash/lease-expiry/restart/recovery with cleanup"
+    ],
+    "evidenceLimits": [
+      "External Sentinel target is unobserved",
+      "Full schema lifecycle/down/recovery beyond transaction rollback not demonstrated; any destructive test requires separate approval",
+      "Independent filesystem enumeration of the private snapshot root was not performed; cleanup is proven through the enforced disposal/audit/backend completion path"
+    ],
+    "operationBudgetConsumed": true,
+    "additionalEnqueueOrLaunchAuthorized": false,
+    "scannerExecution": "NOT_RUN",
+    "sandboxExecution": "NOT_RUN",
+    "overallG01": "PARTIALLY_COMPLETE",
+    "willHandoff": "../../agent-handoffs/HANDOFF_WILL_G02_G06.md",
+    "g02Started": false,
+    "evidenceManifest": "worker-auth-evidence-manifest.job-2c18db66.json",
+    "evidenceManifestSha256": "b3d40d6c4afa16e30e76b82a4f77712c654a9898505c25f1905e34abbdc0bf3f",
+    "finalArtifactChecks": {
+      "packetDigestVerified": true,
+      "implementationHashesMatch": 41,
+      "evidenceFilesVerified": 33,
+      "reportLinksVerified": true,
+      "indexPreserved": true
+    }
+  },
+  "remainingGatePlan": {
+    "status": "REMAINING_GATE_PLANS_PREPARED_NO_RUNTIME_AUTHORIZATION",
+    "root": "remaining-gates-v1/README.md",
+    "manifest": "remaining-gates-v1/plan-manifest.json",
+    "manifestSha256": "d182773c6bf193ff004990900337576eb12137c5e8777e0503a5d5c2b92a869a",
+    "approvalIntents": 16,
+    "allInactive": true,
+    "runtimeExecuted": false,
+    "publication": false,
+    "externalSentinel": "NOT_VERIFIED / TARGET_NOT_IDENTIFIED",
+    "priorAcceptanceUnchanged": true,
+    "gateClosureHandoff": "../../agent-handoffs/HANDOFF_WILL_G01_GATE_CLOSURE_PLAN.md",
+    "readOnlyL02NeedsNoNewMutationApproval": true,
+    "validation": "remaining-gates-v1/preparation-validation.json"
+  }
+}

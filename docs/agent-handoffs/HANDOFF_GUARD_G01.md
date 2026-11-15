@@ -1,3 +1,103 @@
+# Current continuation: remaining G01 acceptance plans; no new runtime/publication approval
+
+The owner requested four separate remaining-gate plans and fresh specific approvals before runtime mutations. Connected Worker/Auth prepare_only and the old exact-job evidence stay PASS/frozen; its 2 enqueue + 1 launch budget is consumed and must not be repeated. Plans and 16 inactive review intents are in [remaining-gates-v1](../acceptance/guard-g01/remaining-gates-v1/README.md). They do not activate permits or authorize jobs/containers/faults. Runtime composition, exact specs, case-scoped controls and final artifact hashes must be completed before final execution approval.
+
+Scope is existing localhost:5432/wetscan_s01_test_guardg01 only. Owner confirms external Sentinel NOT_VERIFIED / TARGET_NOT_IDENTIFIED; never probe historical127.0.0.1:55432, create another DB or change Sentinel. Successful down/up on retained rows is blocked by this preservation constraint; source-orphan reaping needs real one-hour age and a new cleanup-only approval window. These limits are not PASS or an automatic G01 waiver. Overall remains PARTIALLY COMPLETE. Publication will require new explicit permission after the final gate decision; historical permission statements below do not authorize commit/push now. G02-G06 not started.
+
+---
+
+# Current G01 decision: connected Worker/Auth PASS prepare_only; overall PARTIALLY COMPLETE
+
+Verified15November2026: two owner-authenticated enqueue HTTP200 responses produce exactly one durable job; one real worker attempt42.005s completed with fence1, observed lease renewals, running?stopped heartbeat, released lease, matching foundation_prepared audit/coverage and fresh final Auth response. Coverage82/90files,175159bytes, partial; scan failed is the truthful G02-unconfigured result, scanner/sandbox NOT_RUN. Post-run SQL18 preservation passes with matching45e7...1095d hashes, differences[],3retained scans/0active leases; actual full target marker independently verified. Old permit bytes/markers and staging preserved. Runtime budget2enqueue+1launch is consumed; no additional action is authorized. Overall G01 remains PARTIALLY COMPLETE: integrated sandbox, live security-negative and real crash/restart/recovery gates remain open.
+
+Read [final Worker/Auth report](../acceptance/guard-g01/WORKER_AUTH_ACCEPTANCE_2c18db66.md) and [Will handoff](HANDOFF_WILL_G02_G06.md) for exact evidence, provenance/cleanup limits and remaining work. All conflicting older pending/unknown statements below are retained historical checkpoints.
+
+---
+
+# Two enqueues verified ? one durable job; worker launch pending
+
+Both owner-supplied enqueue responses returned HTTP200 with exact scanId 2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18. Read-only observer at 2026-11-15 23:16:47 WIB confirms exactly one matching queued scan revision1 and queue row attempts0/fence0, no lease, attempt row or heartbeat. Scan/queue/audit are unchanged since the first enqueue; idempotent replay is LIVE_VERIFIED. No further enqueue is permitted under this two-call budget.
+
+The four original purpose permits were rechecked and unchanged; 41 implementation hashes match. Approval expires 23:54:19 WIB. One prepare_only launch remains, through the existing authenticated preparation endpoint with body action launch plus the exact scanId. The owner executes OWNER_LAUNCH_WORKER_2c18db66.js only once when instructed; it performs fresh readiness/Auth and one launch POST, no enqueue or scanner. Keep the browser/server open while it awaits the backend result. Do not repeat on error or unknown outcome. Retain authenticated_readiness, worker_launch_started and worker_launch_result safe JSON; do not expose headers/cookies/tokens.
+
+Read-only observers should capture the actual leased job and renewals, worker running/stopped heartbeat, attempt outcome, persisted foundation_prepared audit/coverage and cleanup evidence. HTTP200/childexit0 alone is insufficient. A G02-unconfigured failed scan is expected for prepare_only and must not be called scanner success. Integrated sandbox/security-negative/crash-restart gates remain open; G01 is PARTIALLY COMPLETE. See [actual idempotency evidence](../acceptance/guard-g01/worker-auth-second-enqueue-response.job-2c18db66.json).
+
+---
+
+# First enqueue verified ? one durable job; replay pending
+
+Owner supplied actual readiness HTTP200 and first enqueue HTTP200 for exact-job 2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18. Read-only observer at 2026-11-15 23:14:19 WIB confirms bindingMatches true, one guard.scans record queued/revision1 and exactly one platform.jobs record queued/attempts0/fence0, no lease, attempts or heartbeat. Queued audit actor github-user-145520313 and subject/job match. This proves the first durable enqueue, not replay idempotency or worker preparation.
+
+Remaining approval budget: one identical enqueue replay, then one prepare_only worker only after replay verification. Expiry unchanged: 23:54:19 WIB. Owner should execute only the prepared OWNER_SECOND_ENQUEUE_2c18db66.js once when instructed, retain its safe JSON, then await observer confirmation; do not repeat the first script or launch a worker. No scanner/G02/Sentinel/GitHub writes. See [actual first-enqueue evidence](../acceptance/guard-g01/worker-auth-first-enqueue-response.job-2c18db66.json). Earlier absent-job/first-request-pending entries are historical.
+
+---
+
+# Current recovery: resumed; awaiting existing-session Auth/enqueue result
+
+Owner instructed continuation of the exact-job recovery. At 23:09:42?23:09:43 WIB, read-only DB state was empty, all 41 implementation hashes and original binding/nonce/export matched, and four unchanged permits were valid until 23:54:19 WIB. Scope/counts remain unchanged. The owner must run the prepared existing-session readiness GET then single exact enqueue; fresh backend Auth/HEAD/permit checks remain required before writing. No enqueue HTTP response or durable job is evidenced yet; worker remains NOT RUN. See [resumed recovery](../acceptance/guard-g01/DRAFT_RECOVERY_2c18db66.md). Earlier HOLD entries describe retained history.
+
+---
+
+# Current status: draft lost; exact job absent; recovery prepared
+
+Owner reports server stop/page refresh with no subsequent Verify/enqueue/replay/worker. A fresh read-only observer at 2026-11-15 23:06:09 WIB confirms no scan, queue, attempt or heartbeat for exact-job 2c18db66...b09ee18. Original export, binding and nonce remain intact. Acceptance is HOLD_DRAFT_LOST_NO_DURABLE_JOB; no recovery request has been executed and permits were not changed. Existing expiry remains 23:54:19 WIB; changes of scope/artifacts/binding or expiry require fresh explicit approval. See [exact-job recovery procedure](../acceptance/guard-g01/DRAFT_RECOVERY_2c18db66.md). G01 remains PARTIALLY COMPLETE; earlier waiting-for-button instructions are superseded.
+
+---
+
+# Active Worker/Auth acceptance ? owner approval received
+
+Exact-job approval is active until 2026-11-15 23:54:19 WIB; four purpose permits activated after preserving old bytes and markers. Pre-job observer confirms zero scan/job/attempt/heartbeat, and unauthenticated GET returns401. Acceptance is awaiting the owner first enqueue response through the existing UI/session; no live enqueue/worker is yet evidenced. See [current acceptance progress](../acceptance/guard-g01/WORKER_AUTH_ACCEPTANCE_2c18db66.md). G01 remains PARTIALLY COMPLETE; older pending-approval statements below are historical.
+
+---
+
+# Current checkpoint: installed deadline repair; new-job approval pending
+
+G01 remains **PARTIALLY COMPLETE**. Source-only acceptance is verified from matching owner-supplied HTTP200 and recovery journal carried forward in CONTINUE_G01.md; no source-only repeat. Deadline v3 is installed in the writable candidate; typecheck/lint/798 units/build/Guard7/Auth21/Canvas17 pass. Latest job is 2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18. New review packet SHA256 7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a is NOT APPROVED; old permits expired and cannot authorize this different job. No enqueue/live worker/permit activation performed. See [worker recovery checkpoint](../acceptance/guard-g01/WORKER_RECOVERY_2c18db66.md) for actual hashes, validation, provenance, retained history and the concrete approval scope. All older statuses and old execution/UI steps below are historical and superseded where they conflict.
+
+---
+
+# Source attempt under investigation - 2026-11-15 21:49 WIB
+
+G01 remains PARTIALLY COMPLETE; source/worker Live acceptance NOT VERIFIED. Owner reported one UI click returning HTTP503 approval_required, no enqueue/launch. The exact approved source permit is still valid; its matching canonical fingerprint is recorded in a .used marker created21:41:26.648WIB. That proves prior validation/reservation, NOT successful snapshot retrieval or cleanup. Replay would reject before provider access, but the supplied response has not yet been correlated with that first reservation. Do not infer a duplicate user click or a final root cause without the timestamped Network/route evidence requested from owner. No marker reset/retry, source, enqueue or worker was performed by the agent.
+
+Two additive unit regressions preserve one-attempt markers and first provider errors:4/4 targeted,784/784 full suite, typecheck and targeted lint PASS. These are unit evidence, not Live. Production implementation/approved hash are unchanged. Permit expires22:35:34WIB; expiry does not permit a retry. See docs/acceptance/guard-g01/worker-source-attempt.json for precise evidence and missing input. Existing user staging remains intact; no commit/push.
+
+---
+
+# Startup follow-up - 2026-11-15T21:12:03.145528+07:00
+
+The previous direct node --env-file next dev command is superseded. Use docs/acceptance/guard-g01/STARTUP_CMD.md: loadEnvFile API then unchanged npm run dev in a normal CMD child. Actual installed Next flag-forwarding root cause reproduced, corrected --help validation exit0; no.env modification/worker/enqueue. Actual app/UI readiness still owner-verified, worker permits WAITING_USER.
+
+---
+
+# Latest verified G01 checkpoint - 2026-11-15T21:03:07.884524+07:00
+
+**Current decision: PARTIALLY COMPLETE.** Read [final acceptance](../GUARD_G01_FINAL_ACCEPTANCE.md) first. The historical entries below are retained verbatim; their old UNKNOWN/permission/publication/S03-failure statements are superseded by this checkpoint.
+
+Actual isolated PostgreSQL migration/ledger/FORCE RLS and role app/worker connections verified:14 persistence/queue +11 context/least-privilege checks PASS. After BOTH suites, owner18 observer confirms2retained Guard scans,0active leases; Sentinel fixture/catalog before/after hashes identical45e7cfe26767e26ad96ceda0dd2a53649a10ea7a5453844ac50ee30867e1095d, differences[]. Guard budget1/Sentinel2; canonical migration planb63...5869d unchanged. No existing external Sentinel DB was inspected or mutated. Docker real pinned Official Python control probes6/6 PASS, all6containers removed with ownership/filter verification. Synthetic controls are not connected worker/scanner acceptance.
+
+New default-empty-temp ACL preflight found another account inherited read; Guard now verifies/hardens ONLY new empty snapshot roots before writing source (Windows owner+SYSTEM, POSIX0700). No Auth/Canvas/dashboard/dependency/canonicalSQL source change. Final affected checks:782/782units, typecheck/lint/build PASS; Guard7/Auth21/Canvas17 E2E PASS. S03 fix retained, original6/6 and race3/3 earlier same-sprint PASS; no weakened assertions. Initial new-helper path/mock compatibility failures fixed and recorded.
+
+Owner supplied actual UI preparation draft for inkAja/wdu/main/41861b...0e2b; exact jobed1db523...ccee0c validated offline. Worker/source/preparation/DB-role templates stay WAITING_USER. Read acceptance/guard-g01/WORKER_AUTH_PLAN.md (path relative to docs) for current plan hash and safe single-app readiness/reexport step before any execution approval. NO live worker/enqueue/GitHub snapshot has run; no implicit source/worker/container permission. prepare_only does not execute Docker; integrated foundation composition and remaining live gates are still open. No G02, commit/push/PR/merge/deploy, reset, marker deletion or browser computer control. Existing.env.local remains unread/unmodified; owner-provisioned private purpose values were consumed only internally by the authorized Guard credential loader, never inspected/reported.
+
+---
+
+# Verified PostgreSQL/sandbox acceptance update ? 2026-11-15T20:06:18.619193+07:00
+
+Current decision remains PARTIALLY COMPLETE, no G02/publication. PostgreSQL new target schema/ledger/FORCE RLS and isolated Sentinel fixture preservation are now LIVE_VERIFIED via actual owner18 pgAdmin result. Before/after45e7cfe26767e26ad96ceda0dd2a53649a10ea7a5453844ac50ee30867e1095d match, differences[]. Guard migration checksum8bdea?693b and planb63?5869d match; Guard budget1/Sentinel2. This supersedes pending17/COMMIT-only statuses below.17 session before hash was null and was not counted as preservation;18 uses recorded original06 catalog/data, not assumed source behavior. External Sentinel DB remains unobserved. Docker real isolated synthetic controls6/6 PASS; no connected worker/real GitHub-source execution is claimed. App/worker runtime tests still need manual private password provisioning and a valid renewed exact-target runtime/integration_test permit (old mutation window ended19:59WIB). Never read credentials, delete locks, replay migrations/reset, retry browser computer control, commit/push/merge/deploy or start G02. Read docs/GUARD_G01_FINAL_ACCEPTANCE.md and acceptance package for exact evidence/remaining steps.
+
+---
+
+# Latest G01 acceptance checkpoint ? 2026-11-15T19:53:11.945230+07:00
+
+**This section supersedes historical statuses/publication instructions below.** Read [G01 final acceptance](../GUARD_G01_FINAL_ACCEPTANCE.md) and its exact-target SQL/sandbox package. Branch feat/guard-g01-s03-integration remains1b28fb8 with local work; no commit/push/merge/deploy/G02 authorized. S03 is fixed and original6/6 PASS; do not report the historical failure as current.
+
+Real Docker control probes6/6 PASS with pinned Official Python image, private ACL/read-only source, networknone/resource caps/timeout/cancel/OOM/orphan cleanup; filtered verification shows no remaining owned container. This is synthetic enforcement evidence, NOT connected worker/GitHub-source scanning or a production attestation. New G01 PostgreSQL database/roles/baseline/fixture were operator-provisioned under exact approval; original07 failed FORCE RLS for owner INSERT. Separate approved resume uses postgres only for Guard budget1; leaves policies/RLS/canonical migration hashb63?5869d unchanged. Operator13 verified rollback/exact marker/checksums. Owner14 reports COMMIT;17 read-only JSON is still required before accepting Guard migration/preservation. CLI login failure and EEXIST markers remain preserved. Both loopbacks share the PostgreSQL listener; no password reset or secret inspection. App/worker PostgreSQL tests still need manually provisioned guarded credentials. Mutation approval expires19:59WIB15November; no implicit renewal or destructive cleanup.
+
+Overall PARTIALLY COMPLETE. Existing.env.local unchanged; ignored non-secret Guard sidecar prepared. Browser computer control is not retried. Do not rerun bootstrap/resume or delete markers before actual state verification. See the final report for exact commands/hashes/blockers and the gated G02 prompt.
+
+---
+
 # HANDOFF: Guard G01
 
 ## Latest GitHub/DB Live continuation - 15 November 2026

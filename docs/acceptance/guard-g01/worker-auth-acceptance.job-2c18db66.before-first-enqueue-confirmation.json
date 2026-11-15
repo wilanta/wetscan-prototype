@@ -1,0 +1,72 @@
+{
+  "updatedAt": "2026-11-15T16:10:44.924Z",
+  "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+  "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+  "status": "RESUMED_AWAITING_OWNER_AUTH_AND_FIRST_ENQUEUE",
+  "approvedAt": "2026-11-15T16:00:19.000Z",
+  "expiresAt": "2026-11-15T16:54:19.000Z",
+  "permitActivation": "FOUR_ACTIVE_OLD_BYTES_ARCHIVED",
+  "restrictedActivationAttempt": "EPERM before first write; normal reviewed execution succeeded",
+  "beforeObserver": {
+    "artifact": "worker-auth-observer-before.job-2c18db66.json",
+    "sha256": "88124f595054a9b5059d6c681d477d0eee7584752507fe26cbb7faa97223a728",
+    "sourceArtifact": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate\\.local\\sentinel\\guard-g01-unblock\\worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7\\observer-1794758524044.json",
+    "scan": null,
+    "queueCount": 0,
+    "attemptCount": 0,
+    "heartbeatCount": 0,
+    "readOnly": true
+  },
+  "unauthenticatedCheck": {
+    "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+    "startedAt": "2026-11-15T16:02:03.115Z",
+    "finishedAt": "2026-11-15T16:02:05.708Z",
+    "method": "GET",
+    "path": "/api/guard/projects/github-839286157/scans",
+    "cookiesSent": false,
+    "tokensSent": false,
+    "httpStatus": 401,
+    "contentType": "application/json",
+    "error": "unauthenticated",
+    "passed": true
+  },
+  "enqueueResponses": [],
+  "workerLaunches": 0,
+  "currentAuthProof": "PENDING_OWNER_SESSION_READINESS_RESPONSE_AND_ENQUEUE_SERVER_CHECKS",
+  "scannerExecution": "NOT_RUN",
+  "sandboxExecution": "NOT_RUN",
+  "g02Started": false,
+  "sentinelMutation": false,
+  "sourceOnlyRepeat": false,
+  "stopOnFailure": true,
+  "ownerReport": {
+    "serverStopped": true,
+    "pageRefreshed": true,
+    "commitInputEmpty": true,
+    "preparationReferenceMissing": true,
+    "queueButtonMissing": true,
+    "verifyAfterRefresh": false,
+    "enqueueAfterRefresh": false,
+    "replayAfterRefresh": false,
+    "workerAfterRefresh": false,
+    "provenance": "Explicit owner report; server-stop cause not independently established"
+  },
+  "afterRefreshObserver": {
+    "observedAt": "2026-11-15T16:06:09.189Z",
+    "file": "worker-auth-observer-after-refresh.job-2c18db66.json",
+    "sha256": "413b5922d2435051a6f63ee9124254ca01b12707e6ac59c0b8d54c487995a320",
+    "scan": null,
+    "queueCount": 0,
+    "attemptCount": 0,
+    "heartbeatCount": 0
+  },
+  "draftRecoveryPlan": "draft-recovery-plan.job-2c18db66.json",
+  "recoveryExecuted": false,
+  "preRecoveryEnqueueObserver": {
+    "file": "worker-auth-observer-before-recovery-enqueue.job-2c18db66.json",
+    "sha256": "a66033ec58a2e666a479418486fd873055e8e0fd12e7b8674eb981a30b3a5cdb",
+    "observedAt": "2026-11-15T16:09:42.992Z",
+    "queueCount": 0,
+    "scan": null
+  }
+}

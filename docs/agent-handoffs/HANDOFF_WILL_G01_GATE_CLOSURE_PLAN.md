@@ -1,0 +1,9 @@
+# G01 gate-closure plan for Will handoff preparation
+
+This continuation preserves the completed [Worker/Auth report](../acceptance/guard-g01/WORKER_AUTH_ACCEPTANCE_2c18db66.md) and frozen [earlier Will handoff](HANDOFF_WILL_G02_G06.md). That handoff is part of the completed 33-file evidence manifest and was deliberately not rewritten.
+
+The owner now requests completing all mandatory G01 evidence before G02-G06 development. Read [four remaining acceptance plans](../acceptance/guard-g01/remaining-gates-v1/README.md), [code gap audit](../acceptance/guard-g01/remaining-gates-v1/code-gap-audit.json), [scope constraints](../acceptance/guard-g01/remaining-gates-v1/owner-scope-record.json) and [inactive per-case review intents](../acceptance/guard-g01/remaining-gates-v1/approval-index.json). No new runtime mutation, permit activation, job or publication occurred.
+
+The only confirmed DB is the existing G01 fixture. External Sentinel is NOT_VERIFIED/TARGET_NOT_IDENTIFIED; historical port55432 is excluded. No new databases or fixture deletion may be proposed as a workaround. Full schema-down cannot be called verified; safe already_applied/refusal checks are distinguished from destructive lifecycle proof. Source orphan cleanup needs actual one-hour age and a fresh cleanup-only second approval window. Local missing composition is not an external blocker.
+
+After actual cases pass or a concrete blocker/owner acceptance decision is recorded, update the final report and release handoff from that evidence. Prepare an exact commit/push file/branch/remote review only after this gate decision, preserving user staging and excluding all private/secret material. Publication still awaits the separate permission the owner said they will provide. Do not start G02-G06 or send messages to Will from this plan.

@@ -1,0 +1,49 @@
+{
+  "recordedAt": "2026-11-15T16:14:53.983Z",
+  "provenance": "Owner supplied actual Console JSON from one execution of OWNER_FIRST_ENQUEUE_2c18db66.js; HTTP exchange was not captured by the agent",
+  "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+  "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+  "authenticatedReadiness": {
+    "phase": "authenticated_readiness",
+    "httpStatus": 200,
+    "status": "BLOCKED",
+    "database": "approved",
+    "schema": "verified",
+    "execution": "G02_NOT_CONFIGURED",
+    "scanAccepted": false
+  },
+  "firstEnqueue": {
+    "phase": "first_enqueue",
+    "httpStatus": 200,
+    "scanId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+    "status": "queued",
+    "execution": "prepare_only",
+    "scannerExecution": "NOT_RUN",
+    "exactJobMatches": true
+  },
+  "ownerReported": {
+    "scriptExecutedOnce": true,
+    "replayExecuted": false,
+    "workerExecuted": false,
+    "consoleUndefined": true,
+    "fastRefreshLog": true,
+    "noVisibleError": true
+  },
+  "databaseCorrelation": {
+    "artifact": "worker-auth-observer-after-first-enqueue.job-2c18db66.json",
+    "sha256": "fdf6f29e7e94177d76349de40d4ca802df4da788edce031f65b0947680aa6771",
+    "observedAt": "2026-11-15T16:14:19.379Z",
+    "bindingMatches": true,
+    "scanCount": 1,
+    "queueCount": 1,
+    "scanStatus": "queued",
+    "scanRevision": 1,
+    "attempts": 0,
+    "fence": "0",
+    "leaseOwner": null,
+    "leaseUntil": null,
+    "attemptRows": 0,
+    "heartbeatRows": 0,
+    "queuedAuditAt": "2026-11-15T16:12:37.120Z"
+  }
+}

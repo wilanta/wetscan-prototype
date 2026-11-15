@@ -1,0 +1,56 @@
+{
+  "recordedAt": "2026-11-15T16:22:45.067Z",
+  "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+  "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+  "provenance": "Owner supplied actual Console JSON after one execution of OWNER_LAUNCH_WORKER_2c18db66.js; correlated with independent live and final read-only DB observations",
+  "authenticatedReadiness": {
+    "phase": "authenticated_readiness",
+    "httpStatus": 200,
+    "status": "BLOCKED",
+    "database": "approved",
+    "schema": "verified",
+    "execution": "G02_NOT_CONFIGURED",
+    "scanAccepted": false
+  },
+  "workerLaunchStarted": {
+    "phase": "worker_launch_started",
+    "scanId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+    "at": "2026-11-15T16:19:19.596Z"
+  },
+  "workerLaunchResult": {
+    "phase": "worker_launch_result",
+    "httpStatus": 200,
+    "scanId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+    "status": "failed",
+    "preparation": "verified",
+    "execution": "prepare_only",
+    "scannerExecution": "NOT_RUN",
+    "coverage": {
+      "status": "partial",
+      "retrievedFiles": 82,
+      "eligibleFiles": 90,
+      "bytes": 175159,
+      "treeTruncated": false
+    },
+    "exactJobMatches": true
+  },
+  "ownerReported": {
+    "launchScriptExecutedOnce": true,
+    "extraEnqueue": false,
+    "retry": false,
+    "relaunch": false
+  },
+  "actualDatabaseCorrelation": {
+    "artifact": "worker-auth-observer-final.job-2c18db66.json",
+    "sha256": "db9e4d3fc1f1c4c565379262203f90af00a7d3676d8bcf9f8687b5d799c4b394",
+    "observedAt": "2026-11-15T16:21:18.933Z",
+    "bindingMatches": true,
+    "foundationPrepared": true,
+    "coverageMatchesResponse": true,
+    "queueState": "completed",
+    "attemptCount": 1,
+    "attemptOutcome": "completed",
+    "leaseReleased": true,
+    "workerStopped": true
+  }
+}

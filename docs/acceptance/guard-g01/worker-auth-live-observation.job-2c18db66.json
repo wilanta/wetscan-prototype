@@ -1,0 +1,663 @@
+{
+  "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+  "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+  "startedAt": "2026-11-15T16:19:19.831Z",
+  "mode": "READ_ONLY_EXISTING_OBSERVER",
+  "maximumSeconds": 180,
+  "status": "STORED_PREPARATION_OBSERVED_PENDING_AUTH_HTTP_RESPONSE",
+  "workerStartedByAgent": false,
+  "databaseMutations": false,
+  "observations": [
+    {
+      "kind": "guard_exact_job_operator_observer",
+      "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+      "observedAt": "2026-11-15T16:19:20.439Z",
+      "readOnly": true,
+      "currentAuthProof": "SEPARATE_EXISTING_BACKEND_RESPONSE_REQUIRED",
+      "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+      "scope": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "actorId": "github-user-145520313"
+      },
+      "bindingMatches": true,
+      "scan": {
+        "status": "queued",
+        "revision": 1,
+        "repositoryId": "839286157",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "audit": [
+          {
+            "at": "2026-11-15T16:12:37.120Z",
+            "action": "queued",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          }
+        ]
+      },
+      "queue": [
+        {
+          "job_id": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+          "state": "queued",
+          "attempts": 0,
+          "fence": "0",
+          "lease_owner": null,
+          "lease_until": null,
+          "cancel_requested": false
+        }
+      ],
+      "attempts": [],
+      "heartbeats": [],
+      "foundationPrepared": false,
+      "coverage": null,
+      "storedPreparationVerified": false,
+      "scannerExecution": "NOT_RUN",
+      "sandboxExecution": "NOT_RUN",
+      "authSessionCreated": false,
+      "leaseTokensSelected": false,
+      "artifact": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate\\.local\\sentinel\\guard-g01-unblock\\worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7\\observer-1794759560440.json"
+    },
+    {
+      "kind": "guard_exact_job_operator_observer",
+      "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+      "observedAt": "2026-11-15T16:19:26.000Z",
+      "readOnly": true,
+      "currentAuthProof": "SEPARATE_EXISTING_BACKEND_RESPONSE_REQUIRED",
+      "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+      "scope": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "actorId": "github-user-145520313"
+      },
+      "bindingMatches": true,
+      "scan": {
+        "status": "preparing",
+        "revision": 2,
+        "repositoryId": "839286157",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "audit": [
+          {
+            "at": "2026-11-15T16:12:37.120Z",
+            "action": "queued",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          },
+          {
+            "at": "2026-11-15T16:19:21.807Z",
+            "action": "preparing",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          }
+        ]
+      },
+      "queue": [
+        {
+          "job_id": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+          "state": "leased",
+          "attempts": 1,
+          "fence": "1",
+          "lease_owner": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "lease_until": "2026-11-15T16:19:51.338Z",
+          "cancel_requested": false
+        }
+      ],
+      "attempts": [
+        {
+          "attempt": 1,
+          "worker_id": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "outcome": null,
+          "started_at": "2026-11-15T16:19:21.342Z",
+          "finished_at": null
+        }
+      ],
+      "heartbeats": [
+        {
+          "worker_id": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "status": "running",
+          "last_seen_at": "2026-11-15T16:19:21.283Z"
+        }
+      ],
+      "foundationPrepared": false,
+      "coverage": null,
+      "storedPreparationVerified": false,
+      "scannerExecution": "NOT_RUN",
+      "sandboxExecution": "NOT_RUN",
+      "authSessionCreated": false,
+      "leaseTokensSelected": false,
+      "artifact": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate\\.local\\sentinel\\guard-g01-unblock\\worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7\\observer-1794759566001.json"
+    },
+    {
+      "kind": "guard_exact_job_operator_observer",
+      "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+      "observedAt": "2026-11-15T16:19:31.578Z",
+      "readOnly": true,
+      "currentAuthProof": "SEPARATE_EXISTING_BACKEND_RESPONSE_REQUIRED",
+      "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+      "scope": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "actorId": "github-user-145520313"
+      },
+      "bindingMatches": true,
+      "scan": {
+        "status": "preparing",
+        "revision": 2,
+        "repositoryId": "839286157",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "audit": [
+          {
+            "at": "2026-11-15T16:12:37.120Z",
+            "action": "queued",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          },
+          {
+            "at": "2026-11-15T16:19:21.807Z",
+            "action": "preparing",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          }
+        ]
+      },
+      "queue": [
+        {
+          "job_id": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+          "state": "leased",
+          "attempts": 1,
+          "fence": "1",
+          "lease_owner": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "lease_until": "2026-11-15T16:20:01.370Z",
+          "cancel_requested": false
+        }
+      ],
+      "attempts": [
+        {
+          "attempt": 1,
+          "worker_id": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "outcome": null,
+          "started_at": "2026-11-15T16:19:21.342Z",
+          "finished_at": null
+        }
+      ],
+      "heartbeats": [
+        {
+          "worker_id": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "status": "running",
+          "last_seen_at": "2026-11-15T16:19:31.295Z"
+        }
+      ],
+      "foundationPrepared": false,
+      "coverage": null,
+      "storedPreparationVerified": false,
+      "scannerExecution": "NOT_RUN",
+      "sandboxExecution": "NOT_RUN",
+      "authSessionCreated": false,
+      "leaseTokensSelected": false,
+      "artifact": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate\\.local\\sentinel\\guard-g01-unblock\\worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7\\observer-1794759571580.json"
+    },
+    {
+      "kind": "guard_exact_job_operator_observer",
+      "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+      "observedAt": "2026-11-15T16:19:37.153Z",
+      "readOnly": true,
+      "currentAuthProof": "SEPARATE_EXISTING_BACKEND_RESPONSE_REQUIRED",
+      "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+      "scope": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "actorId": "github-user-145520313"
+      },
+      "bindingMatches": true,
+      "scan": {
+        "status": "preparing",
+        "revision": 2,
+        "repositoryId": "839286157",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "audit": [
+          {
+            "at": "2026-11-15T16:12:37.120Z",
+            "action": "queued",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          },
+          {
+            "at": "2026-11-15T16:19:21.807Z",
+            "action": "preparing",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          }
+        ]
+      },
+      "queue": [
+        {
+          "job_id": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+          "state": "leased",
+          "attempts": 1,
+          "fence": "1",
+          "lease_owner": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "lease_until": "2026-11-15T16:20:06.412Z",
+          "cancel_requested": false
+        }
+      ],
+      "attempts": [
+        {
+          "attempt": 1,
+          "worker_id": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "outcome": null,
+          "started_at": "2026-11-15T16:19:21.342Z",
+          "finished_at": null
+        }
+      ],
+      "heartbeats": [
+        {
+          "worker_id": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "status": "running",
+          "last_seen_at": "2026-11-15T16:19:31.295Z"
+        }
+      ],
+      "foundationPrepared": false,
+      "coverage": null,
+      "storedPreparationVerified": false,
+      "scannerExecution": "NOT_RUN",
+      "sandboxExecution": "NOT_RUN",
+      "authSessionCreated": false,
+      "leaseTokensSelected": false,
+      "artifact": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate\\.local\\sentinel\\guard-g01-unblock\\worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7\\observer-1794759577154.json"
+    },
+    {
+      "kind": "guard_exact_job_operator_observer",
+      "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+      "observedAt": "2026-11-15T16:19:42.672Z",
+      "readOnly": true,
+      "currentAuthProof": "SEPARATE_EXISTING_BACKEND_RESPONSE_REQUIRED",
+      "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+      "scope": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "actorId": "github-user-145520313"
+      },
+      "bindingMatches": true,
+      "scan": {
+        "status": "preparing",
+        "revision": 2,
+        "repositoryId": "839286157",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "audit": [
+          {
+            "at": "2026-11-15T16:12:37.120Z",
+            "action": "queued",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          },
+          {
+            "at": "2026-11-15T16:19:21.807Z",
+            "action": "preparing",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          }
+        ]
+      },
+      "queue": [
+        {
+          "job_id": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+          "state": "leased",
+          "attempts": 1,
+          "fence": "1",
+          "lease_owner": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "lease_until": "2026-11-15T16:20:11.432Z",
+          "cancel_requested": false
+        }
+      ],
+      "attempts": [
+        {
+          "attempt": 1,
+          "worker_id": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "outcome": null,
+          "started_at": "2026-11-15T16:19:21.342Z",
+          "finished_at": null
+        }
+      ],
+      "heartbeats": [
+        {
+          "worker_id": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "status": "running",
+          "last_seen_at": "2026-11-15T16:19:41.307Z"
+        }
+      ],
+      "foundationPrepared": false,
+      "coverage": null,
+      "storedPreparationVerified": false,
+      "scannerExecution": "NOT_RUN",
+      "sandboxExecution": "NOT_RUN",
+      "authSessionCreated": false,
+      "leaseTokensSelected": false,
+      "artifact": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate\\.local\\sentinel\\guard-g01-unblock\\worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7\\observer-1794759582673.json"
+    },
+    {
+      "kind": "guard_exact_job_operator_observer",
+      "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+      "observedAt": "2026-11-15T16:19:48.193Z",
+      "readOnly": true,
+      "currentAuthProof": "SEPARATE_EXISTING_BACKEND_RESPONSE_REQUIRED",
+      "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+      "scope": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "actorId": "github-user-145520313"
+      },
+      "bindingMatches": true,
+      "scan": {
+        "status": "preparing",
+        "revision": 2,
+        "repositoryId": "839286157",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "audit": [
+          {
+            "at": "2026-11-15T16:12:37.120Z",
+            "action": "queued",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          },
+          {
+            "at": "2026-11-15T16:19:21.807Z",
+            "action": "preparing",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          }
+        ]
+      },
+      "queue": [
+        {
+          "job_id": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+          "state": "leased",
+          "attempts": 1,
+          "fence": "1",
+          "lease_owner": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "lease_until": "2026-11-15T16:20:16.439Z",
+          "cancel_requested": false
+        }
+      ],
+      "attempts": [
+        {
+          "attempt": 1,
+          "worker_id": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "outcome": null,
+          "started_at": "2026-11-15T16:19:21.342Z",
+          "finished_at": null
+        }
+      ],
+      "heartbeats": [
+        {
+          "worker_id": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "status": "running",
+          "last_seen_at": "2026-11-15T16:19:41.307Z"
+        }
+      ],
+      "foundationPrepared": false,
+      "coverage": null,
+      "storedPreparationVerified": false,
+      "scannerExecution": "NOT_RUN",
+      "sandboxExecution": "NOT_RUN",
+      "authSessionCreated": false,
+      "leaseTokensSelected": false,
+      "artifact": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate\\.local\\sentinel\\guard-g01-unblock\\worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7\\observer-1794759588193.json"
+    },
+    {
+      "kind": "guard_exact_job_operator_observer",
+      "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+      "observedAt": "2026-11-15T16:19:53.729Z",
+      "readOnly": true,
+      "currentAuthProof": "SEPARATE_EXISTING_BACKEND_RESPONSE_REQUIRED",
+      "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+      "scope": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "actorId": "github-user-145520313"
+      },
+      "bindingMatches": true,
+      "scan": {
+        "status": "preparing",
+        "revision": 2,
+        "repositoryId": "839286157",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "audit": [
+          {
+            "at": "2026-11-15T16:12:37.120Z",
+            "action": "queued",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          },
+          {
+            "at": "2026-11-15T16:19:21.807Z",
+            "action": "preparing",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          }
+        ]
+      },
+      "queue": [
+        {
+          "job_id": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+          "state": "leased",
+          "attempts": 1,
+          "fence": "1",
+          "lease_owner": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "lease_until": "2026-11-15T16:20:21.474Z",
+          "cancel_requested": false
+        }
+      ],
+      "attempts": [
+        {
+          "attempt": 1,
+          "worker_id": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "outcome": null,
+          "started_at": "2026-11-15T16:19:21.342Z",
+          "finished_at": null
+        }
+      ],
+      "heartbeats": [
+        {
+          "worker_id": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "status": "running",
+          "last_seen_at": "2026-11-15T16:19:51.319Z"
+        }
+      ],
+      "foundationPrepared": false,
+      "coverage": null,
+      "storedPreparationVerified": false,
+      "scannerExecution": "NOT_RUN",
+      "sandboxExecution": "NOT_RUN",
+      "authSessionCreated": false,
+      "leaseTokensSelected": false,
+      "artifact": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate\\.local\\sentinel\\guard-g01-unblock\\worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7\\observer-1794759593729.json"
+    },
+    {
+      "kind": "guard_exact_job_operator_observer",
+      "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+      "observedAt": "2026-11-15T16:19:59.291Z",
+      "readOnly": true,
+      "currentAuthProof": "SEPARATE_EXISTING_BACKEND_RESPONSE_REQUIRED",
+      "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+      "scope": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "actorId": "github-user-145520313"
+      },
+      "bindingMatches": true,
+      "scan": {
+        "status": "preparing",
+        "revision": 2,
+        "repositoryId": "839286157",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "audit": [
+          {
+            "at": "2026-11-15T16:12:37.120Z",
+            "action": "queued",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          },
+          {
+            "at": "2026-11-15T16:19:21.807Z",
+            "action": "preparing",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          }
+        ]
+      },
+      "queue": [
+        {
+          "job_id": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+          "state": "leased",
+          "attempts": 1,
+          "fence": "1",
+          "lease_owner": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "lease_until": "2026-11-15T16:20:26.487Z",
+          "cancel_requested": false
+        }
+      ],
+      "attempts": [
+        {
+          "attempt": 1,
+          "worker_id": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "outcome": null,
+          "started_at": "2026-11-15T16:19:21.342Z",
+          "finished_at": null
+        }
+      ],
+      "heartbeats": [
+        {
+          "worker_id": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "status": "running",
+          "last_seen_at": "2026-11-15T16:19:51.319Z"
+        }
+      ],
+      "foundationPrepared": false,
+      "coverage": null,
+      "storedPreparationVerified": false,
+      "scannerExecution": "NOT_RUN",
+      "sandboxExecution": "NOT_RUN",
+      "authSessionCreated": false,
+      "leaseTokensSelected": false,
+      "artifact": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate\\.local\\sentinel\\guard-g01-unblock\\worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7\\observer-1794759599292.json"
+    },
+    {
+      "kind": "guard_exact_job_operator_observer",
+      "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+      "observedAt": "2026-11-15T16:20:04.820Z",
+      "readOnly": true,
+      "currentAuthProof": "SEPARATE_EXISTING_BACKEND_RESPONSE_REQUIRED",
+      "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+      "scope": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "actorId": "github-user-145520313"
+      },
+      "bindingMatches": true,
+      "scan": {
+        "status": "failed",
+        "revision": 3,
+        "repositoryId": "839286157",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "audit": [
+          {
+            "at": "2026-11-15T16:12:37.120Z",
+            "action": "queued",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          },
+          {
+            "at": "2026-11-15T16:19:21.807Z",
+            "action": "preparing",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          },
+          {
+            "at": "2026-11-15T16:20:03.324Z",
+            "action": "failed",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          },
+          {
+            "at": "2026-11-15T16:20:03.324Z",
+            "action": "foundation_prepared",
+            "actorId": "github-user-145520313",
+            "subjectId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+          }
+        ]
+      },
+      "queue": [
+        {
+          "job_id": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+          "state": "completed",
+          "attempts": 1,
+          "fence": "1",
+          "lease_owner": null,
+          "lease_until": null,
+          "cancel_requested": false
+        }
+      ],
+      "attempts": [
+        {
+          "attempt": 1,
+          "worker_id": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "outcome": "completed",
+          "started_at": "2026-11-15T16:19:21.342Z",
+          "finished_at": "2026-11-15T16:20:03.347Z"
+        }
+      ],
+      "heartbeats": [
+        {
+          "worker_id": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+          "status": "stopped",
+          "last_seen_at": "2026-11-15T16:20:03.352Z"
+        }
+      ],
+      "foundationPrepared": true,
+      "coverage": {
+        "status": "partial",
+        "retrievedFiles": 82,
+        "eligibleFiles": 90,
+        "bytes": 175159,
+        "treeTruncated": false,
+        "exclusionCounts": {
+          "sensitive_path": 1,
+          "file_size": 4,
+          "binary": 4
+        }
+      },
+      "storedPreparationVerified": true,
+      "scannerExecution": "NOT_RUN",
+      "sandboxExecution": "NOT_RUN",
+      "authSessionCreated": false,
+      "leaseTokensSelected": false,
+      "artifact": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate\\.local\\sentinel\\guard-g01-unblock\\worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7\\observer-1794759604821.json"
+    }
+  ],
+  "finishedAt": "2026-11-15T16:20:04.840Z",
+  "totalObservations": 9,
+  "summary": {
+    "leasedSamples": 7,
+    "distinctLeaseExpiries": [
+      "2026-11-15T16:19:51.338Z",
+      "2026-11-15T16:20:01.370Z",
+      "2026-11-15T16:20:06.412Z",
+      "2026-11-15T16:20:11.432Z",
+      "2026-11-15T16:20:16.439Z",
+      "2026-11-15T16:20:21.474Z",
+      "2026-11-15T16:20:26.487Z"
+    ],
+    "runningHeartbeatObserved": true,
+    "stoppedHeartbeatObserved": true,
+    "foundationPreparedObserved": true,
+    "storedPreparationObserved": true
+  }
+}

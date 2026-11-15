@@ -1,0 +1,88 @@
+{
+  "recordedAt": "2026-11-15T16:25:19.836Z",
+  "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+  "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+  "classification": "LIVE_VERIFIED_ISOLATED_G01_PRESERVATION_OWNER_OPERATOR_EVIDENCE",
+  "provenance": "Owner supplied actual SQL18 result after Worker/Auth Acceptance through existing pgAdmin, and confirmed separate ROLLBACK; this is an explicitly normalized projection of the chat report, not a byte-exact raw JSON export",
+  "scope": "isolated G01 database; external Sentinel database not observed",
+  "script": {
+    "file": "18-readonly-initial-observer-comparison.sql",
+    "rawSha256": "db819c853292d53fbf77d0e754c08b7362ac57326fa84758345395fd0edc1522",
+    "agentExecuted": false,
+    "transaction": "REPEATABLE READ READ ONLY; owner confirmed separate ROLLBACK"
+  },
+  "ownerReported": {
+    "preserved": true,
+    "beforeSha256": "45e7cfe26767e26ad96ceda0dd2a53649a10ea7a5453844ac50ee30867e1095d",
+    "afterSha256": "45e7cfe26767e26ad96ceda0dd2a53649a10ea7a5453844ac50ee30867e1095d",
+    "differentSections": [],
+    "initialObserverSourceSha256": "184ee7bff8e22b308ffac213ce28ff554d7b87a1d6b47f0cb6d7145caa8fea80",
+    "guardMigration": [
+      {
+        "version": "0001_guard",
+        "checksum": "8bdea256cdd5ab79b1525f43bd40508acf25e57502a72162ae6b5233dd55693b"
+      }
+    ],
+    "guardRlsForced": true,
+    "moduleLimitsRlsForced": true,
+    "state": {
+      "owner": "wetscan_guard_migrator",
+      "markerAsSupplied": "wetscan-s01",
+      "database": "wetscan_s01_test_guardg01",
+      "operator": "postgres",
+      "guardScansCountFromVisibleXmlRow": 3,
+      "serverPort": 5432,
+      "guardBudget": 1,
+      "guardPolicies": 7,
+      "serverVersion": "18.6",
+      "sentinelBudget": 2,
+      "activeGuardJobs": 0,
+      "platformVersions": [
+        {
+          "version": "0001_foundation",
+          "checksum": "dd061a60b123284882f154c438de3a171d60967b7b07a4e07200b6693f4eb778"
+        },
+        {
+          "version": "0002_telemetry",
+          "checksum": "d1b67dc680f5bf3c2cbe585dca2427abf9d7ba9f29479c69b851f66b91c1f5a3"
+        },
+        {
+          "version": "0003_detection",
+          "checksum": "4f0ee1cebdbdc81b835f719ef13c9cb703dfb5f440193765dfa0a61635fb6168"
+        }
+      ],
+      "guardLedgerExists": true,
+      "guardSchemaExists": true,
+      "operatorSuperuser": true,
+      "guardPlatformUsage": true,
+      "guardPlatformGrants": 24
+    },
+    "rollbackConfirmed": true,
+    "noMigrationRepeat": true,
+    "noFixtureDeletion": true,
+    "noSentinelChanges": true
+  },
+  "copyLimitations": {
+    "markerInChatShortened": true,
+    "guardScansXmlMarkdownCorrupted": true,
+    "invalidStrictJsonCopy": true,
+    "originalMarkerValueNotSilentlyReplaced": true,
+    "independentResolution": "Exact actual full marker independently SELECTed read-only via the approved app role; raw copy limitations remain disclosed"
+  },
+  "independentTargetProof": {
+    "file": "worker-auth-postrun-target-check.job-2c18db66.json",
+    "sha256": "1acb1e5b48fb0c66cf84739ffc4caa275e9da0f2038c667fee750da3c440ab75",
+    "observedAt": "2026-11-15T16:23:56.696Z",
+    "actualMarker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f",
+    "matchesApprovedTarget": true,
+    "transactionCompletedWithExitCode": 0
+  },
+  "accepted": {
+    "isolatedFixturePreserved": true,
+    "matchingInitialAndFinalHashes": true,
+    "unchangedCatalogAndSentinelProjection": true,
+    "guardScansCount": 3,
+    "activeGuardLeases": 0,
+    "externalSentinelPreservationProven": false
+  }
+}
