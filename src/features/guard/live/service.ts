@@ -8,6 +8,7 @@ import {
   type GuardStorage,
   type ProjectAuthority,
 } from "./model";
+import { validGuardBranch } from "./revision";
 export interface FoundationReadiness {
   database: "approved" | "approval_required" | "not_configured";
   schema: "verified" | "unverified";
@@ -28,6 +29,7 @@ export function scanInput(value: unknown): {
   profile: ScanJob["profile"];
   engines: Engine[];
   commit?: string;
+  branch?: string;
   idempotencyKey: string;
 } {
   if (!value || typeof value !== "object" || Array.isArray(value))
@@ -35,7 +37,10 @@ export function scanInput(value: unknown): {
   const v = value as Record<string, unknown>;
   if (
     Object.keys(v).some(
-      (k) => !["profile", "engines", "commit", "idempotencyKey"].includes(k),
+      (k) =>
+        !["profile", "engines", "commit", "branch", "idempotencyKey"].includes(
+          k,
+        ),
     ) ||
     !["quick", "standard", "full"].includes(String(v.profile)) ||
     !Array.isArray(v.engines) ||
@@ -45,6 +50,7 @@ export function scanInput(value: unknown): {
     v.engines.some((e) => !engines.includes(e)) ||
     typeof v.idempotencyKey !== "string" ||
     !/^[a-zA-Z0-9_-]{8,128}$/.test(v.idempotencyKey) ||
+    (v.branch !== undefined && !validGuardBranch(v.branch)) ||
     (v.commit !== undefined &&
       (typeof v.commit !== "string" || !/^[a-f0-9]{40}$/.test(v.commit)))
   )
@@ -128,7 +134,7 @@ export class GuardLiveService {
     };
   }
 }
-/** Only for a future approved producer; scope and repository fields are always server-derived. */
+/** Shared preparation metadata for review drafts and approved producer; scope/repository remain server-derived. */
 export async function prepareAuthorizedScan(
   authority: ProjectAuthority,
   input: unknown,

@@ -79,6 +79,8 @@ it.each([
   "coverage",
   "cancel",
   "source-acceptance",
+  "repository",
+  "preparation",
 ] as const)(
   "rejects unauthenticated %s before runtime activation",
   async (resource) => {
@@ -176,5 +178,28 @@ it("blocks source acceptance without operator approval before storage activation
   );
   expect(result.status).toBe(503);
   expect(await result.json()).toEqual({ error: "approval_required" });
+  expect(guardLiveService).not.toHaveBeenCalled();
+});
+
+it("requires same-origin revision/preparation requests before provider or runtime access", async () => {
+  for (const resource of ["repository", "preparation"] as const) {
+    const response = await guardRoute(
+      request("POST", "{}", { origin: "https://foreign.example" }),
+      "github-123",
+      resource,
+    );
+    expect(response.status).toBe(403);
+  }
+  expect(authorizeGuardProject).not.toHaveBeenCalled();
+  expect(guardLiveService).not.toHaveBeenCalled();
+});
+it("rejects client identity fields before Guard revision transport", async () => {
+  const response = await guardRoute(
+    request("POST", JSON.stringify({ branch: "main", owner: "forged" })),
+    "github-123",
+    "repository",
+  );
+  expect(response.status).toBe(400);
+  expect(await response.json()).toEqual({ error: "invalid_input" });
   expect(guardLiveService).not.toHaveBeenCalled();
 });

@@ -53,6 +53,9 @@ it("binds an acceptance approval to exact current project/user/repository/commit
     { actorId: "other" },
     { commit: "b".repeat(40) },
     { expiresAt: "2000-01-01" },
+    { approvedAt: new Date(Date.now() - 7200000).toISOString() },
+    { branch: "other-branch" },
+    { operations: [...permit.operations, "cleanup"] },
     { operations: ["scan"] },
     { maxFiles: 999999 },
   ])

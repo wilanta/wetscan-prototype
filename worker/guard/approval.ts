@@ -1,3 +1,4 @@
+import { validGuardBranch } from "../../src/features/guard/live/revision";
 import type { ScanJob } from "../../src/features/guard/contracts";
 import type { Target } from "../../src/platform/config";
 import { fingerprint } from "../../src/platform/identity";
@@ -32,9 +33,7 @@ export function bindGuardJob(job: ScanJob): GuardJobBinding {
     job.repository.provider !== "github" ||
     !/^[1-9]\d{0,15}$/.test(job.repository.repositoryId) ||
     job.projectId !== "github-" + job.repository.repositoryId ||
-    !job.repository.branch ||
-    job.repository.branch.length > 255 ||
-    /[\x00-\x1f]/.test(job.repository.branch) ||
+    !validGuardBranch(job.repository.branch) ||
     job.audit[0]?.action !== "queued" ||
     job.audit[0]?.subjectId !== job.id
   )
@@ -109,6 +108,7 @@ function validateBoundApproval(
     !binding.workspaceId.startsWith(binding.actorId + ":") ||
     binding.projectId !== "github-" + binding.repository?.repositoryId ||
     binding.repository?.provider !== "github" ||
+    !validGuardBranch(binding.repository.branch) ||
     !/^[a-f0-9]{40}$/.test(binding.repository.commit)
   )
     throw new LiveGuardError("approval_required");

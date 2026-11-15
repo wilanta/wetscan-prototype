@@ -17,6 +17,7 @@ export interface SourceAcceptanceApproval {
   actorId: string;
   repositoryId: string;
   commit: string;
+  branch?: string;
   operations: string[];
   maxFiles: number;
   maxFileBytes: number;
@@ -42,13 +43,18 @@ export function validateSourceAcceptance(
     !Number.isFinite(Date.parse(p.expiresAt)) ||
     Date.parse(p.expiresAt) <= now ||
     Date.parse(p.expiresAt) > now + 3600000 ||
+    Date.parse(p.expiresAt) - Date.parse(p.approvedAt) > 3600000 ||
+    Date.parse(p.expiresAt) <= Date.parse(p.approvedAt) ||
     p.origin !== origin ||
     p.workspaceId !== authority.grant.workspaceId ||
     p.projectId !== authority.grant.projectId ||
     p.actorId !== authority.grant.actorId ||
     p.repositoryId !== authority.repositoryId ||
     p.commit !== commit ||
+    (p.branch !== undefined && p.branch !== authority.branch) ||
     !Array.isArray(p.operations) ||
+    p.operations.length !== 3 ||
+    new Set(p.operations).size !== 3 ||
     ["snapshot_read", "temporary_artifact_write", "cleanup"].some(
       (op) => !p.operations.includes(op),
     ) ||
@@ -70,12 +76,13 @@ export async function sourceAcceptance(
   origin: string,
   source: SourceAccess,
   approvalPath: string | undefined,
+  signal?: AbortSignal,
 ) {
   if (
     !input ||
     typeof input !== "object" ||
     Array.isArray(input) ||
-    Object.keys(input).some((key) => key !== "commit") ||
+    Object.keys(input).some((key) => !["commit", "branch"].includes(key)) ||
     !("commit" in input) ||
     typeof input.commit !== "string" ||
     !/^[a-f0-9]{40}$/.test(input.commit)
@@ -91,6 +98,8 @@ export async function sourceAcceptance(
       input.commit,
       origin,
     );
+    if ("branch" in input && input.branch !== permit.branch)
+      throw new LiveGuardError("approval_required");
   } catch {
     throw new LiveGuardError("approval_required");
   }
@@ -109,15 +118,19 @@ export async function sourceAcceptance(
     throw new LiveGuardError("approval_required");
   }
   const snapshots = new GuardSnapshotAdapter(source),
-    snapshot = await snapshots.acquire(authority.grant, {
-      mode: "live",
-      workspaceId: authority.grant.workspaceId,
-      projectId: authority.grant.projectId,
-      repository: repositoryFor(authority, input.commit),
-      profile: "quick",
-      engines: ["sast"],
-      idempotencyKey: "source-acceptance-only",
-    });
+    snapshot = await snapshots.acquire(
+      authority.grant,
+      {
+        mode: "live",
+        workspaceId: authority.grant.workspaceId,
+        projectId: authority.grant.projectId,
+        repository: repositoryFor(authority, input.commit),
+        profile: "quick",
+        engines: ["sast"],
+        idempotencyKey: "source-acceptance-only",
+      },
+      signal,
+    );
   const result = {
     kind: "github_source_acceptance",
     repositoryId: authority.repositoryId,

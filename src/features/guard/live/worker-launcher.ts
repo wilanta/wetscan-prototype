@@ -1,8 +1,8 @@
 import "server-only";
 import { fork } from "node:child_process";
 import { resolve } from "node:path";
+import { realpath } from "node:fs/promises";
 import { ApprovedPool, PlatformDatabase } from "../../../platform/database";
-import { authorizeGuardProject } from "./project";
 import { githubSourceAccess } from "./github-source";
 import { GuardSnapshotAdapter } from "./snapshot";
 import { PostgresGuardStore } from "./persistence";
@@ -21,7 +21,7 @@ import {
   attachGuardBroker,
 } from "../../../../worker/guard/ipc";
 import { within } from "../../../../worker/sentinel/lifecycle";
-/** Explicit server-only launch seam. No route or automatic startup invokes this function. */
+/** Auth-process launch seam, invoked only by explicitly approved preparation requests or operator composition. */
 export async function launchApprovedGuardWorker(input: {
   approval: unknown;
   job: ScanJob;
@@ -46,10 +46,14 @@ export async function launchApprovedGuardWorker(input: {
     db = new PlatformDatabase(pool, false, "guard"),
     store = new PostgresGuardStore(db);
   let token = input.sessionToken;
+  const source = () =>
+    githubSourceAccess(token, binding.projectId, {
+      branch: binding.repository.branch,
+      commit: binding.repository.commit,
+    });
   const snapshots = new GuardSnapshotAdapter({
-    authorize: () => authorizeGuardProject(token, binding.projectId),
-    open: (authority, signal) =>
-      githubSourceAccess(token, binding.projectId).open(authority, signal),
+    authorize: () => source().authorize(),
+    open: (authority, signal) => source().open(authority, signal),
   });
   const checkParent = () => {
     validateWorkerApproval(permit, binding, plan.sha256);
@@ -59,7 +63,7 @@ export async function launchApprovedGuardWorker(input: {
   const broker = new GuardSessionBroker(permit, {
     current: () => {
       checkParent();
-      return authorizeGuardProject(token, binding.projectId);
+      return source().authorize();
     },
     load: (grant) => {
       checkParent();
@@ -106,7 +110,11 @@ export async function launchApprovedGuardWorker(input: {
     if (process.env[name]) environment[name] = process.env[name]!;
   let child: ReturnType<typeof fork>;
   try {
-    child = fork(resolve(process.cwd(), "worker/guard/main.ts"), [], {
+    // Separate trusted Node entry, resolved by the server filesystem rather than bundled as a Next route asset.
+    const entry = await realpath(
+      resolve(process.cwd(), "worker/guard/main.ts"),
+    );
+    child = fork(entry, [], {
       cwd: process.cwd(),
       execArgv: ["--import", "tsx"],
       env: environment,

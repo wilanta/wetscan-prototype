@@ -139,3 +139,130 @@ it("does not call GitHub for an already-aborted snapshot and passes transport fa
     f.source.open(f.authority, new AbortController().signal),
   ).rejects.toThrow("synthetic timeout");
 });
+
+it("resolves a selected branch and accepts only an exact SHA reachable from its current head", async () => {
+  const f = await setup(),
+    commit = "c".repeat(40),
+    head = "d".repeat(40);
+  const original = vi.mocked(sourceRequest).getMockImplementation()!;
+  vi.mocked(sourceRequest).mockImplementation(async (...args) => {
+    const [path] = args;
+    if (path.includes("/branches/"))
+      return { name: "feature/security", commit: { sha: head } };
+    if (path.includes("/commits/"))
+      return { sha: commit, commit: { tree: { sha: "b".repeat(40) } } };
+    if (path.includes("/compare/"))
+      return {
+        status: "ahead",
+        base_commit: { sha: commit },
+        merge_base_commit: { sha: commit },
+      };
+    return original(...args);
+  });
+  const source = githubSourceAccess(undefined, f.authority.grant.projectId, {
+    branch: "feature/security",
+    commit,
+  });
+  const authority = await source.authorize();
+  expect(authority.branch).toBe("feature/security");
+  const lease = await source.open(authority, new AbortController().signal);
+  try {
+    expect(await lease.head(new AbortController().signal)).toMatchObject({
+      commit,
+    });
+    const branchCall = vi
+      .mocked(sourceRequest)
+      .mock.calls.find(
+        ([path]) => path === "/repos/fixture/repo/branches/feature%2Fsecurity",
+      );
+    expect(branchCall?.slice(0, 3)).toEqual([
+      "/repos/fixture/repo/branches/feature%2Fsecurity",
+      expect.any(String),
+      expect.any(AbortSignal),
+    ]);
+    expect(sourceRequest).toHaveBeenCalledWith(
+      `/repos/fixture/repo/compare/${commit}...${head}`,
+      expect.any(String),
+      expect.any(AbortSignal),
+      1000000,
+    );
+  } finally {
+    await lease.close();
+  }
+});
+it.each(["behind", "diverged"])(
+  "rejects a commit outside the selected branch (%s) and retains token cleanup",
+  async (status) => {
+    const f = await setup(),
+      commit = "c".repeat(40),
+      head = "d".repeat(40),
+      original = vi.mocked(sourceRequest).getMockImplementation()!;
+    vi.mocked(sourceRequest).mockImplementation(async (...args) => {
+      const [path] = args;
+      if (path.includes("/branches/"))
+        return { name: "feature/security", commit: { sha: head } };
+      if (path.includes("/commits/"))
+        return { sha: commit, commit: { tree: { sha: "b".repeat(40) } } };
+      if (path.includes("/compare/"))
+        return {
+          status,
+          base_commit: { sha: commit },
+          merge_base_commit: { sha: head },
+        };
+      return original(...args);
+    });
+    const source = githubSourceAccess(undefined, f.authority.grant.projectId, {
+      branch: "feature/security",
+      commit,
+    });
+    const lease = await source.open(
+      await source.authorize(),
+      new AbortController().signal,
+    );
+    try {
+      await expect(lease.head(new AbortController().signal)).rejects.toThrow(
+        "revision_conflict",
+      );
+    } finally {
+      await lease.close();
+    }
+    expect(revokeSourceToken).toHaveBeenCalledOnce();
+  },
+);
+it("does not accept a provider response for a different selected SHA", async () => {
+  const f = await setup(),
+    source = githubSourceAccess(undefined, f.authority.grant.projectId, {
+      branch: "main",
+      commit: "c".repeat(40),
+    });
+  const lease = await source.open(
+    await source.authorize(),
+    new AbortController().signal,
+  );
+  vi.mocked(sourceRequest)
+    .mockResolvedValueOnce({ name: "main", commit: { sha: "a".repeat(40) } })
+    .mockResolvedValueOnce({
+      sha: "a".repeat(40),
+      commit: { tree: { sha: "b".repeat(40) } },
+    });
+  try {
+    await expect(lease.head(new AbortController().signal)).rejects.toThrow(
+      "source_integrity",
+    );
+  } finally {
+    await lease.close();
+  }
+});
+
+it("closed provider leases are idempotent and cannot issue another source request", async () => {
+  const f = await setup(),
+    lease = await f.source.open(f.authority, new AbortController().signal);
+  await lease.close();
+  await lease.close();
+  const count = vi.mocked(sourceRequest).mock.calls.length;
+  await expect(lease.head(new AbortController().signal)).rejects.toThrow(
+    "source_unavailable",
+  );
+  expect(sourceRequest).toHaveBeenCalledTimes(count);
+  expect(revokeSourceToken).toHaveBeenCalledOnce();
+});

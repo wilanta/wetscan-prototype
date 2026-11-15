@@ -1,5 +1,10 @@
 # Guard G01 finalization - 15 November 2026 (Asia/Jakarta)
 
+## Current Live-acceptance continuation - 15 November 2026
+
+Read [GUARD_G01_LIVE_ACCEPTANCE.md](GUARD_G01_LIVE_ACCEPTANCE.md) and [PostgreSQL configuration audit](GUARD_G01_POSTGRES_CONFIG_AUDIT.md) first. Latest source adds Guard-only branch/SHA validation and an authenticated preparation UI/approval route using existing Auth/Canvas selection; no new OAuth/onboarding/repository picker.776units/typecheck/lint/build/Guard7/Auth21/Canvas17/legacy6/S025PASS; S035PASS/1knownbaselineFAIL. Status PARTIALLY COMPLETE; actual GitHub/DB/RLS/worker/sandbox gates remain BLOCKED. PostgreSQL inspection was configuration-only, no connection/SQL; target/marker/role/approval/expiry UNKNOWN. The historical record below is preserved.
+
+
 Status: **PARTIALLY COMPLETE**. Local G01 foundation implementation and fixture regressions are verified; mandatory Live acceptance is still BLOCKED. No G02 work, scanner execution, real SQL, migration, actual GitHub source retrieval, connected runtime worker, container operation, merge or deployment is claimed.
 
 This is the current record. The user's G01 FINALIZATION instruction explicitly authorizes candidate commit/push after relevant checks, and supersedes the earlier publication hold. The known baseline Sentinel failure must remain unchanged and is not the sole publication blocker. Earlier records below/elsewhere retain their historical results and permissions; they are not current authorization.
