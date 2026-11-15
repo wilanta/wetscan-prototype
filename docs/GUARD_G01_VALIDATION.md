@@ -1,5 +1,24 @@
 # G01 validation evidence
 
+## Static baseline-audit evidence - 15 November 2026
+
+[GUARD_G01_S03_BASELINE_REVIEW.md](GUARD_G01_S03_BASELINE_REVIEW.md) records scoped git diff/show/ls-tree review and independent SHA-256 reproduction from public SQL Git blobs.27 existing local paths vs51 upstream paths:zero exact/ancestor collisions. Old444596... aggregate reproduced; unchanged Guard SQL composed withf7bfeef yields previewb63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d. No checkout/merge/candidate creation or target code execution/DB connection. Only documentation changes this turn; prior source/test changes retained byte-for-byte. No unit/build/browser rerun or combined PASS is claimed for this audit; the567-case run below is prior evidence on the existing Guard baseline.
+
+
+## Latest resolver/launcher validation - 15 November 2026
+
+See [worker Auth review](GUARD_G01_WORKER_AUTH_REVIEW.md) for full commands, failure history and scope. Full unit567/567 across48files (G01 subset78/78); typecheck/lint without warnings, production build, Guard5/5, Auth21/21 and Sentinel5/5 fixture browsers PASS. New tests include actual private IPC subprocess exchange and production-entry denial, with synthetic Auth/source/store/pool dependencies and no Live services/credential reads. Initial IPC result-filter failure and typing/lint corrections are preserved in that review.
+
+These results apply to isolated Guard HEAD7207a16 plus local changes, not master S03. Master advanced externally to f7bfeef; no baseline integration or combined S03+new-resolver validation occurred. Local migration hash remains unchanged for the two-version baseline, not approved for an S03 database. Runtime acceptance remains open; G02 not started. Older counts below are preserved historical runs.
+
+
+## Follow-up preflight - 15 November 2026
+
+See [GUARD_G01_ACCEPTANCE_PREFLIGHT.md](GUARD_G01_ACCEPTANCE_PREFLIGHT.md) for the latest review. Current Guard HEAD `7207a16`, master merge `12b843e`, identical trees and clean starts. The read-only migration plan matches;16/16 focused approval/source/sandbox/worker fixture tests pass. Both explicitly tested Docker named-pipe endpoints returned exit1. No PostgreSQL connection, GitHub Live read, connected-worker/container/scanner execution, or new acceptance is claimed. Full547-unit/build/browser results below are preserved historical implementation evidence, not rerun in this documentation-only follow-up.
+
+## Preserved implementation validation
+
+
 Date: 15 November 2026, Asia/Jakarta. Overall PARTIALLY_VERIFIED. All commands below run in C:/laragon/www/wetscan-2/wetscan-guard-g01, feat/guard-g01-live-integration at cd313ce29aeac865e15cea9abd9c412cb9c2c3cc plus uncommitted G01 changes. Host Windows/PowerShell, Node v24.17.0, npm11.13.0, existing lockfile/dependencies. npm.cmd avoids PowerShell script policy. No .env/secret file was read. No G02 file was read or started.
 
 ## Executed checks

@@ -102,6 +102,8 @@ No external issues created. Dependencies require owner handoffs. G01 adds Guard-
 
 - G01 update (15 November 2026): GuardPostgresQueue reuses S01 durable contracts and lease methods, overrides only admission/claim; separate lifecycle/IPC/prepare handler and real empty-queue child-process restart fixture added. PARTIALLY_IMPLEMENTED: concrete trusted Auth resolver/process composition missing; main launcher refuses activation. Real queue/lease/crash acceptance and orphan supervisor remain unverified. See docs/agent-handoffs/HANDOFF_GUARD_G01.md and docs/GUARD_G01_VALIDATION.md.
 
+- G01 resolver follow-up (15 November 2026): concrete Auth-process private-IPC broker/resolver and bounded exact-job prepare-only launcher/bootstrap added;567-unit/Guard5/Auth21/Sentinel5 fixture checks pass. No Live activation/target acceptance. Existing Auth unchanged; no credential in queue/child. Master S03 drift now requires approved baseline alignment, new plan hashes and combined validation before runtime. See GUARD_G01_WORKER_AUTH_REVIEW.md. Earlier interface-only notes are historical.
+
 ## GRD-005 - Hardened scanner sandbox
 
 - State: PARTIALLY_VERIFIED / WAITING_ON_ACCEPTANCE (G01 update below); historical port-only baseline retained in earlier commits.

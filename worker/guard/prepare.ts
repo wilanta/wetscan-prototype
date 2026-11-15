@@ -1,7 +1,4 @@
-import type {
-  DurableJob,
-  JobLease,
-} from "../../src/features/sentinel/platform-contracts";
+import type { JobLease } from "../../src/features/sentinel/platform-contracts";
 import type { Grant, SnapshotPort } from "../../src/features/guard/contracts";
 import { authorize } from "../../src/features/guard/security";
 import { transition } from "../../src/features/guard/pipeline";
@@ -12,7 +9,10 @@ import {
 } from "../../src/features/guard/live/model";
 /** Fresh broker resolution is required on every attempt; never persist session/OAuth tokens in jobs. */
 export interface WorkerAuthorizationResolver {
-  resolve(job: DurableJob): Promise<{ grant: Grant; snapshots: SnapshotPort }>;
+  resolve(
+    lease: JobLease,
+    signal?: AbortSignal,
+  ): Promise<{ grant: Grant; snapshots: SnapshotPort }>;
 }
 export async function prepareGuardJob(
   store: PostgresGuardStore,
@@ -22,7 +22,7 @@ export async function prepareGuardJob(
 ) {
   if (lease.job.module !== "guard" || lease.job.kind !== "guard.scan.prepare")
     throw new LiveGuardError("not_found", 404);
-  const { grant, snapshots } = await resolver.resolve(lease.job);
+  const { grant, snapshots } = await resolver.resolve(lease, signal);
   authorize(grant, lease.job, "scan");
   let current = await store.get(grant, lease.job, lease.job.subjectRef);
   if (!current) throw new LiveGuardError("not_found", 404);
@@ -53,7 +53,7 @@ export async function prepareGuardJob(
   );
   try {
     if (signal.aborted) throw new LiveGuardError("execution_not_ready");
-    const again = await resolver.resolve(lease.job);
+    const again = await resolver.resolve(lease, signal);
     authorize(again.grant, current.job, "scan");
     if (again.grant.actorId !== grant.actorId)
       throw new LiveGuardError("not_found", 404);

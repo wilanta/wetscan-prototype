@@ -1,5 +1,65 @@
 # HANDOFF: Guard G01
 
+## Latest G01/S03 baseline audit - 15 November 2026
+
+Read [GUARD_G01_S03_BASELINE_REVIEW.md](../GUARD_G01_S03_BASELINE_REVIEW.md) first. It provides the detailed queue/executor audit, minimum Guard change table, proposed isolated integration candidate, static old/new hash calculation and updated B01-B08 checklist.27 existing local Guard paths and51 upstream S03 paths have no path collisions; no mandatory queue constructor/JobHandler rewrite is identified. Base S03 admission remains Sentinel-only. Optional latest-lease getter forwarding would be a separate Guard-only source/test change after alignment; it is not implemented by this audit.
+
+Five Guard SQL file hashes and0001pair stay unchanged. Static S03 candidate aggregate:b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d; local actual aggregate remains444596... on7207a16. Preview is not approval or an integrated build. Owner must authorize a safe candidate/alignment method; then combined checks, actual plan regeneration and fresh exact target/action approvals precede Live acceptance. No branch/master/source/SQL change, merge, database/runtime operation or G02 occurred in this audit. Existing code/tests remain intact; only the five listed Guard documents are written. Previous handoff sections remain historical evidence where superseded.
+
+
+## Latest resolver/launcher continuation - 15 November 2026
+
+Wil's reported "Approve mas, aman" permits continued G01 implementation/review, not target/runtime/database/infrastructure/publication operations. A concrete Auth-process private-IPC broker/resolver and bounded one-job prepare-only launcher now exist; the historical interface-only/missing-launcher statements below are superseded for CODE only. No Live acceptance or activation occurred. Read [GUARD_G01_WORKER_AUTH_REVIEW.md](../GUARD_G01_WORKER_AUTH_REVIEW.md) and the current preflight first. Overall remains PARTIALLY_VERIFIED; G02 is not started.
+
+New composition validates exact launch job/actor/repository name+ID/commit/target/plan/actions/expiry, independent app+worker role approvals and active lease; uses existing Auth/Canvas authorization in its owning process; never sends session/provider credentials to the child. Child has inherited private IPC and environment allowlist, exact-job claims/reconciliation, existing S01 executor, no scanner/migration and no public activation route. Parent restart needs a new authenticated binding. One-job launcher is not an installed daemon/supervisor. Actual pool/worker/revocation/cleanup/sandbox behavior remains acceptance work.
+
+Fresh results on Guard7207a16+local changes:567/567 units,48files; typecheck/lint clean; production build and Guard5/Auth21/Sentinel5 fixture E2E PASS. New IPC child/entrypoint tests use synthetic dependencies; no secrets/config credentials/DB/GitHub Live/Docker targets were accessed. Existing preflight changes and all historical evidence are preserved.
+
+**Concurrent baseline blocker:** clean master advanced externally to f7bfeef29488c3f997e9444555039514f55fa0a3 (S03), while this worktree remains7207a16ad3a7640d48bd67719188642b27fb9be2. Shared queue/executor/migration differences were inspected read-only, not merged/rebased. New0003_detection changes the platform plan; local old aggregate444596... is not an approval for S03. Before runtime: obtain owner instruction for safe baseline alignment (current no-merge restriction still applies), review/retest combined code, regenerate hashes and obtain exact target/action/source/sandbox permits. Do not run historical populated DB suites or reuse Sentinel approvals.
+
+
+### Current local manifest relative to7207a16
+
+Includes the four documentation changes already present at continuation start; all are preserved. This list supersedes the old56-file implementation-phase manifest as the current working diff. No staged files/publication.
+
+- `docs/GUARD_G01_ACCEPTANCE_PREFLIGHT.md`
+- `docs/GUARD_G01_ARCHITECTURE.md`
+- `docs/GUARD_G01_MIGRATION_REVIEW.md`
+- `docs/GUARD_G01_S03_BASELINE_REVIEW.md`
+- `docs/GUARD_G01_VALIDATION.md`
+- `docs/GUARD_G01_WORKER_AUTH_REVIEW.md`
+- `docs/GUARD_IMPLEMENTATION_STATUS.md`
+- `docs/INTEGRATION_BACKLOG.md`
+- `docs/agent-handoffs/HANDOFF_GUARD_G01.md`
+- `src/features/guard/live/database-config.ts`
+- `src/features/guard/live/queue.ts`
+- `src/features/guard/live/runtime.ts`
+- `src/features/guard/live/schema-readiness.ts`
+- `src/features/guard/live/worker-launcher.ts`
+- `tests/guard/g01/auth-broker.test.ts`
+- `tests/guard/g01/broker-fixture.ts`
+- `tests/guard/g01/broker-process.fixture.ts`
+- `tests/guard/g01/broker-process.test.ts`
+- `tests/guard/g01/database-target.test.ts`
+- `tests/guard/g01/ipc.test.ts`
+- `tests/guard/g01/launcher.test.ts`
+- `tests/guard/g01/persistence.test.ts`
+- `worker/guard/approval.ts`
+- `worker/guard/auth-broker.ts`
+- `worker/guard/bootstrap.ts`
+- `worker/guard/ipc.ts`
+- `worker/guard/main.ts`
+- `worker/guard/prepare.ts`
+
+## Current follow-up review - 15 November 2026
+
+G01 remains **PARTIALLY_VERIFIED**; G02 is not started. The Guard branch is now committed at `7207a16ad3a7640d48bd67719188642b27fb9be2`; clean master was observed at merge `12b843e2dfda82b3d806625983836fe2ada9ce0f`. Their trees are identical. This agent did not make those commits/merge. The original uncommitted/cd313ce state below is preserved historical evidence, not current Git status.
+
+Read [the current acceptance preflight](../GUARD_G01_ACCEPTANCE_PREFLIGHT.md) before continuing. It records the exact approval packet and open GitHub/PostgreSQL/RLS/Sentinel-preservation/worker-resolver/sandbox gates. The migration plan still matches;16 focused fixture tests pass; both tested local Docker named-pipe endpoints are unavailable. No real Guard acceptance or connected-worker activation occurred. Only documentation is changed by this follow-up; no publication is authorized.
+
+## Preserved implementation-phase handoff
+
+
 Date: 15 November 2026 (Asia/Jakarta). Authoring agent is irrelevant; this document is the complete operational entry point for the next agent. User adopted G01-Versi dari Will.md as G01 instructions and explicitly requires sequential stages. Do not read other stage tabs/files or infer a G02 task.
 
 ## 1. Executive summary

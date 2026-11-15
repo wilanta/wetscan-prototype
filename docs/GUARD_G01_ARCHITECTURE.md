@@ -1,5 +1,12 @@
 # G01 live foundation - pre-implementation audit
 
+## Current worker composition addendum - 15 November 2026
+
+[Worker Auth review](GUARD_G01_WORKER_AUTH_REVIEW.md) supersedes the earlier interface-only resolver/unconditional launcher-stub description. Guard now has a concrete private inherited IPC broker/resolver and bounded one-job prepare launcher. It runs Auth/source access in the existing Auth process, child receives grants/metadata only, exact active lease and persisted identity are revalidated, and independent exact launch/app/worker approvals gate activation. No route auto-starts it; no Live service was activated. Parent restart requires a fresh authenticated binding; continuous supervision and real cleanup/concurrency remain acceptance work.
+
+Master concurrently advanced to S03/f7bfeef; this Guard worktree remains7207a16 with local changes. Shared queue/executor changes were audited read-only, not integrated or combined-tested. Platform migration0003 makes this worktree's two-version plan unsuitable for an S03 target; review/align baseline and regenerate approvals first. No shared implementation or SQL is modified. Prior architecture sections are historical context where noted.
+
+
 Date: 15 November 2026 (Asia/Jakarta). Main working tree: master cd313ce, clean. Isolated worktree: C:/laragon/www/wetscan-2/wetscan-guard-g01, branch feat/guard-g01-live-integration, same baseline. S02 is already merged; historical uncommitted Sentinel work is not present. No G02 file is read or started. No commit, push, PR, database connection, migration, worker activation or real GitHub acceptance is authorized by G01.
 
 | Component | Existing implementation | Classification/reuse | Missing / minimum change | Security risk |

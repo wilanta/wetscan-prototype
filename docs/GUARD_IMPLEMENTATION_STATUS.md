@@ -1,5 +1,19 @@
 # G01 current status - 15 November 2026
 
+## Latest resolver/launcher continuation - 15 November 2026
+
+Overall **PARTIALLY_VERIFIED**. GRD-004 now has a concrete Auth-process broker/private-IPC resolver and approved one-job prepare-only launcher/bootstrap, implemented but NOT Live-accepted/activated. Existing Auth remains the only session writer; child receives no Auth/GitHub credentials. No new Auth, dashboard, SQL/shared-source/dependency changes. No secret read or real target operation.
+
+567-unit/typecheck/lint/build and Guard5/Auth21/Sentinel5 fixture browser checks pass. See [worker Auth review](GUARD_G01_WORKER_AUTH_REVIEW.md). GitHub/DB/RLS/Sentinel-preservation/connected-worker/sandbox acceptance remain open. In addition, master advanced externally to S03/f7bfeef, while Guard stays on7207a16. No merge/rebase; baseline alignment, refreshed migration hashes and combined validation are now prerequisite to runtime approval. Historical missing-resolver/interface-only statements below are superseded for implementation, not for acceptance. G02 not started.
+
+
+## Latest follow-up review - 15 November 2026
+
+Status remains **PARTIALLY_VERIFIED**. Local Git now records Guard commit `7207a16` merged to clean master `12b843e`; the isolated Guard worktree remains on `feat/guard-g01-live-integration`. Publication occurred after the implementation record below and was not performed by this follow-up. Merge does not establish real acceptance. Read [the current preflight](GUARD_G01_ACCEPTANCE_PREFLIGHT.md): GitHub/PostgreSQL/RLS/preservation, concrete worker resolver/launcher and enforcing sandbox remain open.16 focused fixture tests and the migration-plan check pass; both tested Docker endpoints are unavailable. No G02 or real runtime operation starts here.
+
+## Preserved implementation status
+
+
 **PARTIALLY_VERIFIED.** Worktree `wetscan-guard-g01`, branch `feat/guard-g01-live-integration`, baseline `cd313ce29aeac865e15cea9abd9c412cb9c2c3cc`. No commit/push/PR, DB connection/migration, real provider acceptance, connected worker or scanner execution. G02 has not started. The historical document below is preserved verbatim and does not describe new live acceptance.
 
 | Capability | Implementation | Real acceptance |

@@ -1,5 +1,19 @@
 # G01 proposed migration and privilege review
 
+## Static S03 candidate hash - 15 November 2026
+
+[Baseline review](GUARD_G01_S03_BASELINE_REVIEW.md) reproduces old and candidate hashes directly from reviewed Git SQL blobs, with zero DB connections. Unchanged five Guard files + exactf7bfeef three-version platform plan yield candidate aggregate b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d. Platform plan:c3e39f6fd43ee6eb2fbf5b244778955aab4cabb8a11ed3c66d791cf99a252a94;0003pair:4f0ee1cebdbdc81b835f719ef13c9cb703dfb5f440193765dfa0a61635fb6168. Guard0001pair8bdea256... and all file hashes below stay unchanged; no Guard schema-version bump/SQL edit is required solely for S03.
+
+This preview does not replace the current local444596... executable plan or grant permission. After owner-authorized candidate creation/alignment, reproduce the actual plan, review combined behavior and obtain fresh exact-target/purpose/action/hash approval. Preserve exact ledger validation; no Sentinel downgrade, populated DB reset or ledger edit to force a match. No migration/runtime/database operation occurred.
+
+
+## Current baseline warning - 15 November 2026
+
+No SQL file or Guard SQL hash changed in the resolver/launcher continuation, and no DB connection/mutation occurred. Exact launch, app-role and worker-role target/action approvals remain ungranted; Wil's general implementation approval does not supply them. Expected target is checked before credential loading in the new launcher path.
+
+**Master has advanced externally to S03/f7bfeef and includes0003_detection.** The aggregate and two-version platform ledger below are valid only for isolated Guard HEAD7207a16. Do not authorize/apply that old plan to an S03 target. Owner instruction for baseline alignment, shared compatibility review, regenerated aggregate/ledger and fresh exact-target approval are required first. Nothing is rebased/merged or changed in shared migration files. See GUARD_G01_WORKER_AUTH_REVIEW.md.
+
+
 15 November 2026. Status: PREPARATION_ONLY / BLOCKED_BY_APPROVAL. No PostgreSQL connection, database/role creation, migration, reset, down, runtime activation or historical Sentinel acceptance suite was run.
 
 ## Exact reviewed plan

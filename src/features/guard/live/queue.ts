@@ -21,8 +21,11 @@ export class GuardPostgresQueue extends PostgresQueue {
   constructor(
     db: PlatformDatabase,
     private readonly guardScope: Scope,
+    private readonly onlyJobId?: string,
   ) {
     super(db, guardScope, ["guard.scan.prepare"]);
+    if (onlyJobId !== undefined && !/^[a-f0-9]{64}$/.test(onlyJobId))
+      throw new PlatformError("invalid_input");
     if (db.module !== "guard" || guardScope.mode !== "live")
       throw new PlatformError("scope_denied");
   }
@@ -129,27 +132,27 @@ export class GuardPostgresQueue extends PostgresQueue {
       await this.db.query(
         tx,
         `UPDATE platform.jobs SET state='failed',finished_at=clock_timestamp(),lease_owner=NULL,lease_token=NULL,lease_until=NULL,revision=revision+1,last_error='attempts_exhausted'
-        WHERE ${scopeWhere} AND state='leased' AND lease_until<=clock_timestamp() AND attempts>=max_attempts`,
-        s,
+        WHERE ${scopeWhere} AND ($5::text IS NULL OR job_id=$5) AND state='leased' AND lease_until<=clock_timestamp() AND attempts>=max_attempts`,
+        [...s, this.onlyJobId ?? null],
       );
       await this.db.query(
         tx,
         `UPDATE platform.job_attempts a SET finished_at=clock_timestamp(),outcome='lease_expired'
         FROM platform.jobs j WHERE a.module=j.module AND a.mode=j.mode AND a.workspace_id=j.workspace_id AND a.project_id=j.project_id AND a.job_id=j.job_id
-        AND j.module=$1 AND j.mode=$2 AND j.workspace_id=$3 AND j.project_id=$4 AND a.finished_at IS NULL AND (j.state='failed' OR j.lease_until<=clock_timestamp())`,
-        s,
+        AND j.module=$1 AND j.mode=$2 AND j.workspace_id=$3 AND j.project_id=$4 AND a.finished_at IS NULL AND (j.state='failed' OR j.lease_until<=clock_timestamp()) AND ($5::text IS NULL OR j.job_id=$5)`,
+        [...s, this.onlyJobId ?? null],
       );
       await this.db.query(
         tx,
         `UPDATE platform.notification_outbox o SET state='failed',finished_at=clock_timestamp() FROM platform.jobs j
         WHERE o.module=j.module AND o.mode=j.mode AND o.workspace_id=j.workspace_id AND o.project_id=j.project_id AND o.job_id=j.job_id
-        AND j.module=$1 AND j.mode=$2 AND j.workspace_id=$3 AND j.project_id=$4 AND j.state IN ('failed','cancelled') AND o.state='pending'`,
-        s,
+        AND j.module=$1 AND j.mode=$2 AND j.workspace_id=$3 AND j.project_id=$4 AND j.state IN ('failed','cancelled') AND o.state='pending' AND ($5::text IS NULL OR j.job_id=$5)`,
+        [...s, this.onlyJobId ?? null],
       );
       await this.db.query(
         tx,
-        `UPDATE guard.scans s SET status='failed',job=s.job||jsonb_build_object('status','failed','finishedAt',clock_timestamp(),'audit',COALESCE(s.job->'audit','[]'::jsonb)||jsonb_build_array(jsonb_build_object('actorId','guard-worker','at',clock_timestamp(),'action','queue_failed','subjectId',s.scan_id,'reason','Guard queue exhausted attempts; no completed scan is claimed.'))),revision=s.revision+1,updated_at=clock_timestamp() FROM platform.jobs j WHERE j.module=$1 AND j.module='guard' AND j.mode=$2 AND j.workspace_id=$3 AND j.project_id=$4 AND j.state='failed' AND s.mode=j.mode AND s.workspace_id=j.workspace_id AND s.project_id=j.project_id AND s.scan_id=j.subject_ref AND s.status NOT IN ('completed','completed_partial','failed','cancelled')`,
-        s,
+        `UPDATE guard.scans s SET status='failed',job=s.job||jsonb_build_object('status','failed','finishedAt',clock_timestamp(),'audit',COALESCE(s.job->'audit','[]'::jsonb)||jsonb_build_array(jsonb_build_object('actorId','guard-worker','at',clock_timestamp(),'action','queue_failed','subjectId',s.scan_id,'reason','Guard queue exhausted attempts; no completed scan is claimed.'))),revision=s.revision+1,updated_at=clock_timestamp() FROM platform.jobs j WHERE j.module=$1 AND j.module='guard' AND j.mode=$2 AND j.workspace_id=$3 AND j.project_id=$4 AND j.state='failed' AND s.mode=j.mode AND s.workspace_id=j.workspace_id AND s.project_id=j.project_id AND s.scan_id=j.subject_ref AND s.status NOT IN ('completed','completed_partial','failed','cancelled') AND ($5::text IS NULL OR j.job_id=$5)`,
+        [...s, this.onlyJobId ?? null],
       );
       const active = await this.db.query(
         tx,
@@ -168,13 +171,20 @@ export class GuardPostgresQueue extends PostgresQueue {
         tx,
         `WITH candidates AS (
         SELECT module,mode,workspace_id,project_id,job_id FROM platform.jobs WHERE ${scopeWhere}
-        AND kind=ANY($5::text[]) AND NOT cancel_requested AND attempts<max_attempts AND EXISTS(SELECT 1 FROM guard.scans s WHERE s.mode=platform.jobs.mode AND s.workspace_id=platform.jobs.workspace_id AND s.project_id=platform.jobs.project_id AND s.scan_id=platform.jobs.subject_ref AND s.status NOT IN ('completed','completed_partial','failed','cancelled'))
+        AND kind=ANY($5::text[]) AND ($9::text IS NULL OR job_id=$9) AND NOT cancel_requested AND attempts<max_attempts AND EXISTS(SELECT 1 FROM guard.scans s WHERE s.mode=platform.jobs.mode AND s.workspace_id=platform.jobs.workspace_id AND s.project_id=platform.jobs.project_id AND s.scan_id=platform.jobs.subject_ref AND s.status NOT IN ('completed','completed_partial','failed','cancelled'))
         AND ((state='queued' AND available_at<=clock_timestamp()) OR (state='leased' AND lease_until<=clock_timestamp()))
         ORDER BY available_at,created_at,job_id FOR UPDATE SKIP LOCKED LIMIT $6
       ) UPDATE platform.jobs j SET state='leased',attempts=j.attempts+1,fence=j.fence+1,revision=j.revision+1,
         lease_owner=$7,lease_token=(j.fence+1)::text||':'||gen_random_uuid()::text,lease_ms=$8,lease_until=clock_timestamp()+($8::int*interval '1 millisecond')
         FROM candidates c WHERE j.module=c.module AND j.mode=c.mode AND j.workspace_id=c.workspace_id AND j.project_id=c.project_id AND j.job_id=c.job_id RETURNING j.*`,
-        [...s, [...this.guardKinds], capacity, input.workerId, input.leaseMs],
+        [
+          ...s,
+          [...this.guardKinds],
+          capacity,
+          input.workerId,
+          input.leaseMs,
+          this.onlyJobId ?? null,
+        ],
       );
       for (const row of rows.rows)
         await this.db.query(
