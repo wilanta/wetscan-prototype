@@ -1,5 +1,14 @@
 # HANDOFF: Guard G01
 
+## Latest GitHub/DB Live continuation - 15 November 2026
+
+Start with [GUARD_G01_LIVE_ACCEPTANCE.md](../GUARD_G01_LIVE_ACCEPTANCE.md) and [DB configuration/approval audit](../GUARD_G01_POSTGRES_CONFIG_AUDIT.md). Candidate branch remainsfeat/guard-g01-s03-integration, input7eb6bfe; final implementation/push SHA is actual Git HEAD after this continuation. Old Guard92ee6fa and masterf7bfeef preserved. No merge/deploy/G02. User explicitly authorizes commit/push of verified local implementation despite known Sentinel baseline failure.
+
+Guard reuses existing Auth/Canvas repository selection; new authenticated Guard page and same-origin repository/preparation endpoints validate chosen branch/SHA and export an unapproved server-bound job draft. Enqueue/worker require distinct exact-job operator permits and independent role/target approvals. Worker success is checked from fresh Auth and stored preparation audit/coverage, not exit0/HTTP alone. Existing OAuth/onboarding/picker/Canvas/dashboard/Sentinel/dependency/SQL untouched.776units/typecheck/lint/build/Guard7/Auth21/Canvas17/legacy6/S025PASS; S035PASS/1knownbaselineFAIL retained. Hashb63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d unchanged.
+
+Actual localhost homepage HTTP200 only; browser access host unavailable and no real authenticated Guard acceptance. User says existing GitHub/Canvas Live works; do not rebuild it. DB audit only: example/historical127.0.0.1:55432/PG17.12 are not current G01 target approval. Actual G01 database/marker/role/active approval/hash/expiry UNKNOWN; no DB connection/SQL/migration, no actual worker/Docker/source/scanner operation. Next obtain exact non-secret target/action approvals and enable reviewed candidate in the single existing Auth process without duplicate writers; follow the current report, never read.env/credentials or reuse historical Sentinel permissions. G01 overallPARTIALLY COMPLETE until mandatory Live gates pass.
+
+
 ## Current continuation - G01 FINALIZATION - 15 November 2026
 
 Read [GUARD_G01_FINALIZATION.md](../GUARD_G01_FINALIZATION.md) first. It supersedes earlier publication holds and stale implementation descriptions in this historical handoff. Latest user authorizes candidate commit/push after relevant checks despite known baseline Sentinel defect; never merge/deploy/G02. Candidate is feat/guard-g01-s03-integration at the dedicated candidate worktree, basef7bfeef; final implementation SHA is Git HEAD after publication. Old Guard worktree is now clean at92ee6fa742d275c5349e698cd111533a69d80704 and must remain untouched. Master is unchanged.

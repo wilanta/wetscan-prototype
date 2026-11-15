@@ -71,7 +71,9 @@ export async function guardRoute(
     | "evidence"
     | "coverage"
     | "cancel"
-    | "source-acceptance",
+    | "source-acceptance"
+    | "repository"
+    | "preparation",
   id?: string,
 ) {
   try {
@@ -80,16 +82,45 @@ export async function guardRoute(
     if (request.method !== "GET") requireOrigin(request);
     const token = requestToken(request),
       authority = await authorizeGuardProject(token, projectId);
+    if (resource === "repository" || resource === "preparation") {
+      if (request.method !== "POST" || [...request.nextUrl.searchParams].length)
+        throw new LiveGuardError("invalid_input", 400);
+      const value = await boundedJson(request);
+      if (resource === "repository") {
+        const { verifyGuardRevision } = await import("./repository");
+        return reply(
+          await verifyGuardRevision(token, projectId, value, request.signal),
+        );
+      }
+      const { preparationRequest } = await import("./preparation-request");
+      return reply(
+        await preparationRequest({
+          authority,
+          token,
+          value,
+          environment: process.env,
+          signal: request.signal,
+        }),
+      );
+    }
     if (resource === "source-acceptance") {
       if ([...request.nextUrl.searchParams].length)
         throw new LiveGuardError("invalid_input", 400);
+      const value = await boundedJson(request);
+      const { guardRevision } = await import("./revision");
+      const revision =
+        value && typeof value === "object" && "branch" in value
+          ? guardRevision(value)
+          : undefined;
+      const source = githubSourceAccess(token, projectId, revision);
       return reply(
         await sourceAcceptance(
-          authority,
-          await boundedJson(request),
+          revision ? await source.authorize() : authority,
+          value,
           request.headers.get("origin") ?? "",
-          githubSourceAccess(token, projectId),
+          source,
           process.env.GUARD_SOURCE_ACCEPTANCE_APPROVAL_FILE,
+          request.signal,
         ),
       );
     }

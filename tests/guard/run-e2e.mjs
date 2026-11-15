@@ -60,9 +60,10 @@ try {
   const serverEnv = {
     ...env,
     WETSCAN_GITHUB_EXISTING_E2E: "1",
+    WETSCAN_GUARD_REVISION_E2E: "1",
     NODE_OPTIONS:
       env.NODE_OPTIONS +
-      ` --import "${pathToFileURL(join(root, "tests/auth/github-existing-fixture.mjs")).href}"`,
+      ` --import "${pathToFileURL(join(root, "tests/guard/g01/github-revision-fixture.mjs")).href}"`,
   };
   server = spawn(
     process.execPath,

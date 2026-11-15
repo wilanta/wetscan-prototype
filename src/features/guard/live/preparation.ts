@@ -4,7 +4,7 @@ import { fingerprint } from "../../../platform/identity";
 import { authorize } from "../security";
 import { authorizeGuardProject } from "./project";
 import { githubSourceAccess } from "./github-source";
-import { prepareAuthorizedScan } from "./service";
+import { prepareAuthorizedScan, scanInput } from "./service";
 import { guardDatabaseConfig } from "./database-config";
 import { guardMigrationPlan } from "./migrations";
 import { verifyGuardSchema } from "./schema-readiness";
@@ -15,7 +15,7 @@ import {
   validatePreparationApproval,
   type GuardPreparationApproval,
 } from "../../../../worker/guard/approval";
-/** Explicit Auth-process producer for G01 preparation only. No public route, scanner or auto-launch.
+/** Explicit Auth-process producer for G01 preparation only. Authenticated routes require the separate exact-job permit; no scanner or auto-launch.
  * Requires a separate exact-job enqueue approval; a worker launch permit cannot enqueue.
  */
 export async function enqueueApprovedGuardPreparation(input: {
@@ -33,11 +33,13 @@ export async function enqueueApprovedGuardPreparation(input: {
     plan.sha256,
   );
   if (input.signal?.aborted) throw new LiveGuardError("source_unavailable");
-  const binding = permit.binding;
+  const binding = permit.binding,
+    revision = scanInput(input.request);
   const authority = await authorizeGuardProject(
     input.sessionToken,
     binding.projectId,
   );
+  if (revision.branch) authority.branch = revision.branch;
   authorize(authority.grant, binding, "scan");
   const job = await prepareAuthorizedScan(
     authority,
@@ -72,6 +74,9 @@ export async function enqueueApprovedGuardPreparation(input: {
   const source = await githubSourceAccess(
     input.sessionToken,
     binding.projectId,
+    revision.branch
+      ? { branch: revision.branch, commit: binding.repository.commit }
+      : undefined,
   ).open(authority, signal);
   try {
     const head = await source.head(signal);
@@ -88,6 +93,7 @@ export async function enqueueApprovedGuardPreparation(input: {
     input.sessionToken,
     binding.projectId,
   );
+  if (revision.branch) current.branch = revision.branch;
   authorize(current.grant, binding, "scan");
   if (
     current.grant.actorId !== binding.actorId ||
