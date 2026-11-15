@@ -38,7 +38,8 @@ export default async function Page({
   if (
     !/^github-[1-9]\d{0,15}$/.test(projectId) ||
     section.length > 1 ||
-    (section.length && !["activity", "sources"].includes(section[0]))
+    (section.length &&
+      !["activity", "sources", "rules", "alerts"].includes(section[0]))
   )
     notFound();
   const token = (await cookies()).get(SESSION_COOKIE)?.value;

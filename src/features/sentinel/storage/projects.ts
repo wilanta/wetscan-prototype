@@ -24,7 +24,8 @@ export async function bindProject(
     tx,
     `INSERT INTO sentinel.project_bindings(mode,workspace_id,project_id,repository_id,actor_id)
     VALUES($1,$2,$3,$4,$5) ON CONFLICT(mode,workspace_id,project_id) DO UPDATE SET
-    enabled=true,actor_id=EXCLUDED.actor_id,revision=project_bindings.revision+1,updated_at=clock_timestamp()`,
+    enabled=true,actor_id=EXCLUDED.actor_id,revision=project_bindings.revision+1,updated_at=clock_timestamp()
+    WHERE project_bindings.enabled IS DISTINCT FROM true OR project_bindings.actor_id IS DISTINCT FROM EXCLUDED.actor_id`,
     [s.mode, s.workspaceId, s.projectId, context.repositoryId, context.actorId],
   );
 }

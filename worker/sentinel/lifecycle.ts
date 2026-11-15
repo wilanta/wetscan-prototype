@@ -7,6 +7,8 @@ export type ShutdownReason =
   | "SIGBREAK"
   | "parent_request"
   | "parent_disconnected"
+  | "acceptance_expired"
+  | "acceptance_failure"
   | "completed";
 export type WorkerControl = Pick<EventEmitter, "on" | "removeListener"> & {
   connected?: boolean;

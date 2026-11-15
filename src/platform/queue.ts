@@ -10,6 +10,11 @@ import type { QueryResultRow } from "pg";
 import { PlatformDatabase } from "./database";
 import { PlatformError } from "./config";
 import { fingerprint, identifier, validateJob } from "./identity";
+import {
+  assertAdmission,
+  sealedAdmission,
+  type JobAdmission,
+} from "./job-admission";
 
 interface JobRow extends QueryResultRow {
   module: PlatformModule;
@@ -60,8 +65,40 @@ export class PostgresQueue implements DurableJobPort {
     readonly db: PlatformDatabase,
     private readonly scope?: SentinelScope,
     private readonly kinds: readonly string[] = [],
-  ) {}
+    private readonly createdAtOrAfter?: string,
+    private readonly admission?: JobAdmission,
+  ) {
+    if (
+      createdAtOrAfter !== undefined &&
+      (!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(createdAtOrAfter) ||
+        !Number.isFinite(Date.parse(createdAtOrAfter)))
+    )
+      throw new PlatformError("invalid_input");
+    if (admission) {
+      if (
+        !scope ||
+        !createdAtOrAfter ||
+        db.module !== "sentinel" ||
+        kinds.length !== 1 ||
+        kinds[0] !== "sentinel.telemetry.accepted"
+      )
+        throw new PlatformError("scope_denied");
+      this.admission = sealedAdmission(admission);
+      assertAdmission(this.admission, scope);
+    }
+  }
+  private admissionSql(parameter: number, alias = "") {
+    return this.admission
+      ? ` AND ${alias}job_id=ANY($${parameter}::text[]) AND clock_timestamp()<$${parameter + 1}::timestamptz`
+      : "";
+  }
+  private admitted(values: unknown[]) {
+    return this.admission
+      ? [...values, [...this.admission.jobIds], this.admission.expiresAt]
+      : values;
+  }
   async enqueue(tx: TransactionContext, job: DurableJob) {
+    if (this.admission) throw new PlatformError("scope_denied");
     validateJob(job);
     this.db.requireScope(tx, job);
     if (job.module !== this.db.module) throw new PlatformError("scope_denied");
@@ -139,6 +176,8 @@ export class PostgresQueue implements DurableJobPort {
     limit: number;
     leaseMs: number;
   }): Promise<JobLease[]> {
+    if (this.admission && this.scope)
+      assertAdmission(this.admission, this.scope);
     if (
       !this.scope ||
       input.module !== this.db.module ||
@@ -177,25 +216,35 @@ export class PostgresQueue implements DurableJobPort {
         s.slice(1),
       );
       if (!binding.rowCount) return [];
+      const cutoff = this.createdAtOrAfter;
+      const eligible =
+        (cutoff ? " AND created_at>=$5 AND kind=ANY($6::text[])" : "") +
+        this.admissionSql(7);
+      const eligibleJoin =
+        (cutoff ? " AND j.created_at>=$5 AND j.kind=ANY($6::text[])" : "") +
+        this.admissionSql(7, "j.");
+      const eligibleValues = this.admitted(
+        cutoff ? [...s, cutoff, [...this.kinds]] : s,
+      );
       await this.db.query(
         tx,
         `UPDATE platform.jobs SET state='failed',finished_at=clock_timestamp(),lease_owner=NULL,lease_token=NULL,lease_until=NULL,revision=revision+1,last_error='attempts_exhausted'
-        WHERE ${scopeWhere} AND state='leased' AND lease_until<=clock_timestamp() AND attempts>=max_attempts`,
-        s,
+        WHERE ${scopeWhere} AND state='leased' AND lease_until<=clock_timestamp() AND attempts>=max_attempts${eligible}`,
+        eligibleValues,
       );
       await this.db.query(
         tx,
         `UPDATE platform.job_attempts a SET finished_at=clock_timestamp(),outcome='lease_expired'
         FROM platform.jobs j WHERE a.module=j.module AND a.mode=j.mode AND a.workspace_id=j.workspace_id AND a.project_id=j.project_id AND a.job_id=j.job_id
-        AND j.module=$1 AND j.mode=$2 AND j.workspace_id=$3 AND j.project_id=$4 AND a.finished_at IS NULL AND (j.state='failed' OR j.lease_until<=clock_timestamp())`,
-        s,
+        AND j.module=$1 AND j.mode=$2 AND j.workspace_id=$3 AND j.project_id=$4 AND a.finished_at IS NULL AND (j.state='failed' OR j.lease_until<=clock_timestamp())${eligibleJoin}`,
+        eligibleValues,
       );
       await this.db.query(
         tx,
         `UPDATE platform.notification_outbox o SET state='failed',finished_at=clock_timestamp() FROM platform.jobs j
         WHERE o.module=j.module AND o.mode=j.mode AND o.workspace_id=j.workspace_id AND o.project_id=j.project_id AND o.job_id=j.job_id
-        AND j.module=$1 AND j.mode=$2 AND j.workspace_id=$3 AND j.project_id=$4 AND j.state IN ('failed','cancelled') AND o.state='pending'`,
-        s,
+        AND j.module=$1 AND j.mode=$2 AND j.workspace_id=$3 AND j.project_id=$4 AND j.state IN ('failed','cancelled') AND o.state='pending'${eligibleJoin}`,
+        eligibleValues,
       );
       const active = await this.db.query(
         tx,
@@ -214,27 +263,51 @@ export class PostgresQueue implements DurableJobPort {
         tx,
         `WITH candidates AS (
         SELECT module,mode,workspace_id,project_id,job_id FROM platform.jobs WHERE ${scopeWhere}
-        AND kind=ANY($5::text[]) AND NOT cancel_requested AND attempts<max_attempts
+        AND kind=ANY($5::text[]) AND NOT cancel_requested AND attempts<max_attempts AND ($9::timestamptz IS NULL OR created_at>=$9)${this.admissionSql(10)}
         AND ((state='queued' AND available_at<=clock_timestamp()) OR (state='leased' AND lease_until<=clock_timestamp()))
         ORDER BY available_at,created_at,job_id FOR UPDATE SKIP LOCKED LIMIT $6
       ) UPDATE platform.jobs j SET state='leased',attempts=j.attempts+1,fence=j.fence+1,revision=j.revision+1,
         lease_owner=$7,lease_token=(j.fence+1)::text||':'||gen_random_uuid()::text,lease_ms=$8,lease_until=clock_timestamp()+($8::int*interval '1 millisecond')
         FROM candidates c WHERE j.module=c.module AND j.mode=c.mode AND j.workspace_id=c.workspace_id AND j.project_id=c.project_id AND j.job_id=c.job_id RETURNING j.*`,
-        [...s, [...this.kinds], capacity, input.workerId, input.leaseMs],
+        this.admitted([
+          ...s,
+          [...this.kinds],
+          capacity,
+          input.workerId,
+          input.leaseMs,
+          this.createdAtOrAfter ?? null,
+        ]),
       );
-      for (const row of rows.rows)
-        await this.db.query(
+      for (const row of rows.rows) {
+        if (this.admission)
+          assertAdmission(this.admission, this.scope!, row.job_id);
+        const inserted = await this.db.query(
           tx,
           `INSERT INTO platform.job_attempts(module,mode,workspace_id,project_id,job_id,attempt,lease_token,worker_id)
-        VALUES($1,$2,$3,$4,$5,$6,$7,$8)`,
-          [...s, row.job_id, row.attempts, row.lease_token, input.workerId],
+        ${this.admission ? "SELECT $1,$2,$3,$4,$5,$6,$7,$8 WHERE $5=ANY($9::text[]) AND clock_timestamp()<$10::timestamptz" : "VALUES($1,$2,$3,$4,$5,$6,$7,$8)"}`,
+          this.admitted([
+            ...s,
+            row.job_id,
+            row.attempts,
+            row.lease_token,
+            input.workerId,
+          ]),
         );
+        if (this.admission && !inserted.rowCount)
+          throw new PlatformError("lease_lost");
+      }
+      if (this.admission) assertAdmission(this.admission, this.scope!);
       return rows.rows.map(rowLease);
     });
   }
   private leaseValues(lease: JobLease) {
     if (lease.job.module !== this.db.module)
       throw new PlatformError("scope_denied");
+    if (this.admission) {
+      assertAdmission(this.admission, lease.job, lease.job.jobId);
+      if (lease.job.kind !== "sentinel.telemetry.accepted")
+        throw new PlatformError("scope_denied");
+    }
     return [
       lease.job.module,
       lease.job.mode,
@@ -253,8 +326,8 @@ export class PostgresQueue implements DurableJobPort {
         tx,
         `UPDATE platform.jobs SET lease_until=clock_timestamp()+(lease_ms*interval '1 millisecond'),revision=revision+1
         WHERE ${scopeWhere} AND job_id=$5 AND lease_owner=$6 AND lease_token=$7 AND revision=$8
-        AND state='leased' AND NOT cancel_requested AND lease_until>clock_timestamp() RETURNING *`,
-        this.leaseValues(lease),
+        AND state='leased' AND NOT cancel_requested AND lease_until>clock_timestamp()${this.admissionSql(9)} RETURNING *`,
+        this.admitted(this.leaseValues(lease)),
       );
       if (!result.rows[0]) throw new PlatformError("lease_lost");
       return rowLease(result.rows[0]);
@@ -267,8 +340,8 @@ export class PostgresQueue implements DurableJobPort {
       tx,
       `UPDATE platform.jobs j SET state='completed',finished_at=clock_timestamp(),lease_owner=NULL,lease_token=NULL,lease_until=NULL,revision=revision+1
       WHERE ${scopeWhere} AND job_id=$5 AND lease_owner=$6 AND lease_token=$7 AND revision=$8 AND state='leased' AND NOT cancel_requested AND lease_until>clock_timestamp()
-      AND NOT EXISTS(SELECT 1 FROM platform.notification_outbox o WHERE o.module=j.module AND o.mode=j.mode AND o.workspace_id=j.workspace_id AND o.project_id=j.project_id AND o.job_id=j.job_id AND o.state<>'accepted') RETURNING job_id`,
-      this.leaseValues(lease),
+      AND NOT EXISTS(SELECT 1 FROM platform.notification_outbox o WHERE o.module=j.module AND o.mode=j.mode AND o.workspace_id=j.workspace_id AND o.project_id=j.project_id AND o.job_id=j.job_id AND o.state<>'accepted')${this.admissionSql(9, "j.")} RETURNING job_id`,
+      this.admitted(this.leaseValues(lease)),
     );
     if (!result.rowCount) throw new PlatformError("lease_lost");
     await this.finishAttempt(tx, lease, "completed");
@@ -286,13 +359,13 @@ export class PostgresQueue implements DurableJobPort {
     await this.db.query(
       tx,
       `UPDATE platform.job_attempts SET outcome=$8,finished_at=clock_timestamp()
-      WHERE ${scopeWhere} AND job_id=$5 AND attempt=$6 AND lease_token=$7 AND finished_at IS NULL`,
-      [
+      WHERE ${scopeWhere} AND job_id=$5 AND attempt=$6 AND lease_token=$7 AND finished_at IS NULL${this.admissionSql(9)}`,
+      this.admitted([
         ...this.leaseValues(lease).slice(0, 5),
         lease.job.attempts,
         lease.leaseToken,
         outcome,
-      ],
+      ]),
     );
   }
   retry(
@@ -317,16 +390,16 @@ export class PostgresQueue implements DurableJobPort {
         `UPDATE platform.jobs SET state=CASE WHEN attempts>=max_attempts THEN 'failed' ELSE 'queued' END,
         finished_at=CASE WHEN attempts>=max_attempts THEN clock_timestamp() ELSE NULL END,available_at=$9,last_error=$10,
         lease_owner=NULL,lease_token=NULL,lease_until=NULL,revision=revision+1
-        WHERE ${scopeWhere} AND job_id=$5 AND lease_owner=$6 AND lease_token=$7 AND revision=$8 AND state='leased' AND NOT cancel_requested AND lease_until>clock_timestamp() RETURNING job_id`,
-        [...this.leaseValues(lease), input.availableAt, error],
+        WHERE ${scopeWhere} AND job_id=$5 AND lease_owner=$6 AND lease_token=$7 AND revision=$8 AND state='leased' AND NOT cancel_requested AND lease_until>clock_timestamp()${this.admissionSql(11)} RETURNING job_id`,
+        this.admitted([...this.leaseValues(lease), input.availableAt, error]),
       );
       if (!result.rowCount) throw new PlatformError("lease_lost");
       await this.finishAttempt(tx, lease, error);
       await this.db.query(
         tx,
         `UPDATE platform.notification_outbox SET state='failed',finished_at=clock_timestamp()
-        WHERE ${scopeWhere} AND job_id=$5 AND state='pending' AND EXISTS(SELECT 1 FROM platform.jobs j WHERE j.module=$1 AND j.mode=$2 AND j.workspace_id=$3 AND j.project_id=$4 AND j.job_id=$5 AND j.state='failed')`,
-        this.leaseValues(lease).slice(0, 5),
+        WHERE ${scopeWhere} AND job_id=$5 AND state='pending' AND EXISTS(SELECT 1 FROM platform.jobs j WHERE j.module=$1 AND j.mode=$2 AND j.workspace_id=$3 AND j.project_id=$4 AND j.job_id=$5 AND j.state='failed')${this.admissionSql(6)}`,
+        this.admitted(this.leaseValues(lease).slice(0, 5)),
       );
     });
   }
@@ -337,23 +410,42 @@ export class PostgresQueue implements DurableJobPort {
   ): Promise<void> {
     if (module !== this.db.module) throw new PlatformError("scope_denied");
     identifier(jobId);
+    if (this.admission) assertAdmission(this.admission, scope, jobId);
     return this.db.scoped(scope, async (tx) => {
       await this.db.query(
         tx,
         `UPDATE platform.jobs SET cancel_requested=true,state='cancelled',finished_at=clock_timestamp(),
-        lease_owner=NULL,lease_token=NULL,lease_until=NULL,revision=revision+1 WHERE ${scopeWhere} AND job_id=$5 AND state IN ('queued','leased')`,
-        [module, scope.mode, scope.workspaceId, scope.projectId, jobId],
+        lease_owner=NULL,lease_token=NULL,lease_until=NULL,revision=revision+1 WHERE ${scopeWhere} AND job_id=$5 AND state IN ('queued','leased')${this.admissionSql(6)}`,
+        this.admitted([
+          module,
+          scope.mode,
+          scope.workspaceId,
+          scope.projectId,
+          jobId,
+        ]),
       );
       await this.db.query(
         tx,
         `UPDATE platform.job_attempts SET outcome='cancelled',finished_at=clock_timestamp()
-        WHERE ${scopeWhere} AND job_id=$5 AND finished_at IS NULL`,
-        [module, scope.mode, scope.workspaceId, scope.projectId, jobId],
+        WHERE ${scopeWhere} AND job_id=$5 AND finished_at IS NULL${this.admissionSql(6)}`,
+        this.admitted([
+          module,
+          scope.mode,
+          scope.workspaceId,
+          scope.projectId,
+          jobId,
+        ]),
       );
       await this.db.query(
         tx,
-        `UPDATE platform.notification_outbox SET state='failed',finished_at=clock_timestamp() WHERE ${scopeWhere} AND job_id=$5 AND state='pending'`,
-        [module, scope.mode, scope.workspaceId, scope.projectId, jobId],
+        `UPDATE platform.notification_outbox SET state='failed',finished_at=clock_timestamp() WHERE ${scopeWhere} AND job_id=$5 AND state='pending'${this.admissionSql(6)}`,
+        this.admitted([
+          module,
+          scope.mode,
+          scope.workspaceId,
+          scope.projectId,
+          jobId,
+        ]),
       );
     });
   }
