@@ -15,7 +15,8 @@ const env = {
   NEXT_TELEMETRY_DISABLED: "1",
 };
 for (const key of Object.keys(env))
-  if (/^(GITHUB_|AUTH_|APP_URL$|WETSCAN_GITHUB)/.test(key)) delete env[key];
+  if (/^(GITHUB_|AUTH_|GUARD_|SENTINEL_|APP_URL$|WETSCAN_GITHUB)/.test(key))
+    delete env[key];
 Object.assign(env, {
   APP_URL: "http://127.0.0.1:3109",
   AUTH_DATA_DIR: directory,

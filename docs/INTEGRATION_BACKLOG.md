@@ -54,17 +54,19 @@ All external read/write endpoints must authorize workspace + project server-side
 
 # Guard integration backlog
 
-No external issues created. Dependencies require owner handoffs. No Auth, schema or other module changes are included.
+No external issues created. Dependencies require owner handoffs. G01 adds Guard-only implementation and proposed, UNAPPLIED schema/role/platform-access artifacts; no Auth/shared platform/Sentinel source or applied schema changes. See GUARD_G01_MIGRATION_REVIEW.md for the explicit approval gate.
 
 ## GRD-001 - Authorized GitHub snapshot and project grants
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
+- State: PARTIALLY_VERIFIED / WAITING_ON_ACCEPTANCE (G01 update below); historical port-only baseline retained in earlier commits.
 - Owner/dependency: Daud / Auth owner.
 - Contract: SnapshotPort, Grant: actor/workspace/project/mode/operations/expiry; exact commit/file hashes.
 - Source (relative to src/features/guard unless explicitly prefixed): contracts.ts (Grant/SnapshotPort), security.ts (authorize); Auth owner handoff; worker/guard/orchestrator.ts.
 - Safety/storage/environment: Server verifies installation/user access and project ownership; token server-only. Existing selected repository is insufficient.
 - Tests / acceptance / definition of done: Cross-workspace/expired grants denied; exact permitted commit fetched with file limits and cleanup.
 - Issue reference: not created.
+
+- G01 update (15 November 2026): Implementation added in src/features/guard/live/{project,github-source,snapshot,source-acceptance}.ts. Existing Auth/Canvas authorization and transport reused; bounded immutable snapshots, integrity and partial coverage tested with provider doubles/local files. PARTIALLY_VERIFIED; real GitHub acceptance remains BLOCKED pending exact repository/current commit/operator approval. Worker authorization broker is still a cross-owner dependency. See docs/agent-handoffs/HANDOFF_GUARD_G01.md and docs/GUARD_G01_VALIDATION.md.
 
 ## GRD-002 - GitLab repository reader
 
@@ -78,7 +80,7 @@ No external issues created. Dependencies require owner handoffs. No Auth, schema
 
 ## GRD-003 - Durable Guard persistence
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
+- State: PARTIALLY_VERIFIED / WAITING_ON_ACCEPTANCE (G01 update below); historical port-only baseline retained in earlier commits.
 - Owner/dependency: Backend/storage owner.
 - Contract: PersistencePort; scoped job/finding/evidence/audit/idempotency/version.
 - Source (relative to src/features/guard unless explicitly prefixed): contracts.ts (PersistencePort), pipeline.ts (DemoMemoryStore demo-only).
@@ -86,9 +88,11 @@ No external issues created. Dependencies require owner handoffs. No Auth, schema
 - Tests / acceptance / definition of done: Restart/multi-instance persistence; tenant isolation and optimistic concurrency tested.
 - Issue reference: not created.
 
+- G01 update (15 November 2026): PostgresGuardStore and independent Guard ledger/schema/RLS/role proposals prepared. Atomic scan+queue admission, CAS/active-lease fencing, evidence/audit immutability and rollback tested using SQL doubles. IMPLEMENTED_PENDING_ACCEPTANCE; no database connected or migration applied. Exact target/hash/platform-owner approval plus real RLS/preservation tests required. See docs/agent-handoffs/HANDOFF_GUARD_G01.md and docs/GUARD_G01_VALIDATION.md.
+
 ## GRD-004 - Production queue and worker
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
+- State: PARTIALLY_VERIFIED / WAITING_ON_ACCEPTANCE (G01 update below); historical port-only baseline retained in earlier commits.
 - Owner/dependency: Platform owner.
 - Contract: QueuePort; scoped job ID/lease/attempts/cancel/dedupe.
 - Source (relative to src/features/guard unless explicitly prefixed): contracts.ts (QueuePort), worker/guard/orchestrator.ts.
@@ -96,15 +100,19 @@ No external issues created. Dependencies require owner handoffs. No Auth, schema
 - Tests / acceptance / definition of done: Duplicate requests yield one job; crash retry and cancel tested.
 - Issue reference: not created.
 
+- G01 update (15 November 2026): GuardPostgresQueue reuses S01 durable contracts and lease methods, overrides only admission/claim; separate lifecycle/IPC/prepare handler and real empty-queue child-process restart fixture added. PARTIALLY_IMPLEMENTED: concrete trusted Auth resolver/process composition missing; main launcher refuses activation. Real queue/lease/crash acceptance and orphan supervisor remain unverified. See docs/agent-handoffs/HANDOFF_GUARD_G01.md and docs/GUARD_G01_VALIDATION.md.
+
 ## GRD-005 - Hardened scanner sandbox
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
+- State: PARTIALLY_VERIFIED / WAITING_ON_ACCEPTANCE (G01 update below); historical port-only baseline retained in earlier commits.
 - Owner/dependency: Platform/security owner.
 - Contract: SandboxPort; readonly/nonroot/egress/cpu/memory/pids/timeout.
 - Source (relative to src/features/guard unless explicitly prefixed): contracts.ts (SandboxPort), security.ts, worker/guard/README.md.
 - Safety/storage/environment: Docker daemon unavailable. No host credentials/socket; tenant isolation and DNS/IP enforcement required.
 - Tests / acceptance / definition of done: Host/path/metadata/network escape tests; OOM/timeout/cancel cleanup verified.
 - Issue reference: not created.
+
+- G01 update (15 November 2026): DockerGuardSandbox now requires digest-pinned spec, nonroot/read-only/network-none/resource controls, actual configuration inspection and external attestation; no host fallback. Adapter/driver-double tests pass. BLOCKED for real enforcement: daemon unavailable, production attestor/probe image/private source ACL+UID/Desktop mount proof needed. No scanner/container ran. See docs/agent-handoffs/HANDOFF_GUARD_G01.md and docs/GUARD_G01_VALIDATION.md.
 
 ## GRD-006 - Opengrep SAST worker
 

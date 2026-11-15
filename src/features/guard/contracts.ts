@@ -105,7 +105,14 @@ export interface AuditEvent {
   subjectId: string;
   reason: string;
 }
+export interface SourceCoverageSummary {
+  status: "complete" | "partial";
+  retrievedFiles: number;
+  excludedFiles: number;
+  treeTruncated: boolean;
+}
 export interface ScanJob extends Scope {
+  sourceCoverage?: SourceCoverageSummary;
   id: string;
   idempotencyKey: string;
   requestedEngines: Engine[];
@@ -130,13 +137,23 @@ export interface SnapshotFile {
   sha256: string;
 }
 export interface AuthorizedSnapshot extends Scope {
+  coverage?: {
+    status: "complete" | "partial";
+    retrievedFiles: number;
+    treeTruncated: boolean;
+    exclusions: readonly { reason: string }[];
+  };
   repository: RepositoryRef;
   digest: string;
   files: SnapshotFile[];
   expiresAt: number;
 }
 export interface SnapshotPort {
-  acquire(grant: Grant, request: ScanRequest): Promise<AuthorizedSnapshot>;
+  acquire(
+    grant: Grant,
+    request: ScanRequest,
+    signal?: AbortSignal,
+  ): Promise<AuthorizedSnapshot>;
   dispose(snapshot: AuthorizedSnapshot): Promise<void>;
 }
 export interface PersistencePort {
