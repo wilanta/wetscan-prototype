@@ -100,11 +100,25 @@ export async function executeScopedJob(
         "Enforcing scanner sandbox is not configured.",
       );
     if (signal.aborted) throw new Error("cancelled");
-    snapshot = await ports.snapshots.acquire(grant, {
-      ...job,
-      engines: job.requestedEngines,
-    });
+    snapshot = await ports.snapshots.acquire(
+      grant,
+      {
+        ...job,
+        engines: job.requestedEngines,
+      },
+      signal,
+    );
     validateSnapshot(grant, job, snapshot);
+    if (snapshot.coverage)
+      job = {
+        ...job,
+        sourceCoverage: {
+          status: snapshot.coverage.status,
+          retrievedFiles: snapshot.coverage.retrievedFiles,
+          excludedFiles: snapshot.coverage.exclusions.length,
+          treeTruncated: snapshot.coverage.treeTruncated,
+        },
+      };
     await save(transition(job, "running", grant.actorId));
     for (const engine of job.requestedEngines) {
       if (signal.aborted) throw new Error("cancelled");

@@ -267,3 +267,48 @@ test("existing Orderly scan and FIND-102 remediation walkthrough remains operati
     .click();
   await expect(page.locator(".detail-status")).toContainText("verified fixed");
 });
+
+test("G01 authenticated readiness is explicit and no scan is accepted before runtime approval", async ({
+  page,
+}) => {
+  await enter(page, 701);
+  const base = "/api/guard/projects/github-101";
+  const readiness = await page.request.get(base + "/readiness");
+  expect(readiness.status()).toBe(200);
+  expect(await readiness.json()).toMatchObject({
+    status: "BLOCKED",
+    scanAccepted: false,
+    database: "approval_required",
+    execution: "G02_NOT_CONFIGURED",
+  });
+  const unauthorized = await page.request.get(
+    "/api/guard/projects/github-999/readiness",
+  );
+  expect(unauthorized.status()).toBe(404);
+  const create = await page.request.post(base + "/scans", {
+    headers: { origin: baseURL },
+    data: {
+      profile: "quick",
+      engines: ["sast"],
+      idempotencyKey: "g01-browser-test",
+    },
+  });
+  expect(create.status()).toBe(503);
+  expect(await create.json()).toEqual({ error: "approval_required" });
+  const malformed = await page.request.post(base + "/scans", {
+    headers: { origin: baseURL },
+    data: {
+      profile: "quick",
+      engines: ["sast"],
+      idempotencyKey: "g01-browser-test",
+      workspaceId: "forged",
+    },
+  });
+  expect(malformed.status()).toBe(400);
+  const source = await page.request.post(base + "/source-acceptance", {
+    headers: { origin: baseURL },
+    data: { commit: "a".repeat(40) },
+  });
+  expect(source.status()).toBe(503);
+  expect(await source.json()).toEqual({ error: "approval_required" });
+});

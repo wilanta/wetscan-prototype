@@ -1,3 +1,20 @@
+# G01 current status - 15 November 2026
+
+**PARTIALLY_VERIFIED.** Worktree `wetscan-guard-g01`, branch `feat/guard-g01-live-integration`, baseline `cd313ce29aeac865e15cea9abd9c412cb9c2c3cc`. No commit/push/PR, DB connection/migration, real provider acceptance, connected worker or scanner execution. G02 has not started. The historical document below is preserved verbatim and does not describe new live acceptance.
+
+| Capability | Implementation | Real acceptance |
+| --- | --- | --- |
+| GRD-001 snapshot/grants | Backend authorization reuse, bounded commit-pinned source adapter, integrity/coverage/cleanup; source-only approval gate | BLOCKED: exact authorized repository/commit acceptance not run |
+| GRD-003 durable persistence | PostgreSQL scoped metadata/CAS/lease fencing/atomic queue admission, proposed roles/RLS/schema/independent ledger | IMPLEMENTED_PENDING_ACCEPTANCE: no DB target approved/connected; SQL doubles only |
+| GRD-004 queue/worker | Narrow S01 Guard adapter, lifecycle and prepare handler; real child-process fixture | PARTIALLY_IMPLEMENTED: trusted authorization resolver and connected launcher missing; real durable recovery not verified |
+| GRD-005 sandbox | Fail-closed Docker controls/spec/inspection/cleanup with mandatory external attestation | BLOCKED: daemon absent, no production attestor/runtime enforcement acceptance |
+
+547 unit cases pass (489 original +58 added), typecheck/lint/build pass; browser Guard5/Auth21/Canvas17/legacy6/Sentinel5 pass. See [validation](GUARD_G01_VALIDATION.md), [architecture](GUARD_G01_ARCHITECTURE.md), [migration review](GUARD_G01_MIGRATION_REVIEW.md), and [agent-neutral handoff](agent-handoffs/HANDOFF_GUARD_G01.md) for exact commands, honest boundaries and required approvals. Existing Guard UI/Demo, Auth, Canvas, Sentinel, shared platform source/migrations, dependencies and lockfile remain unchanged. Proposed Guard platform-access SQL is a separately reviewed extension, not an applied migration.
+
+---
+
+## Preserved historical Guard implementation record
+
 # Guard implementation status
 
 Implemented on `modul-guard`, based on clean `master` at `1ed845757a9601d1ff25eabb7b05d7e82180d93e`. No reset to a historical commit. No Auth/session/onboarding, Canvas, Sentinel, dashboard, routing, dependency or database-schema changes. The only existing/shared presentation change is four added lines in `src/components/views/guard.tsx`.
