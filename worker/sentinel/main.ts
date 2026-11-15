@@ -7,6 +7,8 @@ import {
 import { ApprovedPool, PlatformDatabase } from "../../src/platform/database";
 import { migrationPlan } from "../../src/platform/migrations";
 import { runSentinelWorker } from "./runtime";
+import { detectionActivation } from "../../src/features/sentinel/detection/activation";
+import { requestedAcceptanceIsolation } from "./acceptance";
 
 async function main() {
   const options = workerConfig(process.env);
@@ -29,11 +31,22 @@ async function main() {
     plan.sha256,
   );
   const pool = new ApprovedPool(config);
+  const detection = detectionActivation(
+    config.approval,
+    process.env.SENTINEL_DETECTION_ENABLED === "1",
+  );
+  const isolation = requestedAcceptanceIsolation(
+    config,
+    detection,
+    process.env.SENTINEL_ACCEPTANCE_ISOLATION === "1",
+  );
   await runSentinelWorker({
     db: new PlatformDatabase(pool, true),
     pool,
     migrations: plan.migrations,
     options,
+    detection,
+    isolation,
     workerId: randomUUID(),
     control: process,
     once: process.argv.includes("--once"),

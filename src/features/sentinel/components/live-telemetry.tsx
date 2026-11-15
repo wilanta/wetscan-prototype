@@ -224,6 +224,15 @@ export function LiveTelemetry({
           Telemetry sources
         </Link>
       </nav>
+      <p>
+        <Link href={`/app/projects/${projectId}/sentinel/rules`}>
+          Detection Rules
+        </Link>
+        {" · "}
+        <Link href={`/app/projects/${projectId}/sentinel/alerts`}>
+          Persisted Alerts
+        </Link>
+      </p>
       <Notice>
         Repository access does not establish runtime monitoring. Runtime and
         controlled-test provenance comes from each registered source. Demo

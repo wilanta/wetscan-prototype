@@ -13,6 +13,11 @@ import { registeredScopes } from "../../src/features/sentinel/storage/projects";
 import type { SentinelScope } from "../../src/features/sentinel/types";
 import { executeLease } from "./executor";
 import { retainTelemetry } from "../../src/features/sentinel/telemetry/store";
+import { DetectionStore } from "../../src/features/sentinel/detection/store";
+import { retainDetection } from "../../src/features/sentinel/detection/retention";
+import type { DetectionActivation } from "../../src/features/sentinel/detection/activation";
+import { verifyAcceptanceJobs, type AcceptanceIsolation } from "./acceptance";
+import { assertAdmission } from "../../src/platform/job-admission";
 import {
   closeHealthServer,
   ShutdownCoordinator,
@@ -34,6 +39,8 @@ export async function runSentinelWorker(input: {
   pool: SqlPool;
   migrations: Migration[];
   options: ReturnType<typeof workerConfig>;
+  detection?: DetectionActivation;
+  isolation?: AcceptanceIsolation;
   workerId: string;
   control: WorkerControl;
   once?: boolean;
@@ -72,7 +79,21 @@ export async function runSentinelWorker(input: {
       "Content-Type": "application/json",
       "Cache-Control": "no-store",
     });
-    res.end(JSON.stringify(health));
+    res.end(
+      JSON.stringify({
+        ...health,
+        detection: input.detection
+          ? "enabled_for_approved_new_jobs"
+          : "disabled_pending_approval",
+        maintenance: input.isolation
+          ? "paused_for_expiring_local_acceptance"
+          : "normal",
+        jobAdmission: input.isolation ? "sealed_job_ids" : "normal",
+        telemetryIngestion: "web_runtime_not_probed",
+        incidents: "not_implemented",
+        notifications: "not_configured",
+      }),
+    );
   });
   healthServer.requestTimeout = 5000;
   healthServer.headersTimeout = 5000;
@@ -80,7 +101,25 @@ export async function runSentinelWorker(input: {
   let schemaReady = false;
   let pulse = Promise.resolve(),
     work = Promise.resolve();
+  let acceptanceDeadline: ReturnType<typeof setTimeout> | undefined;
   try {
+    if (input.isolation) {
+      if (!input.detection) throw new PlatformError("approval_required");
+      assertAdmission(input.isolation.admission, input.detection.scope);
+      await verifyAcceptanceJobs(
+        pool,
+        input.isolation,
+        input.detection,
+        workerId,
+      );
+      acceptanceDeadline = setTimeout(
+        () => stop.request("acceptance_expired"),
+        Math.max(
+          1,
+          Date.parse(input.isolation.admission.expiresAt) - Date.now(),
+        ),
+      );
+    }
     await db.transaction(async (tx) => {
       const rows = (
         await db.query(
@@ -129,19 +168,43 @@ export async function runSentinelWorker(input: {
       let cursor: SentinelScope | undefined;
       while (!stop.signal.aborted) {
         try {
-          await retainWorkerHeartbeats(db, options.retentionDays);
+          if (!input.isolation)
+            await retainWorkerHeartbeats(db, options.retentionDays);
           if (stop.signal.aborted) break;
           const scopes = await registeredScopes(db, cursor);
           cursor = scopes.length === 100 ? scopes.at(-1) : undefined;
           for (const scope of scopes) {
             if (stop.signal.aborted) break;
-            await retainInfrastructure(db, scope, options.retentionDays);
-            if (migrations.some((m) => m.version === "0002_telemetry"))
-              await retainTelemetry(db, scope);
+            if (
+              input.detection &&
+              (scope.workspaceId !== input.detection.scope.workspaceId ||
+                scope.projectId !== input.detection.scope.projectId)
+            )
+              continue;
+            if (input.isolation)
+              assertAdmission(input.isolation.admission, scope);
+            if (!input.isolation)
+              await retainInfrastructure(db, scope, options.retentionDays);
+            const detectionReady = migrations.some(
+              (m) => m.version === "0003_detection",
+            );
+            if (detectionReady && !input.isolation)
+              await retainDetection(db, scope);
+            if (
+              !input.isolation &&
+              migrations.some((m) => m.version === "0002_telemetry")
+            )
+              await retainTelemetry(db, scope, detectionReady);
             if (stop.signal.aborted) break;
-            const queue = new PostgresQueue(db, scope, [
-              "sentinel.maintenance",
-            ]);
+            const queue = new PostgresQueue(
+              db,
+              scope,
+              input.detection
+                ? ["sentinel.telemetry.accepted"]
+                : ["sentinel.maintenance"],
+              input.detection?.notBefore,
+              input.isolation?.admission,
+            );
             const leases = await queue.claim({
               module: "sentinel",
               workerId,
@@ -153,11 +216,26 @@ export async function runSentinelWorker(input: {
                 executeLease(
                   queue,
                   lease,
-                  async (job, signal) => {
+                  async (job, signal, currentLease) => {
                     if (signal.aborted) throw new Error("stopping");
+                    if (input.isolation)
+                      assertAdmission(
+                        input.isolation.admission,
+                        job,
+                        job.jobId,
+                      );
+                    if (job.kind === "sentinel.telemetry.accepted") {
+                      if (!input.detection || !detectionReady)
+                        throw new PlatformError("scope_denied");
+                      await new DetectionStore(db).process(
+                        currentLease(),
+                        signal,
+                      );
+                      return;
+                    }
                     await retainInfrastructure(db, job, options.retentionDays);
                     if (migrations.some((m) => m.version === "0002_telemetry"))
-                      await retainTelemetry(db, job);
+                      await retainTelemetry(db, job, detectionReady);
                   },
                   {
                     heartbeatMs: options.heartbeatMs,
@@ -169,6 +247,14 @@ export async function runSentinelWorker(input: {
             );
           }
         } catch {
+          if (input.isolation) {
+            stop.request(
+              Date.now() >= Date.parse(input.isolation.admission.expiresAt)
+                ? "acceptance_expired"
+                : "acceptance_failure",
+            );
+            throw new PlatformError("scope_denied");
+          }
           if (input.once) throw new PlatformError("database_unavailable");
           console.warn(
             JSON.stringify({
@@ -193,6 +279,7 @@ export async function runSentinelWorker(input: {
     });
     await Promise.race([work, requested]);
   } finally {
+    if (acceptanceDeadline) clearTimeout(acceptanceDeadline);
     stop.request("completed");
     try {
       await stop.finish(async () => {

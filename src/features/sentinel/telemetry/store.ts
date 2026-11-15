@@ -473,6 +473,7 @@ export class TelemetryStore {
 export async function retainTelemetry(
   db: PlatformDatabase,
   scope: SentinelScope,
+  detectionReady = false,
 ) {
   return db.scoped(scope, async (tx) => {
     db.requireWorker(tx);
@@ -486,9 +487,12 @@ export async function retainTelemetry(
     );
     if (!held.rows[0] || held.rows[0].retention_hold)
       return { events: 0, batches: 0 };
+    const detectionPins = detectionReady
+      ? ` AND NOT EXISTS(SELECT 1 FROM sentinel.detection_evidence d WHERE d.mode=e.mode AND d.workspace_id=e.workspace_id AND d.project_id=e.project_id AND d.source_id=e.source_id AND d.event_id=e.event_id) AND NOT EXISTS(SELECT 1 FROM sentinel.detection_evaluations d WHERE d.mode=e.mode AND d.workspace_id=e.workspace_id AND d.project_id=e.project_id AND d.source_id=e.source_id AND d.event_id=e.event_id) AND NOT EXISTS(SELECT 1 FROM sentinel.detection_suppressed_evidence d WHERE d.mode=e.mode AND d.workspace_id=e.workspace_id AND d.project_id=e.project_id AND d.source_id=e.source_id AND d.evidence_event_id=e.event_id)`
+      : "";
     const events = await db.query(
       tx,
-      `DELETE FROM sentinel.telemetry_events WHERE ${where} AND (mode,workspace_id,project_id,source_id,event_id) IN (SELECT e.mode,e.workspace_id,e.project_id,e.source_id,e.event_id FROM sentinel.telemetry_events e JOIN sentinel.telemetry_sources s USING(mode,workspace_id,project_id,source_id) WHERE e.mode=$1 AND e.workspace_id=$2 AND e.project_id=$3 AND e.ingested_at<statement_timestamp()-(s.retention_days*interval '1 day') AND NOT EXISTS(SELECT 1 FROM platform.jobs j WHERE j.module='sentinel' AND j.mode=e.mode AND j.workspace_id=e.workspace_id AND j.project_id=e.project_id AND j.subject_ref=e.source_id::text||'/'||e.event_id::text AND j.state IN ('queued','leased')) ORDER BY e.ingested_at,e.source_id,e.event_id LIMIT 100)`,
+      `DELETE FROM sentinel.telemetry_events WHERE ${where} AND (mode,workspace_id,project_id,source_id,event_id) IN (SELECT e.mode,e.workspace_id,e.project_id,e.source_id,e.event_id FROM sentinel.telemetry_events e JOIN sentinel.telemetry_sources s USING(mode,workspace_id,project_id,source_id) WHERE e.mode=$1 AND e.workspace_id=$2 AND e.project_id=$3 AND e.ingested_at<statement_timestamp()-(s.retention_days*interval '1 day') AND NOT EXISTS(SELECT 1 FROM platform.jobs j WHERE j.module='sentinel' AND j.mode=e.mode AND j.workspace_id=e.workspace_id AND j.project_id=e.project_id AND j.subject_ref=e.source_id::text||'/'||e.event_id::text AND j.state IN ('queued','leased'))${detectionPins} ORDER BY e.ingested_at,e.source_id,e.event_id LIMIT 100)`,
       values(scope),
     );
     const batches = await db.query(

@@ -102,6 +102,35 @@ export async function applyMigrations(
       if (!applied.length || applied.length > migrations.length)
         throw new PlatformError("target_denied");
       const latest = migrations[applied.length - 1];
+      if (latest.version === "0003_detection") {
+        const tables = [
+          "detection_suppressed_evidence",
+          "detection_evidence",
+          "detection_evaluations",
+          "detection_cooldowns",
+          "detection_alerts",
+          "detection_audit",
+          "detection_rule_versions",
+          "detection_rules",
+        ];
+        await client.query(
+          `LOCK TABLE ${tables.map((t) => `sentinel.${t}`).join(",")},sentinel.telemetry_events,platform.jobs IN ACCESS EXCLUSIVE MODE`,
+        );
+        for (const table of tables) {
+          const occupied = await client.query(
+            `SELECT EXISTS(SELECT 1 FROM sentinel.${table} LIMIT 1) AS occupied`,
+          );
+          if (occupied.rows[0].occupied)
+            throw new PlatformError("target_denied");
+        }
+        await client.query(latest.down);
+        await client.query(
+          "DELETE FROM platform.schema_migrations WHERE version=$1",
+          [latest.version],
+        );
+        await client.query("COMMIT");
+        return;
+      }
       if (latest.version === "0002_telemetry") {
         await client.query(
           "LOCK TABLE sentinel.telemetry_sources,sentinel.telemetry_credentials,sentinel.telemetry_events,sentinel.telemetry_batches,platform.jobs IN ACCESS EXCLUSIVE MODE",

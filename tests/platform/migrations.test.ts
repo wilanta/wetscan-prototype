@@ -11,6 +11,7 @@ describe("migration review/runner protocol - no SQL execution", () => {
     expect(a.migrations.map((m) => m.version)).toEqual([
       "0001_foundation",
       "0002_telemetry",
+      "0003_detection",
     ]);
     expect(a.migrations[0].up).toContain("FORCE ROW LEVEL SECURITY");
     expect(a.migrations[0].up).toContain("wetscan_sentinel_worker");
@@ -113,6 +114,7 @@ describe("migration review/runner protocol - no SQL execution", () => {
   it("reverses only empty telemetry, preserving populated foundation and its ledger", async () => {
     const plan = await migrationPlan(),
       c = new RecordingClient();
+    plan.migrations = plan.migrations.slice(0, 2); // Exercise the unchanged S02 reversal boundary explicitly.
     c.respond = async (sql) => ({
       rows: sql.includes("to_regclass")
         ? [{ ledger: "exists" }]
@@ -144,6 +146,7 @@ describe("migration review/runner protocol - no SQL execution", () => {
     async (table) => {
       const plan = await migrationPlan(),
         c = new RecordingClient();
+      plan.migrations = plan.migrations.slice(0, 2);
       c.respond = async (sql) => ({
         rows: sql.includes("to_regclass")
           ? [{ ledger: "exists" }]

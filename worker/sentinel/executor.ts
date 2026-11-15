@@ -9,6 +9,12 @@ export type JobHandler = (
   job: DurableJob,
   signal: AbortSignal,
 ) => Promise<void>;
+/** Additive S03 callback; legacy S01/Guard handlers retain their two-argument contract. */
+export type LeaseAwareJobHandler = (
+  job: DurableJob,
+  signal: AbortSignal,
+  currentLease: () => JobLease,
+) => Promise<void>;
 export interface ExecutionOptions {
   heartbeatMs: number;
   timeoutMs: number;
@@ -37,7 +43,7 @@ function pause(ms: number, signal: AbortSignal) {
 export async function executeLease(
   queue: DurableJobPort,
   initial: JobLease,
-  handler: JobHandler,
+  handler: LeaseAwareJobHandler,
   options: ExecutionOptions,
 ) {
   let lease = initial,
@@ -73,7 +79,9 @@ export async function executeLease(
   try {
     if (controller.signal.aborted) throw new Error("aborted");
     await Promise.race([
-      Promise.resolve().then(() => handler(lease.job, controller.signal)),
+      Promise.resolve().then(() =>
+        handler(lease.job, controller.signal, () => lease),
+      ),
       new Promise<never>((_, reject) =>
         controller.signal.addEventListener(
           "abort",
