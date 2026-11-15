@@ -1,0 +1,31 @@
+{
+  "verifiedAt": "2026-11-15T21:12:03.145528+07:00",
+  "node": "v24.17.0",
+  "nodePath": "C:/Program Files/nodejs/node.exe",
+  "userError": "--env-file= is not allowed in NODE_OPTIONS",
+  "cause": "Installed Next getParsedNodeOptions combines process.execArgv with NODE_OPTIONS, formatNodeOptions forwards env-file into child NODE_OPTIONS; env-file is not in its execArgv-only exclusions",
+  "primaryInstalledSource": [
+    "node_modules/next/dist/server/lib/utils.js:224",
+    "node_modules/next/dist/server/lib/utils.js:275",
+    "node_modules/next/dist/cli/next-dev.js:363",
+    "node_modules/next/dist/cli/next-dev.js:416"
+  ],
+  "reproduction": {
+    "exitCode": 9,
+    "expectedError": true,
+    "serverStarted": false
+  },
+  "correctedDryRun": {
+    "command": "API loadEnvFile then CMD npm.cmd run dev -- --hostname127.0.0.1 --port3000 --help",
+    "exitCode": 0,
+    "nextHelp": true,
+    "guardConfigured": true,
+    "sourceConfigured": true,
+    "nodeOptionsPresent": false,
+    "serverStarted": false
+  },
+  "cmdCommand": "node -e \"process.loadEnvFile('.env.guard-g01.worker-49f2240c.local');const r=require('node:child_process').spawnSync('cmd.exe',['/d','/s','/c','npm.cmd run dev -- --hostname 127.0.0.1 --port 3000'],{stdio:'inherit',env:process.env});process.exit(r.status??1)\"",
+  "environmentFilesModified": false,
+  "workerStarted": false,
+  "enqueue": false
+}

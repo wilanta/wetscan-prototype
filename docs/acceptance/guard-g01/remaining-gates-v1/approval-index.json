@@ -1,0 +1,105 @@
+{
+  "createdAt": "2026-11-15T16:47:35.384Z",
+  "status": "REVIEW_INTENTS_ONLY_NO_EXECUTION_AUTHORIZATION",
+  "digestEncoding": "SHA256(JSON.stringify(packet)); timestamps/actual runtime artifact bindings require a new FINAL packet, not mutation of these intents",
+  "intents": [
+    {
+      "caseId": "Q00",
+      "file": "approval-intents/Q00.json",
+      "intentSha256": "5b08693100f8cf7ac3617d425841b037d0072edfb0bda2c466d213771e276681",
+      "executionReady": false
+    },
+    {
+      "caseId": "I01",
+      "file": "approval-intents/I01.json",
+      "intentSha256": "c046636313d1dca1662d9d4b1ed5b5755c568b0c0ed9d55c8a6424b6e189b498",
+      "executionReady": false
+    },
+    {
+      "caseId": "N00",
+      "file": "approval-intents/N00.json",
+      "intentSha256": "2be140549b13ad056343c93cb7551a03a88a50490c6b0ce684fbd82b2a3ee399",
+      "executionReady": false
+    },
+    {
+      "caseId": "N01",
+      "file": "approval-intents/N01.json",
+      "intentSha256": "857e100c4b14e63b06f399aa4010fc86e7022bac9b184bf71938a1772a745bab",
+      "executionReady": false
+    },
+    {
+      "caseId": "N02",
+      "file": "approval-intents/N02.json",
+      "intentSha256": "f8c524cd1487b71e430ff4f48315047a292fe4ecf353a8d39138344ca7945dab",
+      "executionReady": false
+    },
+    {
+      "caseId": "N03",
+      "file": "approval-intents/N03.json",
+      "intentSha256": "ba56335bf2f90382f4fd5c93dbf303acc91e23d9fc5e23f7a8671fa3576da1f4",
+      "executionReady": false
+    },
+    {
+      "caseId": "N04",
+      "file": "approval-intents/N04.json",
+      "intentSha256": "744cefe0e7a0c3df27274570924173f5abacfdf3f98070eeab1af0353581fd69",
+      "executionReady": false
+    },
+    {
+      "caseId": "N05",
+      "file": "approval-intents/N05.json",
+      "intentSha256": "02daf6e78716a3e06004565d309490438286dc9c25019047a7d35837d95c0814",
+      "executionReady": false
+    },
+    {
+      "caseId": "N06",
+      "file": "approval-intents/N06.json",
+      "intentSha256": "dfd57343df177501cae37137f33cc70396312fa7eacdee3ac8ca3f426a3efec9",
+      "executionReady": false
+    },
+    {
+      "caseId": "N07",
+      "file": "approval-intents/N07.json",
+      "intentSha256": "d07e8bfc0e3478f4bc5e2878cbe64b14b93f3f600eefc08515389da8bee7a4d5",
+      "executionReady": false
+    },
+    {
+      "caseId": "N08",
+      "file": "approval-intents/N08.json",
+      "intentSha256": "020a2ff16d78a8eb6d709849e15614ccd4a2240c62ae571af1f5f31b7d662b8f",
+      "executionReady": false
+    },
+    {
+      "caseId": "C01",
+      "file": "approval-intents/C01.json",
+      "intentSha256": "0a7ab0b8720b64bccdff84bdff23c551832eda5fd5cc05c9cdd7d2df311dea1b",
+      "executionReady": false
+    },
+    {
+      "caseId": "C02A",
+      "file": "approval-intents/C02A.json",
+      "intentSha256": "75f6c71976346ba3ea5533b0261f79c088da2a0f45f1ef6c15384223e759546a",
+      "executionReady": false
+    },
+    {
+      "caseId": "C02B",
+      "file": "approval-intents/C02B.json",
+      "intentSha256": "4fc96c78c7636228a314a5d588fcfbe0ddb57e177e29ebb6d3fe577eee7a2ac3",
+      "executionReady": false
+    },
+    {
+      "caseId": "L01",
+      "file": "approval-intents/L01.json",
+      "intentSha256": "bc49484a983b7e6076587ff6313043ac81fe1cdd9efe27ce49026a8173ad51ef",
+      "executionReady": false
+    },
+    {
+      "caseId": "L02",
+      "file": "approval-intents/L02.json",
+      "intentSha256": "d70e5c4d65e7ed30347a7e1da66f61cd982f796d4662d83cef92a2b5c799c60e",
+      "executionReady": false,
+      "requiresNewRuntimeMutationApproval": false
+    }
+  ],
+  "note": "L02 is an unexecuted owner READ ONLY step and does not need a new mutation approval; other intents describe separately controlled future runtime/fault operations and are not final executable permits."
+}

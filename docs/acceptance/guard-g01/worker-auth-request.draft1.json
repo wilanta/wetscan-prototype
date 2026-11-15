@@ -1,0 +1,257 @@
+{
+  "requestSha256": "d138ea8c79eaf51130f6aab1cf1b8a3fe14f725fb070f75b4da43d8669fdaace",
+  "packet": {
+    "schemaVersion": 1,
+    "status": "REVIEW_REQUIRED_NOT_APPROVED",
+    "scope": "One real GitHub source-only acceptance plus one approved exact-job prepare-only worker; no container/scanner execution or G02",
+    "sourceDraft": {
+      "path": "C:\\laragon\\www\\wetscan-2\\guard-preparation-request (1).json",
+      "sha256": "2892101b0a3ae81638d52f51cd0e63d7dd160633f5748f283f782133abf296c9"
+    },
+    "repositoryName": "inkAja/wdu",
+    "request": {
+      "branch": "main",
+      "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+      "profile": "quick",
+      "engines": [
+        "sast"
+      ],
+      "idempotencyKey": "401dc6b8-f082-4254-ae3b-256c9d6bf8e6"
+    },
+    "binding": {
+      "mode": "live",
+      "workspaceId": "github-user-145520313:testing",
+      "projectId": "github-839286157",
+      "jobId": "ed1db52330e28a2340652da778f02e4cd1c0b9628d663f7685c5856647ccee0c",
+      "actorId": "github-user-145520313",
+      "repository": {
+        "provider": "github",
+        "repositoryId": "839286157",
+        "branch": "main",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+      },
+      "profile": "quick",
+      "engines": [
+        "sast"
+      ],
+      "idempotencyKey": "401dc6b8-f082-4254-ae3b-256c9d6bf8e6"
+    },
+    "target": {
+      "host": "localhost",
+      "port": 5432,
+      "database": "wetscan_s01_test_guardg01",
+      "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f"
+    },
+    "migrationPlanSha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d",
+    "workerId": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+    "origin": "http://localhost:3000",
+    "operatorFolder": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate\\.local\\sentinel\\guard-g01-unblock\\worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+    "proposedMaxMinutes": 55,
+    "templates": {
+      "db-app-approval.json": {
+        "schemaVersion": 1,
+        "module": "guard",
+        "purpose": "app",
+        "role": "wetscan_guard_app",
+        "status": "WAITING_USER",
+        "approvedBy": "",
+        "approvedAt": "",
+        "expiresAt": "",
+        "target": {
+          "host": "localhost",
+          "port": 5432,
+          "database": "wetscan_s01_test_guardg01",
+          "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f"
+        },
+        "actions": [
+          "runtime"
+        ],
+        "migrationPlanSha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d"
+      },
+      "db-worker-approval.json": {
+        "schemaVersion": 1,
+        "module": "guard",
+        "purpose": "worker",
+        "role": "wetscan_guard_worker",
+        "status": "WAITING_USER",
+        "approvedBy": "",
+        "approvedAt": "",
+        "expiresAt": "",
+        "target": {
+          "host": "localhost",
+          "port": 5432,
+          "database": "wetscan_s01_test_guardg01",
+          "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f"
+        },
+        "actions": [
+          "runtime"
+        ],
+        "migrationPlanSha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d"
+      },
+      "preparation-approval.json": {
+        "schemaVersion": 1,
+        "status": "WAITING_USER",
+        "approvedBy": "",
+        "approvedAt": "",
+        "expiresAt": "",
+        "workerId": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+        "target": {
+          "host": "localhost",
+          "port": 5432,
+          "database": "wetscan_s01_test_guardg01",
+          "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f"
+        },
+        "migrationPlanSha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d",
+        "binding": {
+          "mode": "live",
+          "workspaceId": "github-user-145520313:testing",
+          "projectId": "github-839286157",
+          "jobId": "ed1db52330e28a2340652da778f02e4cd1c0b9628d663f7685c5856647ccee0c",
+          "actorId": "github-user-145520313",
+          "repository": {
+            "provider": "github",
+            "repositoryId": "839286157",
+            "branch": "main",
+            "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+          },
+          "profile": "quick",
+          "engines": [
+            "sast"
+          ],
+          "idempotencyKey": "401dc6b8-f082-4254-ae3b-256c9d6bf8e6"
+        },
+        "execution": "prepare_only",
+        "repositoryName": "inkAja/wdu",
+        "module": "guard-preparation",
+        "actions": [
+          "queue_enqueue",
+          "snapshot_read",
+          "scan_metadata_write",
+          "cleanup"
+        ]
+      },
+      "worker-approval.json": {
+        "schemaVersion": 1,
+        "status": "WAITING_USER",
+        "approvedBy": "",
+        "approvedAt": "",
+        "expiresAt": "",
+        "workerId": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+        "target": {
+          "host": "localhost",
+          "port": 5432,
+          "database": "wetscan_s01_test_guardg01",
+          "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f"
+        },
+        "migrationPlanSha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d",
+        "binding": {
+          "mode": "live",
+          "workspaceId": "github-user-145520313:testing",
+          "projectId": "github-839286157",
+          "jobId": "ed1db52330e28a2340652da778f02e4cd1c0b9628d663f7685c5856647ccee0c",
+          "actorId": "github-user-145520313",
+          "repository": {
+            "provider": "github",
+            "repositoryId": "839286157",
+            "branch": "main",
+            "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+          },
+          "profile": "quick",
+          "engines": [
+            "sast"
+          ],
+          "idempotencyKey": "401dc6b8-f082-4254-ae3b-256c9d6bf8e6"
+        },
+        "execution": "prepare_only",
+        "repositoryName": "inkAja/wdu",
+        "module": "guard-worker",
+        "actions": [
+          "worker_start",
+          "queue_claim",
+          "heartbeat",
+          "snapshot_read",
+          "scan_metadata_write",
+          "cleanup"
+        ]
+      },
+      "source-approval.json": {
+        "schemaVersion": 1,
+        "module": "guard-source-acceptance",
+        "status": "WAITING_USER",
+        "approvedBy": "",
+        "approvedAt": "",
+        "expiresAt": "",
+        "origin": "http://localhost:3000",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "actorId": "github-user-145520313",
+        "repositoryId": "839286157",
+        "branch": "main",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "operations": [
+          "snapshot_read",
+          "temporary_artifact_write",
+          "cleanup"
+        ],
+        "maxFiles": 1000,
+        "maxFileBytes": 65536,
+        "maxTotalBytes": 20000000
+      }
+    },
+    "activation": "Do not stamp approvals or start worker. Operator may prepare the single existing app with WAITING_USER guards, then reexport a fresh draft if UI state changes before final exact-binding execution approval.",
+    "implementationFiles": [
+      {
+        "file": "src/features/guard/live/snapshot.ts",
+        "sha256": "4f0c51f60465e6702e89e1f2f894cfe844d28392905e9667a9868aea4c94ab27"
+      },
+      {
+        "file": "src/features/guard/live/snapshot-directory.ts",
+        "sha256": "2bea71684fba7dc9514c65b9d7178e1537ae3884adc23b7059bd4852d8eca8cf"
+      },
+      {
+        "file": "src/features/guard/live/github-source.ts",
+        "sha256": "a73e5f81061432b723304a927c8a198f5b4edddc3f3ed9e261cb0f8b536eff7a"
+      },
+      {
+        "file": "src/features/guard/live/worker-launcher.ts",
+        "sha256": "72d479214feb95370ad11330ed6d2e66c208b5024716fdf15be880810585091d"
+      },
+      {
+        "file": "src/features/guard/live/preparation-request.ts",
+        "sha256": "ad21cffcdc26fcd22b123491d71ffcf7deae9648f998f0e54294f50caa0d8d78"
+      },
+      {
+        "file": "src/features/guard/live/preparation.ts",
+        "sha256": "b0242223054d7d7853c02ac1fbff92b028b70c398da4f4cabbd15c2774dd6bb8"
+      },
+      {
+        "file": "src/features/guard/live/database-config.ts",
+        "sha256": "a407afe4c48a8708ee68741eeef8f088585991b7a46050ebfabb66b0940909d0"
+      },
+      {
+        "file": "worker/guard/approval.ts",
+        "sha256": "bebc12deeae4078df6f97349cd5c6a7296da28cd4b42b7775a3e84732755099c"
+      },
+      {
+        "file": "worker/guard/auth-broker.ts",
+        "sha256": "a5e29835d1cc957a22d7757348ed0a63ea9c1ac25ac7e4a5c910112ca53ea943"
+      },
+      {
+        "file": "worker/guard/ipc.ts",
+        "sha256": "190714e8e9cfa3f80f3b8b0211bc90c4a3d81d3ed8ae5a7a49795cc1f5925210"
+      },
+      {
+        "file": "worker/guard/prepare.ts",
+        "sha256": "8587f6261ca63316624f3280b3d56943bb0d6c61fbbd51ee6615073c25b2a12d"
+      },
+      {
+        "file": "worker/guard/main.ts",
+        "sha256": "bc778feb8c760dee68b39e6a78bf6f2004c8226b03d51abf3e69f912287a3655"
+      },
+      {
+        "file": "worker/guard/runtime.ts",
+        "sha256": "e43ec9f79c78219765e7dbe9d9ad184134d7f693cdc870c19e263ffe1aa49ab9"
+      }
+    ]
+  }
+}

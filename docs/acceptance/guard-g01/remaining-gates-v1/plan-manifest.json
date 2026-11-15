@@ -1,0 +1,439 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-11-15T16:47:35.384Z",
+  "status": "OFFLINE_PREPARATION_ONLY",
+  "baseline": {
+    "branch": "feat/guard-g01-s03-integration",
+    "head": "1b28fb88ae65a29902e0f1f314efdce44ed3c643",
+    "cwd": "C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate",
+    "writableRoot": "C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate",
+    "stagedIndexSha256": "40d77c02186b074dacfd2fe3a6f2816d89a7e59d5f279cbe8be8c75c9c716c4f"
+  },
+  "previousEvidenceFilesVerified": 33,
+  "previousApprovedImplementationHashesVerified": 41,
+  "baselineEvidence": [
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-acceptance-result.job-2c18db66.json",
+      "rawSha256": "266077748295d01f30a60b1184ebc6438fd00e8c08d94eaf39fb2ddbec3206ab"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-live-observation.job-2c18db66.json",
+      "rawSha256": "57ab267905be20537270a9633b27f921f691214f2c6de3184bff64793d0ef253"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-sql18-postrun.job-2c18db66.json",
+      "rawSha256": "357d5e03fc7995b09ada6cc220e4700fda04f31fbc6637add0b0310744825464"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-evidence-manifest.job-2c18db66.json",
+      "rawSha256": "b3d40d6c4afa16e30e76b82a4f77712c654a9898505c25f1905e34abbdc0bf3f"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-deadlines-evidence.json",
+      "rawSha256": "07ad4979c70ee1421a708b915096f5411196e715c186b7dee5af554fed496de4"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/sandbox-plan.json",
+      "rawSha256": "7d43b354b0d170e0e960a64f80849276a5c09d27a6b6ac6e7dd4a28cce5456c9"
+    }
+  ],
+  "baselineFiles": [
+    {
+      "file": "migrations/guard/0001_guard.down.sql",
+      "normalizedSha256": "9e7b7f8f5b1f5bea5b53f9c8865695d20dfbf09769086e505bb3d1329edee3b3"
+    },
+    {
+      "file": "migrations/guard/0001_guard.up.sql",
+      "normalizedSha256": "542fa52a97c2b498b01ea06613a589c284e254ecd6de863574327d9780e18315"
+    },
+    {
+      "file": "src/features/guard/live/database-config.ts",
+      "normalizedSha256": "a407afe4c48a8708ee68741eeef8f088585991b7a46050ebfabb66b0940909d0"
+    },
+    {
+      "file": "src/features/guard/live/github-source.ts",
+      "normalizedSha256": "a73e5f81061432b723304a927c8a198f5b4edddc3f3ed9e261cb0f8b536eff7a"
+    },
+    {
+      "file": "src/features/guard/live/http.ts",
+      "normalizedSha256": "ec136b9a3ecaad3828b012e65137c820186d85e53e082953f508bc179b01914c"
+    },
+    {
+      "file": "src/features/guard/live/migrations.ts",
+      "normalizedSha256": "02d22bfa5f519b96e757de22b1d427b3c8c4dfbc60877001881e84d4d692885c"
+    },
+    {
+      "file": "src/features/guard/live/model.ts",
+      "normalizedSha256": "0aa12a03d4238922680ad9dc613e5a0c88ef7044bd07e331ada9f352e957d630"
+    },
+    {
+      "file": "src/features/guard/live/persistence.ts",
+      "normalizedSha256": "587b24ff142db43139776ef578e25e1a222d54095a02242090fa894cab78b867"
+    },
+    {
+      "file": "src/features/guard/live/preparation-request.ts",
+      "normalizedSha256": "1257a3ab8c0cc2fe5f7433362140e0e0e765154d011d92041823d1869542523c"
+    },
+    {
+      "file": "src/features/guard/live/preparation.ts",
+      "normalizedSha256": "b0242223054d7d7853c02ac1fbff92b028b70c398da4f4cabbd15c2774dd6bb8"
+    },
+    {
+      "file": "src/features/guard/live/project.ts",
+      "normalizedSha256": "8fe7fea879f08a917e167f202f70764a0b3e376cc2cb53299e5e6fa0f934a254"
+    },
+    {
+      "file": "src/features/guard/live/queue.ts",
+      "normalizedSha256": "af69a1ec109ccc011248751f9f03f7bfa1ef2bae0815f2d3caa410373ef4d9df"
+    },
+    {
+      "file": "src/features/guard/live/repository.ts",
+      "normalizedSha256": "39f9b3854c4144d186ea8563046e272c27960aa258a2b534214231f2cecfdba9"
+    },
+    {
+      "file": "src/features/guard/live/revision.ts",
+      "normalizedSha256": "5b64c5ad226f168c37a36a8d15f314a73413e63865cedfe4a1318a53d69233ec"
+    },
+    {
+      "file": "src/features/guard/live/runtime.ts",
+      "normalizedSha256": "503d9c5265765d1c92b0967aa797fae5ff46a66418f7c02f91686cfdf2a8836d"
+    },
+    {
+      "file": "src/features/guard/live/schema-readiness.ts",
+      "normalizedSha256": "57a99a176f8edbd4e4aaa0a02d8c5a2dde8e4b93b98928a3902957d7903220fc"
+    },
+    {
+      "file": "src/features/guard/live/schema-runner.ts",
+      "normalizedSha256": "82167a65a4be9f705de689d3433203acac623f1177cc987d58df68ec3d80f331"
+    },
+    {
+      "file": "src/features/guard/live/service.ts",
+      "normalizedSha256": "5b7ed4aaefee8c6f2778037f7473b706b53597881f1da78669cbdf63aba4cb4b"
+    },
+    {
+      "file": "src/features/guard/live/snapshot-directory.ts",
+      "normalizedSha256": "2bea71684fba7dc9514c65b9d7178e1537ae3884adc23b7059bd4852d8eca8cf"
+    },
+    {
+      "file": "src/features/guard/live/snapshot.ts",
+      "normalizedSha256": "4f0c51f60465e6702e89e1f2f894cfe844d28392905e9667a9868aea4c94ab27"
+    },
+    {
+      "file": "src/features/guard/live/source-acceptance.ts",
+      "normalizedSha256": "b0c3f8e31893ffc99ccdb30b15f45ad27cf188bdad10707ca6d5f5a117cb55a4"
+    },
+    {
+      "file": "src/features/guard/live/worker-launcher.ts",
+      "normalizedSha256": "72d479214feb95370ad11330ed6d2e66c208b5024716fdf15be880810585091d"
+    },
+    {
+      "file": "src/platform/config.ts",
+      "normalizedSha256": "477cb74650cda3c373873cfcc72d167d58ca85c28c122a64b3ab21176cf33e4c"
+    },
+    {
+      "file": "src/platform/database.ts",
+      "normalizedSha256": "025abb619e82ab155ed0a428e950940a2408dba38b74ce7cf0e2845ca23c3d90"
+    },
+    {
+      "file": "src/platform/queue.ts",
+      "normalizedSha256": "433c808a8784958076a5ab5347afd809cc7dfb604023f7daa453e0a77a854571"
+    },
+    {
+      "file": "tests/guard/g01/docker.acceptance.ts",
+      "normalizedSha256": "54e3ae75f183fd897159fb1a3db92e0660ed183b4550b0117d9d8b5b4981653b"
+    },
+    {
+      "file": "tests/guard/g01/ipc.test.ts",
+      "normalizedSha256": "a88bffb445b25846d998104b2a66aad6a76fcb29391095f99bf952c62bc4a084"
+    },
+    {
+      "file": "tests/guard/g01/preparation-deadlines.test.ts",
+      "normalizedSha256": "27973239064973a6418100996e5d0ed1ff5437e34eead4f17d1bed657a5abdd6"
+    },
+    {
+      "file": "tests/guard/g01/preparation-request.test.ts",
+      "normalizedSha256": "d25a4023836fa88a8111e943799e2fbecdc0a57ca9f2de00eb7db723def85dcc"
+    },
+    {
+      "file": "tests/guard/g01/prepare-chain.test.ts",
+      "normalizedSha256": "efadc456334aec26cf895830712027f41df245275c467d730d17588cfa2d0c87"
+    },
+    {
+      "file": "tests/guard/g01/schema-runner.test.ts",
+      "normalizedSha256": "d669e88475fd99edc5f4476b48f02eff225f481d4afc8a8ded63a43b852ef119"
+    },
+    {
+      "file": "tests/guard/g01/worker-observer.acceptance.ts",
+      "normalizedSha256": "e22cb31ac2a7c14d04648f21b13ba58993281ba397af872e3e7d31c5a851b469"
+    },
+    {
+      "file": "tests/guard/g01/worker-process.fixture.ts",
+      "normalizedSha256": "5bdf231316285b1f8d517402d67666aa06c9e6cb570a0a01b22971a6e45afaad"
+    },
+    {
+      "file": "tests/guard/g01/worker.test.ts",
+      "normalizedSha256": "cc3fa2fca4e8559a540e00cdf1da5af8edc57b964f8a47d217b6a08ddfc738d5"
+    },
+    {
+      "file": "worker/guard/additional-fixtures.ts",
+      "normalizedSha256": "68f44b32d93cff4067b40ed88286c47992a2797ec341e5a9551623f57b075954"
+    },
+    {
+      "file": "worker/guard/approval.ts",
+      "normalizedSha256": "bebc12deeae4078df6f97349cd5c6a7296da28cd4b42b7775a3e84732755099c"
+    },
+    {
+      "file": "worker/guard/auth-broker.ts",
+      "normalizedSha256": "a5e29835d1cc957a22d7757348ed0a63ea9c1ac25ac7e4a5c910112ca53ea943"
+    },
+    {
+      "file": "worker/guard/bootstrap.ts",
+      "normalizedSha256": "1e067402b727763fd8a5b2212bb512bca0b1e19954ffa761a60c3c7b9ff8b48f"
+    },
+    {
+      "file": "worker/guard/fixture-runner.ts",
+      "normalizedSha256": "7d142261660ecd93ad79beac59c7a8c56954f0f33f90620658f433f61654d2f8"
+    },
+    {
+      "file": "worker/guard/gitleaks-fixture.ts",
+      "normalizedSha256": "cfe8f0a9944cc8915e8d3645954774052c98f64c30c981d49883b45b09a8d11b"
+    },
+    {
+      "file": "worker/guard/ipc.ts",
+      "normalizedSha256": "eadbcea81fa639713e0c1012072664cfd59e6a57f84ff1695e7e080c95e89557"
+    },
+    {
+      "file": "worker/guard/main.ts",
+      "normalizedSha256": "bc778feb8c760dee68b39e6a78bf6f2004c8226b03d51abf3e69f912287a3655"
+    },
+    {
+      "file": "worker/guard/orchestrator.ts",
+      "normalizedSha256": "9d526420a3925c3ba190492dc96c972dea4947a17f7b818803426bdd69b20f84"
+    },
+    {
+      "file": "worker/guard/plan.ts",
+      "normalizedSha256": "7ecfee7f8c6bdd4b67cc5ef20d1bdd032dddb804c79488152d219be70885c643"
+    },
+    {
+      "file": "worker/guard/prepare.ts",
+      "normalizedSha256": "8587f6261ca63316624f3280b3d56943bb0d6c61fbbd51ee6615073c25b2a12d"
+    },
+    {
+      "file": "worker/guard/runtime.ts",
+      "normalizedSha256": "d152d4dd952267264d79ecd08e69468ff6f2be6ebe4af703ffa4a50871744a76"
+    },
+    {
+      "file": "worker/guard/sandbox-evidence.ts",
+      "normalizedSha256": "8031c85b514ee831472a3d68b36b9c38b3c24219e6c82496b931366d33724f20"
+    },
+    {
+      "file": "worker/guard/sandbox.ts",
+      "normalizedSha256": "4c9617f5180367e586a3372d9ea344b36f72610b2a2df5954c87d55322bfb823"
+    },
+    {
+      "file": "worker/guard/storage.ts",
+      "normalizedSha256": "ec7a9f0bc9e4de07e24a26ba6a39ba32042093aa227fa69a2353b0de709fea33"
+    },
+    {
+      "file": "worker/guard/timing.ts",
+      "normalizedSha256": "b7a6c3807e1003ef5df2d4da38aadae4717cf28338c153d31e73809eb39ac9ca"
+    },
+    {
+      "file": "worker/sentinel/executor.ts",
+      "normalizedSha256": "66b0a7428f943895ef537fefa4c7a9f1d430aaec757ab40b0ed079a9fce23f47"
+    },
+    {
+      "file": "worker/sentinel/lifecycle.ts",
+      "normalizedSha256": "10c40946e9f563bf7535895dfdea79475535249cf5198a9d8732094a4035d131"
+    }
+  ],
+  "files": [
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/code-gap-audit.json",
+      "rawSha256": "756871562cd1b3b6d8ebf40bc87bbe9c8e612c1e4465aaba7d813f81210092ec",
+      "bytes": 14072
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/owner-scope-record.json",
+      "rawSha256": "fa3d1c8f6e480da03bd3e4f45ab5757927ca9beb68d7f67c61fd8d024e79fa56",
+      "bytes": 1129
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/case-registry.json",
+      "rawSha256": "1805e476d8bcb5a3765a1021ebcca25d86c47a228fe0ff30dd55225ba608eae7",
+      "bytes": 28135
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/approval-intents/Q00.json",
+      "rawSha256": "5eee6f32a16872ba6e57717611f3bb5006b76d5db9f8327985eff90170611f83",
+      "bytes": 4869
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/approval-intents/I01.json",
+      "rawSha256": "e60b390b5a9eac16519cab00a202acf2a819ee633d648cc4dcab0168f3873b62",
+      "bytes": 6088
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/approval-intents/N00.json",
+      "rawSha256": "17cf6d54350801c415b1e4717da2afb604f608dea0a14b41787f2e6229b4288c",
+      "bytes": 4824
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/approval-intents/N01.json",
+      "rawSha256": "c19913f8b4555cd8f7a459fd1abad90c5a1753c213966f774e93132aec0156a2",
+      "bytes": 6246
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/approval-intents/N02.json",
+      "rawSha256": "a628e69822512aed246740cf7be1163bb449d73cf8a217feef0a2104c2a1c781",
+      "bytes": 6102
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/approval-intents/N03.json",
+      "rawSha256": "ccf7dfe18e1042f4c983f5a89a3b920671e1722cb3e5bb94f3cb8ceee92c11d3",
+      "bytes": 6143
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/approval-intents/N04.json",
+      "rawSha256": "27bfd7d5ca6946876147abc423ff0d6eafd4993907980ed1e75505e949456f11",
+      "bytes": 6108
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/approval-intents/N05.json",
+      "rawSha256": "799b63aa9f81a5ad1805f83d759448227102ae50e338413e6011a334e23d1ce5",
+      "bytes": 6101
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/approval-intents/N06.json",
+      "rawSha256": "2a677c367bce03d39c767c3a139d27644879b84bcc326ef2a4c6674d5c81fcab",
+      "bytes": 6100
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/approval-intents/N07.json",
+      "rawSha256": "160c2f1de4754a599eb9a2422857dc52439b545a6adea71d1aa39b00a4fe8320",
+      "bytes": 6210
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/approval-intents/N08.json",
+      "rawSha256": "9186cdb97d739ea909bf400cb48cc6f2d0a7c53ff8157a964bbace4e37bd7ca2",
+      "bytes": 6165
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/approval-intents/C01.json",
+      "rawSha256": "fd734ddd80541c384f47c7127546e0e1f7b91c7e532bda49f3829bc501796b2c",
+      "bytes": 6329
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/approval-intents/C02A.json",
+      "rawSha256": "62a73690debe80f7db8b419ff4d68275b7dc29454b438a9074964fc050d8f7f9",
+      "bytes": 6609
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/approval-intents/C02B.json",
+      "rawSha256": "debc01623585fe69953d43f772959ec958e1b3423104be8ba31907c176b814e0",
+      "bytes": 5451
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/approval-intents/L01.json",
+      "rawSha256": "a059b9aaf8802a8550f4c1de2291d53c6ae251ef5f7082fe37c8adae0824a78b",
+      "bytes": 4979
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/approval-intents/L02.json",
+      "rawSha256": "97e9de5f529eba061a104b909a23c28f7ec535cd75a0eb46c93b6b0529c56b49",
+      "bytes": 5005
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/approval-index.json",
+      "rawSha256": "fbd4c7bec74bad3a1891e1a5c4688bf5798c2311e7d243fa3a30f4f57684393a",
+      "bytes": 3736
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/operator/retained-data-down-refusal.READONLY.sql",
+      "rawSha256": "4abb705cf334a3e80f7a1ae27fafe5c2e85fe009a6414133e68a95ad646a7d82",
+      "bytes": 1545
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/operator/rollback-only.sql",
+      "rawSha256": "0740959c9704df198742866a591664277840235d350dd4eb812e49a69067b18e",
+      "bytes": 66
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/README.md",
+      "rawSha256": "d0e7d6547234e3977b5da1a34ccfdfc6cd64e24160d9f8c8cb898da2304cda27",
+      "bytes": 7051
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/10-integrated-worker-sandbox.md",
+      "rawSha256": "c8710b461af758fe7cbe008cb184c90639c588fb114020750599828268b0c8a9",
+      "bytes": 5663
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/20-live-security-negative.md",
+      "rawSha256": "0657a30afa2cc3383e05688c6ed314d086d8f153a96c0bacb5fd3574f30e1ef3",
+      "bytes": 5745
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/30-crash-restart-orphans.md",
+      "rawSha256": "81cb29bbb8d3a287c317f52e34855a6444962c19cb6d0cfcdcfe387db989ea8e",
+      "bytes": 5331
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/40-preservation-schema-lifecycle.md",
+      "rawSha256": "7f9baf66384df925005df0e2464831ca08df92df32f2bbe99cc8cb21dd37feb4",
+      "bytes": 4483
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/50-decision-publication.md",
+      "rawSha256": "08cef8e462cdbca20987055023e7c04e0c2c5c652b25b06ae0a6f1b0fa8acc3c",
+      "bytes": 3473
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/publication-review.intent.json",
+      "rawSha256": "e672600b4930fe8fd8c725565718c7240ce2ba7d7b2eb97e0e8714e414014e06",
+      "bytes": 916
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/readiness-and-blockers.json",
+      "rawSha256": "cacab32c705939ec1bb53098357e02bfcf3a6dcd57a664d2ff6917d237d0e192",
+      "bytes": 2135
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/preparation-validation.json",
+      "rawSha256": "553cd1cb234178103ac9ba7345ab712f80609950e2db301adb0def68efd94b57",
+      "bytes": 754
+    }
+  ],
+  "approvalIntentCount": 16,
+  "applicationSourceChanged": false,
+  "runtimeMutation": false,
+  "secretRead": false,
+  "permitActivated": false,
+  "newDatabaseCreated": false,
+  "historicalEndpointAccessed": false,
+  "publication": false,
+  "g02Started": false,
+  "preparationValidation": {
+    "checkedAt": "2026-11-15T16:52:18.526Z",
+    "status": "PASS_OFFLINE_PACKAGE_VALIDATION_ONLY",
+    "intentDigestsVerified": 16,
+    "allIntentsInactive": true,
+    "reviewOnlyModuleNotAcceptedByRuntimeLoader": true,
+    "proposedIdentitiesUnique": 11,
+    "oldJobNotReused": true,
+    "baselineCodeAndSqlHashesUnchanged": 52,
+    "oldCompletedEvidenceFilesUnchanged": 33,
+    "localLinksVerified": 62,
+    "onlyExistingFixtureTarget": true,
+    "readonlySqlContainsNoDdlDml": true,
+    "sqlExecutionOrDatabaseSyntaxTestPerformed": false,
+    "newRuntimeTestsRun": 0,
+    "dbConnections": 0,
+    "dockerCalls": 0,
+    "providerCalls": 0,
+    "permitsActivated": 0,
+    "publicationActions": 0,
+    "userIndexPreserved": true,
+    "externalSentinel": "NOT_VERIFIED / TARGET_NOT_IDENTIFIED"
+  }
+}

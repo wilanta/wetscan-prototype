@@ -1,0 +1,56 @@
+{
+  "status": "WAITING_USER",
+  "requestSha256": "286a7a3d97e01786b1364387c849c27d09e230000d6093d47bb6206a79978e41",
+  "binding": {
+    "schemaVersion": 1,
+    "module": "guard-g01-postgres-runtime-tests",
+    "target": {
+      "host": "localhost",
+      "port": 5432,
+      "database": "wetscan_s01_test_guardg01",
+      "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f"
+    },
+    "roles": [
+      "wetscan_guard_app",
+      "wetscan_guard_worker"
+    ],
+    "actions": [
+      "runtime",
+      "integration_test"
+    ],
+    "migrationPlanSha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d",
+    "runners": [
+      {
+        "file": "tests/guard/g01/postgres.acceptance.ts",
+        "sha256": "19c5621ee5fdc95c19ba18bdc71fe65cd8fcb25c3cfa54c765e4576adfbdf564"
+      },
+      {
+        "file": "tests/guard/g01/postgres-context.acceptance.ts",
+        "sha256": "3c64c9a876cf7865c1fe1e85fd1c9c8f367340c748a92e0d29e8eb275006602e"
+      }
+    ],
+    "effects": "Two synthetic Guard metadata fixtures: persistence/idempotency/queue claims/lease reclaim/fencing/cancel/rollback/fresh pool retrieval; missing-context read/update/insert denial. Retain rows/evidence. No GitHub source, full scanner, process worker or schema/role/password mutation.",
+    "exclusions": [
+      "migration",
+      "database/role creation or drop",
+      "Sentinel schema/data changes",
+      "existing credential inspection",
+      "production worker or sandbox run"
+    ],
+    "maxMinutes": 55
+  },
+  "credentialReadiness": [
+    {
+      "purpose": "app",
+      "regularFile": true,
+      "formatLengthRange": true,
+      "contentsRead": false
+    },
+    {
+      "purpose": "worker",
+      "regularFile": true,
+      "formatLengthRange": true,
+      "contentsRead": false
+    }
+  ]
+}

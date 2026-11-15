@@ -18,6 +18,7 @@ import type {
   SnapshotPort,
 } from "../contracts";
 import { authorize, safePath } from "../security";
+import { secureSnapshotDirectory } from "./snapshot-directory";
 import {
   LiveGuardError,
   type GuardSnapshot,
@@ -40,6 +41,10 @@ export class GuardSnapshotAdapter implements SnapshotPort {
     private readonly source: SourceAccess,
     private readonly remove = (path: string) =>
       rm(path, { recursive: true, force: true }),
+    private readonly acceptanceHooks?: {
+      afterWrite(root: string, relative: string, writtenFiles: number, signal: AbortSignal): Promise<void>;
+      beforeCleanup(root: string): Promise<void>;
+    },
   ) {}
   private bind(
     authority: ProjectAuthority,
@@ -223,11 +228,14 @@ export class GuardSnapshotAdapter implements SnapshotPort {
       if (!buffers.length && coverage.eligibleFiles)
         throw new LiveGuardError("source_unavailable");
       root = await mkdtemp(join(tmpdir(), "wetscan-g01-snapshot-"));
+      await secureSnapshotDirectory(root);
+      let writtenFiles = 0;
       for (const file of buffers) {
         if (signal.aborted) throw new LiveGuardError("source_unavailable");
         const path = join(root, ...file.path.split("/"));
         await mkdir(dirname(path), { recursive: true, mode: 0o700 });
         await writeFile(path, file.content, { flag: "wx", mode: 0o400 });
+        await this.acceptanceHooks?.afterWrite(root, file.path, ++writtenFiles, signal);
       }
       const files = buffers.map(({ path, size, sha256 }) => ({
         path,
@@ -345,6 +353,7 @@ export class GuardSnapshotAdapter implements SnapshotPort {
     )
       throw new LiveGuardError("cleanup_failed");
     try {
+      await this.acceptanceHooks?.beforeCleanup(target);
       await this.remove(target);
       await unlink(target + ".lease").catch((error: NodeJS.ErrnoException) => {
         if (error.code !== "ENOENT") throw error;

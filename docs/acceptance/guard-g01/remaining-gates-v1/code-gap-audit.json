@@ -1,0 +1,306 @@
+{
+  "createdAt": "2026-11-15T16:47:35.384Z",
+  "currentRuntimeNotModified": true,
+  "findings": [
+    {
+      "id": "GAP-01",
+      "category": "LOCAL_IMPLEMENTATION_GAP",
+      "file": "worker/guard/prepare.ts",
+      "line": 83,
+      "normalizedSha256": "8587f6261ca63316624f3280b3d56943bb0d6c61fbbd51ee6615073c25b2a12d",
+      "observation": "Connected handler has source preparation/disposal only; no enforcing sandbox dispatch.",
+      "consequence": "A repeat prepare_only run cannot prove integrated sandbox.",
+      "remedy": "Guard-only foundation-probe composition with a separate explicit runtime mode/permission; no engine execution."
+    },
+    {
+      "id": "GAP-02",
+      "category": "LOCAL_IMPLEMENTATION_GAP",
+      "file": "worker/guard/sandbox.ts",
+      "line": 144,
+      "normalizedSha256": "4c9617f5180367e586a3372d9ea344b36f72610b2a2df5954c87d55322bfb823",
+      "observation": "Production spec accepts ghcr.io digest references and fixed approved binaries. Prior real controls used an Official Python docker.io image and a separate driver harness.",
+      "consequence": "The successful old Python probe is not a valid production SandboxSpec/attestation and cannot be relabeled as integrated proof.",
+      "remedy": "Preferred: reviewed exact-digest Official Python G01-probe binding with fixed trusted entrypoint/program only, not a general executable/registry relaxation. Freeze/retest the change before approval. An actually supplied compatible ghcr probe image is an alternative requiring its own review."
+    },
+    {
+      "id": "GAP-03",
+      "category": "LOCAL_IMPLEMENTATION_GAP",
+      "file": "worker/guard/approval.ts",
+      "line": 145,
+      "normalizedSha256": "bebc12deeae4078df6f97349cd5c6a7296da28cd4b42b7775a3e84732755099c",
+      "observation": "Worker approval explicitly authorizes prepare_only, not Docker dispatch/fault injection.",
+      "consequence": "Old permits must not gain sandbox authority through implementation side effects.",
+      "remedy": "Separate exact-job foundation-probe approval shape, spec/program hashes, case actions and quotas; old permits still deny Docker."
+    },
+    {
+      "id": "GAP-04",
+      "category": "LOCAL_IMPLEMENTATION_GAP",
+      "file": "worker/guard/auth-broker.ts",
+      "line": 150,
+      "normalizedSha256": "a5e29835d1cc957a22d7757348ed0a63ea9c1ac25ac7e4a5c910112ca53ea943",
+      "observation": "IPC capability has no sandbox operation and source directory is Auth-process private.",
+      "consequence": "Child must not receive a host source path or provider credentials just to mount source.",
+      "remedy": "Lease/identity-bound private probe capability executed by the trusted source owner, with fresh authorization before/after and cancellation propagation."
+    },
+    {
+      "id": "GAP-05",
+      "category": "LOCAL_IMPLEMENTATION_GAP",
+      "file": "worker/guard/sandbox.ts",
+      "line": 382,
+      "normalizedSha256": "4c9617f5180367e586a3372d9ea344b36f72610b2a2df5954c87d55322bfb823",
+      "observation": "Container reaper enumerates module-wide Guard containers, not a new case's exact owned IDs.",
+      "consequence": "It must not be used as-is for case-scoped orphan removal on a shared daemon.",
+      "remedy": "Exact case/run/job/spec/image/container-ID registry and restrictive filters; prove ownership again before stop/remove; no broad prune."
+    },
+    {
+      "id": "GAP-06",
+      "category": "REAL_TIME_POLICY_CONSTRAINT",
+      "file": "src/features/guard/live/snapshot.ts",
+      "line": 334,
+      "normalizedSha256": "4f0c51f60465e6702e89e1f2f894cfe844d28392905e9667a9868aea4c94ab27",
+      "observation": "Source orphan reaper requires actual creation age >= one hour and actual expiry.",
+      "consequence": "A full source-orphan test cannot fit in one <=55-minute approval window.",
+      "remedy": "Window A creates the controlled orphan; wait real time; obtain new cleanup-only Window B. Never backdate marker/time or reuse old permits."
+    },
+    {
+      "id": "GAP-07",
+      "category": "LOCAL_IMPLEMENTATION_GAP",
+      "file": "tests/guard/g01/worker-process.fixture.ts",
+      "line": 3,
+      "normalizedSha256": "5bdf231316285b1f8d517402d67666aa06c9e6cb570a0a01b22971a6e45afaad",
+      "observation": "Existing process restart test uses no-work queue doubles.",
+      "consequence": "It does not prove PostgreSQL-backed crash/reclaim/fencing/physical overlap recovery.",
+      "remedy": "New exact prospective case job and real process IDs, natural lease expiry, real queue fencing and scoped cleanup observations."
+    },
+    {
+      "id": "GAP-08",
+      "category": "LOCAL_IMPLEMENTATION_GAP",
+      "file": "src/features/guard/live/schema-runner.ts",
+      "line": 41,
+      "normalizedSha256": "82167a65a4be9f705de689d3433203acac623f1177cc987d58df68ec3d80f331",
+      "observation": "Already-applied migration path exists; current proof of this path is fixture-based.",
+      "consequence": "One zero-DDL live already_applied invocation has a specific uncovered purpose; full migrations need not be replayed.",
+      "remedy": "Dedicated read-only-default migrator connection wrapper; refuse missing/mismatched ledgers before invocation; new narrow approval."
+    },
+    {
+      "id": "GAP-09",
+      "category": "OWNER_SCOPE_CONSTRAINT",
+      "file": "migrations/guard/0001_guard.down.sql",
+      "line": 4,
+      "normalizedSha256": "9e7b7f8f5b1f5bea5b53f9c8865695d20dfbf09769086e505bb3d1329edee3b3",
+      "observation": "Canonical down refuses retained scans/Guard jobs; actual retained scan count is three.",
+      "consequence": "Successful down/re-up cannot be proven under the current no-new-DB/no-deletion constraint.",
+      "remedy": "Read-only refusal probe only; leave full down/up BLOCKED_BY_PRESERVATION_CONSTRAINT. No automatic waiver, deletion, alternate DB or rollback experiment that drops populated tables."
+    }
+  ],
+  "baselineFiles": [
+    {
+      "file": "migrations/guard/0001_guard.down.sql",
+      "normalizedSha256": "9e7b7f8f5b1f5bea5b53f9c8865695d20dfbf09769086e505bb3d1329edee3b3"
+    },
+    {
+      "file": "migrations/guard/0001_guard.up.sql",
+      "normalizedSha256": "542fa52a97c2b498b01ea06613a589c284e254ecd6de863574327d9780e18315"
+    },
+    {
+      "file": "src/features/guard/live/database-config.ts",
+      "normalizedSha256": "a407afe4c48a8708ee68741eeef8f088585991b7a46050ebfabb66b0940909d0"
+    },
+    {
+      "file": "src/features/guard/live/github-source.ts",
+      "normalizedSha256": "a73e5f81061432b723304a927c8a198f5b4edddc3f3ed9e261cb0f8b536eff7a"
+    },
+    {
+      "file": "src/features/guard/live/http.ts",
+      "normalizedSha256": "ec136b9a3ecaad3828b012e65137c820186d85e53e082953f508bc179b01914c"
+    },
+    {
+      "file": "src/features/guard/live/migrations.ts",
+      "normalizedSha256": "02d22bfa5f519b96e757de22b1d427b3c8c4dfbc60877001881e84d4d692885c"
+    },
+    {
+      "file": "src/features/guard/live/model.ts",
+      "normalizedSha256": "0aa12a03d4238922680ad9dc613e5a0c88ef7044bd07e331ada9f352e957d630"
+    },
+    {
+      "file": "src/features/guard/live/persistence.ts",
+      "normalizedSha256": "587b24ff142db43139776ef578e25e1a222d54095a02242090fa894cab78b867"
+    },
+    {
+      "file": "src/features/guard/live/preparation-request.ts",
+      "normalizedSha256": "1257a3ab8c0cc2fe5f7433362140e0e0e765154d011d92041823d1869542523c"
+    },
+    {
+      "file": "src/features/guard/live/preparation.ts",
+      "normalizedSha256": "b0242223054d7d7853c02ac1fbff92b028b70c398da4f4cabbd15c2774dd6bb8"
+    },
+    {
+      "file": "src/features/guard/live/project.ts",
+      "normalizedSha256": "8fe7fea879f08a917e167f202f70764a0b3e376cc2cb53299e5e6fa0f934a254"
+    },
+    {
+      "file": "src/features/guard/live/queue.ts",
+      "normalizedSha256": "af69a1ec109ccc011248751f9f03f7bfa1ef2bae0815f2d3caa410373ef4d9df"
+    },
+    {
+      "file": "src/features/guard/live/repository.ts",
+      "normalizedSha256": "39f9b3854c4144d186ea8563046e272c27960aa258a2b534214231f2cecfdba9"
+    },
+    {
+      "file": "src/features/guard/live/revision.ts",
+      "normalizedSha256": "5b64c5ad226f168c37a36a8d15f314a73413e63865cedfe4a1318a53d69233ec"
+    },
+    {
+      "file": "src/features/guard/live/runtime.ts",
+      "normalizedSha256": "503d9c5265765d1c92b0967aa797fae5ff46a66418f7c02f91686cfdf2a8836d"
+    },
+    {
+      "file": "src/features/guard/live/schema-readiness.ts",
+      "normalizedSha256": "57a99a176f8edbd4e4aaa0a02d8c5a2dde8e4b93b98928a3902957d7903220fc"
+    },
+    {
+      "file": "src/features/guard/live/schema-runner.ts",
+      "normalizedSha256": "82167a65a4be9f705de689d3433203acac623f1177cc987d58df68ec3d80f331"
+    },
+    {
+      "file": "src/features/guard/live/service.ts",
+      "normalizedSha256": "5b7ed4aaefee8c6f2778037f7473b706b53597881f1da78669cbdf63aba4cb4b"
+    },
+    {
+      "file": "src/features/guard/live/snapshot-directory.ts",
+      "normalizedSha256": "2bea71684fba7dc9514c65b9d7178e1537ae3884adc23b7059bd4852d8eca8cf"
+    },
+    {
+      "file": "src/features/guard/live/snapshot.ts",
+      "normalizedSha256": "4f0c51f60465e6702e89e1f2f894cfe844d28392905e9667a9868aea4c94ab27"
+    },
+    {
+      "file": "src/features/guard/live/source-acceptance.ts",
+      "normalizedSha256": "b0c3f8e31893ffc99ccdb30b15f45ad27cf188bdad10707ca6d5f5a117cb55a4"
+    },
+    {
+      "file": "src/features/guard/live/worker-launcher.ts",
+      "normalizedSha256": "72d479214feb95370ad11330ed6d2e66c208b5024716fdf15be880810585091d"
+    },
+    {
+      "file": "src/platform/config.ts",
+      "normalizedSha256": "477cb74650cda3c373873cfcc72d167d58ca85c28c122a64b3ab21176cf33e4c"
+    },
+    {
+      "file": "src/platform/database.ts",
+      "normalizedSha256": "025abb619e82ab155ed0a428e950940a2408dba38b74ce7cf0e2845ca23c3d90"
+    },
+    {
+      "file": "src/platform/queue.ts",
+      "normalizedSha256": "433c808a8784958076a5ab5347afd809cc7dfb604023f7daa453e0a77a854571"
+    },
+    {
+      "file": "tests/guard/g01/docker.acceptance.ts",
+      "normalizedSha256": "54e3ae75f183fd897159fb1a3db92e0660ed183b4550b0117d9d8b5b4981653b"
+    },
+    {
+      "file": "tests/guard/g01/ipc.test.ts",
+      "normalizedSha256": "a88bffb445b25846d998104b2a66aad6a76fcb29391095f99bf952c62bc4a084"
+    },
+    {
+      "file": "tests/guard/g01/preparation-deadlines.test.ts",
+      "normalizedSha256": "27973239064973a6418100996e5d0ed1ff5437e34eead4f17d1bed657a5abdd6"
+    },
+    {
+      "file": "tests/guard/g01/preparation-request.test.ts",
+      "normalizedSha256": "d25a4023836fa88a8111e943799e2fbecdc0a57ca9f2de00eb7db723def85dcc"
+    },
+    {
+      "file": "tests/guard/g01/prepare-chain.test.ts",
+      "normalizedSha256": "efadc456334aec26cf895830712027f41df245275c467d730d17588cfa2d0c87"
+    },
+    {
+      "file": "tests/guard/g01/schema-runner.test.ts",
+      "normalizedSha256": "d669e88475fd99edc5f4476b48f02eff225f481d4afc8a8ded63a43b852ef119"
+    },
+    {
+      "file": "tests/guard/g01/worker-observer.acceptance.ts",
+      "normalizedSha256": "e22cb31ac2a7c14d04648f21b13ba58993281ba397af872e3e7d31c5a851b469"
+    },
+    {
+      "file": "tests/guard/g01/worker-process.fixture.ts",
+      "normalizedSha256": "5bdf231316285b1f8d517402d67666aa06c9e6cb570a0a01b22971a6e45afaad"
+    },
+    {
+      "file": "tests/guard/g01/worker.test.ts",
+      "normalizedSha256": "cc3fa2fca4e8559a540e00cdf1da5af8edc57b964f8a47d217b6a08ddfc738d5"
+    },
+    {
+      "file": "worker/guard/additional-fixtures.ts",
+      "normalizedSha256": "68f44b32d93cff4067b40ed88286c47992a2797ec341e5a9551623f57b075954"
+    },
+    {
+      "file": "worker/guard/approval.ts",
+      "normalizedSha256": "bebc12deeae4078df6f97349cd5c6a7296da28cd4b42b7775a3e84732755099c"
+    },
+    {
+      "file": "worker/guard/auth-broker.ts",
+      "normalizedSha256": "a5e29835d1cc957a22d7757348ed0a63ea9c1ac25ac7e4a5c910112ca53ea943"
+    },
+    {
+      "file": "worker/guard/bootstrap.ts",
+      "normalizedSha256": "1e067402b727763fd8a5b2212bb512bca0b1e19954ffa761a60c3c7b9ff8b48f"
+    },
+    {
+      "file": "worker/guard/fixture-runner.ts",
+      "normalizedSha256": "7d142261660ecd93ad79beac59c7a8c56954f0f33f90620658f433f61654d2f8"
+    },
+    {
+      "file": "worker/guard/gitleaks-fixture.ts",
+      "normalizedSha256": "cfe8f0a9944cc8915e8d3645954774052c98f64c30c981d49883b45b09a8d11b"
+    },
+    {
+      "file": "worker/guard/ipc.ts",
+      "normalizedSha256": "eadbcea81fa639713e0c1012072664cfd59e6a57f84ff1695e7e080c95e89557"
+    },
+    {
+      "file": "worker/guard/main.ts",
+      "normalizedSha256": "bc778feb8c760dee68b39e6a78bf6f2004c8226b03d51abf3e69f912287a3655"
+    },
+    {
+      "file": "worker/guard/orchestrator.ts",
+      "normalizedSha256": "9d526420a3925c3ba190492dc96c972dea4947a17f7b818803426bdd69b20f84"
+    },
+    {
+      "file": "worker/guard/plan.ts",
+      "normalizedSha256": "7ecfee7f8c6bdd4b67cc5ef20d1bdd032dddb804c79488152d219be70885c643"
+    },
+    {
+      "file": "worker/guard/prepare.ts",
+      "normalizedSha256": "8587f6261ca63316624f3280b3d56943bb0d6c61fbbd51ee6615073c25b2a12d"
+    },
+    {
+      "file": "worker/guard/runtime.ts",
+      "normalizedSha256": "d152d4dd952267264d79ecd08e69468ff6f2be6ebe4af703ffa4a50871744a76"
+    },
+    {
+      "file": "worker/guard/sandbox-evidence.ts",
+      "normalizedSha256": "8031c85b514ee831472a3d68b36b9c38b3c24219e6c82496b931366d33724f20"
+    },
+    {
+      "file": "worker/guard/sandbox.ts",
+      "normalizedSha256": "4c9617f5180367e586a3372d9ea344b36f72610b2a2df5954c87d55322bfb823"
+    },
+    {
+      "file": "worker/guard/storage.ts",
+      "normalizedSha256": "ec7a9f0bc9e4de07e24a26ba6a39ba32042093aa227fa69a2353b0de709fea33"
+    },
+    {
+      "file": "worker/guard/timing.ts",
+      "normalizedSha256": "b7a6c3807e1003ef5df2d4da38aadae4717cf28338c153d31e73809eb39ac9ca"
+    },
+    {
+      "file": "worker/sentinel/executor.ts",
+      "normalizedSha256": "66b0a7428f943895ef537fefa4c7a9f1d430aaec757ab40b0ed079a9fce23f47"
+    },
+    {
+      "file": "worker/sentinel/lifecycle.ts",
+      "normalizedSha256": "10c40946e9f563bf7535895dfdea79475535249cf5198a9d8732094a4035d131"
+    }
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "recordedAt": "2026-11-15T16:25:19.842Z",
+  "classification": "LIVE_VERIFIED_CONNECTED_WORKER_AUTH_PREPARE_ONLY",
+  "overallG01": "PARTIALLY_COMPLETE",
+  "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+  "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+  "approvedWindow": {
+    "approvedAt": "2026-11-15T16:00:19.000Z",
+    "expiresAt": "2026-11-15T16:54:19.000Z",
+    "extended": false
+  },
+  "effects": {
+    "enqueueCallsConfirmed": 2,
+    "durableScanCount": 1,
+    "durableQueueCount": 1,
+    "workerLaunchesConfirmed": 1,
+    "workerAttempts": 1,
+    "retries": 0,
+    "relaunches": 0,
+    "scannerExecution": "NOT_RUN",
+    "sandboxExecution": "NOT_RUN",
+    "sentinelWrites": false,
+    "githubWrites": false,
+    "g02Started": false
+  },
+  "proof": {
+    "authenticatedBackendResponse": "worker-auth-launch-response.job-2c18db66.json",
+    "idempotency": "worker-auth-second-enqueue-response.job-2c18db66.json",
+    "liveObservation": "worker-auth-live-observation.job-2c18db66.json",
+    "finalObserver": "worker-auth-observer-final.job-2c18db66.json",
+    "retention": "worker-auth-retention-check.job-2c18db66.json"
+  },
+  "execution": {
+    "workerId": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+    "attemptStartedAt": "2026-11-15T16:19:21.342Z",
+    "attemptFinishedAt": "2026-11-15T16:20:03.347Z",
+    "attemptDurationMs": 42005,
+    "preparingToFoundationMs": 41517,
+    "queueState": "completed",
+    "scanState": "failed",
+    "scanStateReason": "G02 execution not configured; successful preparation is not scanner success",
+    "revision": 3,
+    "foundationPrepared": true,
+    "coverage": {
+      "status": "partial",
+      "retrievedFiles": 82,
+      "eligibleFiles": 90,
+      "bytes": 175159,
+      "treeTruncated": false,
+      "exclusionCounts": {
+        "sensitive_path": 1,
+        "file_size": 4,
+        "binary": 4
+      }
+    },
+    "lease": {
+      "fence": "1",
+      "leasedSamples": 7,
+      "distinctObservedLeaseExpiries": [
+        "2026-11-15T16:19:51.338Z",
+        "2026-11-15T16:20:01.370Z",
+        "2026-11-15T16:20:06.412Z",
+        "2026-11-15T16:20:11.432Z",
+        "2026-11-15T16:20:16.439Z",
+        "2026-11-15T16:20:21.474Z",
+        "2026-11-15T16:20:26.487Z"
+      ],
+      "minimumRenewalAdvancesObserved": 6,
+      "finalLeaseOwner": null,
+      "finalLeaseUntil": null
+    },
+    "heartbeat": {
+      "runningObserved": true,
+      "stoppedObserved": true,
+      "lastSeenAt": "2026-11-15T16:20:03.352Z"
+    }
+  },
+  "cleanup": {
+    "status": "VERIFIED_THROUGH_ENFORCED_DISPOSAL_PIPELINE_AND_ACTUAL_AUTHENTICATED_RESULT",
+    "basis": "Installed hashed prepareGuardJob awaits snapshots.dispose in finally before appending/storing foundation_prepared; production GuardSnapshotAdapter cleanup awaits rm of its confined owned root and unlink of its own .lease; parent awaits broker/IPC/pool cleanup before completion. Actual HTTP200 verified result, persisted audit/coverage, completed attempt, released lease and stopped heartbeat all match.",
+    "independentSnapshotRootFilesystemListing": false,
+    "limitation": "Private snapshot root was not exposed or enumerated by this observer; no unrelated temp roots or private source journals were inspected",
+    "historicalUsedMarkersPreserved": true
+  },
+  "postRunPreservation": {
+    "status": "LIVE_VERIFIED_ISOLATED_FIXTURE",
+    "artifact": "worker-auth-sql18-postrun.job-2c18db66.json",
+    "sha256": "357d5e03fc7995b09ada6cc220e4700fda04f31fbc6637add0b0310744825464",
+    "ownerActualPgAdminResult": true,
+    "rollbackConfirmed": true,
+    "beforeSha256": "45e7cfe26767e26ad96ceda0dd2a53649a10ea7a5453844ac50ee30867e1095d",
+    "afterSha256": "45e7cfe26767e26ad96ceda0dd2a53649a10ea7a5453844ac50ee30867e1095d",
+    "differentSections": [],
+    "guardScans": 3,
+    "activeGuardLeases": 0,
+    "fullTargetMarkerIndependentlyVerified": true,
+    "copyFormattingLimitationsDisclosed": true,
+    "externalSentinel": "NOT_OBSERVED"
+  },
+  "openGates": [
+    "Worker-to-enforcing-sandbox integration on the actual job/snapshot with exact image/command/spec/provenance/operator evidence",
+    "Remaining live revocation/access-change/cancellation/timeout and negative cleanup cases not proven by this positive run",
+    "Actual DB-backed worker crash/lease-expiry/restart/recovery and orphan cleanup gates",
+    "Schema lifecycle/down/recovery beyond previously tested transaction rollback remains unproven and needs separate scoped approval",
+    "External Sentinel preservation remains unobserved; isolated fixture evidence does not cover external targets"
+  ],
+  "sourceAndStatePreservation": {
+    "implementationHashesMatch": 41,
+    "indexPreserved": true,
+    "oldPermitsAndMarkersPreserved": true,
+    "dotenvReadOrChangedByAgent": false,
+    "authSessionStoreReadByAgent": false,
+    "masterChanged": false
+  },
+  "gateDecision": {
+    "connectedPositiveWorkerAuth": "PASS_PREPARE_ONLY",
+    "idempotentEnqueue": "PASS_TWO_CALLS_ONE_DURABLE_JOB",
+    "postRunIsolatedPreservation": "PASS",
+    "overallG01": "PARTIALLY_COMPLETE",
+    "mandatoryRemainingEvidence": [
+      "Actual worker-to-enforcing-sandbox integration",
+      "Remaining live security-negative/revocation/cancellation/timeout cases",
+      "Actual DB-backed crash/lease-expiry/restart/recovery with cleanup"
+    ],
+    "additionalEvidenceLimits": [
+      "External Sentinel target is unobserved",
+      "Full schema lifecycle/down/recovery beyond transaction rollback not demonstrated; any destructive test requires separate approval",
+      "Independent filesystem enumeration of the private snapshot root was not performed; cleanup is proven through the enforced disposal/audit/backend completion path"
+    ],
+    "scannerExecution": "NOT_RUN_G02_NOT_CONFIGURED"
+  },
+  "operationBudget": {
+    "approvedEnqueueCalls": 2,
+    "usedEnqueueCalls": 2,
+    "approvedWorkerLaunches": 1,
+    "usedWorkerLaunches": 1,
+    "additionalEnqueueOrLaunchAuthorized": false,
+    "permitWindowExtended": false
+  }
+}

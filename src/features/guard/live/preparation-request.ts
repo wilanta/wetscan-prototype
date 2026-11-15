@@ -1,3 +1,4 @@
+import { guardPreparationTiming } from "../../../../worker/guard/timing";
 import "server-only";
 import { readFile, lstat } from "node:fs/promises";
 import { isAbsolute, extname } from "node:path";
@@ -97,7 +98,7 @@ export async function preparationRequest(input: {
   input.signal.addEventListener("abort", abort, { once: true });
   try {
     if (input.signal.aborted) throw new LiveGuardError("source_unavailable");
-    await within(launched.done, 45000);
+    await within(launched.done, guardPreparationTiming.requestMs);
     const current = await authorizeGuardProject(
       input.token,
       input.authority.grant.projectId,

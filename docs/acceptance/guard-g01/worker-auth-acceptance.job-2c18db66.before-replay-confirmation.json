@@ -1,0 +1,122 @@
+{
+  "updatedAt": "2026-11-15T16:14:53.987Z",
+  "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+  "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+  "status": "FIRST_ENQUEUE_VERIFIED_AWAITING_SINGLE_IDEMPOTENT_REPLAY",
+  "approvedAt": "2026-11-15T16:00:19.000Z",
+  "expiresAt": "2026-11-15T16:54:19.000Z",
+  "permitActivation": "FOUR_ACTIVE_OLD_BYTES_ARCHIVED",
+  "restrictedActivationAttempt": "EPERM before first write; normal reviewed execution succeeded",
+  "beforeObserver": {
+    "artifact": "worker-auth-observer-before.job-2c18db66.json",
+    "sha256": "88124f595054a9b5059d6c681d477d0eee7584752507fe26cbb7faa97223a728",
+    "sourceArtifact": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate\\.local\\sentinel\\guard-g01-unblock\\worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7\\observer-1794758524044.json",
+    "scan": null,
+    "queueCount": 0,
+    "attemptCount": 0,
+    "heartbeatCount": 0,
+    "readOnly": true
+  },
+  "unauthenticatedCheck": {
+    "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+    "startedAt": "2026-11-15T16:02:03.115Z",
+    "finishedAt": "2026-11-15T16:02:05.708Z",
+    "method": "GET",
+    "path": "/api/guard/projects/github-839286157/scans",
+    "cookiesSent": false,
+    "tokensSent": false,
+    "httpStatus": 401,
+    "contentType": "application/json",
+    "error": "unauthenticated",
+    "passed": true
+  },
+  "enqueueResponses": [
+    {
+      "phase": "first_enqueue",
+      "httpStatus": 200,
+      "scanId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+      "status": "queued",
+      "execution": "prepare_only",
+      "scannerExecution": "NOT_RUN",
+      "exactJobMatches": true
+    }
+  ],
+  "workerLaunches": 0,
+  "currentAuthProof": "OWNER_ACTUAL_HTTP200_READINESS_AND_ENQUEUE_CORRELATED_WITH_SCOPED_DB_BINDING_AND_QUEUED_AUDIT",
+  "scannerExecution": "NOT_RUN",
+  "sandboxExecution": "NOT_RUN",
+  "g02Started": false,
+  "sentinelMutation": false,
+  "sourceOnlyRepeat": false,
+  "stopOnFailure": true,
+  "ownerReport": {
+    "serverStopped": true,
+    "pageRefreshed": true,
+    "commitInputEmpty": true,
+    "preparationReferenceMissing": true,
+    "queueButtonMissing": true,
+    "verifyAfterRefresh": false,
+    "enqueueAfterRefresh": false,
+    "replayAfterRefresh": false,
+    "workerAfterRefresh": false,
+    "provenance": "Explicit owner report; server-stop cause not independently established"
+  },
+  "afterRefreshObserver": {
+    "observedAt": "2026-11-15T16:06:09.189Z",
+    "file": "worker-auth-observer-after-refresh.job-2c18db66.json",
+    "sha256": "413b5922d2435051a6f63ee9124254ca01b12707e6ac59c0b8d54c487995a320",
+    "scan": null,
+    "queueCount": 0,
+    "attemptCount": 0,
+    "heartbeatCount": 0
+  },
+  "draftRecoveryPlan": "draft-recovery-plan.job-2c18db66.json",
+  "recoveryExecuted": true,
+  "preRecoveryEnqueueObserver": {
+    "file": "worker-auth-observer-before-recovery-enqueue.job-2c18db66.json",
+    "sha256": "a66033ec58a2e666a479418486fd873055e8e0fd12e7b8674eb981a30b3a5cdb",
+    "observedAt": "2026-11-15T16:09:42.992Z",
+    "queueCount": 0,
+    "scan": null
+  },
+  "authenticatedReadiness": {
+    "phase": "authenticated_readiness",
+    "httpStatus": 200,
+    "status": "BLOCKED",
+    "database": "approved",
+    "schema": "verified",
+    "execution": "G02_NOT_CONFIGURED",
+    "scanAccepted": false
+  },
+  "firstEnqueueEvidence": "worker-auth-first-enqueue-response.job-2c18db66.json",
+  "afterFirstEnqueueObserver": {
+    "artifact": "worker-auth-observer-after-first-enqueue.job-2c18db66.json",
+    "sha256": "fdf6f29e7e94177d76349de40d4ca802df4da788edce031f65b0947680aa6771",
+    "observedAt": "2026-11-15T16:14:19.379Z",
+    "bindingMatches": true,
+    "scanCount": 1,
+    "queueCount": 1,
+    "scanStatus": "queued",
+    "scanRevision": 1,
+    "attempts": 0,
+    "fence": "0",
+    "leaseOwner": null,
+    "leaseUntil": null,
+    "attemptRows": 0,
+    "heartbeatRows": 0,
+    "queuedAuditAt": "2026-11-15T16:12:37.120Z"
+  },
+  "confirmedEnqueueCalls": 1,
+  "remainingEnqueueCalls": 1,
+  "remainingWorkerLaunches": 1,
+  "idempotentReplayVerified": false,
+  "workerPreparationVerified": false,
+  "nextOwnerSnippet": {
+    "file": "OWNER_SECOND_ENQUEUE_2c18db66.js",
+    "sha256": "ef212e71fa9e45878ec901a5b83735ce2ca7b090864d39834855f9ed22aeef06",
+    "sameOriginalPayload": true,
+    "maximumPostCalls": 1,
+    "workerCalls": 0,
+    "executed": false
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "intentSha256": "d70e5c4d65e7ed30347a7e1da66f61cd982f796d4662d83cef92a2b5c799c60e",
+  "packet": {
+    "schemaVersion": 1,
+    "module": "guard-g01-remaining-acceptance-review-intent",
+    "caseId": "L02",
+    "status": "REVIEW_ONLY_NOT_EXECUTABLE",
+    "title": "Read-only retained-data down-refusal guard",
+    "authorizationGranted": false,
+    "activatePermits": false,
+    "approvedBy": null,
+    "approvedAt": null,
+    "expiresAt": null,
+    "maximumWindowMinutes": 10,
+    "futureFreshApprovalRequired": false,
+    "target": {
+      "host": "localhost",
+      "port": 5432,
+      "database": "wetscan_s01_test_guardg01",
+      "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f",
+      "owner": "wetscan_guard_migrator",
+      "existingFixtureOnly": true
+    },
+    "proposedJob": null,
+    "cleanupOnlyReferenceCase": null,
+    "baseline": {
+      "branch": "feat/guard-g01-s03-integration",
+      "head": "1b28fb88ae65a29902e0f1f314efdce44ed3c643",
+      "writableRoot": "C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate",
+      "stagedIndexSha256": "40d77c02186b074dacfd2fe3a6f2816d89a7e59d5f279cbe8be8c75c9c716c4f",
+      "implementationHashSource": "code-gap-audit.json",
+      "currentOnlyNotApprovalForFutureCode": true,
+      "migrationPlanSha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d"
+    },
+    "operations": {
+      "enqueueCallsAtMost": 0,
+      "durableJobsCreatedAtMost": 0,
+      "workerLaunchesAtMost": 0,
+      "sourceAcquisitionsAtMost": 0,
+      "ownedContainerCreatesAtMost": 0,
+      "exactJobCancelCallsAtMost": 0,
+      "simultaneousGuardContainersAtMost": 1,
+      "scopedReadOnlyObservers": true
+    },
+    "permittedEffectDescription": "Owner existing pgAdmin executes only prepared READ ONLY target check and canonical down refusal predicate",
+    "databaseEffects": "No durable row mutation; read-only metadata/guard checks only.",
+    "controlledFault": "No canonical destructive script execution, no database/role creation and no fixture removal",
+    "expectedEvidence": "SQLSTATE P0001 guard_rollback_requires_empty_inactive_scope; owner ROLLBACK; no DROP/DELETE/DDL is present in the script",
+    "technicalNeedBeyondCompletedTests": "Real SQL guard evaluation/role visibility is useful; it does NOT prove successful down/up or exclusive-lock behavior.",
+    "dependencies": [],
+    "readiness": {
+      "executionReady": false,
+      "reason": "Prepared existing-owner pgAdmin READ ONLY step; no new runtime-mutation permission or permit activation is required. It remains unexecuted and does not authorize a destructive down.",
+      "localPrerequisites": [],
+      "executionArtifactHashes": null,
+      "sourceOwnerRegistration": "MUST_BE_MEASURED_AT_RUN_TIME_NOT_FABRICATED",
+      "daemonImageSpecTuple": null,
+      "operatorReadOnlyStepPrepared": true
+    },
+    "checkpointRules": [
+      "Fresh current actor/workspace/project/repository/HEAD proof through existing owner session; no forged grants",
+      "Current code/spec/program/control artifact hashes must equal the FINAL execution packet",
+      "If planned binding/HEAD/target/actions/counts change, prepare a different reviewed packet and obtain new approval",
+      "Each expected fault has an explicit assertion; any other failure stops the case and subsequent mutations",
+      "Only declared rescue cleanup is permitted after an expected injected fault; no work retry or extra launch",
+      "Before and after each phase compare the preserved fixture/Sentinel projection and original three rows; expected additions are this phase's Guard rows only",
+      "Do not manufacture future PID/container ID/snapshot root/positive attestation or PASS evidence"
+    ],
+    "forbidden": [
+      "old job 2c18db66 mutation/relaunch/replay",
+      "new database creation",
+      "access to historical 127.0.0.1:55432",
+      "Sentinel mutations",
+      "GitHub repository/settings/App-permission writes",
+      "scanner or G02-G06 execution",
+      "credential/.env/Auth-store inspection or direct edits",
+      "module-wide container prune/reaper",
+      "historical .used/.used.UUID/result/approval-marker deletion, or rewriting/backdating any lease marker",
+      "fixture deletion or DB reset",
+      "unrelated process/service termination",
+      "commit/push/merge/deploy before separate publication permission"
+    ],
+    "evidenceRetention": "Exclusive per-case public metadata artifacts and private owned-resource registry; raw source/credentials/lease tokens never in public logs; keep failed/used/result records",
+    "cleanupAuthority": {
+      "exactOwnedResourcesOnly": true,
+      "mustVerifyJobRunSpecImageNameIdAndRootConfinement": true,
+      "graceAfterWorkAuthorityExpiresSeconds": 30,
+      "noForwardWorkOrPublicationDuringGrace": true,
+      "historicalMarkersExcluded": true,
+      "cannotOverrideOneHourSourceReaper": true
+    },
+    "manualOwnerExecutionRequired": true,
+    "newRuntimeMutationPermissionRequired": false
+  }
+}

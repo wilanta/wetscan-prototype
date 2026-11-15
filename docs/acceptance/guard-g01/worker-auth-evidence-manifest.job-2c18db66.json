@@ -1,0 +1,346 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-11-15T16:28:27.056Z",
+  "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+  "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+  "classification": "LIVE_VERIFIED_CONNECTED_WORKER_AUTH_PREPARE_ONLY",
+  "overallG01": "PARTIALLY_COMPLETE",
+  "files": [
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-request.job-2c18db66.json",
+      "bytes": 16752,
+      "rawSha256": "7dbce306308728a6e573ba27431cfcd3491f7de86fe658522169b70c72d54303"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-execution-approval.job-2c18db66.json",
+      "bytes": 2207,
+      "rawSha256": "38f3fae783e13f3bb34207e25f253c9831b15fa4b77bb68ae2f2f71fa27ea92c"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-acceptance-result.job-2c18db66.json",
+      "bytes": 6071,
+      "rawSha256": "266077748295d01f30a60b1184ebc6438fd00e8c08d94eaf39fb2ddbec3206ab"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-acceptance.job-2c18db66.json",
+      "bytes": 7986,
+      "rawSha256": "6e28854fd22729c5a2e15214797ffffad94310ac04fed31345de687317ce3b14"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-first-enqueue-response.job-2c18db66.json",
+      "bytes": 1626,
+      "rawSha256": "3f90679a682fb99f6292e9bacdb3a195031e8f6fd1dd4db5c0984b03be4d00c6"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-second-enqueue-response.job-2c18db66.json",
+      "bytes": 1623,
+      "rawSha256": "bf85d910b153a8cc48142d621a4a9cb4981dd5184c3a74798295d519a0ecbf75"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-launch-response.job-2c18db66.json",
+      "bytes": 1908,
+      "rawSha256": "7e57d33b88eda701713aac31c4df030ba5c086bdcd223d33888f13fcc8717a9b"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-live-observation.job-2c18db66.json",
+      "bytes": 24264,
+      "rawSha256": "57ab267905be20537270a9633b27f921f691214f2c6de3184bff64793d0ef253"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-observer-before.job-2c18db66.json",
+      "bytes": 828,
+      "rawSha256": "88124f595054a9b5059d6c681d477d0eee7584752507fe26cbb7faa97223a728"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-observer-after-refresh.job-2c18db66.json",
+      "bytes": 828,
+      "rawSha256": "413b5922d2435051a6f63ee9124254ca01b12707e6ac59c0b8d54c487995a320"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-observer-before-recovery-enqueue.job-2c18db66.json",
+      "bytes": 828,
+      "rawSha256": "a66033ec58a2e666a479418486fd873055e8e0fd12e7b8674eb981a30b3a5cdb"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-observer-after-first-enqueue.job-2c18db66.json",
+      "bytes": 1453,
+      "rawSha256": "fdf6f29e7e94177d76349de40d4ca802df4da788edce031f65b0947680aa6771"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-observer-after-second-enqueue.job-2c18db66.json",
+      "bytes": 1453,
+      "rawSha256": "9b51b986abfcdb2ac61cef6a06052117dae251e084851cbf175540568bdaac86"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-observer-final.job-2c18db66.json",
+      "bytes": 2751,
+      "rawSha256": "db9e4d3fc1f1c4c565379262203f90af00a7d3676d8bcf9f8687b5d799c4b394"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-anonymous-check.job-2c18db66.json",
+      "bytes": 405,
+      "rawSha256": "c1df6c9a618cc5486d69a9c4931c69defbe7363fa5fa4e2b9a9a509c36baf42c"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-retention-check.job-2c18db66.json",
+      "bytes": 1659,
+      "rawSha256": "bba32fb557acc7307b8da35561d3d831bcdcd5109fdc89f14548b6658763d799"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-postrun-target-check.job-2c18db66.json",
+      "bytes": 773,
+      "rawSha256": "1acb1e5b48fb0c66cf84739ffc4caa275e9da0f2038c667fee750da3c440ab75"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-auth-sql18-postrun.job-2c18db66.json",
+      "bytes": 3616,
+      "rawSha256": "357d5e03fc7995b09ada6cc220e4700fda04f31fbc6637add0b0310744825464"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/draft-recovery.job-2c18db66.json",
+      "bytes": 958,
+      "rawSha256": "fa36fdb116870de6fea0538bdd9fbc9ff6c802691bbaec9c818706145f04472e"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/draft-recovery.enqueue.job-2c18db66.json",
+      "bytes": 215,
+      "rawSha256": "7918ee2a60b90c29acb4d67d02a2c717797274272c47ab8b0d9e712c35c7fa9c"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/draft-recovery-plan.job-2c18db66.json",
+      "bytes": 5022,
+      "rawSha256": "6e7eaa068c7b6891488e01e47965934ade8e6dabddd97d0c580f0b882c5151b5"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-launch-body.job-2c18db66.json",
+      "bytes": 105,
+      "rawSha256": "d8ecf4357b58b2bf816271a680ab3932c9ed87be34280c29be45252c7ec4cd65"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/OWNER_FIRST_ENQUEUE_2c18db66.js",
+      "bytes": 2674,
+      "rawSha256": "b358d3bfe3fadb6f90b4e0ffab5555884c5300d03127fe4ca3936d23c6214672"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/OWNER_SECOND_ENQUEUE_2c18db66.js",
+      "bytes": 2675,
+      "rawSha256": "ef212e71fa9e45878ec901a5b83735ce2ca7b090864d39834855f9ed22aeef06"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/OWNER_LAUNCH_WORKER_2c18db66.js",
+      "bytes": 2423,
+      "rawSha256": "6ae3d77d555b1c0f1bd5a5c1507ed2947bb13243b92ee1eaeabebf08e422d230"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/WORKER_AUTH_ACCEPTANCE_2c18db66.md",
+      "bytes": 9325,
+      "rawSha256": "ba66fa2b1a5f459fd3732310d8d82916e63d387d65a8e429753a62b77327a101"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/WORKER_RECOVERY_2c18db66.md",
+      "bytes": 11015,
+      "rawSha256": "6bcdbb092364142b68b17c22d6b7ecaca48cb888d7d2634e2814bb77cb03efb8"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/DRAFT_RECOVERY_2c18db66.md",
+      "bytes": 14808,
+      "rawSha256": "62d7cc9bd70decdcbd42febc09acfe5eab83be17081520708ae0467b07ebab4e"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/worker-deadlines-evidence.json",
+      "bytes": 10177,
+      "rawSha256": "07ad4979c70ee1421a708b915096f5411196e715c186b7dee5af554fed496de4"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_WILL_G02_G06.md",
+      "bytes": 6528,
+      "rawSha256": "a4be9574ea82d069475f8509f4e6d2977a43a98b8fdba105368d92e735349a74"
+    },
+    {
+      "file": "test-results/guard-g01-unblock/deadlines-candidate-unit.json",
+      "bytes": 307560,
+      "rawSha256": "fbe866e7cb95911698ad164f01d1fb87a3040a44ae92c553d882b3bd6b750e4a"
+    },
+    {
+      "file": "test-results/guard-g01-unblock/deadlines-candidate-normal-unit.json",
+      "bytes": 294348,
+      "rawSha256": "fa9c4794c4bc12317aa210ee02e32cf5308e7f6ac687ec536a4ee886dcd466c8"
+    },
+    {
+      "file": "test-results/guard-g01-deadlines-canvas-normal/.last-run.json",
+      "bytes": 45,
+      "rawSha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    }
+  ],
+  "implementationFiles": [
+    {
+      "file": "src/features/guard/live/database-config.ts",
+      "sha256": "a407afe4c48a8708ee68741eeef8f088585991b7a46050ebfabb66b0940909d0"
+    },
+    {
+      "file": "src/features/guard/live/github-source.ts",
+      "sha256": "a73e5f81061432b723304a927c8a198f5b4edddc3f3ed9e261cb0f8b536eff7a"
+    },
+    {
+      "file": "src/features/guard/live/http.ts",
+      "sha256": "ec136b9a3ecaad3828b012e65137c820186d85e53e082953f508bc179b01914c"
+    },
+    {
+      "file": "src/features/guard/live/migrations.ts",
+      "sha256": "02d22bfa5f519b96e757de22b1d427b3c8c4dfbc60877001881e84d4d692885c"
+    },
+    {
+      "file": "src/features/guard/live/model.ts",
+      "sha256": "0aa12a03d4238922680ad9dc613e5a0c88ef7044bd07e331ada9f352e957d630"
+    },
+    {
+      "file": "src/features/guard/live/persistence.ts",
+      "sha256": "587b24ff142db43139776ef578e25e1a222d54095a02242090fa894cab78b867"
+    },
+    {
+      "file": "src/features/guard/live/preparation-request.ts",
+      "sha256": "1257a3ab8c0cc2fe5f7433362140e0e0e765154d011d92041823d1869542523c"
+    },
+    {
+      "file": "src/features/guard/live/preparation.ts",
+      "sha256": "b0242223054d7d7853c02ac1fbff92b028b70c398da4f4cabbd15c2774dd6bb8"
+    },
+    {
+      "file": "src/features/guard/live/project.ts",
+      "sha256": "8fe7fea879f08a917e167f202f70764a0b3e376cc2cb53299e5e6fa0f934a254"
+    },
+    {
+      "file": "src/features/guard/live/queue.ts",
+      "sha256": "af69a1ec109ccc011248751f9f03f7bfa1ef2bae0815f2d3caa410373ef4d9df"
+    },
+    {
+      "file": "src/features/guard/live/repository.ts",
+      "sha256": "39f9b3854c4144d186ea8563046e272c27960aa258a2b534214231f2cecfdba9"
+    },
+    {
+      "file": "src/features/guard/live/revision.ts",
+      "sha256": "5b64c5ad226f168c37a36a8d15f314a73413e63865cedfe4a1318a53d69233ec"
+    },
+    {
+      "file": "src/features/guard/live/runtime.ts",
+      "sha256": "503d9c5265765d1c92b0967aa797fae5ff46a66418f7c02f91686cfdf2a8836d"
+    },
+    {
+      "file": "src/features/guard/live/schema-readiness.ts",
+      "sha256": "57a99a176f8edbd4e4aaa0a02d8c5a2dde8e4b93b98928a3902957d7903220fc"
+    },
+    {
+      "file": "src/features/guard/live/schema-runner.ts",
+      "sha256": "82167a65a4be9f705de689d3433203acac623f1177cc987d58df68ec3d80f331"
+    },
+    {
+      "file": "src/features/guard/live/service.ts",
+      "sha256": "5b7ed4aaefee8c6f2778037f7473b706b53597881f1da78669cbdf63aba4cb4b"
+    },
+    {
+      "file": "src/features/guard/live/snapshot-directory.ts",
+      "sha256": "2bea71684fba7dc9514c65b9d7178e1537ae3884adc23b7059bd4852d8eca8cf"
+    },
+    {
+      "file": "src/features/guard/live/snapshot.ts",
+      "sha256": "4f0c51f60465e6702e89e1f2f894cfe844d28392905e9667a9868aea4c94ab27"
+    },
+    {
+      "file": "src/features/guard/live/source-acceptance.ts",
+      "sha256": "b0c3f8e31893ffc99ccdb30b15f45ad27cf188bdad10707ca6d5f5a117cb55a4"
+    },
+    {
+      "file": "src/features/guard/live/worker-launcher.ts",
+      "sha256": "72d479214feb95370ad11330ed6d2e66c208b5024716fdf15be880810585091d"
+    },
+    {
+      "file": "tests/guard/g01/ipc.test.ts",
+      "sha256": "a88bffb445b25846d998104b2a66aad6a76fcb29391095f99bf952c62bc4a084"
+    },
+    {
+      "file": "tests/guard/g01/preparation-deadlines.test.ts",
+      "sha256": "27973239064973a6418100996e5d0ed1ff5437e34eead4f17d1bed657a5abdd6"
+    },
+    {
+      "file": "tests/guard/g01/preparation-request.test.ts",
+      "sha256": "d25a4023836fa88a8111e943799e2fbecdc0a57ca9f2de00eb7db723def85dcc"
+    },
+    {
+      "file": "tests/guard/g01/worker-observer.acceptance.ts",
+      "sha256": "e22cb31ac2a7c14d04648f21b13ba58993281ba397af872e3e7d31c5a851b469"
+    },
+    {
+      "file": "tests/guard/g01/worker.test.ts",
+      "sha256": "cc3fa2fca4e8559a540e00cdf1da5af8edc57b964f8a47d217b6a08ddfc738d5"
+    },
+    {
+      "file": "worker/guard/additional-fixtures.ts",
+      "sha256": "68f44b32d93cff4067b40ed88286c47992a2797ec341e5a9551623f57b075954"
+    },
+    {
+      "file": "worker/guard/approval.ts",
+      "sha256": "bebc12deeae4078df6f97349cd5c6a7296da28cd4b42b7775a3e84732755099c"
+    },
+    {
+      "file": "worker/guard/auth-broker.ts",
+      "sha256": "a5e29835d1cc957a22d7757348ed0a63ea9c1ac25ac7e4a5c910112ca53ea943"
+    },
+    {
+      "file": "worker/guard/bootstrap.ts",
+      "sha256": "1e067402b727763fd8a5b2212bb512bca0b1e19954ffa761a60c3c7b9ff8b48f"
+    },
+    {
+      "file": "worker/guard/fixture-runner.ts",
+      "sha256": "7d142261660ecd93ad79beac59c7a8c56954f0f33f90620658f433f61654d2f8"
+    },
+    {
+      "file": "worker/guard/gitleaks-fixture.ts",
+      "sha256": "cfe8f0a9944cc8915e8d3645954774052c98f64c30c981d49883b45b09a8d11b"
+    },
+    {
+      "file": "worker/guard/ipc.ts",
+      "sha256": "eadbcea81fa639713e0c1012072664cfd59e6a57f84ff1695e7e080c95e89557"
+    },
+    {
+      "file": "worker/guard/main.ts",
+      "sha256": "bc778feb8c760dee68b39e6a78bf6f2004c8226b03d51abf3e69f912287a3655"
+    },
+    {
+      "file": "worker/guard/orchestrator.ts",
+      "sha256": "9d526420a3925c3ba190492dc96c972dea4947a17f7b818803426bdd69b20f84"
+    },
+    {
+      "file": "worker/guard/plan.ts",
+      "sha256": "7ecfee7f8c6bdd4b67cc5ef20d1bdd032dddb804c79488152d219be70885c643"
+    },
+    {
+      "file": "worker/guard/prepare.ts",
+      "sha256": "8587f6261ca63316624f3280b3d56943bb0d6c61fbbd51ee6615073c25b2a12d"
+    },
+    {
+      "file": "worker/guard/runtime.ts",
+      "sha256": "d152d4dd952267264d79ecd08e69468ff6f2be6ebe4af703ffa4a50871744a76"
+    },
+    {
+      "file": "worker/guard/sandbox-evidence.ts",
+      "sha256": "8031c85b514ee831472a3d68b36b9c38b3c24219e6c82496b931366d33724f20"
+    },
+    {
+      "file": "worker/guard/sandbox.ts",
+      "sha256": "4c9617f5180367e586a3372d9ea344b36f72610b2a2df5954c87d55322bfb823"
+    },
+    {
+      "file": "worker/guard/storage.ts",
+      "sha256": "ec7a9f0bc9e4de07e24a26ba6a39ba32042093aa227fa69a2353b0de709fea33"
+    },
+    {
+      "file": "worker/guard/timing.ts",
+      "sha256": "b7a6c3807e1003ef5df2d4da38aadae4717cf28338c153d31e73809eb39ac9ca"
+    }
+  ],
+  "implementationHashEncoding": "UTF-8 CRLF normalized to LF",
+  "stagedIndexSha256": "40d77c02186b074dacfd2fe3a6f2816d89a7e59d5f279cbe8be8c75c9c716c4f",
+  "privateSecretsOrAuthStoreIncluded": false,
+  "operationBudgetConsumed": true,
+  "additionalEnqueueOrLaunchAuthorized": false
+}

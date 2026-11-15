@@ -1,0 +1,790 @@
+{
+  "createdAt": "2026-11-15T16:47:35.384Z",
+  "status": "PROPOSED_NOT_EXECUTED",
+  "target": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "wetscan_s01_test_guardg01",
+    "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f"
+  },
+  "oldJobReadOnlyReference": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+  "cases": [
+    {
+      "id": "Q00",
+      "area": "sandbox",
+      "title": "Qualify changed exact sandbox contract",
+      "jobs": 0,
+      "enqueue": 0,
+      "launches": 0,
+      "snapshots": 0,
+      "containers": 6,
+      "cancels": 0,
+      "minutes": 55,
+      "trigger": "Trusted synthetic control source only; refreshed exact spec/image/program/daemon binding",
+      "expected": "Actual enforcing controls and reviewable operator evidence, not integrated-worker PASS",
+      "technicalNeed": "Old successful six cases used a different contract/image/harness and their attestation window cannot be renewed by restamping old output.",
+      "blockers": [
+        "GAP-02",
+        "GAP-05"
+      ],
+      "dependencies": [],
+      "fault": "Six explicit control variants: base controls, output, timeout, cancellation, memory, owned orphan; no implicit extra variants"
+    },
+    {
+      "id": "I01",
+      "area": "sandbox",
+      "title": "One real job to enforcing sandbox",
+      "jobs": 1,
+      "enqueue": 1,
+      "launches": 1,
+      "snapshots": 1,
+      "containers": 1,
+      "cancels": 0,
+      "minutes": 55,
+      "trigger": "Fresh Auth -> real immutable GitHub snapshot -> private leased capability -> exact trusted probe in Docker",
+      "expected": "Source manifest/digest match, real kernel controls, foundation_sandbox_verified audit, truthful no-scanner result, independent owned cleanup absence",
+      "technicalNeed": "First actual worker-to-sandbox composition; old job never reached Docker.",
+      "blockers": [
+        "GAP-01",
+        "GAP-02",
+        "GAP-03",
+        "GAP-04",
+        "GAP-05"
+      ],
+      "dependencies": [
+        "Q00"
+      ],
+      "fault": "None"
+    },
+    {
+      "id": "N00",
+      "area": "negative",
+      "title": "Fail closed on invalid enforcement evidence",
+      "jobs": 0,
+      "enqueue": 0,
+      "launches": 0,
+      "snapshots": 0,
+      "containers": 0,
+      "cancels": 0,
+      "minutes": 20,
+      "trigger": "Three real-daemon readiness checks with missing, expired, or mismatched negative evidence operands",
+      "expected": "Denied before create/start; no fabricated positive evidence and zero durable jobs",
+      "technicalNeed": "Changed production contract against actual daemon rather than driver doubles.",
+      "blockers": [
+        "GAP-02",
+        "GAP-03"
+      ],
+      "dependencies": [
+        "Q00"
+      ],
+      "fault": "Negative evidence objects are explicit test operands; outer control approval remains valid and is never backdated"
+    },
+    {
+      "id": "N01",
+      "area": "negative",
+      "title": "Normal owner session revocation",
+      "jobs": 1,
+      "enqueue": 1,
+      "launches": 1,
+      "snapshots": 1,
+      "containers": 0,
+      "cancels": 1,
+      "minutes": 30,
+      "trigger": "After real acquisition and before probe admission, owner logs out through existing normal UI; fresh resolution must reject",
+      "expected": "No foundation success/container; owned source disposed; lease settled; after owner restores normal session, one approved cancel terminalizes any retained queued/preparing residue",
+      "technicalNeed": "Live existing Auth/IPC revocation with real resources; synthetic broker rejection already covered but is not this proof.",
+      "blockers": [
+        "GAP-03",
+        "GAP-04"
+      ],
+      "dependencies": [
+        "I01"
+      ],
+      "fault": "Owner-session logout only. No GitHub App uninstall/access writes and no raw Auth-store edits. GitHub provider-permission revocation remains a distinct unproven scope."
+    },
+    {
+      "id": "N02",
+      "area": "negative",
+      "title": "Live in-flight cancellation",
+      "jobs": 1,
+      "enqueue": 1,
+      "launches": 1,
+      "snapshots": 1,
+      "containers": 1,
+      "cancels": 1,
+      "minutes": 20,
+      "trigger": "Cancel the exact job after its owned container is observed running",
+      "expected": "Cancelled scan/queue/attempt, no successful foundation audit, released lease, stopped heartbeat and no owned container/source",
+      "technicalNeed": "Actual owner route -> DB flag -> lease/IPC/container cancellation chain, beyond completed DB fixture cancellation.",
+      "blockers": [
+        "GAP-01",
+        "GAP-03",
+        "GAP-04",
+        "GAP-05"
+      ],
+      "dependencies": [
+        "I01"
+      ],
+      "fault": "One normal same-origin exact-job cancel; no module-wide shutdown"
+    },
+    {
+      "id": "N03",
+      "area": "negative",
+      "title": "Actual permit expiry during work",
+      "jobs": 1,
+      "enqueue": 1,
+      "launches": 1,
+      "snapshots": 1,
+      "containers": 1,
+      "cancels": 1,
+      "minutes": 25,
+      "trigger": "Shortened worker subpermit expires on the real clock at 90 seconds while approved hold probe is running",
+      "expected": "No protected forward write after expiry; cleanup-only authority settles owned resources and retained job within outer valid control window",
+      "technicalNeed": "Real expired in-flight capability instead of fake-clock/unit checks.",
+      "blockers": [
+        "GAP-03",
+        "GAP-04",
+        "GAP-05"
+      ],
+      "dependencies": [
+        "I01"
+      ],
+      "fault": "Real expiry; no Date mock/backdating. Role/cleanup permit remains independently valid; new work is never extended."
+    },
+    {
+      "id": "N04",
+      "area": "negative",
+      "title": "Actual short-lived grant expiry",
+      "jobs": 1,
+      "enqueue": 1,
+      "launches": 1,
+      "snapshots": 0,
+      "containers": 0,
+      "cancels": 1,
+      "minutes": 20,
+      "trigger": "Hold the actually minted 60-second grant at an exact private checkpoint for at least 61 seconds, then exercise its existing authorize boundary",
+      "expected": "Expired grant denied before source/probe/foundation write; no forged grant or replacement token; explicit cancel of retained case job",
+      "technicalNeed": "Live real-clock expiry of a real Auth grant, distinct from operator-permit expiry.",
+      "blockers": [
+        "GAP-03",
+        "GAP-04"
+      ],
+      "dependencies": [
+        "I01"
+      ],
+      "fault": "A scope-bound private pause only; no globally disabled heartbeat/Auth or modified grant TTL"
+    },
+    {
+      "id": "N05",
+      "area": "negative",
+      "title": "Integrated container timeout",
+      "jobs": 1,
+      "enqueue": 1,
+      "launches": 1,
+      "snapshots": 1,
+      "containers": 1,
+      "cancels": 1,
+      "minutes": 20,
+      "trigger": "Trusted hold program exceeds exact 1500ms sandbox deadline",
+      "expected": "Native process/container bounded termination, fixed safe failure, no foundation success, cleanup and one explicit retained-job cancel if needed",
+      "technicalNeed": "Proves actual timeout propagation through worker/lease/IPC/source ownership, not repetition of the standalone passed probe.",
+      "blockers": [
+        "GAP-01",
+        "GAP-03",
+        "GAP-04",
+        "GAP-05"
+      ],
+      "dependencies": [
+        "I01"
+      ],
+      "fault": "No arbitrary repo command or host execution"
+    },
+    {
+      "id": "N06",
+      "area": "negative",
+      "title": "Source-timeout partial cleanup",
+      "jobs": 1,
+      "enqueue": 1,
+      "launches": 1,
+      "snapshots": 1,
+      "containers": 0,
+      "cancels": 1,
+      "minutes": 20,
+      "trigger": "Exact private source checkpoint after at least one bounded blob write waits for the existing real 45-second abort",
+      "expected": "Partial source root removed, close honored, no container/foundation success, bounded failure and explicit case cancel",
+      "technicalNeed": "Live resource/IPC/DB cleanup at source timeout was not proven by the successful snapshot.",
+      "blockers": [
+        "GAP-03",
+        "GAP-04"
+      ],
+      "dependencies": [
+        "I01"
+      ],
+      "fault": "Controlled local delay honors real AbortSignal; label LIVE_INJECTED_SOURCE_TIMEOUT, not a claim of an actual GitHub outage"
+    },
+    {
+      "id": "N07",
+      "area": "negative",
+      "title": "Container cleanup failure and rescue",
+      "jobs": 1,
+      "enqueue": 1,
+      "launches": 1,
+      "snapshots": 1,
+      "containers": 1,
+      "cancels": 1,
+      "minutes": 25,
+      "trigger": "One exact-case cleanup boundary deliberately denies the first owned-container removal",
+      "expected": "cleanup_failed surfaces; no accepted success; separately preapproved rescue removes only the registered actual ID and verifies absence; no work retry",
+      "technicalNeed": "Actual owned resources and failure surface/rescue protocol were not exercised in the positive run.",
+      "blockers": [
+        "GAP-03",
+        "GAP-05"
+      ],
+      "dependencies": [
+        "I01"
+      ],
+      "fault": "LIVE_INJECTED_CLEANUP_FAILURE; clearly distinguish boundary injection from an OS/daemon outage. One rescue action is an explicit part of this case, not automatic job retry."
+    },
+    {
+      "id": "N08",
+      "area": "negative",
+      "title": "Actual Windows source-delete refusal and rescue",
+      "jobs": 1,
+      "enqueue": 1,
+      "launches": 1,
+      "snapshots": 1,
+      "containers": 0,
+      "cancels": 1,
+      "minutes": 25,
+      "trigger": "Trusted owner helper opens one registered owned snapshot file with delete sharing denied, without reading its contents",
+      "expected": "Real OS deletion refusal is surfaced, no foundation success; release only the owned handle and explicitly rescue the exact confined root/own .lease",
+      "technicalNeed": "Actual filesystem cleanup failure, unlike mocked remove failure or successful cleanup.",
+      "blockers": [
+        "GAP-03",
+        "GAP-04"
+      ],
+      "dependencies": [
+        "I01"
+      ],
+      "fault": "Windows helper must be implemented/hashed first; no chmod/ACL changes, source writes, global file handles or unrelated process termination"
+    },
+    {
+      "id": "C01",
+      "area": "recovery",
+      "title": "Child crash, natural reclaim and stale fencing",
+      "jobs": 1,
+      "enqueue": 1,
+      "launches": 2,
+      "snapshots": 2,
+      "containers": 2,
+      "cancels": 0,
+      "minutes": 40,
+      "trigger": "Terminate only exact recorded worker A PID/creation identity after real resource acquisition; wait natural lease expiry, then fresh-authorized worker B on this same NEW case job",
+      "expected": "Two real attempts/fences1->2; a controlled old opaque lease capability write is rejected without audit changes; no physical container overlap and final owned cleanup",
+      "technicalNeed": "Existing process smoke uses queue doubles, while old real positive run had no crash/restart.",
+      "blockers": [
+        "GAP-03",
+        "GAP-04",
+        "GAP-05",
+        "GAP-07"
+      ],
+      "dependencies": [
+        "I01"
+      ],
+      "fault": "Old token retained only privately for one denied stale-capability replay; never exported. No PostgreSQL/daemon/Sentinel/unrelated process kill."
+    },
+    {
+      "id": "C02A",
+      "area": "recovery",
+      "title": "Parent crash, physical overlap denial and recovery",
+      "jobs": 1,
+      "enqueue": 1,
+      "launches": 3,
+      "snapshots": 2,
+      "containers": 2,
+      "cancels": 0,
+      "minutes": 55,
+      "trigger": "Owner abruptly stops only the verified sole candidate app/child process tree after a registered container starts; restore the same single app normally; attempt B after lease expiry while orphan container remains; recover with C after owned cleanup",
+      "expected": "A crashes; B must fail closed before any second live container despite logical lease availability; after actual orphan deadline/cleanup C completes with fence3. One expired private source root remains in documented custody pending Window B.",
+      "technicalNeed": "Actual parent death/orphan resources and physical-overlap admission were not shown by graceful lifecycle or child-only crash.",
+      "blockers": [
+        "GAP-03",
+        "GAP-04",
+        "GAP-05",
+        "GAP-06",
+        "GAP-07"
+      ],
+      "dependencies": [
+        "C01"
+      ],
+      "fault": "Explicit owner downtime action affects the candidate app's Auth/Canvas availability. No second Auth writer, daemon/service restart or unrelated process kill. Root custody is private and bounded until new cleanup window."
+    },
+    {
+      "id": "C02B",
+      "area": "recovery",
+      "title": "Real-aged source orphan cleanup only",
+      "jobs": 0,
+      "enqueue": 0,
+      "launches": 0,
+      "snapshots": 0,
+      "containers": 0,
+      "cancels": 0,
+      "minutes": 20,
+      "trigger": "New approval after the C02A root has actually aged >=3600000ms and expired under unchanged marker metadata",
+      "expected": "GuardSnapshotAdapter.reapExpired removes only the exact registered root and its own .lease; actual absence independently observed; historical markers untouched",
+      "technicalNeed": "Unscheduled real source reaper has a one-hour real-age condition that does not fit the old 55-minute permit.",
+      "blockers": [
+        "GAP-06"
+      ],
+      "dependencies": [
+        "C02A"
+      ],
+      "fault": "Never simulate Date.now, rewrite marker, reuse old permit or enumerate/delete unrelated temp roots"
+    },
+    {
+      "id": "L01",
+      "area": "preservation",
+      "title": "Real already_applied schema path, zero DDL",
+      "jobs": 0,
+      "enqueue": 0,
+      "launches": 0,
+      "snapshots": 0,
+      "containers": 0,
+      "cancels": 0,
+      "minutes": 20,
+      "trigger": "One existing applyGuardSchema invocation through a dedicated read-only-default migration-purpose connection after exact ledger checks",
+      "expected": "already_applied; zero DDL/ledger changes; same platform/Guard checksum and preservation projection",
+      "technicalNeed": "One prior real apply plus one real no-op proves up/up without rerunning bootstrap or recreating a schema.",
+      "blockers": [
+        "GAP-08"
+      ],
+      "dependencies": [],
+      "fault": "Read-only-default session forces even an accidental missing-ledger DDL path to fail. Migration-purpose provisioning/runner availability must be reviewed; never use app/worker credentials as migrator."
+    },
+    {
+      "id": "L02",
+      "area": "preservation",
+      "title": "Read-only retained-data down-refusal guard",
+      "jobs": 0,
+      "enqueue": 0,
+      "launches": 0,
+      "snapshots": 0,
+      "containers": 0,
+      "cancels": 0,
+      "minutes": 10,
+      "trigger": "Owner existing pgAdmin executes only prepared READ ONLY target check and canonical down refusal predicate",
+      "expected": "SQLSTATE P0001 guard_rollback_requires_empty_inactive_scope; owner ROLLBACK; no DROP/DELETE/DDL is present in the script",
+      "technicalNeed": "Real SQL guard evaluation/role visibility is useful; it does NOT prove successful down/up or exclusive-lock behavior.",
+      "blockers": [],
+      "dependencies": [],
+      "fault": "No canonical destructive script execution, no database/role creation and no fixture removal"
+    }
+  ],
+  "proposedJobs": [
+    {
+      "caseId": "I01",
+      "status": "PROPOSED_OFFLINE_NOT_A_LIVE_AUTH_GRANT_OR_DB_JOB",
+      "binding": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "jobId": "9406942fce73ceb3ce91236ef25a4934c7f887bb4ebd87a297ac594789e75253",
+        "actorId": "github-user-145520313",
+        "repository": {
+          "provider": "github",
+          "repositoryId": "839286157",
+          "branch": "main",
+          "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+        },
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-i01"
+      },
+      "request": {
+        "branch": "main",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-i01"
+      },
+      "maximumCreatedJobs": 1,
+      "maximumEnqueueCalls": 1,
+      "maximumWorkerLaunches": 1,
+      "sourceHeadMustBeFreshAtActivation": true,
+      "oldJobMustNeverBeSubstituted": true
+    },
+    {
+      "caseId": "N01",
+      "status": "PROPOSED_OFFLINE_NOT_A_LIVE_AUTH_GRANT_OR_DB_JOB",
+      "binding": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "jobId": "81d0463e8e630801b0f97f4758f0dc28588c83ec9f79df3ca97c74addf8431ee",
+        "actorId": "github-user-145520313",
+        "repository": {
+          "provider": "github",
+          "repositoryId": "839286157",
+          "branch": "main",
+          "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+        },
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-n01"
+      },
+      "request": {
+        "branch": "main",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-n01"
+      },
+      "maximumCreatedJobs": 1,
+      "maximumEnqueueCalls": 1,
+      "maximumWorkerLaunches": 1,
+      "sourceHeadMustBeFreshAtActivation": true,
+      "oldJobMustNeverBeSubstituted": true
+    },
+    {
+      "caseId": "N02",
+      "status": "PROPOSED_OFFLINE_NOT_A_LIVE_AUTH_GRANT_OR_DB_JOB",
+      "binding": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "jobId": "8bce7270eee04143622a998e4fe718344f70b174ab8e63718426d5741dc6b802",
+        "actorId": "github-user-145520313",
+        "repository": {
+          "provider": "github",
+          "repositoryId": "839286157",
+          "branch": "main",
+          "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+        },
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-n02"
+      },
+      "request": {
+        "branch": "main",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-n02"
+      },
+      "maximumCreatedJobs": 1,
+      "maximumEnqueueCalls": 1,
+      "maximumWorkerLaunches": 1,
+      "sourceHeadMustBeFreshAtActivation": true,
+      "oldJobMustNeverBeSubstituted": true
+    },
+    {
+      "caseId": "N03",
+      "status": "PROPOSED_OFFLINE_NOT_A_LIVE_AUTH_GRANT_OR_DB_JOB",
+      "binding": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "jobId": "ac55f222070eb67b21ca12c8301a998ba962a6089018d31167bf40d7cd604e73",
+        "actorId": "github-user-145520313",
+        "repository": {
+          "provider": "github",
+          "repositoryId": "839286157",
+          "branch": "main",
+          "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+        },
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-n03"
+      },
+      "request": {
+        "branch": "main",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-n03"
+      },
+      "maximumCreatedJobs": 1,
+      "maximumEnqueueCalls": 1,
+      "maximumWorkerLaunches": 1,
+      "sourceHeadMustBeFreshAtActivation": true,
+      "oldJobMustNeverBeSubstituted": true
+    },
+    {
+      "caseId": "N04",
+      "status": "PROPOSED_OFFLINE_NOT_A_LIVE_AUTH_GRANT_OR_DB_JOB",
+      "binding": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "jobId": "c1d4e02983ce7b7ccd005051f1d839a3dea6eca55d9714acbb103e5c11b5d246",
+        "actorId": "github-user-145520313",
+        "repository": {
+          "provider": "github",
+          "repositoryId": "839286157",
+          "branch": "main",
+          "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+        },
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-n04"
+      },
+      "request": {
+        "branch": "main",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-n04"
+      },
+      "maximumCreatedJobs": 1,
+      "maximumEnqueueCalls": 1,
+      "maximumWorkerLaunches": 1,
+      "sourceHeadMustBeFreshAtActivation": true,
+      "oldJobMustNeverBeSubstituted": true
+    },
+    {
+      "caseId": "N05",
+      "status": "PROPOSED_OFFLINE_NOT_A_LIVE_AUTH_GRANT_OR_DB_JOB",
+      "binding": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "jobId": "784c87eddfd92f5f5aefd9a058878bcb4fd842ad50737b9d4d5f9ad4f2c9158a",
+        "actorId": "github-user-145520313",
+        "repository": {
+          "provider": "github",
+          "repositoryId": "839286157",
+          "branch": "main",
+          "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+        },
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-n05"
+      },
+      "request": {
+        "branch": "main",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-n05"
+      },
+      "maximumCreatedJobs": 1,
+      "maximumEnqueueCalls": 1,
+      "maximumWorkerLaunches": 1,
+      "sourceHeadMustBeFreshAtActivation": true,
+      "oldJobMustNeverBeSubstituted": true
+    },
+    {
+      "caseId": "N06",
+      "status": "PROPOSED_OFFLINE_NOT_A_LIVE_AUTH_GRANT_OR_DB_JOB",
+      "binding": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "jobId": "16c2bb89c7946e9aeaa596cb8cdb77d5c8ce17bca6fdb139d43c2e5a7124ee61",
+        "actorId": "github-user-145520313",
+        "repository": {
+          "provider": "github",
+          "repositoryId": "839286157",
+          "branch": "main",
+          "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+        },
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-n06"
+      },
+      "request": {
+        "branch": "main",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-n06"
+      },
+      "maximumCreatedJobs": 1,
+      "maximumEnqueueCalls": 1,
+      "maximumWorkerLaunches": 1,
+      "sourceHeadMustBeFreshAtActivation": true,
+      "oldJobMustNeverBeSubstituted": true
+    },
+    {
+      "caseId": "N07",
+      "status": "PROPOSED_OFFLINE_NOT_A_LIVE_AUTH_GRANT_OR_DB_JOB",
+      "binding": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "jobId": "aa61fde64084625af0936937a6b3fdfab3b3fb20ef52246ee83196cdaaac05c0",
+        "actorId": "github-user-145520313",
+        "repository": {
+          "provider": "github",
+          "repositoryId": "839286157",
+          "branch": "main",
+          "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+        },
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-n07"
+      },
+      "request": {
+        "branch": "main",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-n07"
+      },
+      "maximumCreatedJobs": 1,
+      "maximumEnqueueCalls": 1,
+      "maximumWorkerLaunches": 1,
+      "sourceHeadMustBeFreshAtActivation": true,
+      "oldJobMustNeverBeSubstituted": true
+    },
+    {
+      "caseId": "N08",
+      "status": "PROPOSED_OFFLINE_NOT_A_LIVE_AUTH_GRANT_OR_DB_JOB",
+      "binding": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "jobId": "efa958b3a06a459f01754128569d8dd4d358e0ba8f2500ffa405b11455c86c71",
+        "actorId": "github-user-145520313",
+        "repository": {
+          "provider": "github",
+          "repositoryId": "839286157",
+          "branch": "main",
+          "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+        },
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-n08"
+      },
+      "request": {
+        "branch": "main",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-n08"
+      },
+      "maximumCreatedJobs": 1,
+      "maximumEnqueueCalls": 1,
+      "maximumWorkerLaunches": 1,
+      "sourceHeadMustBeFreshAtActivation": true,
+      "oldJobMustNeverBeSubstituted": true
+    },
+    {
+      "caseId": "C01",
+      "status": "PROPOSED_OFFLINE_NOT_A_LIVE_AUTH_GRANT_OR_DB_JOB",
+      "binding": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "jobId": "7e99c535aa4a3ae89e002b02ae397664c8f2308ada9fdd8a26f6162325218e09",
+        "actorId": "github-user-145520313",
+        "repository": {
+          "provider": "github",
+          "repositoryId": "839286157",
+          "branch": "main",
+          "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+        },
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-c01"
+      },
+      "request": {
+        "branch": "main",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-c01"
+      },
+      "maximumCreatedJobs": 1,
+      "maximumEnqueueCalls": 1,
+      "maximumWorkerLaunches": 2,
+      "sourceHeadMustBeFreshAtActivation": true,
+      "oldJobMustNeverBeSubstituted": true
+    },
+    {
+      "caseId": "C02A",
+      "status": "PROPOSED_OFFLINE_NOT_A_LIVE_AUTH_GRANT_OR_DB_JOB",
+      "binding": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "jobId": "bf89f21068a86436314868e8e21de45107916ce48537ecb3f5aae2753c2a11fa",
+        "actorId": "github-user-145520313",
+        "repository": {
+          "provider": "github",
+          "repositoryId": "839286157",
+          "branch": "main",
+          "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+        },
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-c02a"
+      },
+      "request": {
+        "branch": "main",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-c02a"
+      },
+      "maximumCreatedJobs": 1,
+      "maximumEnqueueCalls": 1,
+      "maximumWorkerLaunches": 3,
+      "sourceHeadMustBeFreshAtActivation": true,
+      "oldJobMustNeverBeSubstituted": true
+    }
+  ],
+  "totals": {
+    "newDurableJobsAtMost": 11,
+    "newEnqueueCallsAtMost": 11,
+    "workerLaunchesAtMost": 14,
+    "containerCreatesAtMost": 15,
+    "simultaneousGuardContainersAtMost": 1
+  },
+  "fixedBaselineRowCount": 3,
+  "externalSentinel": "NOT_VERIFIED / TARGET_NOT_IDENTIFIED"
+}
