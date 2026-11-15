@@ -184,7 +184,7 @@ describe("REAL PostgreSQL S01 acceptance - BLOCKED until explicit H01 test-targe
       expect(
         (await client.query("SELECT version FROM platform.schema_migrations"))
           .rows,
-      ).toHaveLength(1);
+      ).toHaveLength(plan.migrations.length);
     } finally {
       client.release();
     }

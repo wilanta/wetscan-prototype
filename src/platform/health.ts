@@ -21,7 +21,7 @@ export async function platformHealth(db: PlatformDatabase, workerId?: string) {
       db.requireWorker(tx);
       const migration = await db.query(
         tx,
-        "SELECT version FROM platform.schema_migrations ORDER BY version DESC LIMIT 1",
+        "SELECT version FROM platform.schema_migrations WHERE version='0001_foundation'",
       );
       if (migration.rows[0]?.version !== "0001_foundation")
         throw new Error("schema_not_ready");

@@ -12,6 +12,7 @@ import {
 import { registeredScopes } from "../../src/features/sentinel/storage/projects";
 import type { SentinelScope } from "../../src/features/sentinel/types";
 import { executeLease } from "./executor";
+import { retainTelemetry } from "../../src/features/sentinel/telemetry/store";
 import {
   closeHealthServer,
   ShutdownCoordinator,
@@ -135,6 +136,8 @@ export async function runSentinelWorker(input: {
           for (const scope of scopes) {
             if (stop.signal.aborted) break;
             await retainInfrastructure(db, scope, options.retentionDays);
+            if (migrations.some((m) => m.version === "0002_telemetry"))
+              await retainTelemetry(db, scope);
             if (stop.signal.aborted) break;
             const queue = new PostgresQueue(db, scope, [
               "sentinel.maintenance",
@@ -153,6 +156,8 @@ export async function runSentinelWorker(input: {
                   async (job, signal) => {
                     if (signal.aborted) throw new Error("stopping");
                     await retainInfrastructure(db, job, options.retentionDays);
+                    if (migrations.some((m) => m.version === "0002_telemetry"))
+                      await retainTelemetry(db, job);
                   },
                   {
                     heartbeatMs: options.heartbeatMs,
