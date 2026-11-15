@@ -179,3 +179,32 @@ it("refuses rewriting an existing audit prefix even when the lease and revision 
     false,
   );
 });
+
+it("an exact-job worker claim and failure reconciliation cannot select other project jobs", async () => {
+  const { client, db, job } = await setup(true);
+  client.respond = async (sql) => ({
+    rows: sql.includes("max_running")
+      ? [{ max_running: 1 }]
+      : sql.includes("SELECT project_id")
+        ? [{ project_id: scope.projectId }]
+        : sql.includes("active_lease_count")
+          ? [{ n: 0 }]
+          : [],
+    rowCount: sql.includes("SELECT project_id") ? 1 : 0,
+  });
+  await new GuardPostgresQueue(db, scope, job.id).claim({
+    module: "guard",
+    workerId: "guard-fixture",
+    limit: 1,
+    leaseMs: 30000,
+  });
+  const candidates = client.calls.find((c) =>
+    c.sql.includes("WITH candidates"),
+  );
+  expect(candidates?.sql).toContain("job_id=$9");
+  expect(candidates?.values[8]).toBe(job.id);
+  for (const query of client.calls.filter((c) => c.sql.startsWith("UPDATE"))) {
+    expect(query.sql).toContain("$5");
+    expect(query.values[4]).toBe(job.id);
+  }
+});

@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import type {
   ApprovedDatabaseConfig,
   DatabaseApproval,
+  Target,
 } from "../../../platform/config";
 import { parseApproval } from "../../../platform/config";
 import { LiveGuardError } from "./model";
@@ -52,7 +53,8 @@ export async function guardDatabaseConfig(
   environment: Readonly<Record<string, string | undefined>>,
   purpose: keyof typeof guardRoles,
   plan: string,
-): Promise<ApprovedDatabaseConfig> {
+  expectedTarget?: Target,
+): Promise<ApprovedDatabaseConfig & { approval: GuardDatabaseApproval }> {
   const approvalPath =
       environment[`GUARD_DB_${purpose.toUpperCase()}_APPROVAL_FILE`],
     passwordPath =
@@ -71,6 +73,13 @@ export async function guardDatabaseConfig(
   } catch {
     throw new LiveGuardError("approval_required");
   }
+  if (
+    expectedTarget &&
+    (["host", "port", "database", "marker"] as const).some(
+      (k) => approval.target[k] !== expectedTarget[k],
+    )
+  )
+    throw new LiveGuardError("approval_required");
   // Only an operator's explicit active exact-target approval permits reading its purpose-specific credential at runtime.
   let password: string;
   try {

@@ -4,7 +4,7 @@ import {
   sourceRequest,
   revokeSourceToken,
 } from "../../canvas/server/github-api";
-import { array, record, text } from "../security";
+import { array, record, text, authorize } from "../security";
 import { LiveGuardError, type SourceAccess, type SourceEntry } from "./model";
 import { authorizeGuardProject } from "./project";
 const sha = (value: unknown) => {
@@ -21,6 +21,23 @@ export function githubSourceAccess(
   return {
     authorize: () => authorizeGuardProject(token, projectId),
     async open(authority, signal) {
+      if (signal?.aborted) throw new LiveGuardError("source_unavailable");
+      const current = await authorizeGuardProject(token, projectId);
+      authorize(current.grant, authority.grant, "scan");
+      if (
+        current.grant.actorId !== authority.grant.actorId ||
+        current.userId !== authority.userId ||
+        current.installationId !== authority.installationId ||
+        current.repositoryId !== authority.repositoryId ||
+        current.repositoryName !== authority.repositoryName ||
+        current.branch !== authority.branch ||
+        !Number.isSafeInteger(authority.installationId) ||
+        authority.installationId < 1 ||
+        !/^[1-9]\d{0,15}$/.test(authority.repositoryId) ||
+        !Number.isSafeInteger(Number(authority.repositoryId)) ||
+        !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(authority.repositoryName)
+      )
+        throw new LiveGuardError("not_found", 404);
       const grant = record(
         await sourceRequest<unknown>(
           `/app/installations/${authority.installationId}/access_tokens`,

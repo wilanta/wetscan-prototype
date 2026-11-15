@@ -1,5 +1,29 @@
 # G01 current status - 15 November 2026
 
+## Current finalization status - 15 November 2026
+
+See [GUARD_G01_FINALIZATION.md](GUARD_G01_FINALIZATION.md) for the current audit, implementation, test results and exact remaining approval checklist. Overall **PARTIALLY COMPLETE**, real acceptance **BLOCKED**. Latest user explicitly authorizes candidate commit/push despite the known baseline Sentinel failure; the earlier publication hold below is historical and superseded. No Sentinel fix/assertion edit, G02, real SQL/provider/worker/container operation, merge or deploy is performed. Current old Guard HEAD is92ee6fa, preserved; do not restore historical7207a16 state. New producer is prepare_only, lease getter is now forwarded, snapshot request mismatch/concurrency and sandbox identity/evidence boundaries are fixed; earlier descriptions of missing implementations describe their historical phase.
+
+
+## Actual integration candidate - 15 November 2026
+
+G01 remains **PARTIALLY_VERIFIED / PUBLICATION BLOCKED**. New branch feat/guard-g01-s03-integration at basef7bfeef contains the reviewed Guard delta plus compatibility tests/docs. Old Guard worktree unchanged.707units/typecheck/lint/build/42focused contracts pass; existing browser59/60pass. S03validation-error race fails its original assertion. User declined Sentinel modification and instructed commit/push held; no Sentinel code fix or new commit/push exists. See [integration validation](GUARD_G01_S03_INTEGRATION_VALIDATION.md) and actual plan JSON (aggregateb63e1e...). All real DB/source/sandbox/connected-worker acceptance remains open. G02 not started.
+
+
+## Latest resolver/launcher continuation - 15 November 2026
+
+Overall **PARTIALLY_VERIFIED**. GRD-004 now has a concrete Auth-process broker/private-IPC resolver and approved one-job prepare-only launcher/bootstrap, implemented but NOT Live-accepted/activated. Existing Auth remains the only session writer; child receives no Auth/GitHub credentials. No new Auth, dashboard, SQL/shared-source/dependency changes. No secret read or real target operation.
+
+567-unit/typecheck/lint/build and Guard5/Auth21/Sentinel5 fixture browser checks pass. See [worker Auth review](GUARD_G01_WORKER_AUTH_REVIEW.md). GitHub/DB/RLS/Sentinel-preservation/connected-worker/sandbox acceptance remain open. In addition, master advanced externally to S03/f7bfeef, while Guard stays on7207a16. No merge/rebase; baseline alignment, refreshed migration hashes and combined validation are now prerequisite to runtime approval. Historical missing-resolver/interface-only statements below are superseded for implementation, not for acceptance. G02 not started.
+
+
+## Latest follow-up review - 15 November 2026
+
+Status remains **PARTIALLY_VERIFIED**. Local Git now records Guard commit `7207a16` merged to clean master `12b843e`; the isolated Guard worktree remains on `feat/guard-g01-live-integration`. Publication occurred after the implementation record below and was not performed by this follow-up. Merge does not establish real acceptance. Read [the current preflight](GUARD_G01_ACCEPTANCE_PREFLIGHT.md): GitHub/PostgreSQL/RLS/preservation, concrete worker resolver/launcher and enforcing sandbox remain open.16 focused fixture tests and the migration-plan check pass; both tested Docker endpoints are unavailable. No G02 or real runtime operation starts here.
+
+## Preserved implementation status
+
+
 **PARTIALLY_VERIFIED.** Worktree `wetscan-guard-g01`, branch `feat/guard-g01-live-integration`, baseline `cd313ce29aeac865e15cea9abd9c412cb9c2c3cc`. No commit/push/PR, DB connection/migration, real provider acceptance, connected worker or scanner execution. G02 has not started. The historical document below is preserved verbatim and does not describe new live acceptance.
 
 | Capability | Implementation | Real acceptance |

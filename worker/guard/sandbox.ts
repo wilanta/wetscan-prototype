@@ -24,6 +24,7 @@ export const sandboxControls = [
 ] as const;
 export interface SandboxSpec {
   docker: string;
+  endpoint: string;
   image: string;
   executable: string;
   args: readonly string[];
@@ -37,6 +38,9 @@ export interface SandboxAttestation {
   verify(input: {
     specDigest: string;
     daemonVersion: string;
+    daemonId: string;
+    kernelVersion: string;
+    imageId: string;
     image: string;
   }): Promise<{
     expiresAt: number;
@@ -55,8 +59,12 @@ export interface DockerDriver {
     },
   ): Promise<string>;
 }
-export function dockerDriver(executable: string): DockerDriver {
+export function dockerDriver(
+  executable: string,
+  endpoint: string,
+): DockerDriver {
   if (
+    !validEndpoint(endpoint) ||
     !isAbsolute(executable) ||
     !/^docker(?:\.exe)?$/i.test(basename(executable))
   )
@@ -71,7 +79,7 @@ export function dockerDriver(executable: string): DockerDriver {
         let settled = false,
           bytes = 0,
           output = "";
-        const child = spawn(executable, [...args], {
+        const child = spawn(executable, ["--host", endpoint, ...args], {
           windowsHide: true,
           shell: false,
           signal: input.signal,
@@ -121,8 +129,16 @@ export function dockerDriver(executable: string): DockerDriver {
       }),
   };
 }
+function validEndpoint(value: string) {
+  return (
+    typeof value === "string" &&
+    (/^unix:\/\/\/[A-Za-z0-9_./-]+$/.test(value) ||
+      /^npipe:\/\/\/\/\.\/pipe\/[A-Za-z0-9_.-]+$/.test(value))
+  );
+}
 export function validateSandboxSpec(spec: SandboxSpec) {
   if (
+    !validEndpoint(spec.endpoint) ||
     !isAbsolute(spec.docker) ||
     !/^docker(?:\.exe)?$/i.test(basename(spec.docker)) ||
     !/^ghcr\.io\/[a-z0-9._/-]+@sha256:[a-f0-9]{64}$/.test(spec.image) ||
@@ -210,23 +226,33 @@ export class DockerGuardSandbox {
     ) as { Os?: string; Version?: string };
     if (version.Os !== "linux" || !version.Version)
       throw new LiveGuardError("execution_not_ready");
-    const digests: unknown = JSON.parse(
+    const daemon = JSON.parse(
+      await this.driver.call(["info", "--format", "{{json .}}"], {
+        configDirectory,
+        timeoutMs: 5000,
+        maxBytes: 64000,
+      }),
+    ) as { ID?: string; KernelVersion?: string };
+    const image = JSON.parse(
       await this.driver.call(
-        [
-          "image",
-          "inspect",
-          "--format",
-          "{{json .RepoDigests}}",
-          this.spec.image,
-        ],
+        ["image", "inspect", "--format", "{{json .}}", this.spec.image],
         { configDirectory, timeoutMs: 5000, maxBytes: 32000 },
       ),
-    );
-    if (!Array.isArray(digests) || !digests.includes(this.spec.image))
+    ) as { Id?: string; RepoDigests?: string[] };
+    if (
+      !daemon.ID ||
+      !daemon.KernelVersion ||
+      !/^sha256:[a-f0-9]{64}$/.test(image.Id ?? "") ||
+      !Array.isArray(image.RepoDigests) ||
+      !image.RepoDigests.includes(this.spec.image)
+    )
       throw new LiveGuardError("execution_not_ready");
     const proof = await this.evidence.verify({
       specDigest: fingerprint(this.spec),
       daemonVersion: version.Version,
+      daemonId: daemon.ID,
+      kernelVersion: daemon.KernelVersion,
+      imageId: image.Id!,
       image: this.spec.image,
     });
     if (
@@ -236,13 +262,15 @@ export class DockerGuardSandbox {
       sandboxControls.some((c) => !proof.verified.includes(c))
     )
       throw new LiveGuardError("execution_not_ready");
+    return image.Id!;
   }
   async execute(source: string, signal: AbortSignal): Promise<string> {
+    if (signal.aborted) throw new LiveGuardError("execution_not_ready");
     const config = await mkdtemp(join(tmpdir(), "wetscan-g01-docker-")),
       name = `wetscan-guard-${randomUUID()}`;
     let created = false;
     try {
-      await this.ready(config);
+      const imageId = await this.ready(config);
       if (signal.aborted) throw new LiveGuardError("execution_not_ready");
       const actual = await realpath(source);
       const equalPath = (a: string, b: string) =>
@@ -269,6 +297,7 @@ export class DockerGuardSandbox {
           maxBytes: 64000,
         }),
       ) as {
+        Image: string;
         Config: { User: string };
         HostConfig: {
           Privileged: boolean;
@@ -285,6 +314,7 @@ export class DockerGuardSandbox {
       };
       const host = enforced.HostConfig;
       if (
+        enforced.Image !== imageId ||
         enforced.Config.User !== "65532:65532" ||
         host.Privileged ||
         !host.ReadonlyRootfs ||
@@ -426,3 +456,16 @@ export const unavailableSandbox = {
   status: "BLOCKED" as const,
   reason: "runtime_image_and_real_isolation_acceptance_required",
 };
+
+/** Production factory always pins the CLI to the reviewed local daemon; ambient Docker contexts are ignored. */
+export function createDockerGuardSandbox(
+  spec: SandboxSpec,
+  evidence: SandboxAttestation,
+) {
+  validateSandboxSpec(spec);
+  return new DockerGuardSandbox(
+    spec,
+    dockerDriver(spec.docker, spec.endpoint),
+    evidence,
+  );
+}

@@ -12,6 +12,7 @@ import {
 const spec: SandboxSpec = {
   docker:
     process.platform === "win32" ? "C:/tools/docker.exe" : "/usr/bin/docker",
+  endpoint: "npipe:////./pipe/fixture-unit-only",
   image: "ghcr.io/fixture/guard@sha256:" + "a".repeat(64),
   executable: "/usr/local/bin/guard-g01-probe",
   args: ["/source"],
@@ -33,7 +34,16 @@ function driver(unsafe = false) {
       }
       if (args[0] === "version")
         return JSON.stringify({ Os: "linux", Version: "fixture-only" });
-      if (args[0] === "image") return JSON.stringify([spec.image]);
+      if (args[0] === "info")
+        return JSON.stringify({
+          ID: "unit-daemon",
+          KernelVersion: "unit-kernel",
+        });
+      if (args[0] === "image")
+        return JSON.stringify({
+          Id: "sha256:" + "b".repeat(64),
+          RepoDigests: [spec.image],
+        });
       if (args[0] === "inspect" && args.includes("{{json .State}}"))
         return JSON.stringify({
           Running: false,
@@ -42,6 +52,7 @@ function driver(unsafe = false) {
         });
       if (args[0] === "inspect")
         return JSON.stringify({
+          Image: "sha256:" + "b".repeat(64),
           Config: { User: unsafe ? "0" : "65532:65532" },
           HostConfig: {
             Privileged: false,
@@ -192,4 +203,57 @@ it("reaps only expired Guard-owned containers and never a Sentinel-labelled cont
       .filter(([args]) => args[0] === "rm")
       .map(([args]) => args.at(-1)),
   ).toEqual(["aaaaaaaaaaaa"]);
+});
+
+it("rejects ambient/remote daemon targets and already-cancelled work without driver calls", async () => {
+  for (const endpoint of [
+    "",
+    "tcp://127.0.0.1:2375",
+    "ssh://fixture",
+    "default",
+  ]) {
+    expect(
+      () => new DockerGuardSandbox({ ...spec, endpoint }, driver(), proof),
+    ).toThrow();
+  }
+  const d = driver();
+  await expect(
+    new DockerGuardSandbox(spec, d, proof).execute(
+      resolve("test-results"),
+      AbortSignal.abort(),
+    ),
+  ).rejects.toThrow();
+  expect(d.call).not.toHaveBeenCalled();
+});
+it("rejects an image identity mismatch even when the image label is correct", async () => {
+  const root = await mkdtemp(join(tmpdir(), "wetscan-g01-snapshot-"));
+  try {
+    const d = driver(),
+      original = d.call.getMockImplementation()!;
+    d.call.mockImplementation(async (args, input) => {
+      const result = await original(args, input);
+      if (args[0] === "inspect" && args.includes("{{json .}}")) {
+        return JSON.stringify({
+          ...JSON.parse(result),
+          Image: "sha256:" + "c".repeat(64),
+        });
+      }
+      return result;
+    });
+    await expect(
+      new DockerGuardSandbox(spec, d, proof).execute(
+        root,
+        new AbortController().signal,
+      ),
+    ).rejects.toThrow("execution_not_ready");
+    expect(d.call.mock.calls.some(([a]) => a[0] === "start")).toBe(false);
+  } finally {
+    const target = resolve(root);
+    if (
+      dirname(target) !== resolve(tmpdir()) ||
+      !basename(target).startsWith("wetscan-g01-snapshot-")
+    )
+      throw new Error("unsafe cleanup");
+    await rm(target, { recursive: true, force: true });
+  }
 });
