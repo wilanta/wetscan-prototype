@@ -94,6 +94,12 @@ it.each(Object.keys(caseLimits) as (keyof typeof caseLimits)[])(
       }[id];
       o.realExpiryReached = true;
       o.actualElapsedMs = 61000;
+      if (id === "N04") {
+        o.authorizationDenied = true;
+        o.retryScheduled = false;
+        o.cancelRequested = true;
+        o.coverage = false;
+      }
     }
     const mark = (s: string) => async () => {
       events.push(s);

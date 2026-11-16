@@ -9,7 +9,7 @@ import type {
 import { authorize } from "../../../src/features/guard/security";
 import { LiveGuardError } from "../../../src/features/guard/live/model";
 import { acceptanceTiming, type CaseId } from "./catalog";
-import { realGrantExpiry } from "./checkpoints";
+import { proveN04Denial } from "./n04";
 /** Inherited private IPC only. No path/session/token/file credential is returned to the child. */
 export function foundationResolver(
   port: GuardIpcPort,
@@ -26,24 +26,17 @@ export function foundationResolver(
         ),
         grant = data.grant as Grant;
       if (caseId === "N04") {
-        if (
-          typeof grant.issuedAt !== "number" ||
-          !Number.isFinite(grant.issuedAt) ||
-          grant.expiresAt - grant.issuedAt !== 60000
-        )
-          throw new LiveGuardError("execution_not_ready");
-        await realGrantExpiry(
-          grant.expiresAt,
+        const proof = await proveN04Denial(
+          grant,
+          lease.job,
           signal ?? new AbortController().signal,
         );
         await port.send({
           type: "guard.acceptance.boundary",
           version: 2,
-          boundary: "grant_expired",
-          expiresAt: grant.expiresAt,
-          issuedAt: grant.issuedAt,
-          observedAt: Date.now(),
+          ...proof,
         });
+        throw new LiveGuardError("execution_not_ready");
       }
       authorize(grant, lease.job, "scan");
       const snapshots: SnapshotPort = {

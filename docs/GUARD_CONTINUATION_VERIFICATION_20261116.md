@@ -1,3 +1,5 @@
+> Latest N04 review repair: [revision3 offline verification and inactive approval packet](acceptance/guard-g01/remaining-gates-v3/N04_REPAIR_REVIEW.md). DESIGN_REVIEW_ACCEPTED / RUNTIME_NOT_AUTHORIZED;913 offline tests pass. Revision2 packets are retained historical artifacts; changed implementation hashes require a new exact runtime approval.
+
 # G01 continuation verification, 16 November 2026
 
 Overall: **PARTIALLY COMPLETE**. Owner: repository owner/Codex. Branch `feat/guard-g01-s03-integration`, existing PR #7, baseline `4bfcbece610453ada121057e1ae6dafe2f06bc48`. All new live cases remain NOT_RUN. No new runtime approval, permit activation, DB/Auth/GitHub-source connection, enqueue, actual worker or scanner was performed. Publication is separately authorized to this same branch.

@@ -19,13 +19,15 @@ import { caseSpecs } from "../../../worker/guard/acceptance/case-specs";
 import { probeProgram } from "../../../worker/guard/acceptance/probe-spec";
 import { guardMigrationPlan } from "../../../src/features/guard/live/migrations";
 import { fingerprint } from "../../../src/platform/identity";
-const root = "docs/acceptance/guard-g01/remaining-gates-v2",
+const root = "docs/acceptance/guard-g01/remaining-gates-v3",
   v1 = "docs/acceptance/guard-g01/remaining-gates-v1";
 const json = async (file: string) => JSON.parse(await readFile(file, "utf8"));
 const write = async (file: string, value: unknown) =>
   writeFile(
     join(root, file),
-    typeof value === "string" ? value : JSON.stringify(value, null, 2) + "\n",
+    typeof value === "string"
+      ? value.trimEnd() + "\n"
+      : JSON.stringify(value, null, 2) + "\n",
     { flag: "wx", mode: 0o600 },
   );
 async function walk(directory: string) {
@@ -67,7 +69,7 @@ async function main() {
   if (
     resolve(process.cwd()).toLowerCase() !==
       "c:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate" ||
-    context.head !== "4bfcbece610453ada121057e1ae6dafe2f06bc48"
+    context.head !== "1ae505c65934b4135c402395936ff9d552b3d3cc"
   )
     throw Error("reverify preparation baseline");
   for (const folder of [
@@ -144,21 +146,13 @@ async function main() {
     scannerOrWorkerLaunches: 0,
   });
   await write("review/environment-observation.json", {
-    recordedAt: new Date().toISOString(),
-    classification: "READONLY_EXTERNAL_PREREQUISITE_PROBE",
-    command:
-      "node --require ./tests/auth/skip-dotenv.cjs --import tsx worker/guard/acceptance/operator.ts --measure",
-    executionContext: "normal host execution, not a sandbox-denial inference",
-    dockerCliExists: true,
-    status: "BLOCKED_OR_FAILED",
-    reason: "execution_not_ready",
-    failedReadonlyStage: "version",
-    daemonIdentity: "NOT_OBSERVED",
-    imageIdentity: "NOT_OBSERVED",
-    mutatingDockerOperations: 0,
-    databaseConnections: 0,
-    workerOrScannerLaunches: 0,
-    automaticRestartOrPull: false,
+    classification: "HISTORICAL_PREREQUISITE_CARRIED_FORWARD_NOT_REPROBED",
+    source:
+      "docs/acceptance/guard-g01/remaining-gates-v2/review/environment-observation.json",
+    observation: await json(
+      "docs/acceptance/guard-g01/remaining-gates-v2/review/environment-observation.json",
+    ),
+    currentRuntimeOperations: 0,
   });
   for (const p of prepared) {
     await write(`specs/${p.caseId}.json`, {
@@ -167,6 +161,20 @@ async function main() {
       specs: caseSpecs(p.caseId, program),
       specDigests: p.specDigests,
       classification: "FROZEN_SPEC_NOT_ENFORCEMENT_PROOF",
+      casePolicy:
+        p.caseId === "N04"
+          ? {
+              grantTtlMs: 60000,
+              minimumHoldSinceIssuedMs: 61000,
+              boundaryAfterAuthorize: true,
+              requiredErrorClass: "GuardError",
+              requiredErrorCode: "forbidden",
+              retryDatabaseCallback: "NEVER_CALLED",
+              unknown: "STOP_WITHOUT_CANCEL_OR_RETRY",
+              snapshots: 0,
+              containers: 0,
+            }
+          : null,
     });
     await write(
       `operator/${p.caseId}.preservation.READONLY.sql`,
@@ -202,6 +210,7 @@ async function main() {
     )),
     "docs/acceptance/guard-g01/18-readonly-initial-observer-comparison.sql",
     `${v1}/operator/retained-data-down-refusal.READONLY.sql`,
+    `${root}/README.md`,
     `${root}/review/context.json`,
     `${root}/review/environment-observation.json`,
   ]);

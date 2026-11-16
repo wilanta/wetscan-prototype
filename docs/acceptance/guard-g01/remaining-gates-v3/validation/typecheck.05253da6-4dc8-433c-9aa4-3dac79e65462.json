@@ -1,0 +1,15 @@
+{
+  "classification": "OFFLINE_VALIDATION",
+  "kind": "typecheck",
+  "startedAt": "2026-11-16T06:31:05.531Z",
+  "endedAt": "2026-11-16T06:31:09.168Z",
+  "exitCode": 0,
+  "command": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "dotenvLoaded": false,
+  "runtimeMutation": "NOT_RUN",
+  "scannerExecution": "NOT_RUN"
+}

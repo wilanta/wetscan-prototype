@@ -1,0 +1,15 @@
+{
+  "classification": "OFFLINE_VALIDATION",
+  "kind": "lint",
+  "startedAt": "2026-11-16T06:29:14.431Z",
+  "endedAt": "2026-11-16T06:29:36.983Z",
+  "exitCode": 0,
+  "command": [
+    "node",
+    "node_modules/eslint/bin/eslint.js",
+    "."
+  ],
+  "dotenvLoaded": false,
+  "runtimeMutation": "NOT_RUN",
+  "scannerExecution": "NOT_RUN"
+}

@@ -30,6 +30,9 @@ export interface CaseObservation {
   ddlStatements?: number;
   actualElapsedMs?: number;
   realExpiryReached?: boolean;
+  authorizationDenied?: boolean;
+  retryScheduled?: boolean;
+  cancelRequested?: boolean;
   controlsComplete?: boolean;
   syntheticFixtureRetained?: boolean;
   deferredSourceOrphan?: boolean;
@@ -137,7 +140,14 @@ export function assertCase(p: ExecutionPacket, o: CaseObservation) {
     check(o.scanState === "cancelled" && o.queueState === "cancelled");
     if (p.caseId === "N03" || p.caseId === "N04") check(o.realExpiryReached);
     if (p.caseId === "N04")
-      check(o.actualElapsedMs !== undefined && o.actualElapsedMs >= 60000);
+      check(
+        o.actualElapsedMs !== undefined &&
+          o.actualElapsedMs >= 61000 &&
+          o.authorizationDenied === true &&
+          o.retryScheduled === false &&
+          o.cancelRequested === true &&
+          !o.coverage,
+      );
     if (p.caseId === "N06")
       check(o.actualElapsedMs !== undefined && o.actualElapsedMs >= 45000);
   }

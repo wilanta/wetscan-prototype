@@ -1,6 +1,7 @@
 import { join } from "node:path";
 import { regularJson } from "./package";
 import type { ExecutionPacket } from "./approval";
+import { validN04Evidence } from "./n04-evidence";
 /** Only the declared expected boundary permits follow-on cancellation/rescue; other failures require new review. */
 export async function expectedFaultObserved(p: ExecutionPacket, root: string) {
   const load = async (suffix: string) => {
@@ -23,23 +24,25 @@ export async function expectedFaultObserved(p: ExecutionPacket, root: string) {
       );
     case "N02":
       return !!(await point("container_started"));
-    case "N03":
-    case "N04": {
+    case "N03": {
       const b = await load("boundary.json");
-      const failure =
-        p.caseId === "N03" ? await load("start-failure.0.json") : null;
+      const failure = await load("start-failure.0.json");
       return (
         b?.realExpiryReached === true &&
-        b.boundary ===
-          (p.caseId === "N03" ? "permit_expired" : "grant_expired") &&
+        b.boundary === "permit_expired" &&
         b.observedAt >= b.expiresAt &&
-        (p.caseId === "N03"
-          ? !!(await point("container_started")) &&
-            failure?.running === true &&
-            failure.signalAborted === true
-          : b.actualElapsedMs >= 60000)
+        !!(await point("container_started")) &&
+        failure?.running === true &&
+        failure.signalAborted === true
       );
     }
+    case "N04":
+      return validN04Evidence(
+        p,
+        await load("boundary.json"),
+        await load("retry-guard.json"),
+        await load("launch.0.used.result.json"),
+      );
     case "N05": {
       const f = await load("start-failure.0.json");
       return (
