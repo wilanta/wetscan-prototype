@@ -21,7 +21,11 @@ export async function prepareGuardJob(
   signal: AbortSignal,
   currentLease: () => JobLease = () => lease,
   foundationProbe?: {
-    execute(snapshot: import("../../src/features/guard/contracts").AuthorizedSnapshot, lease: JobLease, signal: AbortSignal): Promise<{ manifest: string; specDigest: string }>;
+    execute(
+      snapshot: import("../../src/features/guard/contracts").AuthorizedSnapshot,
+      lease: JobLease,
+      signal: AbortSignal,
+    ): Promise<{ manifest: string; specDigest: string }>;
   },
 ) {
   const activeLease = () => {
@@ -78,7 +82,8 @@ export async function prepareGuardJob(
   let writeGrant = grant;
   try {
     if (signal.aborted) throw new LiveGuardError("execution_not_ready");
-    if (foundationProbe) probe = await foundationProbe.execute(snapshot,activeLease(),signal);
+    if (foundationProbe)
+      probe = await foundationProbe.execute(snapshot, activeLease(), signal);
     const again = await resolver.resolve(activeLease(), signal);
     authorize(again.grant, current.job, "scan");
     if (again.grant.actorId !== grant.actorId)
@@ -90,8 +95,18 @@ export async function prepareGuardJob(
   // G01 prepare outcome only. Never manufacture engine completion. G02 must install a separately approved handler.
   const job = transition(current.job, "failed", grant.actorId);
   if (probe) {
-    if (!/^[a-f0-9]{64}$/.test(probe.manifest) || !/^[a-f0-9]{64}$/.test(probe.specDigest)) throw new LiveGuardError("source_integrity");
-    job.audit.push({actorId:grant.actorId,at:new Date().toISOString(),action:"foundation_sandbox_verified",subjectId:job.id,reason:`G01 trusted probe ${probe.specDigest}; manifest ${probe.manifest}; no scanner ran.`});
+    if (
+      !/^[a-f0-9]{64}$/.test(probe.manifest) ||
+      !/^[a-f0-9]{64}$/.test(probe.specDigest)
+    )
+      throw new LiveGuardError("source_integrity");
+    job.audit.push({
+      actorId: grant.actorId,
+      at: new Date().toISOString(),
+      action: "foundation_sandbox_verified",
+      subjectId: job.id,
+      reason: `G01 trusted probe ${probe.specDigest}; manifest ${probe.manifest}; no scanner ran.`,
+    });
   }
   job.audit.push({
     actorId: grant.actorId,

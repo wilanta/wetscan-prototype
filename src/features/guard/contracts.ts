@@ -45,6 +45,8 @@ export interface Scope {
   mode: Mode;
 }
 export interface Grant extends Scope {
+  /** Guard-issued timestamp; optional for legacy/demo ports. Never supplied by the browser. */
+  issuedAt?: number;
   actorId: string;
   operations: readonly ("read" | "scan" | "triage" | "report")[];
   expiresAt: number;

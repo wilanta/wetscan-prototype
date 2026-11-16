@@ -1,0 +1,39 @@
+{
+  "caseId": "N00",
+  "programSha256": "694867f57ec74effde5a04477fc6b1a6c01e0e9493be73b4240f351ab8fbf446",
+  "specs": [
+    {
+      "docker": "C:/Users/HP VICTUS/AppData/Local/Programs/DockerDesktop/resources/bin/docker.exe",
+      "endpoint": "npipe:////./pipe/dockerDesktopLinuxEngine",
+      "image": "docker.io/library/python@sha256:d76f585fb0d5107dd47143da5e61554fd9cae656a30f3470f815cb8475769b6a",
+      "executable": "/usr/local/bin/python3",
+      "args": [
+        "-I",
+        "-B",
+        "-c",
+        "import sys,hashlib,json as j;import base64 as b;c=b''.join(map(b.b64decode,sys.argv[1:-1])).decode();hashlib.sha256(c.encode()).hexdigest()=='694867f57ec74effde5a04477fc6b1a6c01e0e9493be73b4240f351ab8fbf446'or sys.exit(3);CONTROL=j.loads(sys.argv[-1]);exec(compile(c,'<g01>','exec'))",
+        "IyBUcnVzdGVkIHN0ZGxpYi1vbmx5IEcwMSBwcm9iZS4gVGhlIGxvYWRlciBzdXBwbGllcyByZXZpZXdlZCBDT05UUk9MOyBubyByZXBvc2l0b3J5IGltcG9ydHMuCmltcG9ydCBlcnJubywgaGFzaGxpYiwganNvbiwgb3MsIHNvY2tldCwgc3lzLCB0aW1lCm1vZGUgPSBDT05UUk9MWyJtb2RlIl0KaWYgbW9kZSA9PSAiaG9sZCI6CiAgICB0aW1lLnNsZWVwKENPTlRST0xbImhvbGRNcyJdIA==",
+        "LyAxMDAwKQplbGlmIG1vZGUgPT0gIm91dHB1dCI6CiAgICBzeXMuc3Rkb3V0LndyaXRlKCJYIiAqIDEwNDg1NzYpCiAgICBzeXMuc3Rkb3V0LmZsdXNoKCkKICAgIHN5cy5leGl0KDApCmVsaWYgbW9kZSA9PSAibWVtb3J5IjoKICAgIGJsb2NrcyA9IFtdCiAgICB3aGlsZSBUcnVlOgogICAgICAgIGJsb2Nrcy5hcHBlbmQoYnl0ZWFycmF5KDE2ICogMTAyNCAqIDEwMjQpKQpkZWYgZGVuaQ==",
+        "ZWQocGF0aCk6CiAgICB0cnk6CiAgICAgICAgd2l0aCBvcGVuKHBhdGgsICJ3YiIpIGFzIGY6CiAgICAgICAgICAgIGYud3JpdGUoYiJHMDEiKQogICAgZXhjZXB0IE9TRXJyb3IgYXMgZToKICAgICAgICByZXR1cm4gZS5lcnJubyBpbiAoZXJybm8uRVJPRlMsIGVycm5vLkVBQ0NFUywgZXJybm8uRVBFUk0pCiAgICByZXR1cm4gRmFsc2UKZmlsZXMgPSBbXQp0b3RhbCA9IDAKZm9yIHBhcg==",
+        "ZW50LCBkaXJzLCBuYW1lcyBpbiBvcy53YWxrKCIvc291cmNlIiwgZm9sbG93bGlua3M9RmFsc2UpOgogICAgaWYgYW55KG9zLnBhdGguaXNsaW5rKG9zLnBhdGguam9pbihwYXJlbnQsIGQpKSBmb3IgZCBpbiBkaXJzKToKICAgICAgICBzeXMuZXhpdCgzKQogICAgZm9yIG5hbWUgaW4gc29ydGVkKG5hbWVzKToKICAgICAgICBwYXRoID0gb3MucGF0aC5qb2luKHBhcmVudCwgbmFtZSkKIA==",
+        "ICAgICAgIGlmIG9zLnBhdGguaXNsaW5rKHBhdGgpIG9yIG5vdCBvcy5wYXRoLmlzZmlsZShwYXRoKToKICAgICAgICAgICAgc3lzLmV4aXQoMykKICAgICAgICB3aXRoIG9wZW4ocGF0aCwgInJiIikgYXMgZjoKICAgICAgICAgICAgZGF0YSA9IGYucmVhZCg2NTUzNykKICAgICAgICB0b3RhbCArPSBsZW4oZGF0YSkKICAgICAgICBpZiBsZW4oZGF0YSkgPiA2NTUzNiBvciB0b3RhbCA+IA==",
+        "MjAwMDAwMDAgb3IgbGVuKGZpbGVzKSA+PSAxMDAwOgogICAgICAgICAgICBzeXMuZXhpdCgzKQogICAgICAgIGZpbGVzLmFwcGVuZChbb3MucGF0aC5yZWxwYXRoKHBhdGgsICIvc291cmNlIikucmVwbGFjZShvcy5zZXAsICIvIiksIGhhc2hsaWIuc2hhMjU2KGRhdGEpLmhleGRpZ2VzdCgpLCBsZW4oZGF0YSldKQpmaWxlcy5zb3J0KCkKbWFuaWZlc3QgPSBoYXNobGliLnNoYTI1Nihqcw==",
+        "b24uZHVtcHMoZmlsZXMsIHNlcGFyYXRvcnM9KCIsIiwgIjoiKSwgZW5zdXJlX2FzY2lpPUZhbHNlKS5lbmNvZGUoKSkuaGV4ZGlnZXN0KCkKY2hlY2tzID0geyJub25fcm9vdCI6IG9zLmdldHVpZCgpID09IDY1NTMyLCAicmVhZF9vbmx5X3Jvb3QiOiBkZW5pZWQoIi9nMDEtd3JpdGUiKSwgInJlYWRfb25seV9zb3VyY2UiOiBkZW5pZWQoIi9zb3VyY2UvZzAxLXdyaXRlIiksICJzb3VyYw==",
+        "ZV9yZWFkYWJsZSI6IGJvb2woZmlsZXMpLCAibm9fc29ja2V0Ijogbm90IG9zLnBhdGguZXhpc3RzKCIvdmFyL3J1bi9kb2NrZXIuc29jayIpLCAibm9faG9zdF9zZWNyZXRzIjogbm90IGFueShrLnN0YXJ0c3dpdGgoKCJBVVRIXyIsICJHSVRIVUJfIiwgIlBHIikpIG9yIGsgPT0gIkRBVEFCQVNFX1VSTCIgZm9yIGsgaW4gb3MuZW52aXJvbil9CmlmIG1vZGUgPT0gImNvbnRyb2xzIjoKIA==",
+        "ICAgdHJ5OgogICAgICAgIHdpdGggc29ja2V0LmNyZWF0ZV9jb25uZWN0aW9uKCgiMTk4LjUxLjEwMC4xIiwgNDQzKSwgLjUpOgogICAgICAgICAgICBjaGVja3NbIm5vX25ldHdvcmsiXSA9IEZhbHNlCiAgICBleGNlcHQgT1NFcnJvcjoKICAgICAgICBjaGVja3NbIm5vX25ldHdvcmsiXSA9IFRydWUKICAgIGRlZiByZWFkKHApOgogICAgICAgIHdpdGggb3BlbihwKSBhcyBmOgogICAgIA==",
+        "ICAgICAgIHJldHVybiBmLnJlYWQoKS5zdHJpcCgpCiAgICBxdW90YSwgcGVyaW9kID0gcmVhZCgiL3N5cy9mcy9jZ3JvdXAvY3B1Lm1heCIpLnNwbGl0KCkKICAgIGNoZWNrcy51cGRhdGUoY3B1PXF1b3RhICE9ICJtYXgiIGFuZCBpbnQocXVvdGEpIDw9IGludChwZXJpb2QpLCBtZW1vcnk9cmVhZCgiL3N5cy9mcy9jZ3JvdXAvbWVtb3J5Lm1heCIpID09ICIyNjg0MzU0NTYiLCBwaWRzPQ==",
+        "cmVhZCgiL3N5cy9mcy9jZ3JvdXAvcGlkcy5tYXgiKSA9PSAiNjQiKQpwcmludChqc29uLmR1bXBzKHsidmVyc2lvbiI6IDEsICJmaWxlcyI6IGxlbihmaWxlcyksICJieXRlcyI6IHRvdGFsLCAibWFuaWZlc3QiOiBtYW5pZmVzdCwgImNoZWNrcyI6IGNoZWNrc30sIHNvcnRfa2V5cz1UcnVlKSkKc3lzLmV4aXQoMCBpZiBhbGwoY2hlY2tzLnZhbHVlcygpKSBlbHNlIDIpCg==",
+        "{\"mode\":\"manifest\",\"holdMs\":0}"
+      ],
+      "cpu": 1,
+      "memoryMb": 256,
+      "pids": 64,
+      "timeoutMs": 5000,
+      "outputBytes": 65536
+    }
+  ],
+  "specDigests": [
+    "e78a1a97138fdf0fe81356667f6236e31b72a8b19c0c0dc1ca217c1fd738563b"
+  ],
+  "classification": "FROZEN_SPEC_NOT_ENFORCEMENT_PROOF"
+}

@@ -22,7 +22,13 @@ export interface GuardWorkerDependencies {
 }
 /** Guard-owned lifecycle/channel; shared S01 executor and bounded drain, no Sentinel scheduler or handlers. */
 export async function runGuardWorker(input: GuardWorkerDependencies) {
-  if (input.handlerTimeoutMs!==undefined && (!Number.isInteger(input.handlerTimeoutMs) || input.handlerTimeoutMs<guardPreparationTiming.handlerMs || input.handlerTimeoutMs>120000)) throw new LiveGuardError("invalid_input");
+  if (
+    input.handlerTimeoutMs !== undefined &&
+    (!Number.isInteger(input.handlerTimeoutMs) ||
+      input.handlerTimeoutMs < guardPreparationTiming.handlerMs ||
+      input.handlerTimeoutMs > 120000)
+  )
+    throw new LiveGuardError("invalid_input");
   const stop = new AbortController();
   const listeners: [string, (...args: unknown[]) => void][] = [];
   const listen = (name: string, fn: (...args: unknown[]) => void) => {
@@ -101,7 +107,8 @@ export async function runGuardWorker(input: GuardWorkerDependencies) {
               await executeLease(queue, lease, trackedHandler, {
                 signal: stop.signal,
                 heartbeatMs: 5000,
-                timeoutMs: input.handlerTimeoutMs ?? guardPreparationTiming.handlerMs,
+                timeoutMs:
+                  input.handlerTimeoutMs ?? guardPreparationTiming.handlerMs,
               });
               try {
                 await within(Promise.allSettled([...inFlight]), 5000);

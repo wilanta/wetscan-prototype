@@ -56,14 +56,25 @@ export interface DockerDriver {
       timeoutMs: number;
       maxBytes: number;
       configDirectory: string;
+      acceptedExitCodes?: readonly number[];
     },
   ): Promise<string>;
 }
 /** Docker reports official-library references without a docker.io prefix on some versions. */
-export function pinnedImagePresent(reference:string,repoDigests:readonly string[]){
-  if(repoDigests.includes(reference))return true;
-  const official=reference.match(/^docker\.io\/library\/([a-z0-9_-]+)(@sha256:[a-f0-9]{64})$/);
-  return !!official && [official[1],"library/"+official[1]].some(name=>repoDigests.includes(name+official[2]));
+export function pinnedImagePresent(
+  reference: string,
+  repoDigests: readonly string[],
+) {
+  if (repoDigests.includes(reference)) return true;
+  const official = reference.match(
+    /^docker\.io\/library\/([a-z0-9_-]+)(@sha256:[a-f0-9]{64})$/,
+  );
+  return (
+    !!official &&
+    [official[1], "library/" + official[1]].some((name) =>
+      repoDigests.includes(name + official[2]),
+    )
+  );
 }
 export function dockerDriver(
   executable: string,
@@ -129,7 +140,13 @@ export function dockerDriver(
         );
         child.once("close", (code) =>
           finish(
-            code === 0 ? undefined : new LiveGuardError("source_unavailable"),
+            code === 0 ||
+              (args[0] === "start" &&
+                args[1] === "--attach" &&
+                code === 1 &&
+                input.acceptedExitCodes?.includes(1))
+              ? undefined
+              : new LiveGuardError("source_unavailable"),
           ),
         );
       }),
@@ -172,14 +189,21 @@ export function sandboxCreateArgs(
   name: string,
   policy: (spec: SandboxSpec) => void = validateSandboxSpec,
   labels: Readonly<Record<string, string>> = {},
-  deadline = Date.now()+spec.timeoutMs,
+  deadline = Date.now() + spec.timeoutMs,
 ) {
   policy(spec);
   if (
     !isAbsolute(source) ||
     /[\r\n,\0]/.test(source) ||
-    !/^wetscan-guard-[a-f0-9-]{36}$/.test(name) || !Number.isFinite(deadline) || deadline<=Date.now() || deadline>Date.now()+spec.timeoutMs ||
-    Object.entries(labels).some(([k,v])=>!["wetscan.run","wetscan.job","wetscan.spec"].includes(k)||!/^[a-zA-Z0-9_-]{1,100}$/.test(v))
+    !/^wetscan-guard-[a-f0-9-]{36}$/.test(name) ||
+    !Number.isFinite(deadline) ||
+    deadline <= Date.now() ||
+    deadline > Date.now() + spec.timeoutMs ||
+    Object.entries(labels).some(
+      ([k, v]) =>
+        !["wetscan.run", "wetscan.job", "wetscan.spec"].includes(k) ||
+        !/^[a-zA-Z0-9_-]{1,100}$/.test(v),
+    )
   )
     throw new LiveGuardError("invalid_input", 400);
   return [
@@ -188,7 +212,7 @@ export function sandboxCreateArgs(
     name,
     "--label",
     "wetscan.module=guard",
-    ...Object.entries(labels).flatMap(([k,v]) => ["--label", `${k}=${v}`]),
+    ...Object.entries(labels).flatMap(([k, v]) => ["--label", `${k}=${v}`]),
     "--label",
     `wetscan.deadline=${deadline}`,
     "--pull=never",
@@ -229,6 +253,11 @@ export class DockerGuardSandbox {
       name: string;
       labels: Readonly<Record<string, string>>;
       deadline?: number;
+      acceptedExitCodes?: readonly number[];
+      completed?(
+        output: string,
+        state: { Running: boolean; ExitCode: number; OOMKilled: boolean },
+      ): Promise<void>;
       reserve(): Promise<void>;
       inspect(metadata: unknown): Promise<void>;
       started?(configDirectory: string, signal: AbortSignal): Promise<void>;
@@ -237,6 +266,8 @@ export class DockerGuardSandbox {
     },
   ) {
     (extension?.validate ?? validateSandboxSpec)(spec);
+    if (extension?.acceptedExitCodes?.some((code) => code !== 0 && code !== 1))
+      throw new LiveGuardError("not_configured");
   }
   private async ready(configDirectory: string) {
     const version = JSON.parse(
@@ -266,7 +297,7 @@ export class DockerGuardSandbox {
       !daemon.KernelVersion ||
       !/^sha256:[a-f0-9]{64}$/.test(image.Id ?? "") ||
       !Array.isArray(image.RepoDigests) ||
-      !pinnedImagePresent(this.spec.image,image.RepoDigests)
+      !pinnedImagePresent(this.spec.image, image.RepoDigests)
     )
       throw new LiveGuardError("execution_not_ready");
     const proof = await this.evidence.verify({
@@ -307,11 +338,21 @@ export class DockerGuardSandbox {
         throw new LiveGuardError("invalid_input", 400);
       await this.extension?.reserve();
       created = true; // Name is owned before create; even a timed-out create may have created the container.
-      await this.driver.call(sandboxCreateArgs(this.spec, actual, name, this.extension?.validate, this.extension?.labels, this.extension?.deadline), {
-        configDirectory: config,
-        timeoutMs: 5000,
-        maxBytes: 32000,
-      });
+      await this.driver.call(
+        sandboxCreateArgs(
+          this.spec,
+          actual,
+          name,
+          this.extension?.validate,
+          this.extension?.labels,
+          this.extension?.deadline,
+        ),
+        {
+          configDirectory: config,
+          timeoutMs: 5000,
+          maxBytes: 32000,
+        },
+      );
       created = true;
       const enforced = JSON.parse(
         await this.driver.call(["inspect", "--format", "{{json .}}", name], {
@@ -332,10 +373,18 @@ export class DockerGuardSandbox {
           NanoCpus: number;
           CapDrop: string[];
           SecurityOpt: string[];
+          IpcMode: string;
+          Tmpfs: Record<string, string>;
         };
-        Mounts: { Source: string; Destination: string; RW: boolean }[];
+        Mounts: {
+          Type: string;
+          Source: string;
+          Destination: string;
+          RW: boolean;
+        }[];
       };
       const host = enforced.HostConfig;
+      const binds = enforced.Mounts.filter((m) => m.Type === "bind");
       await this.extension?.inspect(enforced);
       if (
         enforced.Image !== imageId ||
@@ -343,33 +392,44 @@ export class DockerGuardSandbox {
         host.Privileged ||
         !host.ReadonlyRootfs ||
         host.NetworkMode !== "none" ||
+        host.IpcMode !== "none" ||
+        host.Tmpfs?.["/tmp"] !== "rw,noexec,nosuid,nodev,size=16777216" ||
         host.Memory !== 256 * 1024 * 1024 ||
         host.MemorySwap !== host.Memory ||
         host.PidsLimit !== 64 ||
         host.NanoCpus !== 1e9 ||
         !host.CapDrop.includes("ALL") ||
         !host.SecurityOpt.some((v) => v.startsWith("no-new-privileges")) ||
-        enforced.Mounts.length !== 1 ||
-        enforced.Mounts[0].Destination !== "/source" ||
-        enforced.Mounts[0].RW ||
-        !equalPath(enforced.Mounts[0].Source, actual)
+        binds.length !== 1 ||
+        binds[0].Destination !== "/source" ||
+        binds[0].RW ||
+        !equalPath(binds[0].Source, actual) ||
+        enforced.Mounts.some(
+          (m) =>
+            m.Type !== "bind" &&
+            !(m.Type === "tmpfs" && m.Destination === "/tmp"),
+        )
       )
         throw new LiveGuardError("execution_not_ready");
       const running = new AbortController();
-      const runSignal = AbortSignal.any([signal,running.signal]);
+      const runSignal = AbortSignal.any([signal, running.signal]);
       const attached = this.driver.call(["start", "--attach", name], {
         configDirectory: config,
         signal: runSignal,
         timeoutMs: this.spec.timeoutMs,
         maxBytes: this.spec.outputBytes,
+        acceptedExitCodes: this.extension?.acceptedExitCodes,
       });
       let output: string;
       try {
-        const results=await Promise.all([attached,this.extension?.started?.(config,runSignal)]);
-        output=results[0];
-      } catch(error) {
+        const results = await Promise.all([
+          attached,
+          this.extension?.started?.(config, runSignal),
+        ]);
+        output = results[0];
+      } catch (error) {
         running.abort();
-        await attached.catch(()=>undefined);
+        await attached.catch(() => undefined);
         throw error;
       }
       const state = JSON.parse(
@@ -378,8 +438,13 @@ export class DockerGuardSandbox {
           { configDirectory: config, timeoutMs: 5000, maxBytes: 16000 },
         ),
       ) as { Running: boolean; ExitCode: number; OOMKilled: boolean };
-      if (state.Running || state.ExitCode !== 0 || state.OOMKilled)
+      if (
+        state.Running ||
+        !(this.extension?.acceptedExitCodes ?? [0]).includes(state.ExitCode) ||
+        state.OOMKilled
+      )
         throw new LiveGuardError("source_unavailable");
+      await this.extension?.completed?.(output, state);
       return output;
     } finally {
       let failed = false;

@@ -1,3 +1,9 @@
+> Verified offline continuation: [16-case readiness, current test evidence, approval packets and remaining blockers](GUARD_CONTINUATION_VERIFICATION_20261116.md). Overall G01 remains PARTIALLY COMPLETE; no new live case ran.
+
+> Current instruction, 16 November 2026: owner/Codex owns G02-G06 on `feat/guard-g01-s03-integration`, PR #7. Publication to this existing branch is authorized after verification. Runtime cases still require fresh exact-case approval. See [active continuation and actual audit](GUARD_DEVELOPMENT_CONTINUATION.md) and [executable remaining-gate packages](acceptance/guard-g01/remaining-gates-v2/README.md). Earlier dated restrictions and assignments below are historical where superseded; preservation and runtime safety constraints remain.
+
+> Current continuation (16 November 2026): all G02-G06 work is owned by repository owner/Codex on `feat/guard-g01-s03-integration`, PR #7. See [actual feature audit and preserved constraints](GUARD_DEVELOPMENT_CONTINUATION.md). Historical statuses below are not claims that the interrupted acceptance implementation or live scanners are complete.
+
 # Current continuation: remaining G01 acceptance plans; no new runtime/publication approval
 
 The owner requested four separate remaining-gate plans and fresh specific approvals before runtime mutations. Connected Worker/Auth prepare_only and the old exact-job evidence stay PASS/frozen; its 2 enqueue + 1 launch budget is consumed and must not be repeated. Plans and 16 inactive review intents are in [remaining-gates-v1](acceptance/guard-g01/remaining-gates-v1/README.md). They do not activate permits or authorize jobs/containers/faults. Runtime composition, exact specs, case-scoped controls and final artifact hashes must be completed before final execution approval.
@@ -10,7 +16,7 @@ Scope is existing localhost:5432/wetscan_s01_test_guardg01 only. Owner confirms 
 
 Verified15November2026: two owner-authenticated enqueue HTTP200 responses produce exactly one durable job; one real worker attempt42.005s completed with fence1, observed lease renewals, running?stopped heartbeat, released lease, matching foundation_prepared audit/coverage and fresh final Auth response. Coverage82/90files,175159bytes, partial; scan failed is the truthful G02-unconfigured result, scanner/sandbox NOT_RUN. Post-run SQL18 preservation passes with matching45e7...1095d hashes, differences[],3retained scans/0active leases; actual full target marker independently verified. Old permit bytes/markers and staging preserved. Runtime budget2enqueue+1launch is consumed; no additional action is authorized. Overall G01 remains PARTIALLY COMPLETE: integrated sandbox, live security-negative and real crash/restart/recovery gates remain open.
 
-Read [final Worker/Auth report](acceptance/guard-g01/WORKER_AUTH_ACCEPTANCE_2c18db66.md) and [Will handoff](agent-handoffs/HANDOFF_WILL_G02_G06.md) for exact evidence, provenance/cleanup limits and remaining work. All conflicting older pending/unknown statements below are retained historical checkpoints.
+Read [final Worker/Auth report](acceptance/guard-g01/WORKER_AUTH_ACCEPTANCE_2c18db66.md) and [active Guard continuation](GUARD_DEVELOPMENT_CONTINUATION.md) for exact evidence, provenance/cleanup limits and remaining work. All conflicting older pending/unknown statements below are retained historical checkpoints.
 
 ---
 
