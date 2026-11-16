@@ -39,6 +39,7 @@ import { scopedProbeSandbox } from "./scoped-sandbox";
 import { sameDaemon, measureDaemon } from "./daemon";
 import { CaseJournal } from "./journal";
 import type { AcceptanceBoot } from "./bootstrap";
+import { validN04Denial } from "./n04-evidence";
 /** Exact-case Auth-process composition, separate from the old prepare_only entry and all scanners. */
 export async function launchFoundation(input: {
   packet: ExecutionPacket;
@@ -391,8 +392,50 @@ export async function launchFoundation(input: {
       ownedChild.once("error", () => done(2));
     });
   let grantExpiresAt: number | undefined, grantIssuedAt: number | undefined;
+  let evidenceFailed = false;
+  let evidenceWrites = Promise.resolve();
+  const recordEvidence = (suffix: string, value: unknown) => {
+    evidenceWrites = evidenceWrites
+      .then(() =>
+        writeFile(
+          join(input.privateRoot, `${p.runId}.${suffix}.json`),
+          JSON.stringify(value),
+          { flag: "wx", mode: 0o600 },
+        ),
+      )
+      .catch(() => {
+        evidenceFailed = true;
+      });
+  };
   const offBoundary = port.message((value) => {
     const v = value as Record<string, unknown>;
+    if (
+      p.caseId === "N04" &&
+      v?.type === "guard.acceptance.retry_guard" &&
+      v.version === 2
+    ) {
+      if (
+        v.jobId === p.binding!.jobId &&
+        v.workerId === p.workerIds[input.slot] &&
+        v.attempt === 1 &&
+        v.retryScheduled === false &&
+        typeof v.observedAt === "number" &&
+        v.observedAt <= Date.now() &&
+        ["handler_failed", "handler_timeout", "worker_stopping"].includes(
+          String(v.failureCode),
+        )
+      )
+        recordEvidence("retry-guard", {
+          jobId: v.jobId,
+          workerId: v.workerId,
+          attempt: v.attempt,
+          retryScheduled: false,
+          failureCode: v.failureCode,
+          observedAt: v.observedAt,
+        });
+      else evidenceFailed = true;
+      return;
+    }
     if (!v || v.type !== "guard.acceptance.boundary" || v.version !== 2) return;
     const expected =
       p.caseId === "N03"
@@ -409,6 +452,34 @@ export async function launchFoundation(input: {
       v.observedAt > Date.now() + 1000
     )
       return;
+    if (p.caseId === "N04") {
+      const proof = {
+        boundary: v.boundary,
+        issuedAt: grantIssuedAt,
+        expiresAt: expected,
+        authorizationCheckedAt: v.authorizationCheckedAt,
+        observedAt: v.observedAt,
+        authorization:
+          v.authorization && typeof v.authorization === "object"
+            ? {
+                operation: (v.authorization as Record<string, unknown>)
+                  .operation,
+                outcome: (v.authorization as Record<string, unknown>).outcome,
+                errorCode: (v.authorization as Record<string, unknown>)
+                  .errorCode,
+              }
+            : undefined,
+        realExpiryReached: Date.now() >= expected,
+        actualElapsedMs:
+          Number(v.authorizationCheckedAt) - Number(grantIssuedAt),
+      };
+      if (!validN04Denial(proof)) {
+        evidenceFailed = true;
+        return;
+      }
+      recordEvidence("boundary", proof);
+      return;
+    }
     void writeFile(
       join(input.privateRoot, `${p.runId}.boundary.json`),
       JSON.stringify({
@@ -416,10 +487,6 @@ export async function launchFoundation(input: {
         expiresAt: expected,
         observedAt: v.observedAt,
         realExpiryReached: Date.now() >= expected,
-        actualElapsedMs:
-          p.caseId === "N04"
-            ? Number(v.observedAt) - Number(grantIssuedAt)
-            : undefined,
       }),
       { flag: "wx", mode: 0o600 },
     ).catch(() => undefined);
@@ -453,12 +520,14 @@ export async function launchFoundation(input: {
     exited = true;
     offBoundary();
     try {
+      await evidenceWrites;
       await within(detach(), 9000);
       if (p.caseId !== "N08") await within(broker.close(), 9000);
     } finally {
       token = undefined;
       await pool.end();
     }
+    if (evidenceFailed) throw new LiveGuardError("execution_not_ready");
     return { exitCode, scannerExecution: "NOT_RUN" as const };
   });
   void done.catch(() => undefined);

@@ -11,10 +11,8 @@ import { join, basename, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { setTimeout as delay } from "node:timers/promises";
 import { CaseFaults } from "../../../worker/guard/acceptance/faults";
-import {
-  realGrantExpiry,
-  waitForAbort,
-} from "../../../worker/guard/acceptance/checkpoints";
+import { waitForAbort } from "../../../worker/guard/acceptance/checkpoints";
+import { proveN04Denial } from "../../../worker/guard/acceptance/n04";
 import { authorize } from "../../../src/features/guard/security";
 import {
   ResourceRegistry,
@@ -79,18 +77,23 @@ it("N04 offline CLOCK DOUBLE: waits the full grant expiry, leaves the grant unch
   const f = await acceptanceFixture("N04");
   vi.useFakeTimers();
   try {
-    const grant = { ...f.grant, expiresAt: Date.now() + 60000 },
+    const grant = {
+        ...f.grant,
+        issuedAt: Date.now(),
+        expiresAt: Date.now() + 60000,
+      },
       original = structuredClone(grant);
     let settled = false;
-    const task = realGrantExpiry(
-      grant.expiresAt,
+    const task = proveN04Denial(
+      grant,
+      f.binding,
       new AbortController().signal,
     ).then(() => {
       settled = true;
     });
-    await vi.advanceTimersByTimeAsync(59999);
+    await vi.advanceTimersByTimeAsync(60999);
     expect(settled).toBe(false);
-    await vi.advanceTimersByTimeAsync(2);
+    await vi.advanceTimersByTimeAsync(1);
     await task;
     expect(grant).toEqual(original);
     expect(() => authorize(grant, f.binding, "scan")).toThrow();

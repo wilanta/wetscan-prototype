@@ -1,0 +1,21 @@
+{
+  "classification": "HISTORICAL_PREREQUISITE_CARRIED_FORWARD_NOT_REPROBED",
+  "source": "docs/acceptance/guard-g01/remaining-gates-v2/review/environment-observation.json",
+  "observation": {
+    "recordedAt": "2026-11-16T06:00:26.847Z",
+    "classification": "READONLY_EXTERNAL_PREREQUISITE_PROBE",
+    "command": "node --require ./tests/auth/skip-dotenv.cjs --import tsx worker/guard/acceptance/operator.ts --measure",
+    "executionContext": "normal host execution, not a sandbox-denial inference",
+    "dockerCliExists": true,
+    "status": "BLOCKED_OR_FAILED",
+    "reason": "execution_not_ready",
+    "failedReadonlyStage": "version",
+    "daemonIdentity": "NOT_OBSERVED",
+    "imageIdentity": "NOT_OBSERVED",
+    "mutatingDockerOperations": 0,
+    "databaseConnections": 0,
+    "workerOrScannerLaunches": 0,
+    "automaticRestartOrPull": false
+  },
+  "currentRuntimeOperations": 0
+}

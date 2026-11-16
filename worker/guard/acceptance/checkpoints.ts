@@ -48,22 +48,3 @@ export function waitForAbort(signal: AbortSignal) {
     else signal.addEventListener("abort", stop, { once: true });
   });
 }
-export async function realGrantExpiry(expiresAt: number, signal: AbortSignal) {
-  if (!Number.isFinite(expiresAt) || expiresAt - Date.now() > 60000)
-    throw new LiveGuardError("invalid_input");
-  await new Promise<void>((done, fail) => {
-    const abort = () => {
-      clearTimeout(timer);
-      fail(new LiveGuardError("source_unavailable"));
-    };
-    const timer = setTimeout(
-      () => {
-        signal.removeEventListener("abort", abort);
-        done();
-      },
-      Math.max(0, expiresAt - Date.now() + 1),
-    );
-    if (signal.aborted) abort();
-    else signal.addEventListener("abort", abort, { once: true });
-  });
-}

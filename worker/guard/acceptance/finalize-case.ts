@@ -5,6 +5,7 @@ import { preserved, type PreservationProjection } from "./preservation";
 import { assertCase, type CaseObservation } from "./case-runner";
 import { hash, type ExecutionPacket } from "./approval";
 import { LiveGuardError } from "../../../src/features/guard/live/model";
+import { validN04Evidence } from "./n04-evidence";
 const check = (v: unknown) => {
   if (!v) throw new LiveGuardError("execution_not_ready");
 };
@@ -60,6 +61,24 @@ export async function finalizeObservedCase(
     o.realExpiryReached = true;
     o.fault = boundary.boundary;
     o.actualElapsedMs = boundary.actualElapsedMs;
+    if (p.caseId === "N04") {
+      check(
+        validN04Evidence(
+          p,
+          boundary,
+          await load("retry-guard.json"),
+          await load("launch.0.used.result.json"),
+        ),
+      );
+      check(
+        rows.attemptHistory?.length === 1 &&
+          rows.attemptHistory[0].attempt === 1 &&
+          rows.attemptHistory[0].outcome === "cancelled" &&
+          rows.attemptHistory[0].finished === true,
+      );
+      o.authorizationDenied = true;
+      o.retryScheduled = false;
+    }
     if (p.caseId === "N03") await checkpoint("container_started");
     if (p.caseId === "N03") {
       const failure = await load("start-failure.0.json");

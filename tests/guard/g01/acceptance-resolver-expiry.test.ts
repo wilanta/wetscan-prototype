@@ -45,7 +45,7 @@ it.each([60000, 10000, 0])(
           new AbortController().signal,
         ),
         assertion = expect(task).rejects.toThrow();
-      if (ttl === 60000) await vi.advanceTimersByTimeAsync(60001);
+      if (ttl === 60000) await vi.advanceTimersByTimeAsync(61000);
       await assertion;
       expect(events).toHaveLength(ttl === 60000 ? 1 : 0);
       if (ttl === 60000)

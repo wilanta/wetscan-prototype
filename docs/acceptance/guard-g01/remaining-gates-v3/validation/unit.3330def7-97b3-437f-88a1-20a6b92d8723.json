@@ -1,0 +1,26 @@
+{
+  "classification": "OFFLINE_VALIDATION",
+  "kind": "unit",
+  "startedAt": "2026-11-16T06:33:53.295Z",
+  "endedAt": "2026-11-16T06:34:40.465Z",
+  "exitCode": 0,
+  "command": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--reporter=default",
+    "--reporter=json",
+    "--outputFile=test-results\\guard-continuation-unit.3330def7-97b3-437f-88a1-20a6b92d8723.json"
+  ],
+  "dotenvLoaded": false,
+  "runtimeMutation": "NOT_RUN",
+  "scannerExecution": "NOT_RUN",
+  "counts": {
+    "tests": 913,
+    "passed": 913,
+    "failed": 0,
+    "pending": 0,
+    "files": 84,
+    "failedFiles": []
+  }
+}

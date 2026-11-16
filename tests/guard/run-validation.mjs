@@ -92,7 +92,7 @@ const summary = {
   scannerExecution: "NOT_RUN",
   counts,
 };
-const directory = "docs/acceptance/guard-g01/remaining-gates-v2/validation";
+const directory = "docs/acceptance/guard-g01/remaining-gates-v3/validation";
 await mkdir(directory, { recursive: true });
 const file = join(directory, `${kind}.${id}.json`);
 await writeFile(file, JSON.stringify(summary, null, 2) + "\n", { flag: "wx" });

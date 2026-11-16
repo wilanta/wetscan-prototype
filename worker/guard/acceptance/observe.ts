@@ -64,6 +64,7 @@ export async function observeCase(
       fence: Number(queue?.fence ?? 0),
       leaseActive: queue?.lease_active === true,
       hasLeaseOwner: queue?.has_owner === true,
+      cancelRequested: queue?.cancel_requested === true,
       heartbeat: latest?.status ?? null,
       foundation: !!scan?.job.audit.some(
         (v) => v.action === "foundation_prepared",

@@ -21,6 +21,7 @@ import {
 } from "./approval";
 import { verifyArtifacts } from "./integrity";
 import { caseDatabaseConfig } from "./database";
+import { acceptanceRetry } from "./n04";
 export interface AcceptanceBoot {
   packet: ExecutionPacket;
   approval: ExecutionApproval;
@@ -141,10 +142,20 @@ export async function startFoundationWorker(input: {
       check();
       return queue.complete(l);
     },
-    retry: async (l, f) => {
-      check();
-      return queue.retry(l, f);
-    },
+    retry: acceptanceRetry(
+      p.caseId,
+      async (l, f) => {
+        check();
+        return queue.retry(l, f);
+      },
+      async (proof) => {
+        await port.send({
+          type: "guard.acceptance.retry_guard",
+          version: 2,
+          ...proof,
+        });
+      },
+    ),
   };
   try {
     await runGuardWorker({

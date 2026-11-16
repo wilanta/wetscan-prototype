@@ -33,7 +33,7 @@ export async function reviewWorkspace() {
   return { branch, head };
 }
 export const packageRoot = resolve(
-  "docs/acceptance/guard-g01/remaining-gates-v2",
+  "docs/acceptance/guard-g01/remaining-gates-v3",
 );
 export async function regularJson(path: string) {
   const s = await lstat(path);

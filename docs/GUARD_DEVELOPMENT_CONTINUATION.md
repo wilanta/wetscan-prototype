@@ -1,3 +1,5 @@
+> Latest N04 review repair: [revision3 offline verification and inactive approval packet](acceptance/guard-g01/remaining-gates-v3/N04_REPAIR_REVIEW.md). DESIGN_REVIEW_ACCEPTED / RUNTIME_NOT_AUTHORIZED;913 offline tests pass. Revision2 packets are retained historical artifacts; changed implementation hashes require a new exact runtime approval.
+
 # Guard development continuation
 
 Owner: repository owner / Codex. Updated 16 November 2026 (Asia/Jakarta). All G02-G06 implementation, review and acceptance work now belongs to the owner/Codex. There is no active assignment or delivery to Will. This is a continuation of the existing implementation, including the incomplete G01 acceptance implementation committed before this session.
