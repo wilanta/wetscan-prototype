@@ -42,7 +42,12 @@ export class GuardSnapshotAdapter implements SnapshotPort {
     private readonly remove = (path: string) =>
       rm(path, { recursive: true, force: true }),
     private readonly acceptanceHooks?: {
-      afterWrite(root: string, relative: string, writtenFiles: number, signal: AbortSignal): Promise<void>;
+      afterWrite(
+        root: string,
+        relative: string,
+        writtenFiles: number,
+        signal: AbortSignal,
+      ): Promise<void>;
       beforeCleanup(root: string): Promise<void>;
     },
   ) {}
@@ -235,7 +240,12 @@ export class GuardSnapshotAdapter implements SnapshotPort {
         const path = join(root, ...file.path.split("/"));
         await mkdir(dirname(path), { recursive: true, mode: 0o700 });
         await writeFile(path, file.content, { flag: "wx", mode: 0o400 });
-        await this.acceptanceHooks?.afterWrite(root, file.path, ++writtenFiles, signal);
+        await this.acceptanceHooks?.afterWrite(
+          root,
+          file.path,
+          ++writtenFiles,
+          signal,
+        );
       }
       const files = buffers.map(({ path, size, sha256 }) => ({
         path,

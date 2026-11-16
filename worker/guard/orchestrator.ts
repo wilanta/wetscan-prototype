@@ -50,6 +50,18 @@ export function validateSnapshot(
         "Snapshot file/resource limit exceeded.",
       );
   }
+  if (
+    job.mode === "live" &&
+    (!snapshot.coverage ||
+      snapshot.coverage.retrievedFiles !== snapshot.files.length ||
+      (snapshot.coverage.status === "complete" &&
+        (snapshot.coverage.exclusions.length !== 0 ||
+          snapshot.coverage.treeTruncated)))
+  )
+    throw new GuardError(
+      "invalid_input",
+      "Live source coverage is missing or inconsistent.",
+    );
 }
 export interface WorkerPorts {
   storage: PersistencePort;
@@ -74,6 +86,7 @@ export async function executeScopedJob(
     );
   if (job.status !== "queued") return job;
   let snapshot: AuthorizedSnapshot | undefined;
+  let disposalAttempted = false;
   const save = async (next: ScanJob) => {
     await ports.storage.save(grant, next);
     job = next;
@@ -103,7 +116,12 @@ export async function executeScopedJob(
     snapshot = await ports.snapshots.acquire(
       grant,
       {
-        ...job,
+        mode: job.mode,
+        workspaceId: job.workspaceId,
+        projectId: job.projectId,
+        repository: job.repository,
+        profile: job.profile,
+        idempotencyKey: job.idempotencyKey,
         engines: job.requestedEngines,
       },
       signal,
@@ -171,6 +189,9 @@ export async function executeScopedJob(
           authorize(grant, f, "scan");
           if (
             f.source.engine !== engine ||
+            f.source.scanner !== result.run.scanner ||
+            f.source.version !== result.run.version ||
+            f.source.rulePack !== result.run.rulePack ||
             !f.evidence.length ||
             f.evidence.some(
               (e) =>
@@ -195,7 +216,14 @@ export async function executeScopedJob(
           runs: job.runs.map((r) => (r.engine === engine ? run : r)),
           findings: deduplicate([...job.findings, ...result.findings]),
         });
-      } catch {
+      } catch (error) {
+        if (
+          error &&
+          typeof error === "object" &&
+          "code" in error &&
+          error.code === "cleanup_failed"
+        )
+          throw error;
         if (signal.aborted) throw new Error("cancelled");
         await save({
           ...job,
@@ -224,13 +252,19 @@ export async function executeScopedJob(
     const selected = job.runs.filter((r) =>
       job!.requestedEngines.includes(r.engine),
     );
+    // A terminal success must never precede physical source cleanup. A failed cleanup is not retried silently.
+    disposalAttempted = true;
+    await ports.snapshots.dispose(snapshot);
+    snapshot = undefined;
     await save(
       transition(
         job,
         selected.every((r) =>
           ["completed", "not_applicable"].includes(r.status),
         )
-          ? "completed"
+          ? job.sourceCoverage?.status === "partial"
+            ? "completed_partial"
+            : "completed"
           : selected.some((r) => r.status === "completed")
             ? "completed_partial"
             : "failed",
@@ -258,7 +292,7 @@ export async function executeScopedJob(
       await save(next);
     }
   } finally {
-    if (snapshot) await ports.snapshots.dispose(snapshot);
+    if (snapshot && !disposalAttempted) await ports.snapshots.dispose(snapshot);
   }
   return job;
 }

@@ -1,0 +1,40 @@
+{
+  "classification": "ISOLATED_BROWSER_REGRESSION",
+  "observedAt": "2026-11-16T06:04:02.888Z",
+  "commands": [
+    "node tests/guard/g01/run-regression.mjs auth",
+    "node tests/guard/g01/run-regression.mjs legacy",
+    "node tests/guard/g01/run-regression.mjs canvas"
+  ],
+  "results": [
+    {
+      "suite": "auth",
+      "passed": 21,
+      "failed": 0,
+      "exitCode": 0
+    },
+    {
+      "suite": "legacy_ui",
+      "passed": 6,
+      "failed": 0,
+      "exitCode": 0
+    },
+    {
+      "suite": "canvas",
+      "passed": 17,
+      "failed": 0,
+      "exitCode": 0
+    }
+  ],
+  "dotenvLoaded": false,
+  "credentials": "generated fixtures only",
+  "ownerBrowserUsed": false,
+  "liveDatabase": "NOT_CONNECTED",
+  "liveWorker": "NOT_RUN",
+  "scannerExecution": "NOT_RUN",
+  "nonFailingWarnings": [
+    "FORCE_COLOR overrides NO_COLOR",
+    "existing React Flow attribution warning",
+    "existing smooth-scroll route-transition warning"
+  ]
+}

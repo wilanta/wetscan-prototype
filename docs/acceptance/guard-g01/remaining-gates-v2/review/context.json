@@ -1,0 +1,24 @@
+{
+  "createdAt": "2026-11-16T06:00:26.846Z",
+  "classification": "OFFLINE_PREPARATION_NOT_RUNTIME_AUTHORITY",
+  "branch": "feat/guard-g01-s03-integration",
+  "head": "4bfcbece610453ada121057e1ae6dafe2f06bc48",
+  "hostRuntime": {
+    "nodeVersion": "v24.17.0",
+    "platform": "win32",
+    "architecture": "x64",
+    "workingDirectory": "c:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate"
+  },
+  "developmentRemote": "https://github.com/wilanta/wetscan-prototype",
+  "existingPr": "https://github.com/wilanta/wetscan-prototype/pull/7",
+  "owner": "owner/Codex",
+  "target": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "wetscan_s01_test_guardg01",
+    "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f"
+  },
+  "oldJobNeverRepeated": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+  "actualDbConnections": 0,
+  "scannerOrWorkerLaunches": 0
+}

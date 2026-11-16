@@ -23,5 +23,9 @@ const config: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
+  // Operator state and local env must be provisioned separately, never copied by file tracing.
+  outputFileTracingExcludes: { "/*": ["./.env", "./.env.*", "./.local/**/*"] },
+  // Operator state and local env must be provisioned separately, never copied by file tracing.
+  outputFileTracingExcludes: { "/*": ["./.env", "./.env.*", "./.local/**/*"] },
 };
 export default config;

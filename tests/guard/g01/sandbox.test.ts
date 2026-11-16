@@ -58,6 +58,8 @@ function driver(unsafe = false) {
             Privileged: false,
             ReadonlyRootfs: true,
             NetworkMode: "none",
+            IpcMode:"none",
+            Tmpfs:{"/tmp":"rw,noexec,nosuid,nodev,size=16777216"},
             Memory: 268435456,
             MemorySwap: 268435456,
             PidsLimit: 64,
@@ -65,7 +67,7 @@ function driver(unsafe = false) {
             CapDrop: ["ALL"],
             SecurityOpt: ["no-new-privileges"],
           },
-          Mounts: [{ Source: source, Destination: "/source", RW: false }],
+          Mounts: [{ Type:"bind",Source: source, Destination: "/source", RW: false }],
         });
       return "fixture output";
     }),
