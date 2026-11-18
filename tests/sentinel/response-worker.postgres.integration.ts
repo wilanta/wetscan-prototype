@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { randomBytes, randomUUID } from "node:crypto";
 import { ResponseStore } from "../../src/features/sentinel/response/store";
+import { retainIncidents } from "../../src/features/sentinel/incidents/retention";
 import { IncidentStore } from "../../src/features/sentinel/incidents/store";
 import { PostgresQueue } from "../../src/platform/queue";
 import { executeLease } from "../../worker/sentinel/executor";
@@ -10,7 +11,10 @@ import {
 } from "../../worker/sentinel/response-handlers";
 import { adapterForTarget } from "../../src/features/sentinel/response/local-rate-limit-adapter";
 import { FixtureVerifier } from "../../src/features/sentinel/response/verifier";
-import { responseJobKinds, type ResponseTarget } from "../../src/features/sentinel/response/model";
+import {
+  responseJobKinds,
+  type ResponseTarget,
+} from "../../src/features/sentinel/response/model";
 import {
   startFixture,
   type Fixture,
@@ -463,6 +467,22 @@ describe.skipIf(!process.env.SENTINEL_S05_PG_ADMIN_URL)(
         expectedRevision: (await row(id)).revision,
       });
       await drain([responseJobKinds.expire]);
+    });
+
+    it("retention pins an incident that has response records (append-only audit, local-test policy)", async () => {
+      await h.admin.query(
+        "UPDATE sentinel.incidents SET status='closed',closed_at=now()-interval '31 days',closed_by='x',close_reason='old'",
+      );
+      const r = await retainIncidents(h.worker, ctx.scope);
+      expect(r.incidents).toBe(0);
+      expect(
+        (
+          await h.admin.query(
+            "SELECT count(*)::int AS n FROM sentinel.incidents WHERE incident_id=$1",
+            [h.incidentId],
+          )
+        ).rows[0].n,
+      ).toBe(1);
     });
 
     it("no orphan enforcement remains on any fixture at the end", () => {
