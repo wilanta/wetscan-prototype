@@ -214,6 +214,7 @@ export function LiveDetection({
           ["Telemetry sources", "/sources"],
           ["Detection Rules", "/rules"],
           ["Alerts", "/alerts"],
+          ["Incidents", "/incidents"],
         ].map(([label, path]) => (
           <Link
             key={path}

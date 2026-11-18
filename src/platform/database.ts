@@ -21,9 +21,25 @@ export interface SqlPool {
   connect(): Promise<SqlClient>;
   end(): Promise<void>;
 }
+export type DatabaseConnectionEvent =
+  | { stage: "connect_attempt" | "identity_query" | "identity_verified" }
+  | {
+      stage: "identity_rejected";
+      reason:
+        | "missing_identity"
+        | "database"
+        | "role"
+        | "marker"
+        | "superuser"
+        | "bypassrls"
+        | "version";
+    };
 export class ApprovedPool implements SqlPool {
   private readonly pool: pg.Pool;
-  constructor(private readonly config: ApprovedDatabaseConfig) {
+  constructor(
+    private readonly config: ApprovedDatabaseConfig,
+    private readonly diagnostic?: (event: DatabaseConnectionEvent) => void,
+  ) {
     this.pool = new pg.Pool({
       host: config.target.host,
       port: config.target.port,
@@ -44,9 +60,18 @@ export class ApprovedPool implements SqlPool {
       /* Checked-out operations/health report errors without secret-bearing driver messages. */
     });
   }
+  private observe(event: DatabaseConnectionEvent) {
+    try {
+      this.diagnostic?.(event);
+    } catch {
+      /* Diagnostics cannot change authorization or connection behavior. */
+    }
+  }
   async connect(): Promise<SqlClient> {
+    this.observe({ stage: "connect_attempt" });
     const client = await this.pool.connect();
     try {
+      this.observe({ stage: "identity_query" });
       const result =
         await client.query(`SELECT current_database() AS database, current_user AS username,
         shobj_description(d.oid, 'pg_database') AS marker, r.rolsuper, r.rolbypassrls,
@@ -61,8 +86,24 @@ export class ApprovedPool implements SqlPool {
         row.rolsuper ||
         row.rolbypassrls ||
         row.version < 170000
-      )
+      ) {
+        const reason = !row
+          ? "missing_identity"
+          : row.database !== this.config.target.database
+            ? "database"
+            : row.username !== this.config.user
+              ? "role"
+              : row.marker !== this.config.target.marker
+                ? "marker"
+                : row.rolsuper
+                  ? "superuser"
+                  : row.rolbypassrls
+                    ? "bypassrls"
+                    : "version";
+        this.observe({ stage: "identity_rejected", reason });
         throw new PlatformError("target_denied");
+      }
+      this.observe({ stage: "identity_verified" });
       return client as SqlClient;
     } catch {
       client.release(true);

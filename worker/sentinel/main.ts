@@ -8,6 +8,7 @@ import { ApprovedPool, PlatformDatabase } from "../../src/platform/database";
 import { migrationPlan } from "../../src/platform/migrations";
 import { runSentinelWorker } from "./runtime";
 import { detectionActivation } from "../../src/features/sentinel/detection/activation";
+import { incidentActivation } from "../../src/features/sentinel/incidents/activation";
 import { requestedAcceptanceIsolation } from "./acceptance";
 
 async function main() {
@@ -35,10 +36,17 @@ async function main() {
     config.approval,
     process.env.SENTINEL_DETECTION_ENABLED === "1",
   );
+  const incidents = incidentActivation(
+    config.approval,
+    process.env.SENTINEL_INCIDENTS_ENABLED === "1",
+    detection,
+  );
   const isolation = requestedAcceptanceIsolation(
     config,
     detection,
     process.env.SENTINEL_ACCEPTANCE_ISOLATION === "1",
+    incidents,
+    plan.migrations,
   );
   await runSentinelWorker({
     db: new PlatformDatabase(pool, true),
@@ -46,6 +54,7 @@ async function main() {
     migrations: plan.migrations,
     options,
     detection,
+    incidents,
     isolation,
     workerId: randomUUID(),
     control: process,

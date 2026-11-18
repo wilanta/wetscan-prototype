@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LiveTelemetry } from "@/features/sentinel/components/live-telemetry";
 import { LiveDetection } from "@/features/sentinel/components/live-detection";
+import { LiveIncidents } from "@/features/sentinel/components/live-incidents";
 import {
   ArrowLeft,
   ArrowRight,
@@ -95,6 +96,21 @@ export function Sentinel({
   section?: string;
   projectId?: string;
 }) {
+  if (
+    projectId &&
+    (section === "/incidents" || section.startsWith("/incidents/"))
+  )
+    return (
+      <LiveIncidents
+        projectId={projectId}
+        initialIncidentId={
+          section.startsWith("/incidents/")
+            ? section.slice("/incidents/".length)
+            : undefined
+        }
+        key={`${projectId}:${section}`}
+      />
+    );
   if (projectId && (section === "/rules" || section === "/alerts"))
     return (
       <LiveDetection

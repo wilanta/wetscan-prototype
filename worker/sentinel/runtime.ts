@@ -16,7 +16,13 @@ import { retainTelemetry } from "../../src/features/sentinel/telemetry/store";
 import { DetectionStore } from "../../src/features/sentinel/detection/store";
 import { retainDetection } from "../../src/features/sentinel/detection/retention";
 import type { DetectionActivation } from "../../src/features/sentinel/detection/activation";
-import { verifyAcceptanceJobs, type AcceptanceIsolation } from "./acceptance";
+import { retainIncidents } from "../../src/features/sentinel/incidents/retention";
+import type { IncidentActivation } from "../../src/features/sentinel/incidents/activation";
+import {
+  hasValidS04IncidentMigration,
+  verifyAcceptanceJobs,
+  type AcceptanceIsolation,
+} from "./acceptance";
 import { assertAdmission } from "../../src/platform/job-admission";
 import {
   closeHealthServer,
@@ -40,6 +46,7 @@ export async function runSentinelWorker(input: {
   migrations: Migration[];
   options: ReturnType<typeof workerConfig>;
   detection?: DetectionActivation;
+  incidents?: IncidentActivation;
   isolation?: AcceptanceIsolation;
   workerId: string;
   control: WorkerControl;
@@ -90,7 +97,11 @@ export async function runSentinelWorker(input: {
           : "normal",
         jobAdmission: input.isolation ? "sealed_job_ids" : "normal",
         telemetryIngestion: "web_runtime_not_probed",
-        incidents: "not_implemented",
+        incidents: input.incidents
+          ? "enabled_for_approved_new_alerts"
+          : migrations.some((m) => m.version === "0004_incidents")
+            ? "disabled_pending_approval"
+            : "not_implemented",
         notifications: "not_configured",
       }),
     );
@@ -103,14 +114,33 @@ export async function runSentinelWorker(input: {
     work = Promise.resolve();
   let acceptanceDeadline: ReturnType<typeof setTimeout> | undefined;
   try {
+    if (
+      input.incidents &&
+      (!input.detection ||
+        !migrations.some((m) => m.version === "0004_incidents") ||
+        input.incidents.scope.mode !== input.detection.scope.mode ||
+        input.incidents.scope.workspaceId !==
+          input.detection.scope.workspaceId ||
+        input.incidents.scope.projectId !== input.detection.scope.projectId ||
+        !Number.isFinite(Date.parse(input.incidents.notBefore)) ||
+        Date.parse(input.incidents.notBefore) <
+          Date.parse(input.detection.notBefore))
+    )
+      throw new PlatformError("approval_required");
     if (input.isolation) {
-      if (!input.detection) throw new PlatformError("approval_required");
+      if (
+        !input.detection ||
+        (input.isolation.packet === "s04" &&
+          (!input.incidents || !hasValidS04IncidentMigration(migrations)))
+      )
+        throw new PlatformError("approval_required");
       assertAdmission(input.isolation.admission, input.detection.scope);
       await verifyAcceptanceJobs(
         pool,
         input.isolation,
         input.detection,
         workerId,
+        input.incidents,
       );
       acceptanceDeadline = setTimeout(
         () => stop.request("acceptance_expired"),
@@ -188,21 +218,30 @@ export async function runSentinelWorker(input: {
             const detectionReady = migrations.some(
               (m) => m.version === "0003_detection",
             );
+            const incidentsReady = migrations.some(
+              (m) => m.version === "0004_incidents",
+            );
+            if (incidentsReady && !input.isolation)
+              await retainIncidents(db, scope);
             if (detectionReady && !input.isolation)
-              await retainDetection(db, scope);
+              await retainDetection(db, scope, incidentsReady);
             if (
               !input.isolation &&
               migrations.some((m) => m.version === "0002_telemetry")
             )
-              await retainTelemetry(db, scope, detectionReady);
+              await retainTelemetry(db, scope, detectionReady, incidentsReady);
             if (stop.signal.aborted) break;
+            const claimNotBefore =
+              input.isolation?.packet === "s04" && input.incidents
+                ? input.incidents.notBefore
+                : input.detection?.notBefore;
             const queue = new PostgresQueue(
               db,
               scope,
               input.detection
                 ? ["sentinel.telemetry.accepted"]
                 : ["sentinel.maintenance"],
-              input.detection?.notBefore,
+              claimNotBefore,
               input.isolation?.admission,
             );
             const leases = await queue.claim({
@@ -230,12 +269,26 @@ export async function runSentinelWorker(input: {
                       await new DetectionStore(db).process(
                         currentLease(),
                         signal,
+                        {
+                          correlateIncidents: Boolean(
+                            input.incidents && incidentsReady,
+                          ),
+                        },
                       );
                       return;
                     }
+                    if (input.isolation) throw new PlatformError("scope_denied");
                     await retainInfrastructure(db, job, options.retentionDays);
+                    if (incidentsReady) await retainIncidents(db, job);
+                    if (detectionReady)
+                      await retainDetection(db, job, incidentsReady);
                     if (migrations.some((m) => m.version === "0002_telemetry"))
-                      await retainTelemetry(db, job, detectionReady);
+                      await retainTelemetry(
+                        db,
+                        job,
+                        detectionReady,
+                        incidentsReady,
+                      );
                   },
                   {
                     heartbeatMs: options.heartbeatMs,

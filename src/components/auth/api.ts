@@ -44,6 +44,12 @@ export const authMessages: Record<string, string> = {
   invalid_repositories: "Select between 1 and 100 accessible repositories.",
   invalid_account: "Enter a valid email address and notification preferences.",
   server_error: "The request could not be saved. Please try again.",
+  auth_network_unavailable:
+    "Cannot reach WetScan authentication. Check that WetScan is still running at its configured address. For an owner recovery window, return to PowerShell; do not retry.",
+  auth_invalid_response:
+    "WetScan authentication returned an unreadable response. Return to PowerShell during an owner recovery window; do not retry.",
+  auth_window_stopped:
+    "The owner authentication window stopped. Return to PowerShell; do not retry.",
 };
 export function errorMessage(code: string) {
   return (
@@ -58,8 +64,12 @@ export async function authFetch<T>(url: string, data?: unknown): Promise<T> {
     headers:
       data === undefined ? undefined : { "Content-Type": "application/json" },
     body: data === undefined ? undefined : JSON.stringify(data),
+  }).catch(() => {
+    throw new Error(errorMessage("auth_network_unavailable"));
   });
-  const result = await response.json();
-  if (!response.ok) throw new Error(errorMessage(result.error));
+  const result = await response.json().catch(() => {
+    throw new Error(errorMessage("auth_invalid_response"));
+  });
+  if (!response.ok) throw new Error(errorMessage(result?.error));
   return result as T;
 }

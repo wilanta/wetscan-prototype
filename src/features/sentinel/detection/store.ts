@@ -21,6 +21,8 @@ import {
 import { evaluate, eventWindow } from "./evaluator";
 import { seedRules } from "./seeds";
 import { preciseTime, micros } from "./time";
+import { correlateAlertIncident } from "../incidents/store";
+import { canonicalScope } from "../scope";
 
 const where = "mode=$1 AND workspace_id=$2 AND project_id=$3";
 const scopeValues = (s: SentinelScope) => [s.mode, s.workspaceId, s.projectId];
@@ -427,7 +429,11 @@ export class DetectionStore {
     });
   }
   /** Effects are fenced in one transaction; executor acknowledges separately. A retry reads persisted evaluation identities. */
-  async process(lease: JobLease, signal: AbortSignal) {
+  async process(
+    lease: JobLease,
+    signal: AbortSignal,
+    options?: { correlateIncidents?: boolean },
+  ) {
     if (
       lease.job.module !== "sentinel" ||
       this.db.module !== "sentinel" ||
@@ -439,8 +445,9 @@ export class DetectionStore {
     if (parts.length !== 2) throw new TelemetryError("invalid_job_reference");
     const source = uuid(parts[0]),
       id = uuid(parts[1]),
-      s = scopeValues(lease.job);
-    return this.db.scoped(lease.job, async (tx) => {
+      cleanScope = canonicalScope(lease.job),
+      s = scopeValues(cleanScope);
+    return this.db.scoped(cleanScope, async (tx) => {
       this.db.requireWorker(tx);
       const check = () => {
         if (signal.aborted) throw Error("cancelled");
@@ -472,7 +479,7 @@ export class DetectionStore {
         )
       ).rows[0];
       if (!row) throw new TelemetryError("stored_event_missing", 409);
-      const anchor = eventView(row, lease.job);
+      const anchor = eventView(row, cleanScope);
       const rules = (
         await this.db.query(
           tx,
@@ -484,7 +491,7 @@ export class DetectionStore {
       const outcomes: string[] = [];
       for (const raw of rules) {
         check();
-        const rule = ruleView(raw, lease.job);
+        const rule = ruleView(raw, cleanScope);
         const prior = await this.db.query(
           tx,
           `SELECT outcome FROM sentinel.detection_evaluations WHERE ${where} AND rule_id=$4 AND rule_version=$5 AND source_id=$6 AND event_id=$7`,
@@ -534,11 +541,18 @@ export class DetectionStore {
         const result = evaluate(
           rule,
           anchor,
-          candidates.map((r) => eventView(r, lease.job)),
+          candidates.map((r) => eventView(r, cleanScope)),
           signal,
         );
         if (result.matched && result.outcome !== "alert_suppressed")
-          await this.persistMatch(tx, lease.job, rule, anchor, result);
+          await this.persistMatch(
+            tx,
+            cleanScope,
+            rule,
+            anchor,
+            result,
+            options?.correlateIncidents === true,
+          );
         await this.db.query(
           tx,
           `INSERT INTO sentinel.detection_evaluations(mode,workspace_id,project_id,rule_id,rule_version,source_id,event_id,outcome,reason,matched,match_key,window_start,window_end) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
@@ -602,8 +616,10 @@ export class DetectionStore {
     rule: DetectionRule,
     anchor: StoredSecurityEvent,
     result: Evaluation,
+    correlateIncidents = false,
   ) {
-    const s = scopeValues(scope),
+    const cleanScope = canonicalScope(scope),
+      s = scopeValues(cleanScope),
       source = anchor.sourceId;
     const old = (
       await this.db.query(
@@ -691,5 +707,16 @@ export class DetectionStore {
         result.evidence.at(-1)!.event.occurredAt,
       ],
     );
+    if (correlateIncidents) {
+      await correlateAlertIncident(
+        this.db,
+        tx,
+        cleanScope,
+        alertId,
+        rule,
+        anchor,
+        result,
+      );
+    }
   }
 }

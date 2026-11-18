@@ -11,15 +11,12 @@ import {
 } from "../tests/sentinel/detection-acceptance-safety";
 
 async function main() {
-  const plan = await migrationPlan();
-  if (plan.sha256 !== reviewedS03Plan)
-    throw new PlatformError("approval_required");
   for (const purpose of ["app", "worker", "migration"] as const) {
     const c = await approvedDatabaseConfig(
       process.env,
       purpose,
       "integration_test",
-      plan.sha256,
+      reviewedS03Plan,
     );
     if (
       c.target.host !== "127.0.0.1" ||
@@ -28,10 +25,13 @@ async function main() {
       c.target.marker !== "wetscan-s01:9f3560a6-127f-42a6-abaf-9f45951e6bd5"
     )
       throw new PlatformError("target_denied");
-    parseApproval(c.approval, c.target, "migrate_up", plan.sha256);
-    parseApproval(c.approval, c.target, "migrate_down", plan.sha256); // Refusal probe only; SQL firewall below never permits down DDL.
+    parseApproval(c.approval, c.target, "migrate_up", reviewedS03Plan);
+    parseApproval(c.approval, c.target, "migrate_down", reviewedS03Plan); // Refusal probe only; SQL firewall below never permits down DDL.
     await acceptancePermission(c.approval);
   }
+  const plan = await migrationPlan();
+  if (plan.sha256 !== reviewedS03Plan)
+    throw new PlatformError("approval_required");
   process.exitCode = await new Promise<number>((resolve, reject) => {
     const child = spawn(
       process.execPath,
