@@ -19,8 +19,12 @@ describe("S05 additive SQL and reversal protocol - not PostgreSQL execution", ()
       expect(m.up).toContain(`'${t}'`);
     expect(m.up).toMatch(/CHECK\(mode='live'\)/);
     // No runtime role may update/delete audit rows or write targets.
-    expect(m.up).not.toMatch(/GRANT[^;]*(UPDATE|DELETE|ALL)[^;]*response_audit/);
-    expect(m.up).not.toMatch(/GRANT[^;]*(INSERT|UPDATE|DELETE)[^;]*response_targets/);
+    expect(m.up).not.toMatch(
+      /GRANT[^;]*(UPDATE|DELETE|ALL)[^;]*response_audit/,
+    );
+    expect(m.up).not.toMatch(
+      /GRANT[^;]*(INSERT|UPDATE|DELETE)[^;]*response_targets/,
+    );
     expect(m.up).toContain("response_one_active_per_target");
     expect(m.up).not.toMatch(/ALTER TABLE sentinel\.(incidents|incident_)/);
     expect(m.up).not.toMatch(/DROP |TRUNCATE|CASCADE/i);

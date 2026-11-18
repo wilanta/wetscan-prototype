@@ -71,7 +71,9 @@ export function responseCommand(input: unknown): ResponseCommand {
     )
       throw new TelemetryError("invalid_revision");
     const note =
-      c.note === undefined || c.note === null ? null : cleanNote(c.note, 3, 280);
+      c.note === undefined || c.note === null
+        ? null
+        : cleanNote(c.note, 3, 280);
     return {
       action: c.action,
       actionId: uuid(c.actionId),
