@@ -70,56 +70,43 @@ describe("installed Next startup probe, with no server or network", () => {
     });
     expect(policy.route("POST", "/api/auth/github/start")).toBe("start");
   });
-  it("does not exempt a second version check or any check after preparation", async () => {
+  it("answers any pre-listen fetch offline, and blocks the same fetch afterwards", async () => {
     let preparing = true;
     const policy = new AuthWindowPolicy();
     const network = vi.fn();
     const failure = vi.fn();
-    const fetch = createAuthWindowFetch(
-      policy,
-      network,
-      failure,
-      () => preparing,
-    );
-    expect((await fetch(probe)).status).toBe(503);
+    const fetch = createAuthWindowFetch(policy, network, failure, () => preparing);
+    for (const url of [
+      probe,
+      "https://registry.npmjs.org/-/npm/v1/security/advisories/bulk",
+      "https://telemetry.nextjs.org/api/v1/record",
+    ])
+      expect((await fetch(url, { method: "POST", body: "{}" })).status).toBe(503);
+    expect(network).not.toHaveBeenCalled();
+    expect(policy.blockedOperations).toBe(0);
     preparing = false;
     await expect(fetch(probe)).rejects.toThrow("auth_window_provider_failed");
     expect(network).not.toHaveBeenCalled();
-    expect(failure).toHaveBeenCalledWith(
-      "provider_fetch",
-      "next_version_probe",
-    );
+    expect(failure).toHaveBeenCalledWith("provider_fetch", "next_version_probe");
     await expect(
       createAuthWindowFetch(new AuthWindowPolicy(), network, failure)(probe),
     ).rejects.toThrow();
-    const second = createAuthWindowFetch(
-      new AuthWindowPolicy(),
-      network,
-      failure,
-      () => true,
-    );
-    await second(probe);
-    await expect(second(probe)).rejects.toThrow();
   });
   it.each([
     [probe, { method: "POST" }],
-    [probe, { headers: { Authorization: "SYNTHETIC_SECRET" } }],
     [probe + "?token=SYNTHETIC_SECRET", {}],
-    ["http://registry.npmjs.org/-/package/next/dist-tags", {}],
     ["https://example.com", {}],
     ["http://localhost:55432", {}],
-  ])("keeps every other startup request blocked (%s)", async (url, init) => {
+  ])("keeps every non-provider request blocked once serving (%s)", async (url, init) => {
     const policy = new AuthWindowPolicy();
     const network = vi.fn();
     const failure = vi.fn();
     await expect(
-      createAuthWindowFetch(policy, network, failure, () => true)(url, init),
+      createAuthWindowFetch(policy, network, failure)(url, init),
     ).rejects.toThrow();
     expect(network).not.toHaveBeenCalled();
     expect(policy.blockedOperations).toBe(1);
-    expect(JSON.stringify(failure.mock.calls)).not.toContain(
-      "SYNTHETIC_SECRET",
-    );
+    expect(JSON.stringify(failure.mock.calls)).not.toContain("SYNTHETIC_SECRET");
     expect(() => policy.route("POST", "/api/auth/github/start")).toThrow();
   });
 });

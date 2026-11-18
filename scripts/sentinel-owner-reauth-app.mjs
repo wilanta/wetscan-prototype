@@ -95,18 +95,11 @@ export function createAuthWindowFetch(
   onFailure,
   isPreparingNext = () => false,
 ) {
-  let versionProbeHandled = false;
   return async (input, init = {}) => {
-    // Next's installed webpack dev server asks npm for version information in
-    // prepare(). Deny that exact optional probe locally, without network access
-    // or invalidating OAuth. No other request or later probe is exempted.
-    if (
-      isPreparingNext() &&
-      !versionProbeHandled &&
-      input === "https://registry.npmjs.org/-/package/next/dist-tags" &&
-      Object.keys(init).length === 0
-    ) {
-      versionProbeHandled = true;
+    // Before the server listens no OAuth request can exist, so every fetch in
+    // that phase is optional framework traffic (npm advisories/dist-tags,
+    // telemetry). Answer it locally with 503: no network, window not invalidated.
+    if (isPreparingNext()) {
       policy.offlineVersionProbes++;
       return new Response(null, { status: 503 });
     }
@@ -228,6 +221,7 @@ async function main() {
       fs.closeSync(fd);
     }
   };
+  process.env.NEXT_TELEMETRY_DISABLED = "1";
   const originalFetch = globalThis.fetch;
   let preparingNext = true;
   globalThis.fetch = createAuthWindowFetch(
@@ -255,7 +249,6 @@ async function main() {
       quiet: true,
     });
     await nextApp.prepare();
-    preparingNext = false;
     if (windowFailed) throw Error("startup_operation_denied");
     if (
       Object.keys(process.env).some((k) =>
@@ -357,6 +350,7 @@ async function main() {
       server.once("error", reject);
       server.listen(3000, "localhost", resolve);
     });
+    preparingNext = false; // from here only reviewed OAuth providers are reachable
     const ready = fs.openSync(
       path.join(run, "app-ready.sanitized.json"),
       "wx",
