@@ -1002,7 +1002,9 @@ async function runSealedWorker() {
   );
   if (!isolation) throw new PlatformError("approval_required");
   const opts = workerConfig(process.env);
-  const workerId = `h04cb2-${randomUUID().slice(0, 8)}`;
+  const preservedFailedJobs = (
+    await captureReadOnlyDevState(pool)
+  ).jobsInventory.filter((j) => j.state === "failed").length;
 
   const mainPath = join(repoRootPath(), "worker/sentinel/main.ts");
   const sanitizedEnv: NodeJS.ProcessEnv = {
@@ -1059,9 +1061,24 @@ async function runSealedWorker() {
         } catch {
           /* Health server may still be starting up. */
         }
-        if (healthRes?.status === 200) {
-          assertWorkerHealthPayload(healthRes.json);
-          healthPayload = healthRes.json;
+        // platformHealth reports 503/degraded for any preserved historical failed job;
+        // accept that one known cause only, never expired leases or an unknown failure.
+        const h = healthRes?.json as
+          | {
+              status?: string;
+              worker?: string;
+              queue?: { failed?: number; expired?: number };
+            }
+          | undefined;
+        const knownDegraded =
+          healthRes?.status === 503 &&
+          h?.status === "degraded" &&
+          h.worker === "running" &&
+          h.queue?.expired === 0 &&
+          h.queue?.failed === preservedFailedJobs;
+        if (healthRes?.status === 200 || knownDegraded) {
+          assertWorkerHealthPayload(healthRes!.json);
+          healthPayload = healthRes!.json;
           healthVerified = true;
         }
       }
@@ -1119,7 +1136,14 @@ async function runSealedWorker() {
     ) {
       throw new PlatformError("target_denied");
     }
-    const nextWorkerIds = [...new Set([...ctx.workerIds, workerId])];
+    // The worker picks its own random id: identify it as the single new heartbeat row.
+    const known = new Set([
+      ...(preRecovery?.historicalHeartbeats ?? []).map((h) => h.worker_id),
+      ...ctx.workerIds,
+    ]);
+    const fresh = state.workerHeartbeats.filter((h) => !known.has(h.worker_id));
+    if (fresh.length !== 1) throw new PlatformError("target_denied");
+    const nextWorkerIds = [...ctx.workerIds, fresh[0].worker_id];
     verifyWorkerHeartbeatsClean({
       current: state.workerHeartbeats,
       historical: preRecovery?.historicalHeartbeats,
