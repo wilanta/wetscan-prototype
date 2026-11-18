@@ -110,6 +110,16 @@ export interface ResponsePort {
   ): Promise<
     IntegrationResult<{ status: "rolled_back"; evidenceIds: string[] }>
   >;
+  /** Additive S05: read the target's actual enforcement state (reconcile). Never mutates. */
+  inspect?(
+    context: SentinelProjectContext,
+  ): Promise<
+    IntegrationResult<{
+      active: boolean;
+      actionId: string | null;
+      expiresAt: string | null;
+    }>
+  >;
 }
 export interface VerificationPort {
   verify(

@@ -41,18 +41,34 @@ const pool = (url: URL, database: string, user: string, password: string) =>
     max: 4,
   });
 
-export async function setupHarness(opts?: { seedIncident?: boolean }): Promise<Harness> {
+export async function setupHarness(opts?: {
+  seedIncident?: boolean;
+}): Promise<Harness> {
   const url = adminUrl();
-  const root = pool(url, "postgres", decodeURIComponent(url.username), decodeURIComponent(url.password));
+  const root = pool(
+    url,
+    "postgres",
+    decodeURIComponent(url.username),
+    decodeURIComponent(url.password),
+  );
   const dbName = `s05_${randomUUID().replace(/-/g, "").slice(0, 12)}`;
-  for (const role of ["wetscan_migrator", "wetscan_app", "wetscan_sentinel_worker"]) {
+  for (const role of [
+    "wetscan_migrator",
+    "wetscan_app",
+    "wetscan_sentinel_worker",
+  ]) {
     await root.query(
       `DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='${role}') THEN CREATE ROLE ${role} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS PASSWORD '${pw}'; END IF; END $$`,
     );
   }
   await root.query(`CREATE DATABASE ${dbName} OWNER wetscan_migrator`);
   await root.end();
-  const admin = pool(url, dbName, decodeURIComponent(url.username), decodeURIComponent(url.password));
+  const admin = pool(
+    url,
+    dbName,
+    decodeURIComponent(url.username),
+    decodeURIComponent(url.password),
+  );
   const migrator = pool(url, dbName, "wetscan_migrator", pw);
   const plan = await migrationPlan();
   await applyMigrations(migrator, plan.migrations, "up");
@@ -62,7 +78,11 @@ export async function setupHarness(opts?: { seedIncident?: boolean }): Promise<H
   const app = new PlatformDatabase(appPool, false);
   const worker = new PlatformDatabase(workerPool, true);
   const context: SentinelProjectContext = {
-    scope: { mode: "live", workspaceId: "github-user-7:s05", projectId: "github-998736528" },
+    scope: {
+      mode: "live",
+      workspaceId: "github-user-7:s05",
+      projectId: "github-998736528",
+    },
     actorId: "github-user-7",
     repositoryId: "998736528",
     canvasProjectRef: "github-user-7/github-998736528",
@@ -80,10 +100,19 @@ export async function setupHarness(opts?: { seedIncident?: boolean }): Promise<H
     });
     const created = await detection.command(context, {
       action: "create",
-      definition: { ...seedRules[3].definition, threshold: 1, windowSeconds: 3600, cooldownSeconds: 0 },
+      definition: {
+        ...seedRules[3].definition,
+        threshold: 1,
+        windowSeconds: 3600,
+        cooldownSeconds: 0,
+      },
     });
     const ruleId = (created as { ruleId: string }).ruleId;
-    await detection.command(context, { action: "enable", ruleId, expectedRevision: 1 });
+    await detection.command(context, {
+      action: "enable",
+      ruleId,
+      expectedRevision: 1,
+    });
     const now = new Date().toISOString();
     await telemetry.ingest(key.credential, {
       schemaVersion: 1,
@@ -96,22 +125,41 @@ export async function setupHarness(opts?: { seedIncident?: boolean }): Promise<H
           projectId: context.scope.projectId,
           occurredAt: now,
           kind: "http.request",
-          request: { method: "GET", routeTemplate: "/api/test", statusCode: 500 },
+          request: {
+            method: "GET",
+            routeTemplate: "/api/test",
+            statusCode: 500,
+          },
         },
       ],
     });
-    const queue = new PostgresQueue(worker, context.scope, ["sentinel.telemetry.accepted"]);
-    const [lease] = await queue.claim({ module: "sentinel", workerId: "s05-seed-worker", limit: 1, leaseMs: 30000 });
+    const queue = new PostgresQueue(worker, context.scope, [
+      "sentinel.telemetry.accepted",
+    ]);
+    const [lease] = await queue.claim({
+      module: "sentinel",
+      workerId: "s05-seed-worker",
+      limit: 1,
+      leaseMs: 30000,
+    });
     const r = await executeLease(
       queue,
       lease,
       async (_j, sig, cur) => {
-        await new DetectionStore(worker).process(cur(), sig, { correlateIncidents: true });
+        await new DetectionStore(worker).process(cur(), sig, {
+          correlateIncidents: true,
+        });
       },
-      { heartbeatMs: 5000, timeoutMs: 15000, signal: new AbortController().signal },
+      {
+        heartbeatMs: 5000,
+        timeoutMs: 15000,
+        signal: new AbortController().signal,
+      },
     );
     if (r !== "completed") throw new Error("seed_failed");
-    const row = await admin.query("SELECT incident_id FROM sentinel.incidents LIMIT 1");
+    const row = await admin.query(
+      "SELECT incident_id FROM sentinel.incidents LIMIT 1",
+    );
     incidentId = row.rows[0].incident_id;
   }
   return {
@@ -125,7 +173,12 @@ export async function setupHarness(opts?: { seedIncident?: boolean }): Promise<H
     async close() {
       await Promise.all([appPool.end(), workerPool.end()]);
       await admin.end();
-      const r2 = pool(url, "postgres", decodeURIComponent(url.username), decodeURIComponent(url.password));
+      const r2 = pool(
+        url,
+        "postgres",
+        decodeURIComponent(url.username),
+        decodeURIComponent(url.password),
+      );
       await r2.query(`DROP DATABASE IF EXISTS ${dbName} WITH (FORCE)`);
       await r2.end();
     },
@@ -134,14 +187,30 @@ export async function setupHarness(opts?: { seedIncident?: boolean }): Promise<H
 /** Superuser provisioning of an owner-approved fixture target (the migrator role does this in real use). */
 export async function provisionTarget(
   h: Harness,
-  o: { origin: string; approvers: string[]; selfApproval?: boolean; enabled?: boolean; maxTtl?: number },
+  o: {
+    origin: string;
+    approvers: string[];
+    selfApproval?: boolean;
+    enabled?: boolean;
+    maxTtl?: number;
+  },
 ) {
   const targetId = randomUUID();
   const s = h.context.scope;
   await h.admin.query(
     `INSERT INTO sentinel.response_targets(mode,workspace_id,project_id,target_id,kind,origin,max_ttl_seconds,approver_actor_ids,allow_self_approval,h03_proof_id,enabled)
      VALUES($1,$2,$3,$4,'local_fixture',$5,$6,$7,$8,'h03-s05-test',$9)`,
-    [s.mode, s.workspaceId, s.projectId, targetId, o.origin, o.maxTtl ?? 600, o.approvers, o.selfApproval ?? false, o.enabled ?? true],
+    [
+      s.mode,
+      s.workspaceId,
+      s.projectId,
+      targetId,
+      o.origin,
+      o.maxTtl ?? 600,
+      o.approvers,
+      o.selfApproval ?? false,
+      o.enabled ?? true,
+    ],
   );
   return targetId;
 }
