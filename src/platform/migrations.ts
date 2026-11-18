@@ -102,6 +102,31 @@ export async function applyMigrations(
       if (!applied.length || applied.length > migrations.length)
         throw new PlatformError("target_denied");
       const latest = migrations[applied.length - 1];
+      if (latest.version === "0005_response") {
+        // Refuses ANY response row (targets, actions, append-only audit); no force or cascade.
+        const tables = ["response_audit", "response_actions", "response_targets"];
+        await client.query(
+          `LOCK TABLE ${tables.map((t) => `sentinel.${t}`).join(",")},platform.jobs IN ACCESS EXCLUSIVE MODE`,
+        );
+        for (const table of tables) {
+          const occupied = await client.query(
+            `SELECT EXISTS(SELECT 1 FROM sentinel.${table} LIMIT 1) AS occupied`,
+          );
+          if (occupied.rows[0].occupied)
+            throw new PlatformError("target_denied");
+        }
+        const jobs = await client.query(
+          "SELECT EXISTS(SELECT 1 FROM platform.jobs WHERE module='sentinel' AND kind LIKE 'sentinel.response.%') AS occupied",
+        );
+        if (jobs.rows[0].occupied) throw new PlatformError("target_denied");
+        await client.query(latest.down);
+        await client.query(
+          "DELETE FROM platform.schema_migrations WHERE version=$1",
+          [latest.version],
+        );
+        await client.query("COMMIT");
+        return;
+      }
       if (latest.version === "0004_incidents") {
         const tables = [
           "incident_timeline_evidence",
