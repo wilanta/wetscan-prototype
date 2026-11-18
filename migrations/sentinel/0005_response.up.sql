@@ -60,7 +60,7 @@ GRANT SELECT ON sentinel.response_targets,sentinel.response_actions,sentinel.res
 GRANT INSERT ON sentinel.response_actions TO wetscan_app;
 GRANT UPDATE(status,approved_by,approved_at,approval_expires_at,rollback_requested_by,rollback_requested_at,revision,updated_at) ON sentinel.response_actions TO wetscan_app;
 GRANT UPDATE(status,applied_at,expires_at,revision,updated_at) ON sentinel.response_actions TO wetscan_sentinel_worker;
--- Audit is append-only for every runtime role: no UPDATE, no DELETE, no TRUNCATE.
+-- Audit is append-only for every runtime role: never updated or deleted.
 GRANT INSERT ON sentinel.response_audit TO wetscan_app,wetscan_sentinel_worker;
 DO $policies$
 DECLARE t text;

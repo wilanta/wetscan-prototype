@@ -10,11 +10,13 @@ export interface Migration {
   down: string;
   checksum: string;
 }
-export async function migrationPlan() {
+/** `through` pins a historical review prefix (e.g. the accepted S04 plan); production callers omit it. */
+export async function migrationPlan(through?: string) {
   // Fixed repository-owned scope also bounds Next's server output tracing.
   const directory = join(process.cwd(), "migrations", "sentinel");
   const files = (await readdir(directory))
     .filter((f) => /^\d{4}_[a-z_]+\.up\.sql$/.test(f))
+    .filter((f) => !through || f.replace(/\.up\.sql$/, "") <= through)
     .sort();
   if (!files.length) throw new PlatformError("invalid_input");
   const migrations: Migration[] = [];

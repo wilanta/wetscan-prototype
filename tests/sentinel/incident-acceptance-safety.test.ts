@@ -206,7 +206,7 @@ describe("S04 acceptance gate - no database configuration or connections", () =>
   });
 
   it("enforces strict read/lock-only SQL allowlist and blocks all destructive SQL during populated-down refusal", async () => {
-    const plan = await migrationPlan();
+    const plan = await migrationPlan("0004_incidents");
     for (const sql of s04DownRefusalAllowedSql) {
       expect(isAllowedS04DownRefusalSql(sql)).toBe(true);
       expect(isAllowedS04DownRefusalSql(sql, ["unexpected_param"])).toBe(false);

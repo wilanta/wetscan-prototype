@@ -36,7 +36,7 @@ async function main() {
     "runtime",
     reviewedS04Plan,
   );
-  const plan = await migrationPlan();
+  const plan = await migrationPlan("0004_incidents");
   if (plan.sha256 !== reviewedS04Plan)
     throw new PlatformError("approval_required");
   if (
