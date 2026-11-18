@@ -155,7 +155,7 @@ describe("S05 loopback adapter + verifier (fixture-tested, no external traffic)"
     expect(f.state().active).toBe(true);
     await new Promise((r) => setTimeout(r, 1100));
     expect(f.state().active).toBe(false);
-    expect(await adapter.inspect(ctx)).toMatchObject({
+    expect(await adapter.inspect()).toMatchObject({
       value: { active: false, actionId: null },
     });
   });
@@ -175,7 +175,7 @@ describe("S05 loopback adapter + verifier (fixture-tested, no external traffic)"
       "target_bad_response",
     );
     await f.stop();
-    expect(await code(adapter.inspect(ctx))).toBe("target_unavailable");
+    expect(await code(adapter.inspect())).toBe("target_unavailable");
     const slow = new LocalRateLimitAdapter({
       origin: "http://127.0.0.1:4010",
       token,
@@ -185,7 +185,7 @@ describe("S05 loopback adapter + verifier (fixture-tested, no external traffic)"
           i.signal!.addEventListener("abort", () => rej(i.signal!.reason)),
         )) as typeof fetch,
     });
-    expect(await code(slow.inspect(ctx))).toBe("target_timeout");
+    expect(await code(slow.inspect())).toBe("target_timeout");
     const redirect = new LocalRateLimitAdapter({
       origin: "http://127.0.0.1:4010",
       token,
@@ -194,13 +194,13 @@ describe("S05 loopback adapter + verifier (fixture-tested, no external traffic)"
         throw new TypeError("redirect");
       }) as typeof fetch,
     });
-    expect(await code(redirect.inspect(ctx))).toBe("target_unavailable");
+    expect(await code(redirect.inspect())).toBe("target_unavailable");
     const big = new LocalRateLimitAdapter({
       origin: "http://127.0.0.1:4010",
       token,
       fetchImpl: (async () => new Response("x".repeat(5000))) as typeof fetch,
     });
-    expect(await code(big.inspect(ctx))).toBe("target_bad_response");
+    expect(await code(big.inspect())).toBe("target_bad_response");
     f = await startFixture({ token }); // so afterEach stop works
   });
   it("token_never_in_errors_or_results", async () => {

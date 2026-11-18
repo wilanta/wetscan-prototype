@@ -162,7 +162,7 @@ export class LocalRateLimitAdapter implements ResponsePort {
       },
     };
   }
-  async inspect(_context: SentinelProjectContext) {
+  async inspect() {
     if (!this.configured) return this.notConfigured();
     const r = await targetRequest(this.o, "GET", "/admin/limit", this.auth());
     if (r.status !== 200 || typeof r.json.active !== "boolean")
