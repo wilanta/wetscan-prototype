@@ -1,7 +1,7 @@
 import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
-    include: ["tests/sentinel/response.postgres.integration.ts"],
+    include: ["tests/sentinel/response*.postgres.integration.ts"],
     fileParallelism: false,
     maxWorkers: 1,
     testTimeout: 60000,

@@ -103,6 +103,7 @@ export interface ResponseAction extends SentinelScope {
   approvalExpiresAt: string | null;
   appliedAt: string | null;
   expiresAt: string | null;
+  rollbackRequestedBy: string | null;
   policyReasons: string[];
   revision: number;
   createdAt: string;

@@ -55,6 +55,7 @@ function actionOf(r: QueryResultRow): ResponseAction {
     approvalExpiresAt: iso(r.approval_expires_at),
     appliedAt: iso(r.applied_at),
     expiresAt: iso(r.expires_at),
+    rollbackRequestedBy: r.rollback_requested_by ?? null,
     policyReasons: r.policy_reasons ?? [],
     revision: Number(r.revision),
     createdAt: iso(r.created_at)!,
@@ -943,18 +944,68 @@ export class ResponseStore {
       return r ? actionOf(r) : undefined;
     });
   }
-  async ensureReconcile(scope: SentinelScope, everyMs = 30000) {
+  /** Pre-apply probe snapshot (audit row, immutable). The verifier needs it to establish causality. */
+  async recordBaseline(
+    scope: SentinelScope,
+    actionId: string,
+    snap: {
+      attackStatus: number | null;
+      benignStatus: number | null;
+      error?: string;
+    },
+  ) {
     return this.db.scoped(scope, async (tx) => {
       this.db.requireWorker(tx);
       await this.lockScope(tx, scope);
-      const bucket = Math.floor(Date.now() / everyMs);
+      const a = await this.lockAction(tx, scope, actionId);
+      if (a.status !== "applying") return;
+      await this.audit(
+        tx,
+        a,
+        "verification_recorded",
+        { id: "system:response-verifier", type: "system" },
+        a.status,
+        a.status,
+        "Baseline probe before apply (attack/benign).",
+        { phase: "baseline", ...snap },
+        fingerprint({ k: "baseline", id: actionId }),
+      );
+    });
+  }
+  async getBaseline(scope: SentinelScope, actionId: string) {
+    return this.db.scoped(scope, async (tx) => {
+      const r = (
+        await this.q(
+          tx,
+          `SELECT metadata FROM sentinel.response_audit WHERE ${where} AND action_id=$4 AND event_type='verification_recorded' ORDER BY sequence LIMIT 1`,
+          [...sv(scope), actionId],
+        )
+      ).rows[0]?.metadata;
+      if (!r || r.phase !== "baseline") return undefined;
+      return {
+        attackStatus: r.attackStatus ?? null,
+        benignStatus: r.benignStatus ?? null,
+        error: r.error,
+      } as {
+        attackStatus: number | null;
+        benignStatus: number | null;
+        error?: string;
+      };
+    });
+  }
+  /** Idempotent per 30 s bucket; `ahead` schedules the NEXT bucket so the chain keeps itself alive durably. */
+  async ensureReconcile(scope: SentinelScope, everyMs = 30000, ahead = 0) {
+    return this.db.scoped(scope, async (tx) => {
+      this.db.requireWorker(tx);
+      await this.lockScope(tx, scope);
+      const bucket = Math.floor(Date.now() / everyMs) + ahead;
       await this.enqueue(
         tx,
         scope,
         responseJobKinds.reconcile,
-        `reconcile`,
+        "reconcile",
         `response:reconcile:${bucket}`,
-        new Date(),
+        ahead ? new Date(bucket * everyMs) : new Date(),
       );
     });
   }
