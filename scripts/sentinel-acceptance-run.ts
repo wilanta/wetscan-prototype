@@ -246,6 +246,7 @@ async function call(url: string, init: RequestInit & { json?: unknown } = {}) {
   const text = await r.text();
   return { status: r.status, json: text ? JSON.parse(text) : null } as {
     status: number;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- owner API bodies are asserted field by field below
     json: any;
   };
 }
