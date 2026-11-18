@@ -12,15 +12,17 @@ import {
 
 /** Read-only TEST preflight, separately approved. No migrations, fixtures, backup deletion or process activation. */
 async function main() {
-  const plan = await migrationPlan();
-  if (plan.sha256 !== reviewedS03Plan || !process.argv.includes("--read-only"))
+  if (!process.argv.includes("--read-only"))
     throw new PlatformError("approval_required");
   const config = await approvedDatabaseConfig(
     process.env,
     "migration",
     "runtime",
-    plan.sha256,
+    reviewedS03Plan,
   );
+  const plan = await migrationPlan();
+  if (plan.sha256 !== reviewedS03Plan)
+    throw new PlatformError("approval_required");
   if (
     config.target.host !== "127.0.0.1" ||
     config.target.port !== 55432 ||

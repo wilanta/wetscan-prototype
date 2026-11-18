@@ -34,6 +34,7 @@ describe("S03 additive SQL and reversal protocol - not PostgreSQL execution", ()
   ])("refuses populated S03 %s without down SQL", async (table) => {
     const p = await migrationPlan(),
       c = new RecordingClient();
+    p.migrations = p.migrations.slice(0, 3); // Exercise the unchanged S03 reversal boundary explicitly.
     c.respond = async (sql) => ({
       rows: sql.includes("to_regclass")
         ? [{ ledger: "exists" }]
@@ -53,6 +54,7 @@ describe("S03 additive SQL and reversal protocol - not PostgreSQL execution", ()
   it("empty S03 reversal removes only 0003 and never S02 data", async () => {
     const p = await migrationPlan(),
       c = new RecordingClient();
+    p.migrations = p.migrations.slice(0, 3);
     c.respond = async (sql) => ({
       rows: sql.includes("to_regclass")
         ? [{ ledger: "exists" }]

@@ -6,6 +6,7 @@ import { PlatformError } from "../../../platform/config";
 export async function retainDetection(
   db: PlatformDatabase,
   scope: SentinelScope,
+  incidentsReady = false,
 ) {
   if(db.module!=="sentinel") throw new PlatformError("scope_denied");
   return db.scoped(scope, async (tx) => {
@@ -41,10 +42,13 @@ export async function retainDetection(
       `DELETE FROM sentinel.detection_evaluations d USING ${keyRows} WHERE d.mode=$1 AND d.workspace_id=$2 AND d.project_id=$3 AND ${keyJoin}`,
       [...s, expiredKeys],
     );
+    const incidentPins = incidentsReady
+      ? " AND NOT EXISTS(SELECT 1 FROM sentinel.incidents i WHERE i.mode=a.mode AND i.workspace_id=a.workspace_id AND i.project_id=a.project_id AND i.primary_alert_id=a.alert_id) AND NOT EXISTS(SELECT 1 FROM sentinel.incident_alerts ia WHERE ia.mode=a.mode AND ia.workspace_id=a.workspace_id AND ia.project_id=a.project_id AND ia.alert_id=a.alert_id)"
+      : "";
     const expired = (
       await db.query(
         tx,
-        `SELECT alert_id FROM sentinel.detection_alerts a WHERE mode=$1 AND workspace_id=$2 AND project_id=$3 AND detected_at<statement_timestamp()-interval '30 days' AND NOT EXISTS(SELECT 1 FROM sentinel.detection_evidence e JOIN platform.jobs j ON j.module='sentinel' AND j.mode=e.mode AND j.workspace_id=e.workspace_id AND j.project_id=e.project_id AND j.subject_ref=e.source_id::text||'/'||e.event_id::text WHERE e.mode=a.mode AND e.workspace_id=a.workspace_id AND e.project_id=a.project_id AND e.alert_id=a.alert_id AND j.state IN ('queued','leased')) ORDER BY detected_at,alert_id LIMIT 100`,
+        `SELECT alert_id FROM sentinel.detection_alerts a WHERE mode=$1 AND workspace_id=$2 AND project_id=$3 AND detected_at<statement_timestamp()-interval '30 days' AND NOT EXISTS(SELECT 1 FROM sentinel.detection_evidence e JOIN platform.jobs j ON j.module='sentinel' AND j.mode=e.mode AND j.workspace_id=e.workspace_id AND j.project_id=e.project_id AND j.subject_ref=e.source_id::text||'/'||e.event_id::text WHERE e.mode=a.mode AND e.workspace_id=a.workspace_id AND e.project_id=a.project_id AND e.alert_id=a.alert_id AND j.state IN ('queued','leased'))${incidentPins} ORDER BY detected_at,alert_id LIMIT 100`,
         s,
       )
     ).rows.map((r) => r.alert_id);

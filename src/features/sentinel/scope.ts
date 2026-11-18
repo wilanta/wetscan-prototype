@@ -1,5 +1,13 @@
 import type { SentinelScope } from "./types";
 
+/** Returns the canonical three-field Sentinel scope tuple so caller objects cannot pollute deterministic keys. */
+export function canonicalScope(scope: SentinelScope): SentinelScope {
+  return {
+    mode: scope.mode,
+    workspaceId: scope.workspaceId,
+    projectId: scope.projectId,
+  };
+}
 /** Exact tuple used for every future DB uniqueness/FK/cache/dedupe namespace. */
 export function scopeKey(scope: SentinelScope): string {
   if (
