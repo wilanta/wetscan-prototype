@@ -29,6 +29,8 @@ export interface Harness {
   pools: pg.Pool[];
   context: SentinelProjectContext;
   incidentId: string;
+  /** runSentinelWorker ends its pool on shutdown; recreate it for another run. */
+  reopenWorker(): Promise<void>;
   close(): Promise<void>;
 }
 const pool = (url: URL, database: string, user: string, password: string) =>
@@ -162,7 +164,7 @@ export async function setupHarness(opts?: {
     );
     incidentId = row.rows[0].incident_id;
   }
-  return {
+  const hn: Harness = {
     dbName,
     admin,
     app,
@@ -170,8 +172,12 @@ export async function setupHarness(opts?: {
     pools: [appPool, workerPool],
     context,
     incidentId,
+    async reopenWorker() {
+      hn.pools[1] = pool(url, dbName, "wetscan_sentinel_worker", pw);
+      hn.worker = new PlatformDatabase(hn.pools[1], true);
+    },
     async close() {
-      await Promise.all([appPool.end(), workerPool.end()]);
+      await Promise.all(hn.pools.map((p) => p.end().catch(() => undefined)));
       await admin.end();
       const r2 = pool(
         url,
@@ -183,6 +189,7 @@ export async function setupHarness(opts?: {
       await r2.end();
     },
   };
+  return hn;
 }
 /** Superuser provisioning of an owner-approved fixture target (the migrator role does this in real use). */
 export async function provisionTarget(

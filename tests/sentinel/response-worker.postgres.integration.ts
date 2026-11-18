@@ -469,6 +469,74 @@ describe.skipIf(!process.env.SENTINEL_S05_PG_ADMIN_URL)(
       await drain([responseJobKinds.expire]);
     });
 
+    it("S05-N3: the real worker loop applies approved jobs only with response activation; clean shutdown", async () => {
+      const { runSentinelWorker } =
+        await import("../../worker/sentinel/runtime");
+      const { migrationPlan } = await import("../../src/platform/migrations");
+      const { workerConfig } = await import("../../src/platform/config");
+      const { EventEmitter } = await import("node:events");
+      const { f, targetId } = await scenario();
+      const id = await proposeApprove(targetId);
+      const plan = await migrationPlan();
+      const notBefore = new Date(Date.now() - 3600_000).toISOString();
+      const detection = { scope: ctx.scope, notBefore };
+      const incidents = { scope: ctx.scope, notBefore };
+      const control = () =>
+        Object.assign(new EventEmitter(), {
+          connected: true,
+          disconnect: () => {},
+        });
+      const common = {
+        db: h.worker,
+        pool: h.pools[1] as never,
+        migrations: plan.migrations,
+        options: { ...workerConfig({}), healthPort: 0, pollMs: 100 },
+        workerId: randomUUID(),
+        once: true,
+        detection,
+        incidents,
+        env: {
+          SENTINEL_RESPONSE_BASE_URL: f.origin,
+          SENTINEL_RESPONSE_TOKEN: token,
+        },
+        report: () => {},
+      };
+      // No response activation ⇒ NO-OP: the approved job is never claimed and the target is untouched.
+      await runSentinelWorker({ ...common, control: control() });
+      expect((await row(id)).status).toBe("approved");
+      expect(f.state().active).toBe(false);
+      // pool.end() ran in shutdown: recreate the worker pool for the next run
+      await h.reopenWorker();
+      wstore = new ResponseStore(h.worker);
+      // Earlier scenarios may have left queued response jobs; the loop claims a bounded batch per pass, so allow a few passes.
+      for (
+        let pass = 0;
+        pass < 8 && (await row(id)).status !== "applied";
+        pass++
+      ) {
+        await runSentinelWorker({
+          ...common,
+          db: h.worker,
+          pool: h.pools[1] as never,
+          response: { scope: ctx.scope, notBefore, targetId },
+          control: control(),
+        });
+        await h.reopenWorker();
+        wstore = new ResponseStore(h.worker);
+      }
+      expect((await row(id)).status).toBe("applied");
+      expect(f.state()).toMatchObject({ active: true, actionId: id });
+      await h.reopenWorker();
+      wstore = new ResponseStore(h.worker);
+      await app.command(approver, {
+        action: "rollback",
+        actionId: id,
+        expectedRevision: (await row(id)).revision,
+      });
+      await drain([responseJobKinds.expire]);
+      expect(f.state().active).toBe(false);
+    });
+
     it("retention pins an incident that has response records (append-only audit, local-test policy)", async () => {
       await h.admin.query(
         "UPDATE sentinel.incidents SET status='closed',closed_at=now()-interval '31 days',closed_by='x',close_reason='old'",

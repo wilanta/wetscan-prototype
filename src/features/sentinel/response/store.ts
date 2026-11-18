@@ -993,7 +993,7 @@ export class ResponseStore {
       };
     });
   }
-  /** Idempotent per 30 s bucket; `ahead` schedules the NEXT bucket so the chain keeps itself alive durably. */
+  /** Idempotent per 30 s bucket (availableAt is the bucket start, so every caller computes the same job fingerprint); `ahead` schedules the NEXT bucket so the chain keeps itself alive durably. */
   async ensureReconcile(scope: SentinelScope, everyMs = 30000, ahead = 0) {
     return this.db.scoped(scope, async (tx) => {
       this.db.requireWorker(tx);
@@ -1005,7 +1005,7 @@ export class ResponseStore {
         responseJobKinds.reconcile,
         "reconcile",
         `response:reconcile:${bucket}`,
-        ahead ? new Date(bucket * everyMs) : new Date(),
+        new Date(bucket * everyMs),
       );
     });
   }
