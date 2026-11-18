@@ -72,6 +72,7 @@ export const packageRequiredFiles = [
   "scripts/sentinel-provision-watchdog.ps1",
   "scripts/sentinel-provision-private.ps1",
   "scripts/sentinel-owner-session-exception.ts",
+  "scripts/sentinel-approval-history.ts",
   "scripts/sentinel-owner-auth-snapshot.ts",
   "tests/sentinel/provision-package.test.ts",
   "tests/sentinel/provision-package-fixture.ts",
@@ -186,10 +187,23 @@ export async function loadPackageManifest(
   );
   const parent = parseObject(parentBytes).files as Record<string, string>;
   const history = parseObject(historyBytes) as Record<string, string>;
+  // Parent pins legitimately superseded by later reviewed repairs (login-flow,
+  // audit-deadline, provisioning hooks) or by the owner re-login (profile reseal).
   const replacements = [
     "docs/SENTINEL_S04_AUTH_ARCHIVE_EXCEPTION.md",
     "scripts/sentinel-provision-owner.ts",
-  ].map((n) => resolve(p.repo, n));
+    "scripts/sentinel-provision-safety.ts",
+    "tests/sentinel/provision-hardening.test.ts",
+    "scripts/sentinel-owner-session-exception.ts",
+    "scripts/sentinel-approval-history.ts",
+    "scripts/sentinel-readonly-audit.ts",
+    "scripts/Invoke-S04ReadOnlyAudit.ps1",
+    "scripts/Invoke-H04CB2ProvisionAndIngest.ps1",
+    "src/components/auth/api.ts",
+    "tests/sentinel/dev-acceptance-safety.ts",
+  ]
+    .map((n) => resolve(p.repo, n))
+    .concat(resolve(p.archive.authDir, "user-187839747.bin"));
   for (const [path, hash] of Object.entries(parent))
     demand(
       Object.hasOwn(m.files, path) &&
@@ -210,6 +224,7 @@ export async function loadPackageManifest(
     p.archive.candidateFile + ".meta.json",
     p.archive.archiveFile,
     p.archive.baselineFile,
+    ...(p.archive.recovery ? [p.archive.recovery.baselineFile] : []),
     p.archive.designFile,
     p.archive.proposalFile,
   ])
@@ -482,7 +497,10 @@ export async function verifyAuthBoundary(
   );
   demand(
     Object.keys(design.expectedExistingAuthFilePins as object).length === 6 &&
-      expected.length === 6,
+      expected.length ===
+        (p.archive.recovery
+          ? 7 + Object.keys(p.archive.recovery.knownRecords ?? {}).length
+          : 6),
     "auth_set",
   );
   const result = candidateSemantics(

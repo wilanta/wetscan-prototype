@@ -1,6 +1,14 @@
 import { execFileSync } from "node:child_process";
 import { open, readFile, readdir, lstat, realpath } from "node:fs/promises";
-import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
+import {
+  basename,
+  dirname,
+  isAbsolute,
+  join,
+  relative,
+  resolve,
+  sep,
+} from "node:path";
 import { fileURLToPath } from "node:url";
 import { createDecipheriv, createHash } from "node:crypto";
 import nextEnvironment from "@next/env";
@@ -320,6 +328,50 @@ async function gate(output: string, diagnostic?: ProvisionDiagnostics) {
   );
   return { config, deadlineMs };
 }
+/** Resume only from this package's own deadline-stopped run, before any ingest began. */
+async function loadResume(output: string, operation: string) {
+  const from = arg("resume-from");
+  if (!from) return undefined;
+  check(operation === "audit-start" || operation === "execute", "resume_scope");
+  const dir = await privatePath(from);
+  check(
+    resolve(dirname(dir)) === resolve(defaultRoot) &&
+      /^s04-h04c-b2-provision-package-[a-f0-9]{32}$/.test(basename(dir)) &&
+      resolve(dir) !== resolve(output),
+    "resume_scope",
+  );
+  assertPrivateAcl(dir);
+  check(
+    (await lstat(join(dir, "deadline-expired.json"))).isFile(),
+    "resume_state",
+  );
+  const entries = (
+    await readFile(join(dir, "resource-journal.private.jsonl"), "utf8")
+  )
+    .split(String.fromCharCode(10))
+    .filter(Boolean)
+    .map((l) => JSON.parse(l) as JournalEntry);
+  // Only the side-effect-free invalid-bearer 401 probe may be uncertain (it was cut by the deadline).
+  check(
+    !entries.some(
+      (e) => e.type === "uncertain" && e.operation !== "invalid-bearer",
+    ),
+    "resume_uncertain",
+  );
+  const ids: ResourceIds = {};
+  for (const e of entries) if (e.type === "ack") Object.assign(ids, e.ids);
+  const secret = await privatePath(
+    join(dir, "h04c-b2-ingest-credential.secret"),
+  );
+  assertPrivateAcl(secret, true);
+  return {
+    ids,
+    start: (await json(
+      join(dir, "phase-start.private.json"),
+    )) as ProvisionState,
+    credential: (await readFile(secret, "utf8")).trim(),
+  };
+}
 async function capture(
   pool: ApprovedPool,
   inputs: Awaited<ReturnType<typeof loadProvisionInputs>>,
@@ -537,19 +589,34 @@ export async function runProvisionOperation(
     (await json(join(output, "phase-start.private.json"))) as ProvisionState;
   try {
     if (operation === "audit-start") {
+      const resume = await loadResume(output, operation);
       const state = await capture(pool, inputs, diagnostic);
       diagnostic.stage = "historical_validation";
-      verifyProvisionStart(
-        state,
-        inputs.pre,
-        inputs.before.deterministicState.rowHashesByTable,
-      );
+      if (resume) {
+        verifyProvisionStart(
+          resume.start,
+          inputs.pre,
+          inputs.before.deterministicState.rowHashesByTable,
+        );
+        verifyProvisionDelta(resume.start, state, resume.ids, {
+          partial: true,
+          credentialHash: hash(resume.credential),
+        });
+      } else
+        verifyProvisionStart(
+          state,
+          inputs.pre,
+          inputs.before.deterministicState.rowHashesByTable,
+        );
       diagnostic.stage = "artifact_write";
       await exclusiveJson(
         join(output, "input-manifest.private.json"),
         inputs.preserved,
       );
-      await exclusiveJson(join(output, "phase-start.private.json"), state);
+      await exclusiveJson(
+        join(output, "phase-start.private.json"),
+        resume ? resume.start : state,
+      );
       console.log(
         JSON.stringify({
           status: "PASS",
@@ -740,19 +807,32 @@ export async function runProvisionOperation(
         return;
       }
       const state = await capture(pool, inputs);
-      verifyProvisionStart(
-        state,
-        inputs.pre,
-        inputs.before.deterministicState.rowHashesByTable,
-        true,
-      );
-      for (const [table, hashes] of Object.entries(start.rowHashesByTable))
+      const resume = await loadResume(output, operation);
+      if (resume) {
+        verifyProvisionDelta(start, state, resume.ids, {
+          partial: true,
+          allowApp: true,
+          credentialHash: hash(resume.credential),
+        });
         check(
-          JSON.stringify([...hashes].sort()) ===
-            JSON.stringify([...state.rowHashesByTable[table]].sort()),
-          "start_state_drift",
+          JSON.stringify(start) === JSON.stringify(resume.start),
+          "resume_start_drift",
         );
-      const result = await executeProvision(deps);
+      } else {
+        verifyProvisionStart(
+          state,
+          inputs.pre,
+          inputs.before.deterministicState.rowHashesByTable,
+          true,
+        );
+        for (const [table, hashes] of Object.entries(start.rowHashesByTable))
+          check(
+            JSON.stringify([...hashes].sort()) ===
+              JSON.stringify([...state.rowHashesByTable[table]].sort()),
+            "start_state_drift",
+          );
+      }
+      const result = await executeProvision(deps, resume);
       await exclusiveJson(
         join(output, "provision-result.private.json"),
         result,

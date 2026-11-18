@@ -1,7 +1,7 @@
 // Filesystem-only verification. No session-store API, network, or auth writes.
 import { createDecipheriv, createHash } from "node:crypto";
 import { lstat, readFile } from "node:fs/promises";
-import { basename, join, resolve } from "node:path";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import {
   inventoryOwnerAuth,
   type SnapshotGuards,
@@ -84,6 +84,15 @@ export type ArchiveSessionPolicy = Readonly<{
   run: string;
   candidateFile: string;
   oldCookieFile: string;
+  /** Later recovery run whose before-state equals the design's active pins. The
+   * archive evidence above stays bound to the original run; only the candidate
+   * delta is measured from this baseline. */
+  recovery?: Readonly<{
+    baselineFile: string;
+    baselineSha256: string;
+    /** Earlier owner-login candidates (relative auth file -> sha256) present in the baseline. */
+    knownRecords?: Readonly<Record<string, string>>;
+  }>;
 }>;
 export async function readPrivateFile(
   path: string,
@@ -222,6 +231,22 @@ export async function verifyArchivedOwnerSession(input: {
     canonical(before.configPins) === canonical(input.configPins),
     "configuration_changed",
   );
+  const rec = p.recovery
+    ? await evidence(p.recovery.baselineFile, p.recovery.baselineSha256)
+    : undefined;
+  const base = rec ?? before;
+  if (rec) {
+    check(
+      rec.schemaVersion === 2 &&
+        same(rec.authDir, p.authDir) &&
+        Number.isFinite(rec.startedAt) &&
+        Number(rec.startedAt) > Number(before.startedAt) &&
+        Number(rec.startedAt) <= now &&
+        canonical(rec.configPins) === canonical(input.configPins) &&
+        canonical(rec.directories) === canonical(before.directories),
+      "recovery_baseline_identity",
+    );
+  }
   const records = pins(before.records),
     oldPins = pins(before.oldPins);
   const oldName = basename(p.absentSessionFile),
@@ -332,8 +357,7 @@ export async function verifyArchivedOwnerSession(input: {
   );
   const time = await lstat(join(p.authDir, name));
   check(
-    time.mtimeMs >= Number(before.startedAt) - 2000 &&
-      time.mtimeMs <= now + 2000,
+    time.mtimeMs >= Number(base.startedAt) - 2000 && time.mtimeMs <= now + 2000,
     "candidate_creation",
   );
   const profile = decode(
@@ -366,7 +390,7 @@ export async function verifyArchivedOwnerSession(input: {
       meta.origin === "http://localhost:3000" &&
       meta.callbackUrl === "http://localhost:3000/api/auth/github/callback" &&
       Number.isFinite(capturedAt) &&
-      capturedAt >= Number(before.startedAt) - 2000 &&
+      capturedAt >= Number(base.startedAt) - 2000 &&
       capturedAt <= now,
     "candidate_origin",
   );
@@ -375,17 +399,55 @@ export async function verifyArchivedOwnerSession(input: {
     canonical(inventory.directories) === canonical(before.directories),
     "auth_directories_changed",
   );
+  const baseRecords = rec ? pins(rec.records) : records;
   const added = Object.keys(inventory.records).filter(
-    (file) => !Object.hasOwn(records, file),
+    (file) => !Object.hasOwn(baseRecords, file),
   );
   check(
     added.length === 1 &&
       added[0] === name &&
-      Object.keys(inventory.records).length === 6,
+      Object.keys(inventory.records).length ===
+        (rec ? 7 + Object.keys(p.recovery?.knownRecords ?? {}).length : 6),
     "unexpected_auth_records",
   );
   const currentPins = pins(design.expectedExistingAuthFilePins);
   check(Object.keys(currentPins).length === 6, "design_active_set");
+  if (rec) {
+    // Chain of custody: design's active pins == recovery before-state, so every
+    // non-profile record is unchanged since the exception; the profile is covered
+    // by the semantic-equality check above (login may differ).
+    check(
+      canonical(Object.keys(baseRecords).sort()) ===
+        canonical(
+          [
+            ...Object.keys(currentPins).map((f) => relative(p.authDir, f)),
+            ...Object.keys(p.recovery?.knownRecords ?? {}),
+          ].sort(),
+        ),
+      "recovery_baseline_set",
+    );
+    for (const [file, digest] of Object.entries(p.recovery?.knownRecords ?? {}))
+      check(
+        baseRecords[file] === digest && inventory.records[file] === digest,
+        "recovery_known_record",
+      );
+    for (const [file, digest] of Object.entries(currentPins))
+      if (basename(file) !== profileName)
+        check(
+          baseRecords[relative(p.authDir, file)] === digest,
+          "recovery_baseline_pin",
+        );
+    for (const [n, digest] of Object.entries(baseRecords))
+      check(
+        sha256(
+          await read(
+            join(dirname(p.recovery!.baselineFile), "archive", "auth-store", n),
+            true,
+          ),
+        ) === digest,
+        "recovery_backup_hash",
+      );
+  }
   for (const [file, digest] of Object.entries(currentPins)) {
     check(
       Object.hasOwn(
@@ -396,7 +458,8 @@ export async function verifyArchivedOwnerSession(input: {
       ),
       "design_active_set",
     );
-    check(sha256(await read(file)) === digest, "active_record_changed");
+    if (!rec || basename(file) !== profileName)
+      check(sha256(await read(file)) === digest, "active_record_changed");
   }
   // End-of-read checks reject reactivation or concurrent changes; no file is restored.
   await requireAbsent(p.absentSessionFile, guards);
@@ -414,6 +477,8 @@ export async function verifyArchivedOwnerSession(input: {
   await evidence(p.proposalFile, p.proposalSha256);
   await evidence(p.designFile, p.designSha256);
   await evidence(p.baselineFile, p.baselineSha256);
+  if (p.recovery)
+    await evidence(p.recovery.baselineFile, p.recovery.baselineSha256);
   for (const [name, digest] of Object.entries(records))
     check(
       sha256(await read(join(p.run, "archive", "auth-store", name), true)) ===

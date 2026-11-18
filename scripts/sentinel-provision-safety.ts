@@ -582,13 +582,7 @@ async function operation(
     throw new ProvisionError("http_outcome_unknown");
   }
 }
-export async function executeProvision(d: ProvisionDeps) {
-  const ids: ResourceIds = {};
-  check(
-    d.origin === "http://localhost:3000" &&
-      /^wetscan_session=[a-f0-9]{64}$/.test(d.cookie),
-    "auth_origin",
-  );
+async function createResources(d: ProvisionDeps, ids: ResourceIds) {
   for (const [path, method, body, kind, status] of [
     ["incidents", "GET", undefined, "none", 401],
     ["foreign", "GET", undefined, "session", 404],
@@ -696,13 +690,42 @@ export async function executeProvision(d: ProvisionDeps) {
     ids: { ...ids },
     httpStatus: 200,
   });
+  return s.credential as string;
+}
+/** Resume after a deadline stop: ids and credential come from the failed run's audited journal. */
+async function adoptResources(
+  d: ProvisionDeps,
+  ids: ResourceIds,
+  resume: { ids: ResourceIds; credential: string },
+) {
+  Object.assign(ids, resume.ids);
+  check(ids.sourceId && ids.credentialId && ids.ruleId, "resume_ids");
+  check(!ids.batchId && !ids.eventId, "resume_ingest_started");
+  d.rememberCredential(resume.credential);
+  await d.saveSecret(resume.credential);
+  await d.journal({ type: "ack", operation: "resume-adopt", ids: { ...ids } });
+  return resume.credential;
+}
+export async function executeProvision(
+  d: ProvisionDeps,
+  resume?: { ids: ResourceIds; credential: string },
+) {
+  const ids: ResourceIds = {};
+  check(
+    d.origin === "http://localhost:3000" &&
+      /^wetscan_session=[a-f0-9]{64}$/.test(d.cookie),
+    "auth_origin",
+  );
+  const credential = resume
+    ? await adoptResources(d, ids, resume)
+    : await createResources(d, ids);
   deadline(d);
   await d.guard();
   const beforeIngest = await d.capture();
   verifyProvisionDelta(d.start, beforeIngest, ids, {
     partial: true,
     allowApp: true,
-    credentialHash: hash(s.credential),
+    credentialHash: hash(credential),
   });
   check(
     Math.abs(Date.parse(beforeIngest.clockNow) - d.now()) <= 5000,
@@ -781,7 +804,7 @@ export async function executeProvision(d: ProvisionDeps) {
     const state = await d.capture();
     verifyProvisionDelta(d.start, state, ids, {
       allowApp: true,
-      credentialHash: hash(s.credential),
+      credentialHash: hash(credential),
       preIngestAt,
       expectedEvent: normalized.events[0] as unknown as Row,
     });
@@ -793,7 +816,7 @@ export async function executeProvision(d: ProvisionDeps) {
     preIngestAt,
     occurredAt,
     expectedEvent: normalized.events[0],
-    credentialHash: hash(s.credential),
+    credentialHash: hash(credential),
   };
 }
 

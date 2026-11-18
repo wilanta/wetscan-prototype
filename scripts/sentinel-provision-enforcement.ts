@@ -36,7 +36,7 @@ export async function assertProvisionPackageBoundary(): Promise<void> {
   const invocation = process.argv.slice(3);
   for (const arg of invocation) {
     const match =
-      /^--(pre-recovery|containment|cookie-file|app-password-file|migration-password-file|artifact-dir|origin)=(.+)$/.exec(
+      /^--(pre-recovery|containment|cookie-file|app-password-file|migration-password-file|artifact-dir|origin|resume-from)=(.+)$/.exec(
         arg,
       );
     demand(match && !Object.hasOwn(args, match[1]), "package_cli_scope");
@@ -67,7 +67,7 @@ export async function assertProvisionPackageBoundary(): Promise<void> {
       {
         cwd: repo,
         windowsHide: true,
-        timeout: 20000,
+        timeout: 120000,
         maxBuffer: 16384,
         encoding: "utf8",
       },

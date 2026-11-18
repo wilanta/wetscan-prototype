@@ -7,6 +7,7 @@ param(
   [string]$AppPasswordFile = 'C:\Users\sheil\.wetscan-sentinel\s01-20261114\secrets\app.password',
   [string]$MigrationPasswordFile = 'C:\Users\sheil\.wetscan-sentinel\s01-20261114\secrets\migration.password',
   [string]$OutputDir = '',
+  [string]$ResumeFrom = '',
   [switch]$ExecuteLive,
   [string]$OwnerAuthorization = '',
   [string]$ConfirmScope = '',
@@ -94,6 +95,7 @@ function Invoke-ProvisionNode([string]$Mode) {
   $script:currentOperation = $Mode
   Assert-ProvisionDeadline
   $arguments = @('--import','tsx',$ownerScript,$Mode) + $inputArgs + @("--artifact-dir=$output",'--origin=http://localhost:3000')
+  if ($ResumeFrom -and ($Mode -ceq 'audit-start' -or $Mode -ceq 'execute')) { $arguments += "--resume-from=$ResumeFrom" }
   $proc = Start-ProvisionTracked 'node' $arguments $Mode
   while (-not $proc.HasExited) { Assert-ProvisionDeadline; Start-Sleep -Milliseconds 150; $proc.Refresh() }
   $exitCode = Get-ProvisionExitCode $proc

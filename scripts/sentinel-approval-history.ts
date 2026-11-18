@@ -415,6 +415,15 @@ export async function discoverHistoricalApprovals(
       if (!managedTree && !named && !/\.json$/i.test(path)) return;
       if (!named && /\.(?:log|dump|bin|secret)$/i.test(path)) return;
       if (s.size > 4 * 1024 * 1024) {
+        // Hash-pin manifests of the auth-recovery packages exceed 4 MiB; they are
+        // not approvals (never approval-named) and are pinned by SHA elsewhere.
+        if (
+          !named &&
+          /^(?:candidate|reviewed)-auth-input-pins(?:\.v\d+)?\.private\.json$/i.test(
+            path.slice(dirname(path).length + 1),
+          )
+        )
+          return;
         requireHistory(!named && !/\.json$/i.test(path), "history_json_size");
         return;
       }

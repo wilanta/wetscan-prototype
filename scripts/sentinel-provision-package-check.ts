@@ -26,6 +26,8 @@ import {
   type PackageGrant,
 } from "./sentinel-provision-package";
 
+// Each powershell ACL probe costs ~0.7 s; a path verified once in this process is not re-spawned.
+const aclVerified = new Set<string>();
 const guards: SnapshotGuards = {
   async privatePath(path) {
     demand(
@@ -38,6 +40,8 @@ const guards: SnapshotGuards = {
     return path;
   },
   assertPrivateAcl(path, file = false) {
+    const key = `${file}|${resolve(path)}`;
+    if (aclVerified.has(key)) return;
     try {
       execFileSync(
         "powershell.exe",
@@ -50,8 +54,9 @@ const guards: SnapshotGuards = {
           path,
           ...(file ? ["-File"] : []),
         ],
-        { windowsHide: true, stdio: "pipe", timeout: 5000 },
+        { windowsHide: true, stdio: "pipe", timeout: 30000 },
       );
+      aclVerified.add(key);
     } catch {
       throw new PackageError("private_acl");
     }

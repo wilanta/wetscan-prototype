@@ -128,6 +128,46 @@ describe("S04 provision-only exact state and lifecycle controls (in-memory, zero
     expect(hash(f.secrets[0])).toBe(result.credentialHash);
     expect(JSON.stringify(f.entries).includes(f.token)).toBe(false);
   });
+  it("resumes a deadline-stopped run: adopts audited ids, creates nothing, still ends with exactly ten inserts", async () => {
+    const f = provisionFixture();
+    const stopped = {
+      ...f.deps,
+      request: async (...a: Parameters<typeof f.deps.request>) => {
+        if (a[0] === "ingest" && a[3] === "invalid")
+          throw new Error("deadline");
+        return f.deps.request(...a);
+      },
+    };
+    await expect(executeProvision(stopped)).rejects.toThrow();
+    const ids = known(f.entries),
+      secret = f.secrets[0],
+      before = f.calls.length;
+    expect(ids.batchId).toBeUndefined();
+    const result = await executeProvision(f.deps, { ids, credential: secret });
+    const after = f.calls.slice(before);
+    expect(
+      after.filter((c) => c.path === "sources" || c.path === "rules"),
+    ).toHaveLength(0);
+    expect(after.filter((c) => c.kind === "bearer")).toHaveLength(2);
+    const audit = verifyProvisionDelta(
+      f.start,
+      await f.deps.capture(),
+      result.ids,
+      {
+        credentialHash: result.credentialHash,
+        preIngestAt: result.preIngestAt,
+        expectedEvent: result.expectedEvent,
+      },
+    );
+    expect(audit.inserts).toBe(10);
+    expect(f.secrets).toEqual([secret, secret]);
+    await expect(
+      executeProvision(f.deps, {
+        ids: { ...ids, eventId: "x" },
+        credential: secret,
+      }),
+    ).rejects.toThrow("resume_ingest_started");
+  });
   it("context references one private secret file without duplicating the bearer or claiming jobs", async () => {
     const f = provisionFixture(),
       r = await executeProvision(f.deps),
