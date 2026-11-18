@@ -11,7 +11,7 @@ import {
 } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { tmpdir } from "node:os";
-import { basename, join, relative, resolve } from "node:path";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import { promisify } from "node:util";
 import { afterEach, describe, expect, it } from "vitest";
 import {
@@ -277,6 +277,92 @@ afterEach(async () => {
     await rm(path, { recursive: true, force: true });
   }
 });
+/** A second owner login after the first candidate expired: the first candidate becomes a known baseline record. */
+async function secondLogin(f: Awaited<ReturnType<typeof fixture>>) {
+  const { policy, now } = f.input;
+  const run2 = join(dirname(policy.run), "run2");
+  const archive2 = join(run2, "archive", "auth-store");
+  await mkdir(join(archive2, "canvas-graphs-v1"), { recursive: true });
+  await mkdir(join(run2, "candidate"), { recursive: true });
+  const knownName = sessionName("8".repeat(64));
+  await writeFile(
+    join(policy.authDir, knownName),
+    encode(
+      {
+        githubId: 187839747,
+        expiresAt: now + 86400000,
+        userToken: "x",
+        refreshToken: "y",
+        tokenExpiresAt: now - 1000,
+      },
+      knownName.slice(0, -4),
+    ),
+  );
+  const base = await inventoryOwnerAuth(policy.authDir, guards);
+  for (const n of Object.keys(base.records))
+    await copyFile(join(policy.authDir, n), join(archive2, n));
+  const baselineFile = join(run2, "auth-before.private.json");
+  const baselineBytes = Buffer.from(
+    JSON.stringify({
+      schemaVersion: 2,
+      startedAt: now - 5000,
+      authDir: policy.authDir,
+      ...base,
+      configPins: {},
+      oldPins: {},
+    }),
+  );
+  await writeFile(baselineFile, baselineBytes);
+  const newName = sessionName("9".repeat(64));
+  await writeFile(
+    join(policy.authDir, newName),
+    encode(
+      {
+        githubId: 187839747,
+        expiresAt: now + 86400000,
+        userToken: "SYNTHETIC_ACCESS_SECRET",
+        refreshToken: "SYNTHETIC_REFRESH_SECRET",
+        tokenExpiresAt: now + 3600000,
+      },
+      newName.slice(0, -4),
+    ),
+  );
+  const candidateFile = join(run2, "candidate", "owner-session.cookie");
+  await writeFile(candidateFile, "wetscan_session=" + "9".repeat(64));
+  await writeFile(
+    candidateFile + ".meta.json",
+    JSON.stringify({
+      schemaVersion: 1,
+      origin: "http://localhost:3000",
+      callbackUrl: "http://localhost:3000/api/auth/github/callback",
+      recordedAt: new Date(now).toISOString(),
+    }),
+  );
+  const descriptor = {
+    ...f.descriptor,
+    candidateFile,
+    candidateSha256: sha256(await readFile(candidateFile)),
+    candidateMetadataSha256: sha256(
+      await readFile(candidateFile + ".meta.json"),
+    ),
+  };
+  const descriptorBytes = Buffer.from(JSON.stringify(descriptor));
+  const recovery = (knownRecords?: Record<string, string>) => ({
+    ...f.input,
+    descriptorBytes,
+    policy: {
+      ...policy,
+      candidateFile,
+      descriptorSha256: sha256(descriptorBytes),
+      recovery: {
+        baselineFile,
+        baselineSha256: sha256(baselineBytes),
+        knownRecords,
+      },
+    },
+  });
+  return { recovery, knownRecords: { [knownName]: base.records[knownName] } };
+}
 describe("one-record archive-only owner session exception", () => {
   it("accepts exactly one archived-only record and accurately labels the disposition", async () => {
     const { input } = await fixture();
@@ -296,6 +382,26 @@ describe("one-record archive-only owner session exception", () => {
     await expect(
       readFile(input.policy.absentSessionFile),
     ).rejects.toMatchObject({ code: "ENOENT" });
+  });
+  it("accepts a second login when the first candidate is a pinned known baseline record", async () => {
+    const f = await fixture();
+    const { recovery, knownRecords } = await secondLogin(f);
+    await expect(
+      verifyArchivedOwnerSession(recovery(knownRecords)),
+    ).resolves.toMatchObject({
+      status: "PASS_WITH_APPROVED_AUTH_ARCHIVE_EXCEPTION",
+      authWrites: 0,
+      databaseConnections: 0,
+    });
+  });
+  it("rejects a second login whose known baseline record is unpinned or altered", async () => {
+    const f = await fixture();
+    const { recovery, knownRecords } = await secondLogin(f);
+    await expect(verifyArchivedOwnerSession(recovery())).rejects.toThrow();
+    const [name] = Object.keys(knownRecords);
+    await expect(
+      verifyArchivedOwnerSession(recovery({ [name]: "0".repeat(64) })),
+    ).rejects.toThrow();
   });
   it("rejects a different historical session identity even with internally consistent descriptor bytes", async () => {
     const f = await fixture();

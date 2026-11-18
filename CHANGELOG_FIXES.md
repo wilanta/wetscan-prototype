@@ -1,5 +1,19 @@
 # CHANGELOG_FIXES
 
+### Fix #4 — S04 acceptance completed in one pass (✅ LIVE 2026-11-18 20:40Z; owner accepted)
+
+| Field | Detail |
+|---|---|
+| Tanggal | 2026-11-18 |
+| File | `scripts/sentinel-acceptance-run.ts` (new one-pass driver), `scripts/sentinel-dev-acceptance.ts`, `tests/sentinel/dev-acceptance-safety.ts` (+ tests) |
+| Masalah | Fix #3 left second-event coalescing, worker pass 2, negative PostgreSQL matrix and an end-to-end worker-run unproven. |
+| Akar | (1) Sealed approvals and the 10-min correlation bucket force the whole chain into ~10 min: needs a single driver. (2) `worker-run` called `captureReadOnlyDevState` with the worker role (no SELECT on telemetry_credentials) -> `permission denied`. (3) Negative matrix expected worker DELETE on incident tables to fail 42501, but migration 0004 grants it on purpose (retention; MIGRATION_REVIEW line 87). (4) Postflight admitted only one cycle's jobs; earlier final jobs raised scope_denied. |
+| Fix | One-pass driver (new source/credential/rule via owner-session API, bucket-aligned event 1, seal/worker x2, verify, negative, ui, cleanup, postflight); `captureWorkerSafeState`; worker UPDATE denials only (DELETE left to retention-pin rollback check); earlier cycles' jobs pinned as prior attempts in postflight; `isKnownDegradedWorkerHealth` extracted + tested. |
+| Verifikasi | Cycle `5f4d9831…`: worker1 + worker2 PASS (health degraded only by the preserved failed job), ingest-duplicate PASS, verify-incidents PASS (incident c56df69f…, 1 alert, 2 evidence, 5 timeline, investigating rev 4), negative-matrix PASS (RLS app/worker, app least privilege, worker append-only UPDATE, fencing, rolled-back retention pins), ui-verify PASS (demo 0 API calls, canaries redacted, UI close/reopen), cleanup PASS (0 enabled sources, 0 active credentials, all rules DISABLED), postflight PASS (re-run after the postflight fix), 68 approvals CLOSED, no processes/port. 275 targeted tests pass. |
+| Pelajaran | Two failed cycles left extra disabled sources/rules and completed jobs (cycle A job c047aa72 was drained by a dedicated seal+worker). Dev DB now has 5 extra disabled synthetic sources/rules and 5 extra completed jobs. Worker role DELETE on incident tables is by design. |
+| Log Keyword | s04-provision-rebind, permission denied telemetry_credentials, unexpected_sql_error_worker_delete_incident_timeline:23503, scope_denied |
+| Deploy | Committed on feat/sentinel-s04-incidents; nothing deployed. |
+
 ### Fix #3 — Acceptance harness: worker-run health/worker-id checks could never pass (PARTIAL acceptance)
 
 | Field | Detail |

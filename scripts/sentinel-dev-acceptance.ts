@@ -21,6 +21,7 @@ import {
   assertSameDevTarget,
   assertSingleTableSelectColumns,
   assertWorkerHealthPayload,
+  isKnownDegradedWorkerHealth,
   buildPreRecoverySnapshot,
   buildSealedS04RuntimeApproval,
   incidentColumns,
@@ -246,6 +247,36 @@ export const readOnlyDevStateQueries = {
     "SELECT count(*)::int AS count FROM sentinel.incident_timeline_evidence ite LEFT JOIN sentinel.incident_timeline t USING(mode,workspace_id,project_id,incident_id,timeline_id) WHERE t.timeline_id IS NULL",
   clockNow: "SELECT clock_timestamp()::text AS now",
 } as const;
+
+/** Worker-role-safe subset of the dev state: the worker may not read every table (e.g. telemetry_credentials). */
+export async function captureWorkerSafeState(
+  pool: Pick<ApprovedPool, "connect">,
+) {
+  const q = readOnlyDevStateQueries;
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY");
+    const jobsInventory = (await client.query(q.jobsInventory))
+      .rows as ProtectedJobBaselineRow[];
+    const count = async (sql: string) =>
+      Number((await client.query(sql)).rows[0]?.count ?? -1);
+    const state = {
+      jobsInventory,
+      activeLeases: await count(q.activeLeases),
+      expiredLeases: await count(q.expiredLeases),
+      orphanedTimelineEvidence: await count(q.orphanedTimelineEvidence),
+      workerHeartbeats: (await client.query(q.workerHeartbeats))
+        .rows as WorkerHeartbeatBaselineRow[],
+    };
+    await client.query("COMMIT");
+    return state;
+  } catch (err) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw err;
+  } finally {
+    client.release();
+  }
+}
 
 export async function captureReadOnlyDevState(
   pool: Pick<ApprovedPool, "connect">,
@@ -1003,7 +1034,7 @@ async function runSealedWorker() {
   if (!isolation) throw new PlatformError("approval_required");
   const opts = workerConfig(process.env);
   const preservedFailedJobs = (
-    await captureReadOnlyDevState(pool)
+    await captureWorkerSafeState(pool)
   ).jobsInventory.filter((j) => j.state === "failed").length;
 
   const mainPath = join(repoRootPath(), "worker/sentinel/main.ts");
@@ -1063,19 +1094,11 @@ async function runSealedWorker() {
         }
         // platformHealth reports 503/degraded for any preserved historical failed job;
         // accept that one known cause only, never expired leases or an unknown failure.
-        const h = healthRes?.json as
-          | {
-              status?: string;
-              worker?: string;
-              queue?: { failed?: number; expired?: number };
-            }
-          | undefined;
-        const knownDegraded =
-          healthRes?.status === 503 &&
-          h?.status === "degraded" &&
-          h.worker === "running" &&
-          h.queue?.expired === 0 &&
-          h.queue?.failed === preservedFailedJobs;
+        const knownDegraded = isKnownDegradedWorkerHealth(
+          healthRes?.status,
+          healthRes?.json,
+          preservedFailedJobs,
+        );
         if (healthRes?.status === 200 || knownDegraded) {
           assertWorkerHealthPayload(healthRes!.json);
           healthPayload = healthRes!.json;
@@ -1128,7 +1151,7 @@ async function runSealedWorker() {
     const preRecovery = ctx.preRecoveryBaselineFile
       ? await loadPreRecoverySnapshot(ctx.preRecoveryBaselineFile)
       : null;
-    const state = await captureReadOnlyDevState(pool);
+    const state = await captureWorkerSafeState(pool);
     if (
       state.activeLeases !== 0 ||
       state.expiredLeases !== 0 ||
@@ -1758,7 +1781,17 @@ async function runPostflight() {
       authorizedRuleTransition,
       protectedJobsBefore,
       historicalCompletedJobIds,
-      priorAttemptJobs: preRecovery?.priorAttemptJobs,
+      // Earlier acceptance cycles' jobs are final (completed/failed) prior attempts; pin them at their current state.
+      priorAttemptJobs: [
+        ...(preRecovery?.priorAttemptJobs ?? []),
+        ...state.jobsInventory.filter(
+          (j) =>
+            (ctx.priorAttemptJobIds ?? []).includes(j.job_id) &&
+            !(preRecovery?.priorAttemptJobs ?? []).some(
+              (p) => p.job_id === j.job_id,
+            ),
+        ),
+      ],
       allJobsAfter: state.jobsInventory,
       admittedJobIds: ctx.admittedJobIds,
       sourceId: ctx.sourceId,

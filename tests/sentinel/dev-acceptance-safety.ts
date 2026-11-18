@@ -12,10 +12,7 @@ import {
   type Purpose,
   type Target,
 } from "../../src/platform/config";
-import type {
-  SqlClient,
-  SqlPool,
-} from "../../src/platform/database";
+import type { SqlClient, SqlPool } from "../../src/platform/database";
 import { PlatformDatabase } from "../../src/platform/database";
 import { identifier } from "../../src/platform/identity";
 import type { Migration } from "../../src/platform/migrations";
@@ -25,7 +22,11 @@ import { retainDetection } from "../../src/features/sentinel/detection/retention
 import { incidentActivation } from "../../src/features/sentinel/incidents/activation";
 import { retainIncidents } from "../../src/features/sentinel/incidents/retention";
 import { retainTelemetry } from "../../src/features/sentinel/telemetry/store";
-import { object, timestamp, uuid } from "../../src/features/sentinel/telemetry/validation";
+import {
+  object,
+  timestamp,
+  uuid,
+} from "../../src/features/sentinel/telemetry/validation";
 import type { SentinelScope } from "../../src/features/sentinel/types";
 import {
   acceptanceIsolation,
@@ -397,10 +398,7 @@ export function assertSafeDevArtifactDir(
   const absDir = resolve(artifactDir);
   const absRepo = resolve(repoRoot);
   const rel = relative(absRepo, absDir);
-  if (
-    rel === "" ||
-    (!rel.startsWith("..") && !isAbsolute(rel))
-  ) {
+  if (rel === "" || (!rel.startsWith("..") && !isAbsolute(rel))) {
     throw new PlatformError("target_denied");
   }
   return absDir;
@@ -538,7 +536,8 @@ export function buildSealedS04RuntimeApproval(input: SealedS04ApprovalInput) {
       throw new PlatformError("target_denied");
     }
   }
-  const baselineSha256 = input.baselineSha256 ?? s04DevBaseline.historicalDigest;
+  const baselineSha256 =
+    input.baselineSha256 ?? s04DevBaseline.historicalDigest;
   if (!/^[a-f0-9]{64}$/.test(baselineSha256)) {
     throw new PlatformError("invalid_input");
   }
@@ -757,8 +756,12 @@ export function verifyHistoricalMultisetPreserved(input: {
     throw new PlatformError("target_denied");
   }
   for (const table of tables) {
-    const afterCounts = multisetCounts(input.afterRowHashesByTable[table] ?? []);
-    const beforeCounts = multisetCounts(input.beforeRowHashesByTable[table] ?? []);
+    const afterCounts = multisetCounts(
+      input.afterRowHashesByTable[table] ?? [],
+    );
+    const beforeCounts = multisetCounts(
+      input.beforeRowHashesByTable[table] ?? [],
+    );
     for (const [digest, required] of beforeCounts) {
       if ((afterCounts.get(digest) ?? 0) < required) {
         throw new PlatformError("target_denied");
@@ -772,7 +775,9 @@ export function verifyHistoricalMultisetPreserved(input: {
       throw new PlatformError("target_denied");
     }
     for (const table of preTables) {
-      const afterCounts = multisetCounts(input.afterRowHashesByTable[table] ?? []);
+      const afterCounts = multisetCounts(
+        input.afterRowHashesByTable[table] ?? [],
+      );
       const preCounts = multisetCounts(
         input.preRecoveryRowHashesByTable[table] ?? [],
       );
@@ -820,7 +825,10 @@ export function verifyHistoricalMultisetPreserved(input: {
       throw new PlatformError("target_denied");
     }
     priorAttemptSet.add(orig.job_id);
-    assertJobImmutable(orig, afterById.get(orig.job_id), ["completed", "failed"]);
+    assertJobImmutable(orig, afterById.get(orig.job_id), [
+      "completed",
+      "failed",
+    ]);
   }
 
   const admittedSet = new Set(input.admittedJobIds);
@@ -965,7 +973,11 @@ export function verifyCleanShutdownAndPostflight(
       throw new PlatformError("invalid_input");
     }
   }
-  if (/\b(?:ws2\.[A-Za-z0-9_-]+\.[a-f0-9]{64}|gh[pousr]_[A-Za-z0-9_]{12,}|Bearer\s+[A-Za-z0-9._-]{16,})\b/.test(serialized)) {
+  if (
+    /\b(?:ws2\.[A-Za-z0-9_-]+\.[a-f0-9]{64}|gh[pousr]_[A-Za-z0-9_]{12,}|Bearer\s+[A-Za-z0-9._-]{16,})\b/.test(
+      serialized,
+    )
+  ) {
     throw new PlatformError("invalid_input");
   }
 }
@@ -987,9 +999,11 @@ export async function verifyBackupArtifactIntact(backupPath: string) {
  * Wraps ONE connection in a hard-pinned BEGIN ... ROLLBACK boundary so PlatformDatabase.scoped()
  * runs against SAVEPOINTs and can NEVER commit mutations (e.g., retention tests over historical batches).
  */
-export function createRollbackOnlyClientPool(
-  client: SqlClient,
-): { pool: SqlPool; beginOuter: () => Promise<void>; rollbackOuter: () => Promise<void> } {
+export function createRollbackOnlyClientPool(client: SqlClient): {
+  pool: SqlPool;
+  beginOuter: () => Promise<void>;
+  rollbackOuter: () => Promise<void>;
+} {
   let depth = 0;
   let seq = 0;
   const stack: string[] = [];
@@ -1004,7 +1018,10 @@ export function createRollbackOnlyClientPool(
       if (!outerStarted || outerRolledBack) {
         throw new PlatformError("scope_denied");
       }
-      const normalized = sql.trim().replace(/;+\s*$/, "").toUpperCase();
+      const normalized = sql
+        .trim()
+        .replace(/;+\s*$/, "")
+        .toUpperCase();
       if (normalized === "BEGIN" || normalized.startsWith("BEGIN ")) {
         const sp = `h04cb2_sp_${++seq}`;
         stack.push(sp);
@@ -1147,7 +1164,14 @@ async function verifyCrossProjectRls(
       await expectSqlDenied(
         client,
         `INSERT INTO sentinel.incident_evidence (mode,workspace_id,project_id,incident_id,source_id,event_id) VALUES ($1,$2,$3,$4,$5,$6)`,
-        [scope.mode, scope.workspaceId, scope.projectId, incidentId, sourceId, eventId],
+        [
+          scope.mode,
+          scope.workspaceId,
+          scope.projectId,
+          incidentId,
+          sourceId,
+          eventId,
+        ],
         `worker_rls_insert_incident_evidence`,
       );
     }
@@ -1208,12 +1232,25 @@ export async function runNegativePostgresMatrix(input: {
       [
         "app_insert_incident_alerts",
         "INSERT INTO sentinel.incident_alerts (mode,workspace_id,project_id,incident_id,alert_id) VALUES ($1,$2,$3,$4,$5)",
-        [input.scope.mode, input.scope.workspaceId, input.scope.projectId, input.incidentId, input.alertId],
+        [
+          input.scope.mode,
+          input.scope.workspaceId,
+          input.scope.projectId,
+          input.incidentId,
+          input.alertId,
+        ],
       ],
       [
         "app_insert_incident_evidence",
         "INSERT INTO sentinel.incident_evidence (mode,workspace_id,project_id,incident_id,source_id,event_id) VALUES ($1,$2,$3,$4,$5,$6)",
-        [input.scope.mode, input.scope.workspaceId, input.scope.projectId, input.incidentId, input.sourceId, input.eventId],
+        [
+          input.scope.mode,
+          input.scope.workspaceId,
+          input.scope.projectId,
+          input.incidentId,
+          input.sourceId,
+          input.eventId,
+        ],
       ],
       [
         "app_update_incidents_title",
@@ -1248,17 +1285,23 @@ export async function runNegativePostgresMatrix(input: {
     appClient.release();
   }
 
-  // Append-only DML denials as wetscan_sentinel_worker.
+  // Append-only DML denials as wetscan_sentinel_worker. DELETE is deliberately NOT denied here:
+  // migration 0004 grants it to the worker solely for expired closed-incident retention (see
+  // SENTINEL_S04_MIGRATION_REVIEW); the retention-pin rollback check below covers that path.
   const workerClient = await input.workerPool.connect();
   try {
     await workerClient.query("BEGIN");
     await setScopedGucs(workerClient, input.scope);
     for (const [label, sql] of [
-      ["worker_update_incident_timeline", "UPDATE sentinel.incident_timeline SET summary='tampered' WHERE incident_id=$1"],
-      ["worker_delete_incident_timeline", "DELETE FROM sentinel.incident_timeline WHERE incident_id=$1"],
-      ["worker_delete_incident_timeline_evidence", "DELETE FROM sentinel.incident_timeline_evidence WHERE incident_id=$1"],
-      ["worker_delete_incident_alerts", "DELETE FROM sentinel.incident_alerts WHERE incident_id=$1"],
-      ["worker_delete_incident_evidence", "DELETE FROM sentinel.incident_evidence WHERE incident_id=$1"],
+      [
+        "worker_update_incident_timeline",
+        "UPDATE sentinel.incident_timeline SET summary='tampered' WHERE incident_id=$1",
+      ],
+
+      [
+        "worker_update_incident_timeline_evidence",
+        "UPDATE sentinel.incident_timeline_evidence SET incident_id=incident_id WHERE incident_id=$1",
+      ],
     ] as const) {
       await expectSqlDenied(workerClient, sql, [input.incidentId], label);
     }
@@ -1475,9 +1518,7 @@ export function assertPinnedContainRuleTarget(input: {
   ) {
     throw new PlatformError("target_denied");
   }
-  if (
-    input.sources.some((s) => s.enabled || s.active_credentials !== 0)
-  ) {
+  if (input.sources.some((s) => s.enabled || s.active_credentials !== 0)) {
     throw new PlatformError("scope_denied");
   }
   if (!input.preRecoveryRule || !input.liveRule) {
@@ -1516,4 +1557,27 @@ export function assertPinnedContainRuleOutcome(input: {
     ...input.updatedRule,
     revision: input.updatedRule.revision,
   };
+}
+
+/** platformHealth is 503/degraded while any failed job exists; accept only the preserved historical failed jobs. */
+export function isKnownDegradedWorkerHealth(
+  status: number | undefined,
+  health: unknown,
+  preservedFailedJobs: number,
+): boolean {
+  const h = health as
+    | {
+        status?: string;
+        worker?: string;
+        queue?: { failed?: number; expired?: number };
+      }
+    | null
+    | undefined;
+  return (
+    status === 503 &&
+    h?.status === "degraded" &&
+    h.worker === "running" &&
+    h.queue?.expired === 0 &&
+    h.queue?.failed === preservedFailedJobs
+  );
 }

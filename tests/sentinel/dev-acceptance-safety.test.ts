@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import { describe, it, expect, vi, afterEach } from "vitest";
+import { isKnownDegradedWorkerHealth } from "./dev-acceptance-safety";
 import {
   PlatformError,
   workerConfig,
@@ -57,8 +58,9 @@ import {
 
 const execFileAsync = promisify(execFile);
 
-const sampleProtectedIds = Array.from({ length: 8 }, (_, i) =>
-  `00000000-0000-4000-8000-00000000001${i}`,
+const sampleProtectedIds = Array.from(
+  { length: 8 },
+  (_, i) => `00000000-0000-4000-8000-00000000001${i}`,
 );
 const sampleSourceId = "26b6b537-c016-4dc7-8007-4e839e8b838f";
 const sampleAdmittedIds = ["11111111-1111-4111-8111-111111111111"];
@@ -448,7 +450,11 @@ describe("H04C-B2 DEV runtime acceptance safety controls", () => {
 
     const client = new RecordingClient();
     client.respond = async (sql) => {
-      if (sql.startsWith("SELECT version,checksum FROM platform.schema_migrations")) {
+      if (
+        sql.startsWith(
+          "SELECT version,checksum FROM platform.schema_migrations",
+        )
+      ) {
         return {
           rows: validS04Migrations.map((m) => ({
             version: m.version,
@@ -457,7 +463,9 @@ describe("H04C-B2 DEV runtime acceptance safety controls", () => {
           rowCount: 4,
         };
       }
-      if (sql.startsWith("SELECT EXISTS(SELECT 1 FROM platform.worker_heartbeats")) {
+      if (
+        sql.startsWith("SELECT EXISTS(SELECT 1 FROM platform.worker_heartbeats")
+      ) {
         return { rows: [{ present: false }], rowCount: 1 };
       }
       if (sql.includes("FROM platform.jobs WHERE job_id=ANY(")) {
@@ -493,7 +501,11 @@ describe("H04C-B2 DEV runtime acceptance safety controls", () => {
           rowCount: 9,
         };
       }
-      if (sql.startsWith("SELECT origin,environment FROM sentinel.telemetry_sources")) {
+      if (
+        sql.startsWith(
+          "SELECT origin,environment FROM sentinel.telemetry_sources",
+        )
+      ) {
         return {
           rows: [{ origin: "controlled_test", environment: "local" }],
           rowCount: 1,
@@ -609,7 +621,9 @@ describe("H04C-B2 DEV runtime acceptance safety controls", () => {
         workerHeartbeats: [{ worker_id: "w1", status: "stopped" }],
         backupBytes: s04DevBaseline.backupSizeBytes,
         backupSha256: s04DevBaseline.backupSha256,
-        sources: [{ source_id: sampleSourceId, enabled: false, active_credentials: 0 }],
+        sources: [
+          { source_id: sampleSourceId, enabled: false, active_credentials: 0 },
+        ],
         rules: [{ rule_id: "r1", status: "DISABLED" }],
         persistedTextSamples: ['{"routeTemplate":"/api/users/:redacted"}'],
         canarySecrets: ["secretCanary"],
@@ -625,7 +639,9 @@ describe("H04C-B2 DEV runtime acceptance safety controls", () => {
         workerHeartbeats: [{ worker_id: "w1", status: "stopped" }],
         backupBytes: s04DevBaseline.backupSizeBytes,
         backupSha256: s04DevBaseline.backupSha256,
-        sources: [{ source_id: sampleSourceId, enabled: false, active_credentials: 0 }],
+        sources: [
+          { source_id: sampleSourceId, enabled: false, active_credentials: 0 },
+        ],
         rules: [{ rule_id: "r1", status: "DISABLED" }],
         persistedTextSamples: ["leaked secretCanary here"],
         canarySecrets: ["secretCanary"],
@@ -635,15 +651,11 @@ describe("H04C-B2 DEV runtime acceptance safety controls", () => {
     // Verify rollback-only proxy never sends COMMIT to real client and always finishes with ROLLBACK.
     const rawClient = new RecordingClient();
     rawClient.authorizedProject = s04DevProjectScope.projectId;
-    await withRollbackOnlyDatabase(
-      fakePool(rawClient),
-      true,
-      async (db) => {
-        await db.scoped(s04DevProjectScope, async (tx) => {
-          await db.query(tx, "DELETE FROM sentinel.telemetry_batches WHERE 1=0");
-        });
-      },
-    );
+    await withRollbackOnlyDatabase(fakePool(rawClient), true, async (db) => {
+      await db.scoped(s04DevProjectScope, async (tx) => {
+        await db.query(tx, "DELETE FROM sentinel.telemetry_batches WHERE 1=0");
+      });
+    });
     const sqls = rawClient.calls.map((c) => c.sql);
     expect(sqls[0]).toBe("BEGIN");
     expect(sqls.some((s) => s.startsWith("SAVEPOINT "))).toBe(true);
@@ -728,7 +740,10 @@ describe("H04C-B2 partial DEV recovery harness adaptations", () => {
     return out;
   }
 
-  function make25TableHashes(base: Record<string, string[]>, populateS04: boolean): Record<string, string[]> {
+  function make25TableHashes(
+    base: Record<string, string[]>,
+    populateS04: boolean,
+  ): Record<string, string[]> {
     const out: Record<string, string[]> = { ...base };
     for (const tbl of s04Tables) {
       out[`sentinel.${tbl}`] = populateS04 ? [`attempt1-${tbl}-row1`] : [];
@@ -749,12 +764,20 @@ describe("H04C-B2 partial DEV recovery harness adaptations", () => {
     const oldSourceId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
     return {
       completed: {
-        ...makeBaselineJob("22222222-2222-4222-8222-222222222201", "completed", `${oldSourceId}/batch-1`),
+        ...makeBaselineJob(
+          "22222222-2222-4222-8222-222222222201",
+          "completed",
+          `${oldSourceId}/batch-1`,
+        ),
         attempts: 1,
         max_attempts: 5,
       },
       exhaustedFailed: {
-        ...makeBaselineJob("22222222-2222-4222-8222-222222222202", "failed", `${oldSourceId}/batch-2`),
+        ...makeBaselineJob(
+          "22222222-2222-4222-8222-222222222202",
+          "failed",
+          `${oldSourceId}/batch-2`,
+        ),
         attempts: 5,
         max_attempts: 5,
         revision: 6,
@@ -868,7 +891,8 @@ describe("H04C-B2 partial DEV recovery harness adaptations", () => {
         "rule-recovery-disabled-hash",
       ],
       "sentinel.incidents": [
-        ...(partialSnap.preRecoveryRowHashesByTable["sentinel.incidents"] ?? []),
+        ...(partialSnap.preRecoveryRowHashesByTable["sentinel.incidents"] ??
+          []),
         "recovery-incident-row",
       ],
     };
@@ -878,7 +902,8 @@ describe("H04C-B2 partial DEV recovery harness adaptations", () => {
       verifyHistoricalMultisetPreserved({
         beforeRowHashesByTable: preS04,
         afterRowHashesByTable: make25TableHashes(preS04, false),
-        preRecoveryRowHashesByTable: makeValidSnapshot(false).preRecoveryRowHashesByTable,
+        preRecoveryRowHashesByTable:
+          makeValidSnapshot(false).preRecoveryRowHashesByTable,
         protectedJobsBefore: protectedRows,
         historicalCompletedJobIds: [histDone.job_id],
         priorAttemptJobs: [],
@@ -1082,7 +1107,10 @@ describe("H04C-B2 partial DEV recovery harness adaptations", () => {
         ...basePostflight,
         rules: [
           { rule_id: s04DevPriorAttemptDefaults.ruleId, status: "ENABLED" },
-          { rule_id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", status: "DISABLED" },
+          {
+            rule_id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+            status: "DISABLED",
+          },
         ],
       }),
     ).toThrow("scope_denied");
@@ -1126,7 +1154,10 @@ describe("H04C-B2 partial DEV recovery harness adaptations", () => {
     const invalidHeartbeatSnap = buildPreRecoverySnapshot({
       ...partialSnap,
       historicalHeartbeats: [
-        { ...staleHeartbeat, stopped_at: null } as unknown as WorkerHeartbeatBaselineRow,
+        {
+          ...staleHeartbeat,
+          stopped_at: null,
+        } as unknown as WorkerHeartbeatBaselineRow,
       ],
     });
     expect(() => verifyPreRecoverySnapshot(invalidHeartbeatSnap)).toThrow(
@@ -1137,10 +1168,7 @@ describe("H04C-B2 partial DEV recovery harness adaptations", () => {
     expect(() =>
       verifyCleanShutdownAndPostflight({
         ...basePostflight,
-        workerHeartbeats: [
-          staleHeartbeat,
-          { ...newWorker, status: "running" },
-        ],
+        workerHeartbeats: [staleHeartbeat, { ...newWorker, status: "running" }],
       }),
     ).toThrow("target_denied");
 
@@ -1478,12 +1506,14 @@ describe("H04C-B2 pinned contain-rule hardening", () => {
     });
   }
 
-  function makeStatePool(snapshots: Array<{
-    rule?: { rule_id: string; status: string; revision: number };
-    sourceEnabled?: boolean;
-    activeCredentials?: number;
-    activeLeases?: number;
-  }>) {
+  function makeStatePool(
+    snapshots: Array<{
+      rule?: { rule_id: string; status: string; revision: number };
+      sourceEnabled?: boolean;
+      activeCredentials?: number;
+      activeLeases?: number;
+    }>,
+  ) {
     let snapshotIndex = -1;
     const client = new RecordingClient();
     client.respond = async (sql) => {
@@ -1515,9 +1545,7 @@ describe("H04C-B2 pinned contain-rule hardening", () => {
           rowCount: 4,
         };
       }
-      if (
-        sql === readOnlyDevStateQueries.activeLeases
-      ) {
+      if (sql === readOnlyDevStateQueries.activeLeases) {
         return { rows: [{ count: current.activeLeases ?? 0 }], rowCount: 1 };
       }
       if (
@@ -1634,7 +1662,12 @@ describe("H04C-B2 pinned contain-rule hardening", () => {
       { rule: { rule_id: pinnedRuleId, status: "ENABLED", revision: 2 } },
       { rule: { rule_id: pinnedRuleId, status: "DISABLED", revision: 3 } },
     ]);
-    const calls: Array<{ url: string; method?: string; body?: string; headers?: Record<string, string> }> = [];
+    const calls: Array<{
+      url: string;
+      method?: string;
+      body?: string;
+      headers?: Record<string, string>;
+    }> = [];
 
     const record = await executeContainRule({
       pool,
@@ -1755,7 +1788,7 @@ describe("H04C-B2 pinned contain-rule hardening", () => {
     for (const c of cases) {
       let httpCalls = 0;
       const liveRule =
-        c.liveRule === undefined ? defaultLiveRule : c.liveRule ?? undefined;
+        c.liveRule === undefined ? defaultLiveRule : (c.liveRule ?? undefined);
       const { pool } = makeStatePool([
         {
           rule: liveRule,
@@ -1831,5 +1864,29 @@ describe("H04C-B2 pinned contain-rule hardening", () => {
         }),
       }),
     ).rejects.toThrow("target_denied");
+  });
+});
+
+describe("known-degraded worker health", () => {
+  const degraded = (failed: number, expired = 0, worker = "running") => ({
+    status: "degraded",
+    worker,
+    queue: { failed, expired },
+  });
+  it("accepts 503/degraded only for exactly the preserved failed jobs", () => {
+    expect(isKnownDegradedWorkerHealth(503, degraded(1), 1)).toBe(true);
+    expect(isKnownDegradedWorkerHealth(503, degraded(2), 1)).toBe(false);
+    expect(isKnownDegradedWorkerHealth(503, degraded(0), 1)).toBe(false);
+  });
+  it("rejects expired leases, a stopped worker, other statuses and 200", () => {
+    expect(isKnownDegradedWorkerHealth(503, degraded(1, 1), 1)).toBe(false);
+    expect(
+      isKnownDegradedWorkerHealth(503, degraded(1, 0, "stale_or_stopped"), 1),
+    ).toBe(false);
+    expect(isKnownDegradedWorkerHealth(503, { status: "unavailable" }, 1)).toBe(
+      false,
+    );
+    expect(isKnownDegradedWorkerHealth(200, degraded(1), 1)).toBe(false);
+    expect(isKnownDegradedWorkerHealth(undefined, undefined, 1)).toBe(false);
   });
 });
