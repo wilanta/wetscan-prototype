@@ -15,7 +15,11 @@ async function main() {
   try {
     console.log(
       JSON.stringify(
-        await platformHealth(new PlatformDatabase(pool, true)),
+        await platformHealth(
+          new PlatformDatabase(pool, true),
+          undefined,
+          plan.migrations,
+        ),
         null,
         2,
       ),

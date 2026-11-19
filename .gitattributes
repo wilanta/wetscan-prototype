@@ -1,0 +1,3 @@
+# S11: the S04 audit/provision scripts are pinned by SHA-256 over their LF bytes (e.g. Invoke-S04AuditProcedure.ps1 pins
+# sentinel-provision-common.ps1). A CRLF checkout (Windows autocrlf, hosted runners) changes the bytes and the pin fails closed.
+*.ps1 text eol=lf

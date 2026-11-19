@@ -1,5 +1,24 @@
 # Sentinel human actions
 
+## S11 update - 19 November 2026 (supersedes the PENDING/NOT_RUN statuses below where marked)
+
+Under the owner's explicit S11 full-development authorization (section 5, exact target `127.0.0.1:55432/wetscan_dev`, marker
+`wetscan-s01:26b6b537-...838f`) the agent executed the **persistent development database readiness** workflow: read-only identity
+verification, `pg_dump` backup (sha256 `b65c8793...a8f4`), restore rehearsal on a separate container (25/25 tables identical),
+creation of `wetscan_sentinel_notifier` with its own password (plus the missing database `CONNECT` grant, finding S11-F3), new
+runtime and migrate approvals bound to plan `94f99d99...831c` (historical approvals untouched), additive `up` of `0005`-`0009`
+(idempotent re-up verified, 24 of 25 pre-existing tables byte-identical), least-privilege and fail-closed checks, and an idle worker
+`--once` start/stop. **Not done and still owner decisions:** any activation block, notifier start, real project/telemetry, real
+GitHub session, real provider traffic. Evidence: [S11 register](SENTINEL_S11_EVIDENCE_REGISTER.md) section C.
+
+| ID | Status after S11 |
+| --- | --- |
+| H-S06-ROLE | **EXECUTED on `wetscan_dev` (S11)**: role + `CONNECT`; sender approval with a `notifications` block still **PENDING** |
+| H-S08-DEVDB / H-S09-DEVDB / H-S10-DEVDB | **EXECUTED (S11)**: ledger at `0009_external_intelligence`; worker activation for external intelligence still **PENDING** |
+| H-S10-E2E, H-S10-GUARD | unchanged: `NOT_RUN` / `DEFERRED` |
+| H09 | technical package delivered ([decision](SENTINEL_S11_H09_DECISION.md)); **`H09_OWNER_DECISION_PENDING`** |
+| New S11 owner actions | O-1 real-session E2E - O-2 consented provider test - O-3 role-SQL plan decision - O-4 original dev volume - O-5 enable Actions + branch protection - O-6 record H09 |
+
 ## S02 final review and publication authorization - 15 November 2026
 
 The owner explicitly approved final S02 review, commit, push and a PR targeting master in this conversation. No merge, migration, deployment, production change, worker activation or S03 is authorized. All55reviewed files remain in approved S02 scope: authenticated telemetry/source lifecycle, strict ingestion/redaction/idempotency, additive0002SQL, isolated maintenance retention, opt-in sender, existing-UI integration and scoped test/documentation evidence. Existing Auth/Guard/Canvas, frozen contracts, original shared dispatcher and Demo body remain unchanged; the reviewed AppShell links and Sentinel wrapper are the narrow S02 integration. Latest origin/master fetched at e39b01da167052b8ef9b0ebe369a757fdea729bf, identical to branch base; no conflict or unrelated change found. No dependency/lockfile change.
@@ -122,7 +141,7 @@ Proposed env: `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_APP
 
 ## H-S06-ROLE - notifier database role, migration 0005/0006 and approvals (new, S06)
 
-**Status: PENDING (owner). Not performed against the owner development database.** The notifier is a separate credential domain, so before it (or the new app/worker code) can run on a real database the owner must: review `infra/sentinel/provision-roles-s06.sql` and create `wetscan_sentinel_notifier` with its own password file (`SENTINEL_DB_NOTIFIER_PASSWORD_FILE`); back up the target (`pg_dump`); apply `0005_response` (if absent) and `0006_notifications` as `wetscan_migrator` after plan review (full plan sha256 `82e20396...1e8c`, see [SENTINEL_S06_MIGRATION_REVIEW.md](SENTINEL_S06_MIGRATION_REVIEW.md)); issue **new** app and worker approvals bound to that plan hash, and a sender approval containing a `notifications` block for exactly one project (channels `telegram` and/or `email`). Until then the existing dev app/worker, sealed to the older hash, are intentionally unaffected.
+**Status: PENDING (owner) historically; role and migrations EXECUTED by S11 on 19 Nov 2026 (see top section).** Original text: Not performed against the owner development database. The notifier is a separate credential domain, so before it (or the new app/worker code) can run on a real database the owner must: review `infra/sentinel/provision-roles-s06.sql` and create `wetscan_sentinel_notifier` with its own password file (`SENTINEL_DB_NOTIFIER_PASSWORD_FILE`); back up the target (`pg_dump`); apply `0005_response` (if absent) and `0006_notifications` as `wetscan_migrator` after plan review (full plan sha256 `82e20396...1e8c`, see [SENTINEL_S06_MIGRATION_REVIEW.md](SENTINEL_S06_MIGRATION_REVIEW.md)); issue **new** app and worker approvals bound to that plan hash, and a sender approval containing a `notifications` block for exactly one project (channels `telegram` and/or `email`). Until then the existing dev app/worker, sealed to the older hash, are intentionally unaffected.
 
 ## H07 - Ghost Lite placement
 
@@ -142,7 +161,7 @@ S08 ships only the disabled `AIExplanationPort` default (`disabledAIExplanation`
 
 ## H-S08-DEVDB - persistent `wetscan_dev` upgrade to `0008` (new, S08)
 
-**Status: PENDING (owner). `NOT_RUN` - the persistent development database was not inspected or changed.** Follow `H-S06-ROLE`, then apply `0005`-`0008` after a verified backup and issue new sealed `app`/`worker` approvals bound to plan sha256 `7ac3e11c4f1fc3caf30e782f2e8e3b73d1a6cdf19438d722bf3cb1d805733012` (details in `SENTINEL_S08_MIGRATION_REVIEW.md`). No backfill: the case library starts empty and humans archive incidents explicitly.
+**Status: EXECUTED by S11 (19 Nov 2026, up to `0009`); historical status was PENDING `NOT_RUN`.** Original text: Follow `H-S06-ROLE`, then apply `0005`-`0008` after a verified backup and issue new sealed `app`/`worker` approvals bound to plan sha256 `7ac3e11c4f1fc3caf30e782f2e8e3b73d1a6cdf19438d722bf3cb1d805733012` (details in `SENTINEL_S08_MIGRATION_REVIEW.md`). No backfill: the case library starts empty and humans archive incidents explicitly.
 
 ## H08 - public advisories and actual inventory
 
@@ -156,7 +175,7 @@ Proposed env: `SENTINEL_ADVISORY_FEEDS_ENABLED`, `NVD_API_KEY` (optional). No ne
 
 ## H09 - final acceptance / merge and deployment decisions
 
-**Status: DEFERRED to S11. Who: owner/reviewer.**
+**Status: S11 technical package delivered; `H09_OWNER_DECISION_PENDING` (see [SENTINEL_S11_H09_DECISION.md](SENTINEL_S11_H09_DECISION.md)). Historical status was DEFERRED to S11. Who: owner/reviewer.**
 
 Prerequisites: active packets tested; inspect original-vs-integrated UI, two-project isolation, restart/retry, retained limitations and evidence. Human chooses permitted local/staging deployment scope and enabled channels, performs UAT and explicitly accepts/rejects any merge/deployment. Codex supplies reports and PR description; no auto-merge or deployment. Env: none for acceptance; deployment-specific settings require their own later review. Expected proof: recorded owner decision, separate from fixture/technical checks.
 
@@ -174,7 +193,7 @@ No entry is CONFIGURED/TESTED merely because a contract or mock exists. Existing
 
 ## H-S09-DEVDB - persistent `wetscan_dev` upgrade to `0009` (new, S09)
 
-**Status: PENDING (owner). `NOT_RUN` - the persistent development database was not inspected or changed.** Follow `H-S06-ROLE` and `H-S08-DEVDB`, then apply `0005`-`0009` after a verified backup and issue new sealed `app`/`worker` approvals bound to plan sha256 `94f99d996e08bec042aa11a2295087dd69cd35a64d2fc48211292817b287831c` (details in `SENTINEL_S09_MIGRATION_REVIEW.md`). No backfill: the catalog starts empty and is filled only by worker syncs; inventory is collected by an explicit user action.
+**Status: EXECUTED by S11 (19 Nov 2026); historical status was PENDING `NOT_RUN`.** Original text: Follow `H-S06-ROLE` and `H-S08-DEVDB`, then apply `0005`-`0009` after a verified backup and issue new sealed `app`/`worker` approvals bound to plan sha256 `94f99d996e08bec042aa11a2295087dd69cd35a64d2fc48211292817b287831c` (details in `SENTINEL_S09_MIGRATION_REVIEW.md`). No backfill: the catalog starts empty and is filled only by worker syncs; inventory is collected by an explicit user action.
 
 ## H-S09-OSV-QUERY - send project package versions to OSV (new, S09)
 
@@ -184,6 +203,6 @@ No entry is CONFIGURED/TESTED merely because a contract or mock exists. Existing
 
 | ID | Action | Status | Fail-closed default |
 | --- | --- | --- | --- |
-| H-S10-DEVDB | Upgrade the persistent `wetscan_dev` to `0005`-`0009` (backup first; sealed approvals bound to the current plan hash; `H-S06-ROLE`). S10 itself needs **no** new migration. | `NOT_RUN` | Live Overview/Reports/Canvas overlay show `not_configured`/`Monitoring not connected`; nothing is shown healthy. |
+| H-S10-DEVDB | Upgrade the persistent `wetscan_dev` to `0005`-`0009` (backup first; sealed approvals bound to the current plan hash; `H-S06-ROLE`). S10 itself needs **no** new migration. | `EXECUTED by S11 (19 Nov 2026)`; was `NOT_RUN` | Live Overview/Reports/Canvas overlay show `not_configured`/`Monitoring not connected`; nothing is shown healthy. |
 | H-S10-E2E | Authenticated real-GitHub-session UAT on an owner-controlled repository with a connected telemetry source: open Canvas -> Security lens, confirm an actual controlled event is placed (or listed as "not placed"), export a report, check revoke behaviour. | `NOT_RUN` | Mocked-transport + isolated-PostgreSQL acceptance only; no `LIVE_TESTED` claim. |
 | H-S10-GUARD | A real Guard producer for GRD-020 (inventory) / GRD-021 (pipeline audit) before any adapter is enabled. | `DEFERRED` | `not_integrated`, no fabricated findings or pipeline events. |

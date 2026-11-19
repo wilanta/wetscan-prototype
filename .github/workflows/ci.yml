@@ -1,0 +1,194 @@
+name: ci
+
+# S11 independent PR gates. A Vercel deployment badge is NOT a substitute for any job below.
+# Security posture: read-only token, no secrets, no `pull_request_target`, no persistent database. Every database
+# is a disposable service container created for the job; CI never reads or writes `wetscan_dev` or any hosted DB.
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  NODE_VERSION: "22.20.0"
+  NEXT_TELEMETRY_DISABLED: "1"
+  CI: "true"
+
+jobs:
+  static:
+    name: typecheck + lint + unit/contract + secret scan
+    # Windows on purpose: the S04 audit/provision suites drive powershell.exe and Windows paths, so a Linux runner
+    # would either fail them or force skipping them. (Private-repo Windows minutes bill at 2x; see the runbook.)
+    runs-on: windows-2025
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run typecheck
+      - run: npm run lint
+      - name: Unit/contract suite
+        # cmd, not the default pwsh: the S04 suites spawn Windows PowerShell 5.1, which cannot autoload
+        # Microsoft.PowerShell.Security (Get-Acl) when the runner's pwsh PSModulePath leaks into it (96 failures observed on
+        # the first PR run, 2026-11-19). Pinning PSModulePath fixes the environment; no test is skipped.
+        shell: cmd
+        env:
+          # runner.temp is a long path; the default TEMP (user profile, RUNNER~1) is an 8.3 short path and the S04
+          # private-root tests require realpath(root) === root.
+          TEMP: ${{ runner.temp }}
+          TMP: ${{ runner.temp }}
+          PSModulePath: C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules
+        run: npm test
+      - name: Secret scan (prints file:line:rule only, never values)
+        run: npm run sentinel:secret-scan
+      - name: Dependency audit (high/critical fail the build)
+        run: npm audit --audit-level=high
+
+  build:
+    name: production build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+
+  postgres:
+    name: PostgreSQL integration + isolation (disposable service)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:17.12-bookworm
+        env:
+          POSTGRES_PASSWORD: ci_throwaway_pw
+        ports:
+          - 127.0.0.1:55432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+      postgres_s01:
+        # Second, separate disposable server: the approval-gated S01 suite needs roles with long (>=20 char) generated
+        # passwords, whereas the S05-S11 harnesses create the same roles with a fixed short one.
+        image: postgres:17.12-bookworm
+        env:
+          POSTGRES_PASSWORD: ci_throwaway_pw
+        ports:
+          - 127.0.0.1:55433:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      # Loopback-only, ephemeral container. The harnesses refuse any non-loopback host.
+      SENTINEL_S05_PG_ADMIN_URL: postgres://postgres:ci_throwaway_pw@127.0.0.1:55432/postgres
+      SENTINEL_S06_PG_ADMIN_URL: postgres://postgres:ci_throwaway_pw@127.0.0.1:55432/postgres
+      SENTINEL_S07_PG_ADMIN_URL: postgres://postgres:ci_throwaway_pw@127.0.0.1:55432/postgres
+      SENTINEL_S08_PG_ADMIN_URL: postgres://postgres:ci_throwaway_pw@127.0.0.1:55432/postgres
+      SENTINEL_S09_PG_ADMIN_URL: postgres://postgres:ci_throwaway_pw@127.0.0.1:55432/postgres
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: S01 platform fixture (generates a CI-only approval for a disposable database)
+        env:
+          SENTINEL_CI_S01_ADMIN_URL: postgres://postgres:ci_throwaway_pw@127.0.0.1:55433/postgres
+        run: node --import tsx scripts/sentinel-ci-s01-fixture.ts
+      - name: S01 platform queue/outbox/RLS (approval-gated)
+        run: npm run test:platform:postgres
+      - name: S05 response
+        run: npm run test:sentinel:response:postgres
+      - name: S06 notifications
+        run: npm run test:sentinel:notifications:postgres
+      - name: S07 ghost
+        run: npm run test:sentinel:ghost:postgres
+      - name: S08 intelligence
+        run: npm run test:sentinel:intelligence:postgres
+      - name: S09 external (offline fixtures; no live feed)
+        run: npm run test:sentinel:external:postgres
+      - name: S10 overlay + report
+        run: npm run test:sentinel:s10:postgres
+      - name: S11 cross-module hardening matrix
+        run: npm run test:sentinel:s11:postgres
+
+  browser:
+    name: browser (mocked transport) + accessibility
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      AUTH_TEST_BROWSER_CHANNEL: chromium
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - name: S10 Canvas overlay, Overview and Reports (responsive + axe)
+        run: npx playwright test -c tests/sentinel/s10.playwright.config.ts --timeout=300000
+      - name: Original Orderly Demo regression (unchanged walkthroughs)
+        run: npx playwright test -c tests/sentinel/playwright.config.ts --timeout=300000
+      - name: Sentinel module browser suites
+        run: |
+          for c in telemetry detection incident response notification ghost intelligence external; do
+            npx playwright test -c tests/sentinel/$c.playwright.config.ts --timeout=300000
+          done
+      - name: Retain failure evidence (bounded, 7 days)
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-failure-evidence
+          path: |
+            test-results/**/*.png
+            test-results/**/*.zip
+            test-results/**/error-context.md
+          retention-days: 7
+          if-no-files-found: ignore
+
+  dependency-review:
+    name: dependency review (advisory)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    # Needs GitHub Advanced Security on private repositories; when unavailable this job reports a failure but
+    # must not hide the enforced `npm audit` gate above. Branch protection should require the other four jobs.
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@bbc44d14a204704ccc493733616cd1e93a0321ec # v5.0.1
+        with:
+          fail-on-severity: high
