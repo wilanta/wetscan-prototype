@@ -46,7 +46,7 @@ jobs:
         # the first PR run, 2026-11-19). Pinning PSModulePath fixes the environment; no test is skipped.
         shell: cmd
         env:
-          PSModulePath: C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell1.0\Modules
+          PSModulePath: C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules
         run: npm test
       - name: Secret scan (prints file:line:rule only, never values)
         run: npm run sentinel:secret-scan
