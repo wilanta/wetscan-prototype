@@ -197,6 +197,24 @@ export interface IncidentSummary {
   status: string;
   href?: string;
   simulated: boolean;
+  /** CAN-008 provenance (optional so demo/fixture overlays stay unchanged). */
+  provenance?: {
+    origin: "runtime" | "controlled_test";
+    sourceId: string;
+    severity: string;
+    firstObservedAt: string;
+    lastObservedAt: string;
+    evidenceIds: string[];
+    mapping: { basis: "route_exact" | "route_redacted_segments"; routes: string[] };
+  };
+}
+/** CAN-008: incidents Sentinel holds but could not attach to a graph node; never placed on the graph. */
+export interface UnmappedIncidentSummary {
+  id: string;
+  title: string;
+  status: string;
+  reason: "no_route_evidence" | "no_matching_node" | "ambiguous_nodes";
+  href?: string;
 }
 export interface SecurityOverlay {
   projectRef: string;
@@ -206,6 +224,16 @@ export interface SecurityOverlay {
   findings: FindingSummary[];
   incidents: IncidentSummary[];
   message: string;
+  /** Present only for a Sentinel-backed live overlay (CAN-008). */
+  sentinelDetail?: {
+    sourceRevision: string;
+    generatedAt: string;
+    sources: { total: number; connected: number; runtimeConnected: number };
+    mappedCount: number;
+    unmapped: UnmappedIncidentSummary[];
+    unmappedCount: number;
+    truncated: boolean;
+  };
 }
 export interface TrustVerificationResult {
   projectRef: string;

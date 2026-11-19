@@ -40,6 +40,10 @@ import { nodeKinds } from "@/features/canvas/types";
 import { ArchitectureFlow } from "@/features/canvas/components/graph";
 import { icons } from "@/features/canvas/components/graph-node";
 import { Inspector } from "@/features/canvas/components/inspector";
+import {
+  SentinelCoverage,
+  coverageLabel,
+} from "@/features/canvas/components/sentinel-coverage";
 import { TrustLens } from "@/features/canvas/components/trust-lens";
 import { WorkflowLens } from "@/features/canvas/components/workflow-lens";
 import { ManualEditor } from "@/features/canvas/components/manual-editor";
@@ -400,11 +404,15 @@ function CanvasWorkspace({
                 {security.guard === "not_scanned"
                   ? "Not yet scanned"
                   : security.guard}{" "}
-                · Sentinel:{" "}
-                {security.sentinel === "not_monitored"
-                  ? "Monitoring not connected"
-                  : security.sentinel}
+                · Sentinel: {coverageLabel(security.sentinel)}
               </p>
+              <SentinelCoverage
+                security={security}
+                choose={choose}
+                nodeLabel={(id) =>
+                  graph.nodes.find((n) => n.id === id)?.label ?? id
+                }
+              />
               <div className="canvas-form-row">
                 {(
                   [

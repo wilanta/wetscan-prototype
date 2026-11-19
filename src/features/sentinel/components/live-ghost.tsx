@@ -1,4 +1,5 @@
 "use client";
+import { LiveSentinelNav } from "./live-nav";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
@@ -165,26 +166,7 @@ export function LiveGhost({ projectId }: { projectId: string }) {
         title="Harmless decoy signal & evidence pipeline."
         description="Opt-in, default-disabled decoy endpoint routed through authorized S02 telemetry, S03 controlled-decoy-v1 detection, and S04 incidents. Never captures credentials or triggers automatic blocking."
       />
-      <nav className="page-tabs" aria-label="Sentinel live sections">
-        {[
-          ["Event Explorer", ""],
-          ["Telemetry sources", "/sources"],
-          ["Detection Rules", "/rules"],
-          ["Alerts", "/alerts"],
-          ["Incidents", "/incidents"],
-          ["Responses", "/responses"],
-          ["Notifications", "/notifications"],
-          ["Ghost", "/ghost"],
-        ].map(([label, path]) => (
-          <Link
-            key={path}
-            href={`/app/projects/${projectId}/sentinel${path}`}
-            aria-current={path === "/ghost" ? "page" : undefined}
-          >
-            {label}
-          </Link>
-        ))}
-      </nav>
+      <LiveSentinelNav projectId={projectId} active="/ghost" />
 
       <Notice tone="amber">
         {overview?.falsePositivePolicy ?? GHOST_FALSE_POSITIVE_POLICY}

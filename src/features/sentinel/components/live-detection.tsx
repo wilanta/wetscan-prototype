@@ -1,6 +1,6 @@
 "use client";
+import { LiveSentinelNav } from "./live-nav";
 import { useEffect, useState, useRef } from "react";
-import Link from "next/link";
 import {
   Badge,
   Button,
@@ -208,24 +208,7 @@ export function LiveDetection({
         title={section === "/rules" ? "Detection Rules" : "Persisted Alerts"}
         description="Project-scoped detections with versioned rules and redacted evidence. No incident, response or external notification is created."
       />
-      <nav className="page-tabs" aria-label="Sentinel live sections">
-        {[
-          ["Event Explorer", ""],
-          ["Telemetry sources", "/sources"],
-          ["Detection Rules", "/rules"],
-          ["Alerts", "/alerts"],
-          ["Incidents", "/incidents"],
-          ["Ghost", "/ghost"],
-        ].map(([label, path]) => (
-          <Link
-            key={path}
-            href={`/app/projects/${projectId}/sentinel${path}`}
-            aria-current={section === path ? "page" : undefined}
-          >
-            {label}
-          </Link>
-        ))}
-      </nav>
+      <LiveSentinelNav projectId={projectId} active={section} />
       <Notice>
         Live project data is separate from Orderly Demo. Controlled tests are
         labelled. A matched rule does not establish that an attack succeeded.

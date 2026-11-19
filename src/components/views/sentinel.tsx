@@ -10,6 +10,10 @@ import { LiveNotifications } from "@/features/sentinel/components/live-notificat
 import { LiveGhost } from "@/features/sentinel/components/live-ghost";
 import { LiveIntelligence } from "@/features/sentinel/components/live-intelligence";
 import {
+  LiveOverview,
+  LiveReports,
+} from "@/features/sentinel/components/live-overview";
+import {
   ArrowLeft,
   ArrowRight,
   Bell,
@@ -123,6 +127,10 @@ export function Sentinel({
     return <LiveGhost projectId={projectId} key={projectId} />;
   if (projectId && section === "/intelligence")
     return <LiveIntelligence projectId={projectId} key={projectId} />;
+  if (projectId && section === "/reports")
+    return <LiveReports projectId={projectId} key={projectId} />;
+  if (projectId && section === "")
+    return <LiveOverview projectId={projectId} key={projectId} />;
   if (projectId && (section === "/rules" || section === "/alerts"))
     return (
       <LiveDetection

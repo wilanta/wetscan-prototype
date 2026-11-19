@@ -1,4 +1,5 @@
 "use client";
+import { LiveSentinelNav } from "./live-nav";
 import { useCallback, useEffect, useState } from "react";
 import {
   Badge,
@@ -354,6 +355,7 @@ export function LiveNotifications({ projectId }: { projectId: string }) {
         title="Notifications"
         description="Opt-in, project-scoped incident notifications with a durable delivery ledger. Messages are sent only by an isolated sender process; this page never holds provider credentials."
       />
+      <LiveSentinelNav projectId={projectId} active="/notifications" />
       <Notice tone="neutral">
         Live configuration for this project only. Orderly Demo previews are
         unchanged and never send. A message accepted by Telegram or the email

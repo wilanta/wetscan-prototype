@@ -166,7 +166,7 @@ Prerequisites: active packets tested; inspect original-vs-integrated UI, two-pro
 | ------------------------------------------------------------------------------------ | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Database driver/migration tool, PostgreSQL version, port/roles/budgets and retention | Owner/platform, WAITING_USER H01                  | S01 prepares pg/custom checksummed runner, dedicated PG17/55432 and isolated roles; approve exact target/image/volume/marker and application. Event/evidence retention remains future scope. |
 | Team/shared workspace identity, rename/transfer                                      | H10 APPROVED; Daud owner-reported                 | Both approvals dated 14 November 2026 (Asia/Jakarta), no amendments; Daud's source is owner-reported. Future immutable team ID requires explicit migration.                                  |
-| Guard actual producer, repository permission recheck and source-to-node mapping      | Guard/Canvas owners, DEFERRED GRD-020/021/CAN-008 | Approve future adapters after producer evidence; approve narrow S04/S10 router/UI handoff.                                                                                                   |
+| Guard actual producer, repository permission recheck and source-to-node mapping      | Guard/Canvas owners; **CAN-008 narrow seam authorized by the owner for S10 (2026-11-19)**, GRD-020/021 DEFERRED | Narrow S04/S10 router/UI/Canvas-overlay seams were exercised in S10 and are reviewed in the PR. GRD-020/021 still need a real Guard producer (scan + immutable commit + grant/provenance) before any adapter is approved; until then both stay `not_integrated`. |
 | AI provider/privacy/budget                                                           | Owner, DEFERRED optional (gate `H-S08-AI`)        | No AI env/key selected; require opt-in/redaction, explanatory drafts only. Never publish rules or apply responses automatically.                                                             |
 | Public exposure/tunnel/provider callbacks                                            | Target owner, DEFERRED                            | Not required for S00 or localhost ingest tests; explicit allowed HTTPS endpoint and signatures before enabling later.                                                                        |
 
@@ -179,3 +179,11 @@ No entry is CONFIGURED/TESTED merely because a contract or mock exists. Existing
 ## H-S09-OSV-QUERY - send project package versions to OSV (new, S09)
 
 **Status: NOT_APPROVED (default off, owner decision).** S09 enriches OSV only by already-known public GHSA ids, so no private dependency data leaves the system. An OSV `querybatch` over a project's lockfile (broader coverage than GHSA-seeded enrichment) discloses package names/versions of a private repository to a third party; implement only after the owner records approval, scope and retention.
+
+## S10 operational prerequisites (owner actions; none were performed by the agent)
+
+| ID | Action | Status | Fail-closed default |
+| --- | --- | --- | --- |
+| H-S10-DEVDB | Upgrade the persistent `wetscan_dev` to `0005`-`0009` (backup first; sealed approvals bound to the current plan hash; `H-S06-ROLE`). S10 itself needs **no** new migration. | `NOT_RUN` | Live Overview/Reports/Canvas overlay show `not_configured`/`Monitoring not connected`; nothing is shown healthy. |
+| H-S10-E2E | Authenticated real-GitHub-session UAT on an owner-controlled repository with a connected telemetry source: open Canvas -> Security lens, confirm an actual controlled event is placed (or listed as "not placed"), export a report, check revoke behaviour. | `NOT_RUN` | Mocked-transport + isolated-PostgreSQL acceptance only; no `LIVE_TESTED` claim. |
+| H-S10-GUARD | A real Guard producer for GRD-020 (inventory) / GRD-021 (pipeline audit) before any adapter is enabled. | `DEFERRED` | `not_integrated`, no fabricated findings or pipeline events. |

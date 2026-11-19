@@ -4547,6 +4547,8 @@ tbody tr:hover {
   .topbar,
   .app-footer,
   .heading-actions,
+  .no-print,
+  .page-tabs,
   [data-sonner-toaster] {
     display: none !important;
   }

@@ -54,7 +54,7 @@ const manage = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const realProject =
-    /^\/app\/projects\/github-[1-9]\d*\/(?:canvas|sentinel(?:\/(?:activity|sources|rules|alerts|incidents(?:\/[a-f0-9-]+)?|responses|notifications|ghost|intelligence))?)$/.test(
+    /^\/app\/projects\/github-[1-9]\d*\/(?:canvas|sentinel(?:\/(?:activity|sources|rules|alerts|incidents(?:\/[a-f0-9-]+)?|responses|notifications|ghost|intelligence|reports))?)$/.test(
       pathname,
     );
   const accountState = useDashboardAccount();
@@ -72,16 +72,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           "Overview";
   function nav(items: typeof home) {
     return items.map(({ href, label, Icon }) => {
-      if (label === "Sentinel" && realProject) {
-        const projectId = pathname.split("/")[3];
-        href = `/app/projects/${projectId}/sentinel`;
+      if (realProject) {
+        const sentinel = `/app/projects/${pathname.split("/")[3]}/sentinel`;
+        // Real projects never link to the synthetic demo pages for modules that have a live view.
+        if (label === "Sentinel") href = sentinel;
+        if (label === "Notifications") href = `${sentinel}/notifications`;
+        if (label === "Reports") href = `${sentinel}/reports`;
       }
       const active =
         href === "/app"
           ? pathname === "/app"
           : pathname === href ||
-            ((href.includes("/guard") || href.includes("/sentinel")) &&
-              pathname.startsWith(href));
+            (label === "Sentinel" &&
+              (href.includes("/guard") || href.includes("/sentinel")) &&
+              pathname.startsWith(href)) ||
+            (label === "Guard" && pathname.startsWith(href));
       return (
         <div key={href}>
           <Link
@@ -92,7 +97,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             <Icon size={18} />
             <span>{label}</span>
-            {realProject && label === "Guard" && (
+            {realProject && (label === "Guard" || label === "Integrations") && (
               <span className="nav-new">DEMO</span>
             )}
             {label === "Canvas" && <span className="nav-new">APP MAP</span>}
@@ -101,30 +106,38 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
           {label === "Sentinel" && (
             <div className="nav-children">
-              <Link
-                href={
-                  realProject
-                    ? `/app/projects/${pathname.split("/")[3]}/sentinel/ghost`
-                    : `${PROJECT}/sentinel/ghost`
-                }
-                onClick={() => setMobile(false)}
-                className={pathname.endsWith("/ghost") ? "active" : ""}
-              >
-                <Ghost size={15} />
-                Ghost
-              </Link>
-              <Link
-                href={
-                  realProject
-                    ? `/app/projects/${pathname.split("/")[3]}/sentinel/intelligence`
-                    : `${PROJECT}/sentinel/intelligence`
-                }
-                onClick={() => setMobile(false)}
-                className={pathname.endsWith("/intelligence") ? "active" : ""}
-              >
-                <BrainCircuit size={15} />
-                Intelligence
-              </Link>
+              {(realProject
+                ? [
+                    ["Incidents", "/incidents", Radar],
+                    ["Responses", "/responses", ShieldCheck],
+                    ["Ghost", "/ghost", Ghost],
+                    ["Intelligence", "/intelligence", BrainCircuit],
+                  ]
+                : [
+                    ["Ghost", "/ghost", Ghost],
+                    ["Intelligence", "/intelligence", BrainCircuit],
+                  ]
+              ).map(([text, path, ChildIcon]) => {
+                const root = realProject
+                  ? `/app/projects/${pathname.split("/")[3]}/sentinel`
+                  : `${PROJECT}/sentinel`;
+                return (
+                  <Link
+                    key={path as string}
+                    href={`${root}${path}`}
+                    onClick={() => setMobile(false)}
+                    className={
+                      pathname === `${root}${path}` ||
+                      pathname.startsWith(`${root}${path}/`)
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    <ChildIcon size={15} />
+                    {text as string}
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
@@ -214,10 +227,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </>
               )}
             </p>
-            <Button variant="ghost" onClick={() => setReset(true)}>
-              <RotateCcw size={14} />
-              Reset demo
-            </Button>
+            {!realProject && (
+              <Button variant="ghost" onClick={() => setReset(true)}>
+                <RotateCcw size={14} />
+                Reset demo
+              </Button>
+            )}
           </div>
           <Modal
             trigger={
@@ -300,12 +315,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {dark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
             <Link
-              href="/app/notifications"
+              href={
+                realProject
+                  ? `/app/projects/${pathname.split("/")[3]}/sentinel/notifications`
+                  : "/app/notifications"
+              }
               className="icon-button notification-icon"
-              aria-label={`Notifications, ${state.notifications.length} previews`}
+              aria-label={
+                realProject
+                  ? "Notifications"
+                  : `Notifications, ${state.notifications.length} previews`
+              }
             >
               <Bell size={18} />
-              {state.notifications.length > 0 && <span />}
+              {!realProject && state.notifications.length > 0 && <span />}
             </Link>
             <button
               type="button"

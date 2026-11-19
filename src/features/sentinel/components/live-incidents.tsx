@@ -1,4 +1,5 @@
 "use client";
+import { LiveSentinelNav } from "./live-nav";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
@@ -116,7 +117,11 @@ export function LiveIncidents({
       setLoading(true);
       setError("");
       setPage(null);
-      void api(root + (queryText ? "?" + queryText : ""), undefined, stop.signal)
+      void api(
+        root + (queryText ? "?" + queryText : ""),
+        undefined,
+        stop.signal,
+      )
         .then(async (value: IncidentPage) => {
           if (stop.signal.aborted || current !== generation.current) return;
           setPage(value);
@@ -209,25 +214,7 @@ export function LiveIncidents({
         title="Persisted Incidents"
         description="Project-scoped incidents correlated from verified alerts, with append-only investigation timeline and redacted evidence. Closing an investigation does not block an attacker or verify mitigation."
       />
-      <nav className="page-tabs" aria-label="Sentinel live sections">
-        {[
-          ["Event Explorer", ""],
-          ["Telemetry sources", "/sources"],
-          ["Detection Rules", "/rules"],
-          ["Alerts", "/alerts"],
-          ["Incidents", "/incidents"],
-          ["Notifications", "/notifications"],
-          ["Ghost", "/ghost"],
-        ].map(([label, path]) => (
-          <Link
-            key={path}
-            href={`/app/projects/${projectId}/sentinel${path}`}
-            aria-current={path === "/incidents" ? "page" : undefined}
-          >
-            {label}
-          </Link>
-        ))}
-      </nav>
+      <LiveSentinelNav projectId={projectId} active="/incidents" />
       <Notice>
         Live project data is separate from Orderly Demo. Controlled tests are
         labelled. Closing an incident closes the investigation workflow only —

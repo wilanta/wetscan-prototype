@@ -49,6 +49,7 @@ export default async function Page({
         "notifications",
         "ghost",
         "intelligence",
+        "reports",
       ].includes(section[0])) ||
     (section.length === 2 &&
       (section[0] !== "incidents" ||
