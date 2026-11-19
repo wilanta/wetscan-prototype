@@ -162,6 +162,18 @@ Times are UTC on 2026-11-19, `09:` / `10:` + mm:ss.
 | E-H-19 | F5 | the two agent-written private approvals: `approvedBy` corrected to the real authorship (`previousApprovedBy`, `authoredBy`, `authorizedBy`, `provenanceCorrectedAt` added; `approvedAt`, actions, plan hash untouched). Offline `parseApproval` for `migrate_up` / `runtime`, `sentinel:db status`, `sentinel:health` | after edit | PASS: both still accepted, `schemaStatus current`, `warnings []` | - | DEV-PG (read-only) |
 | E-H-20 | dev DB | all 45 tables (rows + md5 of row text) before the remediation vs after every check above | before any change / after 10:07 | **IDENTICAL**; ledger still 9 rows, latest `0009_external_intelligence`; no activation, no worker started | 45/45 tables | DEV-PG |
 
+
+GitHub-hosted results for the same code (PR #16, run `44502965648`, head `21f5c40`; GitHub Actions, class CI-HOSTED). First attempt,
+no hosted failure to report this time:
+
+| ID | Job | Result | Count |
+| --- | --- | --- | --- |
+| E-H-21 | typecheck + lint + unit + secret scan + audit (Windows) | **PASS** 6m29s | unit **2135/2135, 114 files**; secret scan 781 files, 740 scanned, 41 binary skipped, 0 findings, 0 incomplete; audit 0 vulnerabilities |
+| E-H-22 | production build (Linux) | **PASS** 54s | - |
+| E-H-23 | PostgreSQL service (Linux) | **PASS** 1m22s | S01 14, S05 23, S06 22, S07 8, S08 15, S09 41, S10 6, S11 14 |
+| E-H-24 | browser (Linux, Chromium) incl. the NEW production-build E2E step | **PASS** 8m07s | module suites 26, 6 (demo), 5, 6, 3, 3, 6, 4, 8, 10; **production-build E2E 21/21 on Linux** (`next build` + `next start`, stubbed GitHub, no credentials) |
+| E-H-25 | dependency review (optional) | **SKIPPED** by design (`GHAS_ENABLED` unset): no red check | - |
+
 E-DB-08 (section C) described those approvals as quoting the owner's instruction; E-H-19 supersedes the wording of their `approvedBy`
 field only. The original text is preserved inside each file.
 

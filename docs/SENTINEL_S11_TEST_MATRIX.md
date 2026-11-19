@@ -75,7 +75,7 @@ DEV-PG (owner persistent database).
 | A5-6 | browser | demo routes issue zero live Sentinel/Canvas API calls; original demo chrome and Ghost/Intelligence nav intact | PASS |
 | A5-7 | browser | S02-S09 module UIs (telemetry, detection, incident, response, notification, ghost, intelligence, external) | PASS (register E-A5-2 to E-A5-9) |
 | A5-8 | browser | original Orderly Demo walkthrough + interaction suites unchanged | PASS (register E-A5-10) |
-| A5-9 | E2E | production build; login/onboarding/installation/dashboard session/Canvas with provider-substituted identities | PASS (register E-A5-11) |
+| A5-9 | E2E | production build; login/onboarding/installation/dashboard session/Canvas with provider-substituted identities | PASS (register E-A5-11 local, E-H-24 on a Linux CI runner) |
 | A5-10 | HTTP | production server / `/demo`, `/login`, `/api/sentinel/ingest` | all carry the S11 headers - PASS (manual curl, run during development on the same code; unit asserts the config) |
 | A5-11 | API | 12 routes x GET/POST: malformed/demo id 404, 401, foreign 404 `not_found`, CSRF 403, unknown query 4xx w/o SQL, generic 503 | PASS (route matrix, register E-A1-3 and section H) |
 | A5-12 | Postgres | live report for A contains no incident id of A2 or B | PASS |

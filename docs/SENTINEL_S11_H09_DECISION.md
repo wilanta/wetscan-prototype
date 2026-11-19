@@ -53,7 +53,7 @@ environment must not go ahead. Counts live only in the register.
 | G1 | CI `static`: typecheck, lint, unit/contract, secret scan (incl. completeness), `npm audit` | green hosted run on the exact release SHA | VERIFIED (register F, H) | yes | yes | none |
 | G2 | CI `build`: production build | green hosted run | VERIFIED (register F, H) | yes | yes | none |
 | G3 | CI `postgres`: S01 and S05-S11 suites on disposable services, incl. the catalog-driven RLS / privilege / two-project matrix | green hosted run | VERIFIED (register F, H) | yes | yes | none |
-| G4 | CI `browser`: mocked-transport suites, accessibility, original Demo, production-build E2E with stubbed GitHub | green hosted run | VERIFIED for the PR run; the production-build E2E step on Linux: see register H | yes | yes | none |
+| G4 | CI `browser`: mocked-transport suites, accessibility, original Demo, production-build E2E with stubbed GitHub | green hosted run | VERIFIED (register F, H), including the production-build E2E on Linux | yes | yes | none |
 | G5 | Required status checks + branch protection on `master` | repository settings show G1-G4 required | NOT_CONFIGURED | no (advised) | **yes** | O-5 |
 | G6 | Database safety on the TARGET environment: identity marker, backup, restore rehearsal, additive migration, least-privilege roles, fail-closed approvals | receipts like register section C for that target | VERIFIED on `wetscan_dev` only; target environments NOT_RUN | **yes** | **yes** | run the runbook sections 3.4-3.5 there |
 | G7 | Authenticated real-GitHub-session E2E on an owned repository | UAT record: login, project, telemetry, incident, Canvas overlay, report | NOT_RUN (fixture identities only) | **yes** | **yes** | O-1 |
