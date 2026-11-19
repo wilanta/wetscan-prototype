@@ -9,7 +9,7 @@ describe("S05 additive SQL and reversal protocol - not PostgreSQL execution", ()
     const s04 = await migrationPlan("0004_incidents");
     expect(s04.sha256).toBe(reviewedS04Plan);
     expect(full.migrations.slice(0, 4)).toEqual(s04.migrations);
-    expect(full.migrations.at(-1)?.version).toBe("0005_response");
+    expect(full.migrations[4].version).toBe("0005_response");
   });
   it("up enables FORCE RLS and scope policy on every table; audit is append-only", async () => {
     const m = (await migrationPlan()).migrations[4];
@@ -33,7 +33,7 @@ describe("S05 additive SQL and reversal protocol - not PostgreSQL execution", ()
   it.each(["response_audit", "response_actions", "response_targets"])(
     "down refuses populated %s without running down SQL",
     async (table) => {
-      const p = await migrationPlan();
+      const p = await migrationPlan("0005_response");
       const c = new RecordingClient();
       c.respond = async (sql) => ({
         rows: sql.includes("to_regclass")
@@ -53,7 +53,7 @@ describe("S05 additive SQL and reversal protocol - not PostgreSQL execution", ()
     },
   );
   it("down refuses queued response jobs", async () => {
-    const p = await migrationPlan();
+    const p = await migrationPlan("0005_response");
     const c = new RecordingClient();
     c.respond = async (sql) => ({
       rows: sql.includes("to_regclass")
@@ -72,7 +72,7 @@ describe("S05 additive SQL and reversal protocol - not PostgreSQL execution", ()
     ).rejects.toThrow();
   });
   it("empty reversal removes only 0005_response", async () => {
-    const p = await migrationPlan();
+    const p = await migrationPlan("0005_response");
     const c = new RecordingClient();
     c.respond = async (sql) => ({
       rows: sql.includes("to_regclass")

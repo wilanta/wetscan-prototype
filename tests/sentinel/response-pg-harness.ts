@@ -58,6 +58,7 @@ export async function setupHarness(opts?: {
     "wetscan_migrator",
     "wetscan_app",
     "wetscan_sentinel_worker",
+    "wetscan_sentinel_notifier",
   ]) {
     await root.query(
       `DO $$ BEGIN IF NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='${role}') THEN CREATE ROLE ${role} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS PASSWORD '${pw}'; END IF; END $$`,

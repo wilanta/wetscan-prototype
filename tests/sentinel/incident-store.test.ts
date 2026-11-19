@@ -1388,6 +1388,11 @@ function createConstraintDouble(options: {
           rowCount: 1,
         };
       }
+      // S06 notification producer (savepoint-isolated): no channels configured in these S04 regression doubles.
+      if (/^(SAVEPOINT|RELEASE SAVEPOINT|ROLLBACK TO SAVEPOINT)/.test(sql.trim()))
+        return { rows: [] as unknown as R[], rowCount: 0 };
+      if (sql.includes("sentinel.notification_channels"))
+        return { rows: [] as unknown as R[], rowCount: 0 };
       throw new Error(`Unhandled SQL in constraint double: ${sql}`);
     },
   };

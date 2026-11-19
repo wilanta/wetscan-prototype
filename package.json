@@ -13,6 +13,8 @@
     "sentinel:db": "node --env-file-if-exists=.env.sentinel.local --import tsx scripts/sentinel-db.ts",
     "sentinel:worker": "node --env-file-if-exists=.env.sentinel.local --max-old-space-size=256 --import tsx worker/sentinel/main.ts",
     "sentinel:worker:smoke": "node --env-file-if-exists=.env.sentinel.local --import tsx scripts/sentinel-worker-smoke.ts",
+    "sentinel:notifier": "node --env-file-if-exists=.env.sentinel.notifier.local --max-old-space-size=192 --import tsx worker/notifier/main.ts",
+    "test:sentinel:notifications:postgres": "vitest run -c tests/sentinel/notification-postgres.config.ts",
     "sentinel:health": "node --env-file-if-exists=.env.sentinel.local --import tsx scripts/sentinel-health.ts",
     "test:platform:postgres": "node --env-file-if-exists=.env.sentinel.test.local --import tsx scripts/sentinel-postgres-test.ts",
     "test:sentinel:postgres": "node --env-file-if-exists=.env.sentinel.test.local --import tsx scripts/sentinel-telemetry-test.ts",

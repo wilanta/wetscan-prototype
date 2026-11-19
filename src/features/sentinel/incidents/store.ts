@@ -1,3 +1,4 @@
+import { produceIncidentOpened } from "../notifications/store";
 import type { QueryResultRow } from "pg";
 import { PlatformDatabase } from "../../../platform/database";
 import { PlatformError } from "../../../platform/config";
@@ -539,6 +540,16 @@ export async function correlateAlertIncident(
     eventIds,
   );
 
+  // S06: durable, deduplicated notification intents in the SAME transaction (savepoint-isolated; never blocks detection).
+  // Only runtime/controlled-test evidence may notify; demo, fixture and scan-observed origins never do.
+  if (created && (origin === "runtime" || origin === "controlled_test"))
+    await produceIncidentOpened(db, tx, cleanScope, {
+      incidentId,
+      title:
+        `${rule.definition.name} (${origin === "controlled_test" ? "Controlled test" : "Runtime"})`.slice(0, 160),
+      severity: rule.definition.severity,
+      origin,
+    });
   return { incidentId, created };
 }
 

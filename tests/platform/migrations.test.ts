@@ -14,6 +14,7 @@ describe("migration review/runner protocol - no SQL execution", () => {
       "0003_detection",
       "0004_incidents",
       "0005_response",
+      "0006_notifications",
     ]);
     expect(a.migrations[0].up).toContain("FORCE ROW LEVEL SECURITY");
     expect(a.migrations[0].up).toContain("wetscan_sentinel_worker");

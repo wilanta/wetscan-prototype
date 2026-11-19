@@ -22,6 +22,7 @@ import { responseJobKinds } from "../../src/features/sentinel/response/model";
 import { adapterForTarget } from "../../src/features/sentinel/response/local-rate-limit-adapter";
 import { FixtureVerifier } from "../../src/features/sentinel/response/verifier";
 import { handleResponseJob } from "./response-handlers";
+import { retainNotifications } from "../../src/features/sentinel/notifications/store";
 import { retainIncidents } from "../../src/features/sentinel/incidents/retention";
 import type { IncidentActivation } from "../../src/features/sentinel/incidents/activation";
 import {
@@ -114,7 +115,8 @@ export async function runSentinelWorker(input: {
         response: input.response
           ? "enabled_for_approved_local_fixture"
           : "disabled_pending_approval",
-        notifications: "not_configured",
+        // Delivery lives in the credential-isolated notifier lane; this worker only produces ledger intents.
+        notifications: "delegated_to_isolated_notifier",
       }),
     );
   });
@@ -247,6 +249,11 @@ export async function runSentinelWorker(input: {
             );
             if (incidentsReady && !input.isolation)
               await retainIncidents(db, scope);
+            if (
+              !input.isolation &&
+              migrations.some((m) => m.version === "0006_notifications")
+            )
+              await retainNotifications(db, scope);
             if (detectionReady && !input.isolation)
               await retainDetection(db, scope, incidentsReady);
             if (
