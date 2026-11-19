@@ -6,7 +6,7 @@ export default defineConfig({
   timeout: 60000,
   use: {
     baseURL: "http://127.0.0.1:3109",
-    channel: "msedge",
+    channel: process.env.PW_BROWSER_CHANNEL || "msedge",
     headless: true,
     viewport: { width: 1440, height: 900 },
   },

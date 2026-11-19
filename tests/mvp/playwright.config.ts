@@ -7,7 +7,7 @@ export default defineConfig({
   use: {
     baseURL: "http://127.0.0.1:3109",
     headless: true,
-    channel: "msedge",
+    channel: process.env.PW_BROWSER_CHANNEL || "msedge",
     viewport: { width: 1440, height: 900 },
   },
   outputDir: "../../test-results/mvp-integrated",

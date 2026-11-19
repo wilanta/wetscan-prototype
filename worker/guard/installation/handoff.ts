@@ -21,6 +21,7 @@ import { bindGuardJob } from "../approval";
 import { ResourceRegistry } from "../acceptance/registry";
 import { dockerDriver } from "../sandbox";
 import { installationDocker } from "./qualify";
+import { iacFixtures } from "./iac-fixtures";
 const hash = (s: string | Buffer) =>
   createHash("sha256").update(s).digest("hex");
 const root = resolve(process.argv[2] ?? "");
@@ -44,7 +45,12 @@ async function main() {
   const measured = JSON.parse(
     await readFile(join(root, "deployments.measured.json"), "utf8"),
   ) as { deployments: ProductDeployment["deployments"] };
-  if (!measured.deployments.length || measured.deployments.length > 5)
+  // Six measured engines exist (sast, sca, sbom, secrets, iac, container). The image-bound container engine needs an OCI
+  // archive scope and is exercised by persistence-fixture.ts; this single-engine broker runner covers the other five.
+  const deployments = measured.deployments.filter(
+    (d) => d.engine !== "container",
+  );
+  if (!deployments.length || measured.deployments.length > 6)
     throw Error("measurement_missing");
   const scope = {
     mode: "live" as const,
@@ -52,7 +58,7 @@ async function main() {
     projectId: "github-123",
   };
   for (const variant of ["vulnerable", "clean"] as const) {
-    for (const d of measured.deployments) {
+    for (const d of deployments) {
       const grant = (): Grant => ({
         ...scope,
         actorId: "github-user-7",
@@ -82,6 +88,7 @@ async function main() {
         "token.txt": bad
           ? "token = " + secret
           : "NO_CREDENTIALS_IN_CLEAN_FIXTURE",
+        ...iacFixtures(bad),
         "main.tf": bad
           ? 'resource "aws_security_group" "fixture" {\n  name = "fixture"\n  ingress {\n    from_port = 0\n    to_port = 0\n    protocol = "-1"\n    cidr_blocks = ["0.0.0.0/0"]\n  }\n}\n'
           : 'locals { fixture = "safe-static-value" }',
@@ -234,6 +241,15 @@ async function main() {
             : result.findings.length !== 0)
         )
           throw Error("controlled_result_incomplete_" + run.status);
+        if (
+          d.engine === "iac" &&
+          (bad
+            ? !["main.tf", "k8s/deployment.yaml", "Dockerfile"].every((p) =>
+                result.findings.some((f) => f.location.path === p),
+              )
+            : result.findings.length !== 0)
+        )
+          throw Error("controlled_iac_terraform_kubernetes_dockerfile_mismatch");
         if (
           bad &&
           d.engine === "sast" &&

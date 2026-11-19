@@ -268,13 +268,27 @@ export function canonicalOutput(
       r.path = relativeSourcePath(r.path, snapshot);
     }
   else {
-    // Trivy emits a directory summary even when it has no findings. It is not a
-    // source location. Remove only the exact, explicitly clean root aggregate;
-    // root findings or any other unbound target still fail closed.
+    // Trivy emits a per-module directory summary (".", "infra", ...) even when it has no findings. It is not a
+    // source location. Remove only an explicitly clean summary whose target is a DIRECTORY of the authorized manifest
+    // (never a file); findings on a directory target, traversal, or any other unbound target still fail closed.
+    const summaryDirectory = (target: unknown) => {
+      if (target === ".") return true;
+      if (typeof target !== "string") return false;
+      let dir: string;
+      try {
+        dir = safePath(target);
+      } catch {
+        return false;
+      }
+      return (
+        !snapshot.files.some((f) => f.path === dir) &&
+        snapshot.files.some((f) => f.path.startsWith(dir + "/"))
+      );
+    };
     record(data).Results = array(record(data).Results).filter((value) => {
       const r = record(value);
       if (
-        r.Target === "." &&
+        summaryDirectory(r.Target) &&
         r.Class === "config" &&
         record(r.MisconfSummary).Failures === 0 &&
         (r.Misconfigurations == null ||

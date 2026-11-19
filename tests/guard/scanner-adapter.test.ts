@@ -441,3 +441,38 @@ it("Trivy clean root aggregate has no file finding; actual file targets remain m
     await f.cleanup();
   }
 });
+
+it("Trivy clean per-module directory summaries are dropped only for directories of the manifest; files are kept and unknown, traversal and finding-bearing targets stay refused", () => {
+  const snapshot = {
+    files: [
+      { path: "infra/main.tf" },
+      { path: "infra/k8s/deployment.yaml" },
+      { path: "Dockerfile" },
+    ],
+  } as never;
+  const clean = (Target: string) => ({
+    Target,
+    Class: "config",
+    Type: "terraform",
+    MisconfSummary: { Failures: 0 },
+    Misconfigurations: null,
+  });
+  const real = { Target: "infra/main.tf", Misconfigurations: [{ ID: "AVD-AWS-0107" }] };
+  expect(
+    canonicalOutput(
+      { Results: [clean("infra"), clean("infra/k8s"), real] },
+      "iac",
+      snapshot,
+    ),
+  ).toEqual({ Results: [real] });
+  // A clean row for an actual FILE is a legitimate manifest-bound target, not a directory summary: it is kept.
+  expect(
+    canonicalOutput({ Results: [clean("Dockerfile")] }, "iac", snapshot),
+  ).toEqual({ Results: [clean("Dockerfile")] });
+  for (const row of [
+    clean("elsewhere"), // not in the authorized manifest
+    clean("infra/../x"), // traversal
+    { ...clean("infra"), MisconfSummary: { Failures: 1 }, Misconfigurations: [{ ID: "real" }] },
+  ])
+    expect(() => canonicalOutput({ Results: [row] }, "iac", snapshot)).toThrow();
+});
