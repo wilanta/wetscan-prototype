@@ -10,6 +10,7 @@ import { runSentinelWorker } from "./runtime";
 import { detectionActivation } from "../../src/features/sentinel/detection/activation";
 import { incidentActivation } from "../../src/features/sentinel/incidents/activation";
 import { requestedAcceptanceIsolation } from "./acceptance";
+import { externalActivation } from "../../src/features/sentinel/external/activation";
 import { responseActivation } from "../../src/features/sentinel/response/activation";
 
 async function main() {
@@ -47,6 +48,7 @@ async function main() {
     process.env.SENTINEL_RESPONSE_ENABLED === "1",
     incidents,
   );
+  const external = await externalActivation(config.approval, process.env);
   const isolation = requestedAcceptanceIsolation(
     config,
     detection,
@@ -62,6 +64,7 @@ async function main() {
     detection,
     incidents,
     response,
+    external,
     isolation,
     workerId: randomUUID(),
     control: process,

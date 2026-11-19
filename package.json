@@ -23,6 +23,8 @@
     "sentinel:ghost:fixture": "node --env-file-if-exists=.env.sentinel.ghost.local --import tsx scripts/sentinel-ghost-fixture.ts",
     "test:sentinel:ghost:postgres": "vitest run -c tests/sentinel/ghost-postgres.config.ts",
     "test:sentinel:intelligence:postgres": "vitest run -c tests/sentinel/intelligence-postgres.config.ts",
+    "test:sentinel:external:postgres": "vitest run -c tests/sentinel/external-postgres.config.ts",
+    "test:sentinel:external:live": "vitest run -c tests/sentinel/external-live.config.ts",
     "sentinel:emit": "node --env-file-if-exists=.env.sentinel.emitter.local --import tsx scripts/sentinel-emit.ts",
     "format": "prettier --write src tests *.ts *.mjs README.md docs/*.md"
   },

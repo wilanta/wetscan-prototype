@@ -19,6 +19,7 @@ describe("S07 additive SQL and reversal protocol - not PostgreSQL execution", ()
       "0006_notifications",
       "0007_ghost",
       "0008_internal_intelligence",
+      "0009_external_intelligence",
     ]);
     expect(full.sha256).not.toBe(s06.sha256);
   });

@@ -146,7 +146,9 @@ S08 ships only the disabled `AIExplanationPort` default (`disabledAIExplanation`
 
 ## H08 - public advisories and actual inventory
 
-**Status: DEFERRED to S09; NVD optional. Who: owner + Guard/inventory owner.**
+**Status: PARTIALLY APPROVED (19 Nov 2026, owner instruction for S09): controlled development/staging reads of the official CISA KEV, GitHub Global Security Advisories and OSV endpoints were authorized and exercised once as a bounded smoke test on a throwaway database (`S09-A7`, see `SENTINEL_S09_VALIDATION.md`). STILL OPEN (owner): enabling the worker lane in any persistent environment (`SENTINEL_EXTERNAL_INTEL_ENABLED=1` + the `externalIntel` approval block, see `infra/sentinel/external.env.example`), sync cadence/retention, optional GHSA token file. NVD: DEFERRED/NOT_CONFIGURED (not implemented). Guard GRD-020: not_integrated. Who: owner + Guard/inventory owner.**
+
+Implemented as proposed below: lockfile-sourced repository-only inventory (declared dependencies, never proof of deployment) was chosen over waiting for GRD-020; GRD-020 stays unavailable.
 
 Prerequisites: S01; choose feed enablement/network budget/cadence and approve external synchronization when needed. Codex can implement CISA/GHSA/OSV adapters against fixtures first; no feeds are contacted in S00. If NVD selected, human requests/activates API key and enters server env. For project exposure, Guard owner must provide genuinely observed inventory with scan/commit/package/version/ecosystem/sourcePath/license evidence through GRD-020, or separately approve authorized lockfile reads with repository-only labels. Do not run customer scans from Sentinel.
 
@@ -169,3 +171,11 @@ Prerequisites: active packets tested; inspect original-vs-integrated UI, two-pro
 | Public exposure/tunnel/provider callbacks                                            | Target owner, DEFERRED                            | Not required for S00 or localhost ingest tests; explicit allowed HTTPS endpoint and signatures before enabling later.                                                                        |
 
 No entry is CONFIGURED/TESTED merely because a contract or mock exists. Existing user provider setup was not inspected, so this file does not assert it is missing globally.
+
+## H-S09-DEVDB - persistent `wetscan_dev` upgrade to `0009` (new, S09)
+
+**Status: PENDING (owner). `NOT_RUN` - the persistent development database was not inspected or changed.** Follow `H-S06-ROLE` and `H-S08-DEVDB`, then apply `0005`-`0009` after a verified backup and issue new sealed `app`/`worker` approvals bound to plan sha256 `94f99d996e08bec042aa11a2295087dd69cd35a64d2fc48211292817b287831c` (details in `SENTINEL_S09_MIGRATION_REVIEW.md`). No backfill: the catalog starts empty and is filled only by worker syncs; inventory is collected by an explicit user action.
+
+## H-S09-OSV-QUERY - send project package versions to OSV (new, S09)
+
+**Status: NOT_APPROVED (default off, owner decision).** S09 enriches OSV only by already-known public GHSA ids, so no private dependency data leaves the system. An OSV `querybatch` over a project's lockfile (broader coverage than GHSA-seeded enrichment) discloses package names/versions of a private repository to a third party; implement only after the owner records approval, scope and retention.
