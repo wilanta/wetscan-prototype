@@ -14,7 +14,7 @@ export async function createPostgresFixture() {
  const root=await mkdtemp(join(tmpdir(),"wetscan-g01-snapshot-pg-fixture-"));await secureSnapshotDirectory(root);
  const runId=randomUUID(),name="wetscan-g02-pg-fixture-"+runId,volume=name+"-data";
  const image="docker.io/library/postgres@sha256:12060a1464f232e4f8c721538b342687c6f17cead32a389586cd683262b1d848";
- const docker=installationDocker("C:/Users/HP VICTUS/AppData/Local/Programs/DockerDesktop/resources/bin/docker.exe","npipe:////./pipe/docker_engine",resolve(".local/g02-install/docker-config"));
+ const docker=installationDocker(process.env.G02_INSTALL_DOCKER??"","npipe:////./pipe/docker_engine",resolve(".local/g02-install/docker-config"));
  const port=await new Promise<number>((done,fail)=>{const s=createServer();s.on("error",fail);s.listen(0,"127.0.0.1",()=>{const n=(s.address() as {port:number}).port;s.close(()=>done(n));});});
  if(port===5432||port<1024)throw Error("fixture_port_denied");
  const target={host:"127.0.0.1",port,database:"wetscan_dev_guardg02",marker:"wetscan-s01:"+randomUUID()};

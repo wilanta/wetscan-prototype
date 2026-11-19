@@ -46,7 +46,7 @@ export const scannerCommands = {
   ],
 } as const;
 export const installedScope = {
-  opengrep: "180 pinned official JavaScript/TypeScript security rule files",
+  opengrep: "pinned official JavaScript/TypeScript security rule files (count recorded in rules-manifest.json)",
   "osv-scanner":
     "npm lockfiles in bounded snapshot, recursive; full official npm snapshot",
   gitleaks: "official default config v8.30.1",

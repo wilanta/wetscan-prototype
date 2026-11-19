@@ -173,14 +173,14 @@ async function main() {
   const bytes = await readFile(reportFile),
     r = JSON.parse(bytes.toString()) as Measurement;
   const context = resolve(".local/g02-install/context");
-  const rules = await readFile(resolve(".local/g02-completion-public/rules-manifest-v2.json")),
+  const rules = await readFile(join(context, "rules-manifest.json")),
     osv = await readFile(join(context, "osv-db-manifest.json"));
   const digests = {
     opengrep: sha(rules),
     "osv-scanner": sha(osv),
     gitleaks: sha(await readFile(join(context, "config/gitleaks.toml"))),
     trivy: sha(r.imageId + ":embedded-IaC-v0.76.2"),
-    "trivy-image": sha(await readFile(resolve(".local/g02-completion-public/trivy-db-oci-manifest.json"))),
+    "trivy-image": sha(await readFile(join(context, "trivy-db-manifest.json"))),
   };
   const records = measuredDeployments(r, digests, sha(bytes));
   const deployments = [];

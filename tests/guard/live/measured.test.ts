@@ -55,7 +55,7 @@ function fixture() {
           spec: {
             ...deploymentFixture().deployments[0].spec,
             image: "sha256:" + "a".repeat(64),
-            executable: "/usr/local/bin/" + cli,
+            executable: "/usr/local/bin/" + (cli === "trivy-image" ? "trivy" : cli),
             args: scannerCommands[cli as keyof typeof scannerCommands],
             timeoutMs: 45000,
           },
@@ -73,7 +73,10 @@ const digests = Object.fromEntries(
 it("derives installation records only, with bounded freshness and exact measured specs", () => {
   const r = fixture(),
     d = measuredDeployments(r, digests, "c".repeat(64));
-  expect(d).toHaveLength(5);
+  expect(d).toHaveLength(6);
+  expect(d.find((r) => r.engine === "container")?.spec.executable).toBe(
+    "/usr/local/bin/trivy",
+  );
   expect(d.find((r) => r.engine === "sbom")?.spec).toEqual(
     d.find((r) => r.engine === "sca")?.spec,
   );

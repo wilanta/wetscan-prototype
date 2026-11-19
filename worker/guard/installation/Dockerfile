@@ -1,10 +1,11 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 COPY bin/ /opt/guard/bin/
-COPY rules/ /opt/guard/rules/
+COPY rules/ /opt/g02/rules/
+COPY trivy-cache/ /opt/g02/trivy-cache/
 COPY config/ /opt/guard/config/
 COPY osv-cache/ /opt/guard/osv-cache/
-COPY official-release-manifest.json rules-manifest.json osv-db-manifest.json /opt/guard/
+COPY official-release-manifest.json rules-manifest.json osv-db-manifest.json trivy-db-manifest.json /opt/guard/
 COPY entry.py control.py /opt/guard/
 RUN python3 -c "from pathlib import Path; [(p.write_bytes(p.read_bytes().replace(bytes([13,10]),bytes([10])))) for p in [Path('/opt/guard/entry.py'),Path('/opt/guard/control.py')]]"
 RUN chmod 0555 /opt/guard/bin/* /opt/guard/entry.py && \

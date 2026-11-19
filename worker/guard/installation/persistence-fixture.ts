@@ -26,7 +26,7 @@ import {ApprovedPool,PlatformDatabase} from "../../../src/platform/database";
 import type {ProductDeployment} from "../../../src/features/guard/live/product-deployment";
 const sha=(b:string|Buffer)=>createHash("sha256").update(b).digest("hex");
 export async function controlledPersistenceFixture() {
- const installation=JSON.parse(await readFile(resolve(".local/g02-completion-install/deployments.measured.json"),"utf8"));
+ const installation=JSON.parse(await readFile(join(process.env.G02_MEASURED_ROOT??resolve(".local/g02-completion-install"),"deployments.measured.json"),"utf8"));
  const f=await createPostgresFixture();
  const scope={mode:"live" as const,workspaceId:"github-user-79991:Controlled scanner persistence",projectId:"github-101"};
  const grant=():Grant=>({...scope,actorId:"github-user-79991",operations:["read","scan","triage","report"],issuedAt:Date.now(),expiresAt:Date.now()+60000});
@@ -63,6 +63,7 @@ export async function controlledPersistenceFixture() {
  }
  // A separate pool after PostgreSQL restart proves persistence, not process memory.
  const config=f.config("app");await f.restart();const pool=new ApprovedPool(config),db=new PlatformDatabase(pool,false,"guard"),freshStore=new PostgresGuardStore(db,repositoryScanKind);
+ for(let n=0;;n++){try{await freshStore.get(grant(),scope,results[0].scanId);break;}catch(e){if(n>=60)throw e;await new Promise(r=>setTimeout(r,1000));}} // PostgreSQL needs a moment after restart
  for(const r of results){const read=await freshStore.get(grant(),scope,r.scanId);assert.equal(read?.revision,r.revision);assert.equal(read?.job.findings.length,r.findings);}
  await pool.end();
  const readConfig={version:1,module:"guard-product-runtime",hosting:"self_hosted_node",target:f.target};await writeFile(join(f.root,"product.readonly.json"),JSON.stringify(readConfig),{flag:"wx",mode:0o600});

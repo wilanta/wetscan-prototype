@@ -6,7 +6,7 @@ export default defineConfig([
   ...nextTs,
   globalIgnores([
     ".next/**",
-    ".local/sentinel/**",
+    ".local/**",
     "tests/canvas/fixture/.next/**",
     "evidence/**",
     "test-results/**",
