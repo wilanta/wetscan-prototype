@@ -7,7 +7,7 @@ import { ApprovedPool, type SqlPool } from "../../../platform/database";
 import { guardDatabaseConfig, guardRoles } from "./database-config";
 import { guardMigrationPlan } from "./migrations";
 import { LiveGuardError } from "./model";
-import { verifiedSnapshotAcl } from "./snapshot-directory";
+import { verifiedSnapshotAcl, aclInspectionScript } from "./snapshot-directory";
 import { fingerprint } from "../../../platform/identity";
 import {
   sandboxControls,
@@ -57,7 +57,7 @@ export async function assertPrivateRuntimeRoot(root: string) {
   const options = {
     env: { NODE_ENV: "production" as const, SystemRoot: os, WINDIR: os },
     windowsHide: true,
-    timeout: 5000,
+    timeout: 20000,
     maxBuffer: 16384,
     encoding: "utf8" as const,
   };
@@ -69,7 +69,7 @@ export async function assertPrivateRuntimeRoot(root: string) {
     sid = who.stdout.match(/S-\d+(?:-\d+)+/)?.[0];
   if (!sid || sid === "S-1-5-18") throw new LiveGuardError("not_configured");
   const literal = "'" + root.replaceAll("'", "''") + "'";
-  const script = `$a=Get-Acl -LiteralPath ${literal}; [pscustomobject]@{owner=$a.GetOwner([System.Security.Principal.SecurityIdentifier]).Value;protected=$a.AreAccessRulesProtected;rules=@($a.GetAccessRules($true,$true,[System.Security.Principal.SecurityIdentifier]) | ForEach-Object {[pscustomobject]@{sid=$_.IdentityReference.Value;inherited=$_.IsInherited;type=[string]$_.AccessControlType;rights=[int]$_.FileSystemRights;inheritance=[int]$_.InheritanceFlags;propagation=[int]$_.PropagationFlags}})} | ConvertTo-Json -Depth 4 -Compress`;
+  const script = aclInspectionScript(literal);
   const acl = await run(
     join(os, "System32/WindowsPowerShell/v1.0/powershell.exe"),
     ["-NoProfile", "-NonInteractive", "-Command", script],

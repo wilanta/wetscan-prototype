@@ -1,5 +1,19 @@
 # CHANGELOG_FIXES
 
+### Fix #18 — Guard private-directory ACL check could never pass on an elevated Windows account and took 20-37 s per call; 25 Guard tests failed on the hosted Windows CI job (verified on windows-2025 runner 2026-11-19)
+
+| Field | Detail |
+| --- | --- |
+| Tanggal | 2026-11-19 |
+| File | `src/features/guard/live/snapshot-directory.ts`, `src/features/guard/live/product-preflight.ts`, `worker/guard/acceptance/private-root.ts` |
+| Masalah | First PR run of the G02 package: `static` job (windows-2025) failed 25 tests in 8 files, all of them creating a secured snapshot/private directory (`secureSnapshotDirectory`, `assertPrivateRuntimeRoot`). Guard G01 code had never run on a hosted runner. |
+| Akar | (1) The runner process is an elevated administrator: new directories are owned by BUILTIN\\Administrators (S-1-5-32-544) and carry an explicit Administrators ACE from the token's default DACL, so the invariant "owner = user, exactly {user, SYSTEM}" was unreachable (fail-closed, correct, but unsatisfiable). (2) The verification script used Get-Acl/ForEach-Object/ConvertTo-Json; with the deliberately minimal child environment their module autoload took 20-37 s per call on the runner (0.3 s locally) against a 5 s budget. Diagnosed with a temporary CI job that timed each step. |
+| Fix | After the existing `icacls /inheritance:r /grant:r`: `/setowner *<user>` and `/remove:g *S-1-5-32-544` (no-ops when already true). Verification script rewritten with language constructs and .NET only (`aclInspectionScript`, same JSON shape; 0.27-0.33 s on the runner), shared by all three call sites; PowerShell budget 20 s. `verifiedSnapshotAcl` is unchanged: exactly owner + SYSTEM, protected, no inherited ACE, full control, same inheritance flags. |
+| Verifikasi | Runner diagnostic: after the icacls sequence owner = user SID and exactly 2 ACEs; pure-language script 270-330 ms x6. Local: `vitest tests/guard` 628/628, typecheck, eslint. Hosted CI result recorded in the PR. |
+| Pelajaran | A security check that fails closed must still be satisfiable by the platform's normal accounts; and never time a check with module-autoloading cmdlets in a minimal environment. |
+| Log Keyword | `aclInspectionScript`, `S-1-5-32-544`, `verifiedSnapshotAcl`, `secureSnapshotDirectory`, `source_unavailable` |
+| Deploy | NOT deployed. |
+
 ### Fix #17 — G02 Retry: authorized re-run of a failed repository scan as a new linked scan (IMPLEMENTED + FIXTURE_VERIFIED 2026-11-19; no real transient provider failure induced)
 
 | Field | Detail |

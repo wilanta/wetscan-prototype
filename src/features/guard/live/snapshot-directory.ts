@@ -37,6 +37,13 @@ export function verifiedSnapshotAcl(value: unknown, owner: string): boolean {
     )
   );
 }
+/**
+ * Reads owner, protection and explicit ACEs of a directory as JSON. Language constructs and .NET only: no
+ * Get-Acl/ForEach-Object/ConvertTo-Json, whose module autoload took 20-37 s with a minimal environment on a hosted
+ * runner (0.3 s this way). `literal` is an already single-quoted PowerShell literal.
+ */
+export const aclInspectionScript = (literal: string) =>
+  `$a=[System.IO.DirectoryInfo]::new(${literal}).GetAccessControl();$j='{"owner":"'+$a.GetOwner([System.Security.Principal.SecurityIdentifier]).Value+'","protected":'+$a.AreAccessRulesProtected.ToString().ToLower()+',"rules":[';$f=$true;foreach($r in $a.GetAccessRules($true,$true,[System.Security.Principal.SecurityIdentifier])){if(-not $f){$j+=','};$f=$false;$j+='{"sid":"'+$r.IdentityReference.Value+'","inherited":'+$r.IsInherited.ToString().ToLower()+',"type":"'+[string]$r.AccessControlType+'","rights":'+[int]$r.FileSystemRights+',"inheritance":'+[int]$r.InheritanceFlags+',"propagation":'+[int]$r.PropagationFlags+'}'};$j+=']}';[Console]::Out.Write($j)`;
 let identity: Promise<string> | undefined;
 /** Only newly created EMPTY owned roots directly under OS temp, before the first source file is written. */
 export async function secureSnapshotDirectory(root: string): Promise<void> {
@@ -79,7 +86,7 @@ export async function secureSnapshotDirectory(root: string): Promise<void> {
     const options = {
       env,
       windowsHide: true,
-      timeout: 5000,
+      timeout: 20000,
       maxBuffer: 16384,
       encoding: "utf8" as const,
     };
@@ -111,8 +118,24 @@ export async function secureSnapshotDirectory(root: string): Promise<void> {
       ],
       options,
     );
+    // An elevated administrator token creates the directory owned by BUILTIN\Administrators with an explicit
+    // Administrators ACE (its default owner/DACL). Make the verified owner the user and drop that ACE so the exact
+    // owner + SYSTEM invariant below is reachable for elevated accounts too (hosted CI runs elevated). Both are no-ops
+    // when already true.
+    await execute(
+      join(os, "System32/icacls.exe"),
+      [actual, "/setowner", `*${sid}`],
+      options,
+    );
+    await execute(
+      join(os, "System32/icacls.exe"),
+      [actual, "/remove:g", "*S-1-5-32-544"],
+      options,
+    );
     const literal = "'" + actual.replaceAll("'", "''") + "'";
-    const command = `$a=Get-Acl -LiteralPath ${literal}; [pscustomobject]@{owner=$a.GetOwner([System.Security.Principal.SecurityIdentifier]).Value;protected=$a.AreAccessRulesProtected;rules=@($a.GetAccessRules($true,$true,[System.Security.Principal.SecurityIdentifier]) | ForEach-Object {[pscustomobject]@{sid=$_.IdentityReference.Value;inherited=$_.IsInherited;type=[string]$_.AccessControlType;rights=[int]$_.FileSystemRights;inheritance=[int]$_.InheritanceFlags;propagation=[int]$_.PropagationFlags}})} | ConvertTo-Json -Depth 4 -Compress`;
+    // Language constructs and .NET only: no Get-Acl/ForEach-Object/ConvertTo-Json, whose module autoload took 20-37 s
+    // with this minimal environment on a hosted runner (0.3 s this way). Output is the same JSON shape as before.
+    const command = aclInspectionScript(literal);
     const result = await execute(
       join(os, "System32/WindowsPowerShell/v1.0/powershell.exe"),
       ["-NoProfile", "-NonInteractive", "-Command", command],

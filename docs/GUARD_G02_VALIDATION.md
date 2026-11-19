@@ -13,7 +13,7 @@
 | Real GitHub → PostgreSQL | REAL_SCANNER_VERIFIED | Private repo `wilanta/wetscan-g02-acceptance`: vulnerable `c1330c63` 34 findings, fixed `3c6a99ec` 0, isolated PostgreSQL 18, restart-persistent. |
 | Product session → operational DB → Live UI | NOT_RUN | Needs owner interactive login and DB credentials. |
 
-Defects found and fixed in this campaign (details in CHANGELOG_FIXES.md Fix #13–#17): Guard plan hash drift against master (platform baseline), IaC engine failing on nested Terraform modules (found only by the real repository), 6-engine measurement fixture, CI-unsafe evidence-retention test and CRLF drift, fixture portability and restart race.
+Defects found and fixed in this campaign (details in CHANGELOG_FIXES.md Fix #13–#18): Guard plan hash drift against master (platform baseline), IaC engine failing on nested Terraform modules (found only by the real repository), 6-engine measurement fixture, CI-unsafe evidence-retention test and CRLF drift, fixture portability and restart race.
 
 Gates on the final candidate are recorded in [G02 handoff](G02_HANDOFF.md) and the PR description.
 

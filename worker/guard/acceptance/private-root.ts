@@ -2,7 +2,10 @@ import { promisify } from "node:util";
 import { execFile } from "node:child_process";
 import { mkdir, lstat, realpath, readdir, chmod } from "node:fs/promises";
 import { resolve, join, sep } from "node:path";
-import { verifiedSnapshotAcl } from "../../../src/features/guard/live/snapshot-directory";
+import {
+  verifiedSnapshotAcl,
+  aclInspectionScript,
+} from "../../../src/features/guard/live/snapshot-directory";
 import { LiveGuardError } from "../../../src/features/guard/live/model";
 const execute = promisify(execFile);
 export function acceptancePrivateRoot() {
@@ -51,7 +54,7 @@ export async function privateAcceptanceRoot(create = false) {
     options = {
       env,
       windowsHide: true,
-      timeout: 5000,
+      timeout: 20000,
       maxBuffer: 16384,
       encoding: "utf8" as const,
     };
@@ -77,9 +80,21 @@ export async function privateAcceptanceRoot(create = false) {
       ],
       options,
     );
+    // Elevated tokens create the directory owned by Administrators with an explicit Administrators ACE; see
+    // secureSnapshotDirectory. Both steps are no-ops otherwise.
+    await execute(
+      join(os, "System32/icacls.exe"),
+      [actual, "/setowner", `*${sid}`],
+      options,
+    );
+    await execute(
+      join(os, "System32/icacls.exe"),
+      [actual, "/remove:g", "*S-1-5-32-544"],
+      options,
+    );
   }
   const literal = "'" + actual.replaceAll("'", "''") + "'",
-    command = `$a=Get-Acl -LiteralPath ${literal}; [pscustomobject]@{owner=$a.GetOwner([System.Security.Principal.SecurityIdentifier]).Value;protected=$a.AreAccessRulesProtected;rules=@($a.GetAccessRules($true,$true,[System.Security.Principal.SecurityIdentifier]) | ForEach-Object {[pscustomobject]@{sid=$_.IdentityReference.Value;inherited=$_.IsInherited;type=[string]$_.AccessControlType;rights=[int]$_.FileSystemRights;inheritance=[int]$_.InheritanceFlags;propagation=[int]$_.PropagationFlags}})} | ConvertTo-Json -Depth 4 -Compress`;
+    command = aclInspectionScript(literal);
   const acl = JSON.parse(
     (
       await execute(
