@@ -26,11 +26,13 @@ async function main() {
   const config = await approvedDatabaseConfig(process.env, "notifier", "runtime", plan.sha256);
   const activation = notificationActivation(config.approval, process.env.SENTINEL_NOTIFIER_ENABLED === "1");
   if (!activation) throw new PlatformError("not_configured");
+  // Rotation/revocation of a secret file takes effect within this window, without a restart.
+  const secretTtl = integer(process.env.SENTINEL_NOTIFIER_SECRET_TTL_MS, 15000, 0, 60000);
   const senders = new Map<NotificationChannel, SenderPort>();
   if (activation.channels.includes("telegram"))
-    senders.set("telegram", new TelegramSender({ token: secretReader(providerEnv, "TELEGRAM_BOT_TOKEN"), baseUrl: providerEnv.TELEGRAM_API_BASE_URL }));
+    senders.set("telegram", new TelegramSender({ token: secretReader(providerEnv, "TELEGRAM_BOT_TOKEN", secretTtl), baseUrl: providerEnv.TELEGRAM_API_BASE_URL }));
   if (activation.channels.includes("email"))
-    senders.set("email", new ResendSender({ apiKey: secretReader(providerEnv, "RESEND_API_KEY"), from: providerEnv.NOTIFICATION_FROM_EMAIL, baseUrl: providerEnv.RESEND_API_BASE_URL }));
+    senders.set("email", new ResendSender({ apiKey: secretReader(providerEnv, "RESEND_API_KEY", secretTtl), from: providerEnv.NOTIFICATION_FROM_EMAIL, baseUrl: providerEnv.RESEND_API_BASE_URL }));
   const pool = new ApprovedPool(config);
   await runNotifier({
     db: new PlatformDatabase(pool, true),

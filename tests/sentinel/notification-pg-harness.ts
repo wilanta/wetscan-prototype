@@ -44,8 +44,8 @@ export const sender = (channel: NotificationChannel, fn: (n: number) => SendOutc
 };
 const hex = () => randomUUID().replace(/-/g, "") + randomUUID().replace(/-/g, "");
 
-export async function setupNotificationHarness(): Promise<NotificationHarness> {
-  const h = await setupHarness({ seedIncident: false });
+export async function setupNotificationHarness(opts: { dbPrefix?: string } = {}): Promise<NotificationHarness> {
+  const h = await setupHarness({ seedIncident: false, dbPrefix: opts.dbPrefix });
   const url = adminUrl();
   const notifierPool = new pg.Pool({ host: url.hostname, port: Number(url.port || 5432), database: h.dbName, user: "wetscan_sentinel_notifier", password: pw, max: 3 });
   const notifier = new PlatformDatabase(notifierPool, true);

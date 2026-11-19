@@ -23,6 +23,8 @@ export function adminUrl() {
 }
 export interface Harness {
   dbName: string;
+  /** `wetscan-s01:<uuid>` database comment: what approvedDatabaseConfig matches for process-level tests. */
+  marker: string;
   admin: pg.Pool; // superuser on the throwaway DB (seeding/inspection only)
   app: PlatformDatabase;
   worker: PlatformDatabase;
@@ -45,6 +47,8 @@ const pool = (url: URL, database: string, user: string, password: string) =>
 
 export async function setupHarness(opts?: {
   seedIncident?: boolean;
+  /** Process-level tests need a name accepted by the approval gate, e.g. `wetscan_s01_test`. */
+  dbPrefix?: string;
 }): Promise<Harness> {
   const url = adminUrl();
   const root = pool(
@@ -53,7 +57,8 @@ export async function setupHarness(opts?: {
     decodeURIComponent(url.username),
     decodeURIComponent(url.password),
   );
-  const dbName = `s05_${randomUUID().replace(/-/g, "").slice(0, 12)}`;
+  const dbName = `${opts?.dbPrefix ?? "s05"}_${randomUUID().replace(/-/g, "").slice(0, 12)}`;
+  const marker = `wetscan-s01:${randomUUID()}`;
   for (const role of [
     "wetscan_migrator",
     "wetscan_app",
@@ -65,6 +70,7 @@ export async function setupHarness(opts?: {
     );
   }
   await root.query(`CREATE DATABASE ${dbName} OWNER wetscan_migrator`);
+  await root.query(`COMMENT ON DATABASE ${dbName} IS '${marker}'`);
   await root.end();
   const admin = pool(
     url,
@@ -167,6 +173,7 @@ export async function setupHarness(opts?: {
   }
   const hn: Harness = {
     dbName,
+    marker,
     admin,
     app,
     worker,

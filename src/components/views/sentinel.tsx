@@ -6,6 +6,7 @@ import { LiveTelemetry } from "@/features/sentinel/components/live-telemetry";
 import { LiveDetection } from "@/features/sentinel/components/live-detection";
 import { LiveIncidents } from "@/features/sentinel/components/live-incidents";
 import { LiveResponses } from "@/features/sentinel/components/live-responses";
+import { LiveNotifications } from "@/features/sentinel/components/live-notifications";
 import {
   ArrowLeft,
   ArrowRight,
@@ -114,6 +115,8 @@ export function Sentinel({
     );
   if (projectId && section === "/responses")
     return <LiveResponses projectId={projectId} key={projectId} />;
+  if (projectId && section === "/notifications")
+    return <LiveNotifications projectId={projectId} key={projectId} />;
   if (projectId && (section === "/rules" || section === "/alerts"))
     return (
       <LiveDetection
