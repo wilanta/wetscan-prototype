@@ -49,7 +49,7 @@ things below are kept apart on purpose:
 | B-2 | No real notification delivery evidence (`H04`/`H05`) | consented Telegram/Resend destination + owner-approved test; remember accepted != delivered |
 | B-3 | No staging environment, no production database/monitoring/alerting/backup schedule | provision, then rerun the runbook section 4 promotion criteria there |
 | B-4 | No real response target exercise (`H03`); production blocking is unverified | owner-approved staging target only |
-| B-5 | CI has not yet run on a protected branch with required checks (see register F) | enable Actions, make the four jobs required |
+| B-5 | CI is green on the PR (register F) but **no branch protection / required checks** exist and dependency review is blocked by repository settings | owner enables required checks (O-5) and GHAS/dependency graph if wanted |
 | B-6 | Feature activation was never exercised on a persistent database | owner approves activation blocks for one project and a smoke run |
 
 ## 4. Residual risks and accountable owner

@@ -123,7 +123,10 @@ sync scope when possible; the dump contains tenant data and credential hashes. O
 ## 4. Deployment and release
 
 1. Freeze the candidate SHA; CI (`.github/workflows/ci.yml`) must be green: `static` (typecheck, lint, unit, secret scan,
-   `npm audit`), `build`, `postgres` (S01/S05-S11 suites on a disposable service), `browser`.
+   `npm audit`), `build`, `postgres` (S01/S05-S11 suites on two disposable service containers), `browser`. Hosted-runner notes: the Windows unit
+   job pins `PSModulePath` and `TEMP` (S04 owner-runner suites); `.gitattributes` keeps `*.ps1` on LF (their SHA-256 pins); the S01
+   suite gets a CI-generated approval (`scripts/sentinel-ci-s01-fixture.ts`) that names itself a CI fixture and cannot reach any
+   persistent database. Make the four jobs **required** in branch protection (owner O-5); dependency review needs GitHub Advanced Security.
 2. Staging promotion criteria: the above + owner UAT of the original Orderly Demo, a real-session login on a test repository,
    migrations applied to a **staging clone** first, worker started without activation blocks, health `ready`.
 3. Rollout order: DB backup -> migrate -> worker (no activation) -> app -> activation blocks one capability at a time

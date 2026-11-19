@@ -14,7 +14,7 @@ DEV-PG (owner persistent database).
 | A1-2 | static | clean tree / `npm run lint` / exit 0 | PASS |
 | A1-3 | unit | clean tree / `vitest run` / 2098/2098 | PASS |
 | A1-4 | build | clean tree / `npm run build` / exit 0 (no dotenv needed) | PASS |
-| A1-5 | repeat | each gate was executed on the clean master baseline and again on the candidate / no flaky failure observed (PG suites and browser suites ran twice) | PASS locally; repeat on a CI runner NOT_RUN |
+| A1-5 | repeat | each gate ran on the clean master baseline, on the candidate locally, and on GitHub-hosted runners / identical counts (2098 unit, 77 browser, 142 PG) | PASS (CI repeat executed; two failures that looked flaky were diagnosed as a hydration race and a teardown error, see register F) |
 
 ## S11-A2 - PostgreSQL and two-project isolation
 | ID | Level | Given / When / Then | Result |
@@ -85,11 +85,11 @@ DEV-PG (owner persistent database).
 ## S11-A6 - CI and secret protection
 | ID | Level | Given / When / Then | Result |
 | --- | --- | --- | --- |
-| A6-1 | static | `ci.yml` jobs: static, build, postgres, browser (+ advisory dependency-review) / syntax + pinned SHAs + minimal permissions | configured (see register section F for execution) |
+| A6-1 | CI | `ci.yml` jobs static, build, postgres, browser (+ advisory dependency-review) on a real PR / pinned SHAs, minimal permissions | **PASS** 4/4 enforced jobs at `cf61ff3`; dependency review BLOCKED (repo setting) |
 | A6-2 | unit | secret scan detects 5 credential shapes, ignores loopback/placeholder URLs, never echoes values, flags tracked dotenv | PASS 10/10 |
 | A6-3 | static | secret scan over all tracked files / 0 findings (5 reviewed fixtures allow-listed by exact file+rule) | PASS |
 | A6-4 | static | `npm audit` / 0 vulnerabilities | PASS |
-| A6-5 | CI | CI never targets `wetscan_dev`: only a loopback disposable service container; harnesses refuse non-loopback hosts | by construction; PASS locally |
+| A6-5 | CI | CI never targets `wetscan_dev`: only two loopback disposable service containers; harnesses refuse non-loopback hosts; the CI approval is self-labelled and carries no authority | PASS (executed on a hosted runner) |
 
 ## S11-A7 - H09
 | ID | Deliverable | Status |

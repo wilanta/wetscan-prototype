@@ -20,6 +20,9 @@ Findings are never silently dismissed; each has a disposition. Evidence IDs refe
 | S11-F7 | Info | Health JSON still reports `telemetry: "not_implemented"` (S01 label; telemetry shipped in S02). | Documented in the runbook; asserted by an existing test, left to avoid contract churn. |
 | S11-F8 | Info | `scripts/sentinel-worker-smoke.ts` hardcodes the S01 plan hash and cannot run against later plans. | Historical; real worker start/stop was verified with `main.ts --once` instead (DB-12). |
 | S11-F9 | Info (operational hazard) | The persistent dev database at `127.0.0.1:55432` is served by a **clone-volume container** (`wetscan-sentinel-s04-postgres-...`, volume `..._dev_clone_20261117_...`). The original container `wetscan-sentinel-local-postgres-1` (older volume) is stopped and claims the same port. | Documented. The original volume was not touched. Do not start both. Owner decision O-4. |
+| S11-F11 | **Medium** (integrity/portability) | The S04 audit/provision PowerShell scripts are pinned by SHA-256 over their **LF** bytes (`Invoke-S04AuditProcedure.ps1` pins `sentinel-provision-common.ps1`). Any CRLF checkout (Windows `autocrlf`, hosted runners) changes the bytes and the pin correctly fails closed - the owner procedure would be unusable on such a clone. Found by the first hosted CI run. | **FIXED**: `.gitattributes` `*.ps1 text eol=lf`. The pin mechanism itself was left unchanged. |
+| S11-F12 | Low (test hygiene) | PG harness teardown (`DROP DATABASE ... FORCE`) terminated idle pooled connections; the unhandled pool `error` made an all-green job exit 1. | **FIXED** in test infrastructure (only `57P01/ECONNRESET/EPIPE` tolerated; any other pool error still throws). |
+| S11-F13 | Info | Hosted Windows runners need `PSModulePath` and `TEMP` pinned for the owner-runner suites; `actions/dependency-review-action` needs GitHub Advanced Security / dependency graph (`Forbidden`). | Pinned in `ci.yml`; dependency review stays advisory and `BLOCKED` until O-5. |
 | S11-F10 | Info | 8 queued + 1 failed `sentinel.telemetry.accepted` jobs from S02-S04 acceptance (~4 days old) remain on the dev DB. | Preserved as history (no activation, so they are not drained). |
 
 No Critical or High finding was identified. Nothing was weakened to obtain a pass.
@@ -39,9 +42,9 @@ No Critical or High finding was identified. Nothing was weakened to obtain a pas
 | Output rendering | No `dangerouslySetInnerHTML`, `innerHTML`, `eval` or `new Function` in `src`. |
 | Secrets | Secret scan: 0 findings across all tracked files (five reviewed synthetic fixtures allowlisted by exact file+rule); no tracked dotenv; `.env*` ignored. Scan output prints no values. |
 | Supply chain | `npm audit`: 0 vulnerabilities at the S11 candidate. Dependency-review job is advisory (needs GitHub Advanced Security on private repos). Actions are pinned by commit SHA. |
-| CI posture | `permissions: contents: read`, no secrets, no `pull_request_target`, disposable loopback service DB only, 7-day bounded failure artifacts. |
+| CI posture | `permissions: contents: read`, no secrets, no `pull_request_target`, disposable loopback service DBs only, 7-day bounded failure artifacts. **Executed**: all four enforced jobs green on GitHub-hosted runners at PR head `cf61ff3` (register F). No production or `wetscan_dev` credential exists in CI. |
 
 ## 3. Not proven (do not read as safe)
 
 Real GitHub-session E2E; real Telegram/Resend delivery; real response target; production database; load/DoS limits beyond the
-documented caps; third-party penetration test; browser-side CSP; GitHub Actions *execution* until the PR run reports.
+documented caps; third-party penetration test; browser-side CSP; branch protection / required checks (the jobs run but nothing forces them yet); dependency review (blocked by repository settings).

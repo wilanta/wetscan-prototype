@@ -13,7 +13,7 @@ Times are UTC. Branch `feat/sentinel-s11-hardening-handoff`.
 | Item | Value |
 | --- | --- |
 | Base | `master@0ab92568af6b51d769e6334404448694f0cab9ec` (S10 merge, PR #14); clean tree, identical to `origin/master` |
-| Code candidate | `1e446cda1b7a59629a4f55b8d93644bfbcd9b7ca` (S11 code commit; the final matrix below ran on this exact tree, `git status` clean at start) |
+| Code candidate | `1e446cda1b7a59629a4f55b8d93644bfbcd9b7ca` (S11 application/code commit; the local final matrix in section B ran on this exact tree, `git status` clean at start). Later PR commits changed **only CI/test infrastructure and docs** (`.github/`, `.gitattributes`, `scripts/sentinel-ci-s01-fixture.ts`, `tests/sentinel/pg-idle-error-setup.ts`, PG configs, one Playwright wait, docs); `src/`, `worker/` and `next.config.ts` are byte-identical to `1e446cd`. Section F records GitHub-hosted results at the PR head. |
 | Migration plan (frozen) | `94f99d996e08bec042aa11a2295087dd69cd35a64d2fc48211292817b287831c`, 9 versions `0001`-`0009`; **S11 adds no migration** |
 | Active packages | S00-S10 (all). Deferred: Guard GRD-020/021, WhatsApp, NVD, AI port, production. |
 
@@ -85,7 +85,7 @@ real telemetry, response or notification traffic.
 
 | ID | Item | Status | Reason |
 | --- | --- | --- | --- |
-| N-1 | GitHub Actions execution of `ci.yml` | **see section F** | configured != executed |
+| N-1 | GitHub Actions execution of `ci.yml` | **EXECUTED - see section F** (4 enforced jobs green at `cf61ff3`; advisory dependency review `BLOCKED` by repository settings) | - |
 | N-2 | Authenticated real-GitHub-session E2E (`H-S10-E2E`) | NOT_RUN | no real owner session was driven; fixture identities only |
 | N-3 | Real Telegram/Resend delivery | NOT_RUN | no consented destination/provider token configured; mock providers only |
 | N-4 | Real response target (`H03`) | NOT_RUN | loopback fixture only |
@@ -95,3 +95,39 @@ real telemetry, response or notification traffic.
 | N-8 | Production | NOT_RUN | no production target authorized |
 | N-9 | Load/flood beyond unit-level caps; third-party pentest | NOT_RUN | out of scope |
 | N-10 | S01 legacy `sentinel-worker-smoke.ts` | NOT_RUN | hardcodes the S01 plan hash (superseded by E-DB-12) |
+
+## F. GitHub Actions (PR #15), class CI-HOSTED (GitHub-hosted `windows-2025` / `ubuntu-24.04`, disposable service containers)
+
+The first runs **failed and are preserved**; each failure was diagnosed from the hosted logs, fixed in the environment or the test
+(no assertion weakened, nothing skipped) and the whole workflow re-run.
+
+| ID | Run (head) | Job | Result | Diagnosis / action |
+| --- | --- | --- | --- | --- |
+| E-F-1 | `44479135365` (`a469913`) | typecheck+lint+unit (Windows) | **FAIL** 96/2098 tests in 7 files (S04 owner-runner suites) | Windows PowerShell 5.1 spawned from Node could not autoload `Microsoft.PowerShell.Security` (`Get-Acl`) because the runner's pwsh `PSModulePath` leaked in -> job runs with `shell: cmd` and an explicit `PSModulePath` |
+| E-F-2 | same | PostgreSQL, build | PASS (1m06s, 1m04s) | - |
+| E-F-3 | same | browser | cancelled by the next push | superseded |
+| E-F-4 | same | dependency review (advisory) | **FAIL** `Forbidden` | dependency graph / GitHub Advanced Security is not enabled for this private repository. **BLOCKED (repo setting, owner O-5)**; the enforced gate is `npm audit` (0 vulnerabilities) |
+| E-F-5 | push `50ba8a0` | workflow-file check | **FAIL** (workflow invalid) | my own edit wrote a control character (0x0B) into a YAML value; repaired, YAML parsed locally before the re-push |
+| E-F-6 | `44480880899` (`2d7d3ce`) | unit (Windows) | **FAIL** 30/2098 | (a) `approval-history` 27 + `owner-reauth` 1: S04 private-root tests need `realpath(root) === root` but the runner's default `%TEMP%` is an 8.3 short path -> `TEMP/TMP = runner.temp`; (b) `audit-diagnostics` 2: see E-F-9 |
+| E-F-7 | same | browser | **FAIL** 1/77: `detection.spec.ts` "invalid advanced conditions" | a click on *Save draft* before React hydration is silently lost (passes locally 6/6): the test now waits for the client-fetched rules before interacting. Not a timeout increase |
+| E-F-8 | `44481908020` (`19d7d59`) | PostgreSQL | **FAIL** (exit 1 with every test green) | vitest "3 unhandled errors": harness `DROP DATABASE ... WITH (FORCE)` kills idle pooled connections (`57P01`) and pg emits an unhandled pool `error` -> `tests/sentinel/pg-idle-error-setup.ts` tolerates only `57P01/ECONNRESET/EPIPE` on pools |
+| E-F-9 | same | unit | **FAIL** 2/2098: `audit-diagnostics` bootstrap tests, stage `bootstrap_common` | `Invoke-S04AuditProcedure.ps1` pins `sentinel-provision-common.ps1` by SHA-256 over **LF** bytes; the Windows runner checks out CRLF -> the pin fails closed (correct behaviour) -> `.gitattributes` `*.ps1 text eol=lf` (**finding S11-F11**; it affects any CRLF clone) |
+| E-F-10 | **`44483248275` (`cf61ff3`)** | **typecheck + lint + unit + secret scan + audit (Windows)** | **PASS** 6m05s | unit **2098/2098 (112 files)**; secret scan 776 files, 0 findings; `npm audit` 0 vulnerabilities |
+| E-F-11 | same | production build (Linux) | **PASS** 45s | - |
+| E-F-12 | same | PostgreSQL service (Linux) | **PASS** 1m14s | S01 14 (CI-generated disposable approval on a second service container), S05 23, S06 22, S07 8, S08 15, S09 41, S10 6, S11 13 |
+| E-F-13 | same | browser (Linux, Playwright `chromium`) | **PASS** 11m25s | 77/77: S10 26, demo 6, telemetry 5, detection 6, incident 3, response 3, notification 6, ghost 4, intelligence 8, external 10 |
+| E-F-14 | same | dependency review (advisory) | FAIL `Forbidden` (BLOCKED, as E-F-4) | does not gate |
+
+Branch protection / required status checks: **not configured** (master unprotected; historical API answer 404). The four jobs
+*can* be made required (owner action O-5); until then CI is informative, not enforcing.
+
+## G. Local re-check at the PR head `cf61ff3` (Windows 11, 2026-11-19 08:06-08:10 UTC)
+
+| ID | Command | Result |
+| --- | --- | --- |
+| E-G-1 | `npm run typecheck` / `npm run lint` | PASS / PASS |
+| E-G-2 | `npx vitest run` | PASS **2098/2098**, 112 files |
+| E-G-3 | `npm run build` | PASS |
+| E-G-4 | `npm run sentinel:secret-scan` / `npm audit --audit-level=high` | 776 files, 0 findings / 0 vulnerabilities |
+| E-G-5 | S10, S11, S08 PG suites and `detection` browser suite after the infrastructure changes | PASS 6/6, 13/13, 15/15, 6/6 |
+| E-G-6 | S01 gated suite through the new CI fixture script against a fresh container (`scripts/sentinel-ci-s01-fixture.ts`) | PASS 14/14 |
