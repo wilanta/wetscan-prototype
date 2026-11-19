@@ -46,6 +46,10 @@ jobs:
         # the first PR run, 2026-11-19). Pinning PSModulePath fixes the environment; no test is skipped.
         shell: cmd
         env:
+          # runner.temp is a long path; the default TEMP (user profile, RUNNER~1) is an 8.3 short path and the S04
+          # private-root tests require realpath(root) === root.
+          TEMP: ${{ runner.temp }}
+          TMP: ${{ runner.temp }}
           PSModulePath: C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell\v1.0\Modules
         run: npm test
       - name: Secret scan (prints file:line:rule only, never values)

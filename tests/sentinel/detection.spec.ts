@@ -230,6 +230,8 @@ test("invalid advanced conditions fail locally without sending a write", async (
 }) => {
   const writes = await mock(page);
   await page.goto("/app/detection-fixture");
+  // Rules arrive via a client fetch, so their presence proves hydration; a click before it is silently lost (CI race).
+  await expect(page.getByRole("button", { name: "Inspect rule" }).first()).toBeVisible();
   await page
     .getByText("Matching conditions and suppression windows", { exact: true })
     .click();
