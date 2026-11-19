@@ -88,6 +88,19 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 20
+      postgres_s01:
+        # Second, separate disposable server: the approval-gated S01 suite needs roles with long (>=20 char) generated
+        # passwords, whereas the S05-S11 harnesses create the same roles with a fixed short one.
+        image: postgres:17.12-bookworm
+        env:
+          POSTGRES_PASSWORD: ci_throwaway_pw
+        ports:
+          - 127.0.0.1:55433:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
     env:
       # Loopback-only, ephemeral container. The harnesses refuse any non-loopback host.
       SENTINEL_S05_PG_ADMIN_URL: postgres://postgres:ci_throwaway_pw@127.0.0.1:55432/postgres
@@ -104,6 +117,12 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci --ignore-scripts
+      - name: S01 platform fixture (generates a CI-only approval for a disposable database)
+        env:
+          SENTINEL_CI_S01_ADMIN_URL: postgres://postgres:ci_throwaway_pw@127.0.0.1:55433/postgres
+        run: node --import tsx scripts/sentinel-ci-s01-fixture.ts
+      - name: S01 platform queue/outbox/RLS (approval-gated)
+        run: npm run test:platform:postgres
       - name: S05 response
         run: npm run test:sentinel:response:postgres
       - name: S06 notifications
