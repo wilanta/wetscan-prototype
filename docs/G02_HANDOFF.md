@@ -16,6 +16,7 @@ The old `feat/guard-g02-g06-integration` branch was 47 commits behind master. On
 | Scanner image | `worker/guard/installation/build-context.ts` rebuilds the pinned scanner image reproducibly (checksum-verified binaries, 74 official JS/TS rules at commit `f1d2b562`, OSV npm snapshot, Trivy DB, `--network none` build). Dockerfile aligned with `commands.ts`. |
 | Evidence/EOL | `.gitattributes`: `docs/acceptance/** -text` (historical evidence is hash-verified over exact bytes). `evidence-retention` verifies every tracked artifact byte for byte and tolerates at most 3 gitignored local-only artifacts. |
 | Tests | `measured.test.ts` (6 engines, trivy-image executable), `s11-secret-scan` explicit 30 s budget (1.6 s alone, >5 s under worker contention), `retry.test.ts`, directory-summary test, Retry browser test. |
+| Legacy browser tests | Two master tests encoded the pre-Guard-Live UI and were adapted (not weakened): `tests/e2e/interaction.spec.ts` expands the collapsed "Original Orderly example walkthrough" before `Simulate scan` (Guard Demo rework from G01/G02); `tests/e2e/github-canvas.spec.ts` now expects a real project's Guard link to open the real Guard page and reaches the demo Canvas directly (same rule S10 applies to Sentinel). |
 | CI | Browser job also runs Guard Live UI (mocked transport) and the Guard Demo regression. Required S11 jobs untouched. |
 | Portability | `postgres-fixture.ts` no longer hardcodes another machine's Docker path; persistence fixture waits for PostgreSQL after restart. ESLint ignores `.local/**`. |
 
