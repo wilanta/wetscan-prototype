@@ -892,7 +892,9 @@ describe("S06-A7 revocation, destination change and tenant/role isolation", () =
   });
   it("down migration refuses while any notification row exists; the 0006 plan hash is distinct from the reviewed S04/S05 prefixes", async () => {
     const full = await migrationPlan();
+    const s06 = await migrationPlan("0006_notifications");
     const s05 = await migrationPlan("0005_response");
+    expect(s06.sha256).not.toBe(s05.sha256);
     expect(full.sha256).not.toBe(s05.sha256);
     const { applyMigrations } = await import("../../src/platform/migrations");
     const url = new URL(process.env.SENTINEL_S05_PG_ADMIN_URL!);
@@ -904,17 +906,31 @@ describe("S06-A7 revocation, destination change and tenant/role isolation", () =
       password: "s05_local_only_pw",
       max: 1,
     });
-    await expect(
-      applyMigrations(migrator, full.migrations, "down"),
-    ).rejects.toThrow();
-    expect(
-      (
+    try {
+      // Later empty migrations (e.g. 0007_ghost) sit on top of 0006: reverse them first, then verify 0006 refuses while populated.
+      const applied = (
         await rows(
-          "SELECT version FROM platform.schema_migrations ORDER BY version",
+          "SELECT version FROM platform.schema_migrations ORDER BY version DESC",
         )
-      ).map((r) => r.version),
-    ).toContain("0006_notifications");
-    await migrator.end();
+      ).map((r) => r.version as string);
+      for (const v of applied) {
+        if (v <= "0006_notifications") break;
+        await applyMigrations(migrator, full.migrations, "down");
+      }
+      await expect(
+        applyMigrations(migrator, full.migrations, "down"),
+      ).rejects.toThrow();
+      expect(
+        (
+          await rows(
+            "SELECT version FROM platform.schema_migrations ORDER BY version",
+          )
+        ).map((r) => r.version),
+      ).toContain("0006_notifications");
+      await applyMigrations(migrator, full.migrations, "up");
+    } finally {
+      await migrator.end();
+    }
   });
 });
 

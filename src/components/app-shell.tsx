@@ -54,7 +54,7 @@ const manage = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const realProject =
-    /^\/app\/projects\/github-[1-9]\d*\/(?:canvas|sentinel(?:\/(?:activity|sources))?)$/.test(
+    /^\/app\/projects\/github-[1-9]\d*\/(?:canvas|sentinel(?:\/(?:activity|sources|rules|alerts|incidents(?:\/[a-f0-9-]+)?|responses|notifications|ghost))?)$/.test(
       pathname,
     );
   const accountState = useDashboardAccount();
@@ -102,7 +102,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {label === "Sentinel" && (
             <div className="nav-children">
               <Link
-                href={`${PROJECT}/sentinel/ghost`}
+                href={
+                  realProject
+                    ? `/app/projects/${pathname.split("/")[3]}/sentinel/ghost`
+                    : `${PROJECT}/sentinel/ghost`
+                }
                 onClick={() => setMobile(false)}
                 className={pathname.endsWith("/ghost") ? "active" : ""}
               >
@@ -197,7 +201,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
             <p>
               {realProject ? (
-                "Guard: Not yet scanned · Open Sentinel to check telemetry sources. Ghost and Intelligence open Orderly Demo."
+                "Guard: Not yet scanned · Open Sentinel to inspect live sources and Ghost Lite. Intelligence opens Orderly Demo."
               ) : (
                 <>
                   Real clarity. Sample data.

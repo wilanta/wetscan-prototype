@@ -139,6 +139,59 @@ describe("S02 strict telemetry validation (offline)", () => {
       /123|secret|alice|token_abcd|password/,
     ),
   );
+  it("preserves S07 static decoy paths while still redacting trailing segments and queries", () => {
+    expect(redactRoute("/__wetscan/ghost-decoy")).toBe(
+      "/__wetscan/ghost-decoy",
+    );
+    expect(redactRoute("/__wetscan/ghost-decoy/user123?token=abc")).toBe(
+      "/__wetscan/ghost-decoy/:redacted",
+    );
+  });
+  it("validates bounded Ghost decoy attributes and rejects arbitrary attribute values", () => {
+    const b = batch();
+    const corr = randomUUID();
+    const safe = parseBatch(
+      {
+        ...b,
+        events: [
+          {
+            ...b.events[0],
+            kind: "ghost.decoy_triggered",
+            attributes: {
+              reasonCode: "decoy_hit",
+              decoyPathCategory: "wetscan_decoy",
+              signalClassification: "controlled_test_hit",
+              correlationId: corr,
+            },
+          },
+        ],
+      },
+      scope.projectId,
+      now,
+    );
+    expect(safe.events[0].attributes).toEqual({
+      reasonCode: "decoy_hit",
+      decoyPathCategory: "wetscan_decoy",
+      signalClassification: "controlled_test_hit",
+      correlationId: corr,
+    });
+    expect(() =>
+      parseBatch(
+        {
+          ...b,
+          events: [
+            {
+              ...b.events[0],
+              kind: "ghost.decoy_triggered",
+              attributes: { signalClassification: "secret_leak" },
+            },
+          ],
+        },
+        scope.projectId,
+        now,
+      ),
+    ).toThrow("invalid_attribute");
+  });
   it("rejects malformed method/status/attributes and timestamp dates", () => {
     const b = batch();
     for (const extra of [

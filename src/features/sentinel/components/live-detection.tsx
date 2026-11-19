@@ -215,6 +215,7 @@ export function LiveDetection({
           ["Detection Rules", "/rules"],
           ["Alerts", "/alerts"],
           ["Incidents", "/incidents"],
+          ["Ghost", "/ghost"],
         ].map(([label, path]) => (
           <Link
             key={path}
