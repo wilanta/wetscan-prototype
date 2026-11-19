@@ -7,6 +7,7 @@ import { Canvas } from "@/components/views/canvas";
 import { CanvasLoading } from "./canvas-loading";
 import { SourceError } from "./source-error";
 import { sessionCanvasPersistence } from "../adapters/persistence";
+import { sentinelOverlaySource } from "../adapters/sentinel-overlay";
 import styles from "./canvas.module.css";
 
 export function LiveCanvas({
@@ -131,10 +132,16 @@ export function LiveCanvas({
     };
   }, [run, initialEntry]);
   const scope = entry?.scope;
+  const graphRevision = entry?.graph.revision;
   const ports = useMemo(
     () =>
-      scope ? { persistence: sessionCanvasPersistence(scope) } : undefined,
-    [scope],
+      scope && graphRevision
+        ? {
+            persistence: sessionCanvasPersistence(scope),
+            overlays: sentinelOverlaySource(projectId, graphRevision),
+          }
+        : undefined,
+    [scope, graphRevision, projectId],
   );
   if (!entry)
     return error ? <SourceError message={error} /> : <CanvasLoading />;

@@ -126,16 +126,47 @@ export function Inspector({
               <h3>Related activity</h3>
               {security.incidents
                 .filter((i) => i.nodeId === node.id)
-                .map(
-                  (i) =>
-                    i.href && (
-                      <LinkButton key={i.id} href={i.href}>
-                        View simulated incident
+                .map((i) => (
+                  <div className="inspector-finding" key={i.id}>
+                    <Badge tone="amber">
+                      {i.simulated
+                        ? "Synthetic / Demo"
+                        : i.provenance?.origin === "controlled_test"
+                          ? "Controlled test"
+                          : "Runtime"}{" "}
+                      · {i.status}
+                    </Badge>
+                    <strong>{i.title}</strong>
+                    {i.provenance && (
+                      <p>
+                        Matched by{" "}
+                        {i.provenance.mapping.basis === "route_exact"
+                          ? "exact route"
+                          : "route with redacted segments (weaker)"}{" "}
+                        {i.provenance.mapping.routes.join(", ")} ·{" "}
+                        {i.provenance.evidenceIds.length} evidence event(s) ·
+                        last observed {i.provenance.lastObservedAt}
+                      </p>
+                    )}
+                    {i.href && (
+                      <LinkButton href={i.href}>
+                        {i.simulated
+                          ? "View simulated incident"
+                          : "View incident evidence"}
                       </LinkButton>
-                    ),
-                )}
+                    )}
+                  </div>
+                ))}
               {!security.incidents.some((i) => i.nodeId === node.id) && (
-                <p>Monitoring not connected.</p>
+                <p>
+                  {security.sentinel === "not_monitored"
+                    ? "Monitoring not connected."
+                    : security.sentinel === "available"
+                      ? "No open incident is mapped to this component. This does not establish that it is safe."
+                      : "No incident is mapped to this component, but coverage is " +
+                        security.sentinel +
+                        ". This does not establish that it is safe."}
+                </p>
               )}
               <h3>Recommended next step</h3>
               <p>

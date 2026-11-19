@@ -1,4 +1,5 @@
 "use client";
+import { LiveSentinelNav } from "./live-nav";
 import { useCallback, useEffect, useState } from "react";
 import {
   Badge,
@@ -152,6 +153,7 @@ export function LiveResponses({ projectId }: { projectId: string }) {
         title="Controlled responses"
         description="Narrowly approved, reversible and independently verified responses on an owner-controlled local fixture."
       />
+      <LiveSentinelNav projectId={projectId} active="/responses" />
       <Notice tone="neutral">
         Local fixture only. No production firewall, WAF, CDN or cloud change is
         ever made from here. Applied is not verified; verification needs a

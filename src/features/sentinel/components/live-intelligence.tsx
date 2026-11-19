@@ -1,4 +1,5 @@
 "use client";
+import { LiveSentinelNav } from "./live-nav";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
@@ -146,27 +147,7 @@ export function LiveIntelligence({ projectId }: { projectId: string }) {
         title="Evidence-based case library."
         description="Durable cases archived from your real S04 incidents, explainable pattern groups, and DRAFT rule candidates that only a human can review. Nothing here is simulated, and nothing is enabled automatically."
       />
-      <nav className="page-tabs" aria-label="Sentinel live sections">
-        {[
-          ["Event Explorer", ""],
-          ["Telemetry sources", "/sources"],
-          ["Detection Rules", "/rules"],
-          ["Alerts", "/alerts"],
-          ["Incidents", "/incidents"],
-          ["Responses", "/responses"],
-          ["Notifications", "/notifications"],
-          ["Ghost", "/ghost"],
-          ["Intelligence", "/intelligence"],
-        ].map(([label, path]) => (
-          <Link
-            key={path}
-            href={`/app/projects/${projectId}/sentinel${path}`}
-            aria-current={path === "/intelligence" ? "page" : undefined}
-          >
-            {label}
-          </Link>
-        ))}
-      </nav>
+      <LiveSentinelNav projectId={projectId} active="/intelligence" />
       <div className="segmented intelligence-tabs" role="group" aria-label="Intelligence source">
         <button className={tab === "internal" ? "selected" : ""} aria-pressed={tab === "internal"} onClick={() => setTab("internal")}>
           Case library (internal)

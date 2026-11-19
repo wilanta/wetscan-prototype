@@ -1,6 +1,6 @@
 "use client";
+import { LiveSentinelNav } from "./live-nav";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import {
   Badge,
   Button,
@@ -210,39 +210,10 @@ export function LiveTelemetry({
         }
         description="Inspect persisted, redacted telemetry for this authorized repository. Detection and alerts are not enabled."
       />
-      <nav className="page-tabs" aria-label="Sentinel telemetry sections">
-        <Link
-          href={`/app/projects/${projectId}/sentinel`}
-          aria-current={!sourcesOnly ? "page" : undefined}
-        >
-          Event Explorer
-        </Link>
-        <Link
-          href={`/app/projects/${projectId}/sentinel/sources`}
-          aria-current={sourcesOnly ? "page" : undefined}
-        >
-          Telemetry sources
-        </Link>
-      </nav>
-      <p>
-        <Link href={`/app/projects/${projectId}/sentinel/rules`}>
-          Detection Rules
-        </Link>
-        {" · "}
-        <Link href={`/app/projects/${projectId}/sentinel/alerts`}>
-          Persisted Alerts
-        </Link>
-        {" · "}
-        <Link href={`/app/projects/${projectId}/sentinel/incidents`}>
-          Incidents
-        </Link>
-        {" · "}
-        <Link href={`/app/projects/${projectId}/sentinel/notifications`}>
-          Notifications
-        </Link>
-        {" · "}
-        <Link href={`/app/projects/${projectId}/sentinel/ghost`}>Ghost</Link>
-      </p>
+      <LiveSentinelNav
+        projectId={projectId}
+        active={sourcesOnly ? "/sources" : "/activity"}
+      />
       <Notice>
         Repository access does not establish runtime monitoring. Runtime and
         controlled-test provenance comes from each registered source. Demo

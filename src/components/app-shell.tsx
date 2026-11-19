@@ -54,7 +54,7 @@ const manage = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const realProject =
-    /^\/app\/projects\/github-[1-9]\d*\/(?:canvas|sentinel(?:\/(?:activity|sources|rules|alerts|incidents(?:\/[a-f0-9-]+)?|responses|notifications|ghost|intelligence))?)$/.test(
+    /^\/app\/projects\/github-[1-9]\d*\/(?:canvas|sentinel(?:\/(?:activity|sources|rules|alerts|incidents(?:\/[a-f0-9-]+)?|responses|notifications|ghost|intelligence|reports))?)$/.test(
       pathname,
     );
   const accountState = useDashboardAccount();
@@ -101,30 +101,40 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
           {label === "Sentinel" && (
             <div className="nav-children">
-              <Link
-                href={
-                  realProject
-                    ? `/app/projects/${pathname.split("/")[3]}/sentinel/ghost`
-                    : `${PROJECT}/sentinel/ghost`
-                }
-                onClick={() => setMobile(false)}
-                className={pathname.endsWith("/ghost") ? "active" : ""}
-              >
-                <Ghost size={15} />
-                Ghost
-              </Link>
-              <Link
-                href={
-                  realProject
-                    ? `/app/projects/${pathname.split("/")[3]}/sentinel/intelligence`
-                    : `${PROJECT}/sentinel/intelligence`
-                }
-                onClick={() => setMobile(false)}
-                className={pathname.endsWith("/intelligence") ? "active" : ""}
-              >
-                <BrainCircuit size={15} />
-                Intelligence
-              </Link>
+              {(realProject
+                ? [
+                    ["Incidents", "/incidents", Radar],
+                    ["Responses", "/responses", ShieldCheck],
+                    ["Notifications", "/notifications", Bell],
+                    ["Ghost", "/ghost", Ghost],
+                    ["Intelligence", "/intelligence", BrainCircuit],
+                    ["Reports", "/reports", FileText],
+                  ]
+                : [
+                    ["Ghost", "/ghost", Ghost],
+                    ["Intelligence", "/intelligence", BrainCircuit],
+                  ]
+              ).map(([text, path, ChildIcon]) => {
+                const root = realProject
+                  ? `/app/projects/${pathname.split("/")[3]}/sentinel`
+                  : `${PROJECT}/sentinel`;
+                return (
+                  <Link
+                    key={path as string}
+                    href={`${root}${path}`}
+                    onClick={() => setMobile(false)}
+                    className={
+                      pathname === `${root}${path}` ||
+                      pathname.startsWith(`${root}${path}/`)
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    <ChildIcon size={15} />
+                    {text as string}
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
