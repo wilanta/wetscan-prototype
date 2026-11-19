@@ -20,6 +20,9 @@ export const securityHeaders = [
 ];
 const config: NextConfig = {
   devIndicators: false,
+  // `next build` type-checks the application graph only. Whole-repo type checking (tests, scripts, physical-scanner tooling)
+  // stays in `npm run typecheck`/CI; the large tooling files do not belong in a deployment build.
+  typescript: { tsconfigPath: "tsconfig.build.json" },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
