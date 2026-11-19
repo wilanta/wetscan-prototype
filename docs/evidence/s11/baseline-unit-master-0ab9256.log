@@ -1,0 +1,13 @@
+
+ RUN  v5.1.0 C:/Users/sheil/OneDrive/Dokumen/Wildhan/projects/wetscan-prototype
+
+
+ Test Files  108 passed (108)
+      Tests  1780 passed (1780)
+   Start at  13:31:49
+   Duration  130.49s (tests 94%, import 5%, transform 1%)
+
+    Isolate  108 workers spawned · ~634ms startup each (spawn + environment, per file)
+             at least ~9.14s faster with isolate: false — reuses workers across files instead of one per file
+
+EXIT=0
