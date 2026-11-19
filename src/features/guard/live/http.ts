@@ -82,6 +82,7 @@ export async function guardRoute(
     | "revision"
     | "preflight"
     | "resume"
+    | "retry"
     | "remediation"
     | "remediation-review"
     | "retest-compare"
@@ -178,6 +179,7 @@ export async function guardRoute(
       access:
         resource === "readiness" ||
         resource === "resume" ||
+        resource === "retry" ||
         (resource === "scans" && request.method === "POST")
           ? "scan"
           : "read",
@@ -218,6 +220,15 @@ export async function guardRoute(
         throw new LiveGuardError("invalid_input", 400);
       return reply(
         await service.resumeProduct(authority, id ?? "", request.signal),
+        202,
+      );
+    }
+    if (resource === "retry") {
+      const v = await boundedJson(request);
+      if (!v || typeof v !== "object" || Object.keys(v).length)
+        throw new LiveGuardError("invalid_input", 400);
+      return reply(
+        await service.retryProduct(authority, id ?? "", request.signal),
         202,
       );
     }

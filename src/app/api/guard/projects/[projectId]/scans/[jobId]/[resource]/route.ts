@@ -43,6 +43,7 @@ export async function POST(
       "reports",
       "product-cancel",
       "resume",
+      "retry",
       "remediation",
       "remediation-review",
       "retest-compare",
@@ -58,6 +59,7 @@ export async function POST(
       | "reports"
       | "product-cancel"
       | "resume"
+      | "retry"
       | "remediation"
       | "remediation-review"
       | "retest-compare"

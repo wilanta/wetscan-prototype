@@ -707,3 +707,75 @@ test("recorded inventory/SBOM download and unknown-severity filter remain separa
     value: commit,
   });
 });
+
+test("failed scan offers one authorized Retry that starts a new linked scan; ineligible failures explain why and send nothing", async ({
+  page,
+}) => {
+  await login(page, 917);
+  const retryId = "e".repeat(64);
+  const failedBase = {
+    ...view(),
+    status: "failed",
+    findings: [],
+    scannerExecution: "NOT_RUN",
+    retryOf: null,
+  };
+  let current: unknown = {
+    ...failedBase,
+    retry: { eligible: true, reason: null, notBefore: null },
+  };
+  const posts: string[] = [];
+  await page.route("**/api/guard/projects/github-101/**", async (route) => {
+    const u = new URL(route.request().url());
+    if (route.request().method() === "POST") {
+      posts.push(u.pathname + " " + (route.request().postData() ?? ""));
+      return route.fulfill({
+        status: 202,
+        json: {
+          scanId: retryId,
+          status: "queued",
+          execution: "repository_scan",
+          scannerExecution: "QUEUED",
+          retryOf: id,
+        },
+      });
+    }
+    return route.fulfill({
+      json: u.pathname.endsWith("/readiness")
+        ? {
+            product: {
+              repositoryScanning: "CONFIGURED",
+              reason: null,
+              allowedEngines: ["sast"],
+            },
+          }
+        : u.pathname.endsWith("/scans")
+          ? { scans: [] }
+          : u.pathname.endsWith("/reports")
+            ? { reports: [] }
+            : current,
+    });
+  });
+  await page.goto(path + "?scan=" + id);
+  const panel = page.getByRole("region", {
+    name: "Guard live workspace",
+    exact: true,
+  });
+  const retry = panel.getByRole("button", {
+    name: "Retry failed scan",
+    exact: true,
+  });
+  await expect(retry).toBeEnabled();
+  await retry.click();
+  await expect(page).toHaveURL(new RegExp("scan=" + retryId));
+  expect(posts).toEqual(["/api/guard/projects/github-101/scans/" + id + "/retry {}"]);
+  // Terminal cause: button is disabled with the recorded reason, and nothing is sent.
+  current = {
+    ...failedBase,
+    retry: { eligible: false, reason: "failure_not_transient", notBefore: null },
+  };
+  await page.goto(path + "?scan=" + id);
+  await expect(retry).toBeDisabled();
+  await expect(panel.getByText(/Retry unavailable: failure not transient/)).toBeVisible();
+  expect(posts).toHaveLength(1);
+});

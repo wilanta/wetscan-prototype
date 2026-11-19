@@ -189,7 +189,10 @@ export function LiveGuardWorkspace({
     setError("");
     try {
       const result = await request(path, value);
-      if (path === "scans" && /^[a-f0-9]{64}$/.test(result.scanId ?? "")) {
+      if (
+        (path === "scans" || path.endsWith("/retry")) &&
+        /^[a-f0-9]{64}$/.test(result.scanId ?? "")
+      ) {
         router.push(base + "?scan=" + result.scanId);
       } else await refresh();
     } catch (e) {
@@ -755,6 +758,42 @@ export function LiveGuardWorkspace({
                   </div>
                 ))}
               </>
+            )}
+            {view.execution === "repository_scan" &&
+              view.status === "failed" &&
+              view.retry && (
+                <div>
+                  <Button
+                    variant="secondary"
+                    disabled={busy || !canScan || !view.retry.eligible}
+                    onClick={() =>
+                      void action("scans/" + view.scanId + "/retry", {})
+                    }
+                  >
+                    Retry failed scan
+                  </Button>
+                  <p>
+                    {view.retry.eligible
+                      ? "Starts a new linked scan of the same pinned commit after fresh authorization. This failed scan and its history are kept."
+                      : "Retry unavailable: " +
+                        String(view.retry.reason).replaceAll("_", " ") +
+                        (view.retry.notBefore
+                          ? " (until " + view.retry.notBefore + ")"
+                          : "") +
+                        "."}
+                  </p>
+                </div>
+              )}
+            {view.retryOf && (
+              <p>
+                Retry of failed scan{" "}
+                <Link
+                  href={base + "?scan=" + encodeURIComponent(view.retryOf)}
+                >
+                  {String(view.retryOf).slice(0, 12)}
+                </Link>
+                .
+              </p>
             )}
             {view.execution === "repository_scan" &&
               !terminal.includes(view.status) && (

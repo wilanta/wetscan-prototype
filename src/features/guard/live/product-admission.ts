@@ -10,6 +10,11 @@ import {
 } from "./model";
 import { scanInput } from "./service";
 import {
+  retryDecision,
+  retryIdempotencyKey,
+  type RetryDecision,
+} from "./retry";
+import {
   requireOperationalJob,
   validateProductPolicy,
   type RepositoryScanPolicy,
@@ -28,10 +33,22 @@ export interface ProductAdmission {
     execution: "repository_scan";
     scannerExecution: "QUEUED";
   }>;
+  retry?(
+    authority: ProjectAuthority,
+    id: string,
+    signal: AbortSignal,
+  ): Promise<{
+    scanId: string;
+    status: ScanJob["status"];
+    execution: "repository_scan";
+    scannerExecution: "QUEUED" | "RECORDED";
+    retryOf: string;
+  }>;
   create(
     authority: ProjectAuthority,
     input: unknown,
     signal: AbortSignal,
+    link?: { of: string; depth: number },
   ): Promise<{
     scanId: string;
     status: ScanJob["status"];
@@ -47,7 +64,7 @@ export function repositoryAdmission(input: {
   verifyReady(): Promise<void>;
   onQueued?(job: ScanJob): Promise<void>;
 }): ProductAdmission {
-  return {
+  const self: ProductAdmission = {
     allowedEngines: [...input.policy.engines],
     imageReference: input.policy.image?.reference,
     async resume(authority, id, signal) {
@@ -104,7 +121,44 @@ export function repositoryAdmission(input: {
         scannerExecution: "QUEUED",
       };
     },
-    async create(authority, value, signal) {
+    async retry(authority, id, signal) {
+      await input.verifyReady();
+      const stored = await input.storage.get(
+        authority.grant,
+        authority.grant,
+        id,
+      );
+      if (!stored) throw new LiveGuardError("not_found", 404);
+      const job = stored.job;
+      requireOperationalJob(authority.grant, job);
+      validateProductPolicy(input.policy, job);
+      // Only the actor who requested the failed scan may retry it; same repository and pinned commit, never a new target.
+      if (job.audit[0]?.actorId !== authority.grant.actorId)
+        throw new LiveGuardError("not_found", 404);
+      const decision: RetryDecision = retryDecision(job);
+      if (!decision.eligible)
+        throw new LiveGuardError(
+          decision.reason === "retry_backoff_active"
+            ? "retry_backoff"
+            : "retry_not_allowed",
+          409,
+        );
+      // Fixed idempotency key: repeated clicks coalesce onto the one retry instead of queueing duplicates.
+      const created = await self.create(
+        authority,
+        {
+          profile: job.profile,
+          engines: job.requestedEngines,
+          branch: job.repository.branch,
+          commit: job.repository.commit,
+          idempotencyKey: retryIdempotencyKey(job),
+        },
+        signal,
+        { of: job.id, depth: decision.depth },
+      );
+      return { ...created, retryOf: job.id };
+    },
+    async create(authority, value, signal, link) {
       const v = scanInput(value);
       // Reject unsupported engines before canonicalizing their order.
       if (v.engines.some((e) => !input.policy.engines.includes(e as never)))
@@ -177,7 +231,8 @@ export function repositoryAdmission(input: {
         reason:
           "Authorized pinned repository scan; policy " +
           input.policy.id +
-          "; no source execution.",
+          "; no source execution." +
+          (link ? " retry_of:" + link.of + ";depth:" + link.depth : ""),
       });
       const stored = await input.storage.create(fresh.grant, job);
       if (stored.job.status === "queued") await input.onQueued?.(stored.job);
@@ -190,4 +245,5 @@ export function repositoryAdmission(input: {
       };
     },
   };
+  return self;
 }

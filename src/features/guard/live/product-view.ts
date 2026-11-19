@@ -5,6 +5,7 @@ import { operationalJob } from "./product-policy";
 import { evaluate, type ReleasePolicy } from "../release";
 import { profiles } from "../pipeline";
 import { repositoryProfiles } from "./scan-profiles";
+import { retryDecision, retryLink } from "./retry";
 export function releasePolicy(value: StoredScan): ReleasePolicy {
   return {
     id: "guard-default-v1",
@@ -16,6 +17,18 @@ export function releasePolicy(value: StoredScan): ReleasePolicy {
     blockSeverities: ["critical", "high"],
     blockPotential: true,
   };
+}
+function retryState(j: StoredScan["job"]) {
+  if (!operationalJob(j))
+    return { eligible: false, reason: "not_repository_scan", notBefore: null };
+  const d = retryDecision(j);
+  return d.eligible
+    ? { eligible: true, reason: null, notBefore: null }
+    : {
+        eligible: false,
+        reason: d.reason,
+        notBefore: d.notBefore ? new Date(d.notBefore).toISOString() : null,
+      };
 }
 /** Never sends private receipts, broker state, source excerpts or unknown JSONB fields to the client. */
 export function storedScanView(authority: ProjectAuthority, value: StoredScan) {
@@ -71,6 +84,8 @@ export function storedScanView(authority: ProjectAuthority, value: StoredScan) {
       intelligence: "NOT_INTEGRATED",
       sentinel: "NOT_INTEGRATED",
     },
+    retryOf: retryLink(j)?.of ?? null,
+    retry: retryState(j),
     scannerExecution: j.runs.some((r) => r.status === "completed")
       ? "RECORDED_ENGINE_RESULTS"
       : j.runs.some((r) => r.startedAt)

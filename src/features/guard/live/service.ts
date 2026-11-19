@@ -115,6 +115,15 @@ export class GuardLiveService {
     if (!this.product?.resume) throw new LiveGuardError("execution_not_ready");
     return this.product.resume(authority, id, signal);
   }
+  async retryProduct(
+    authority: ProjectAuthority,
+    id: string,
+    signal: AbortSignal,
+  ) {
+    this.store(authority, "scan");
+    if (!this.product?.retry) throw new LiveGuardError("execution_not_ready");
+    return this.product.retry(authority, id, signal);
+  }
   async list(authority: ProjectAuthority, params: URLSearchParams) {
     if (
       [...params.keys()].some((k) => !["limit", "after"].includes(k)) ||
