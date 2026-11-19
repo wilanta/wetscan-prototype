@@ -372,9 +372,11 @@ describe.skipIf(!process.env.SENTINEL_S05_PG_ADMIN_URL)(
       const h2 = await setupHarness({ seedIncident: false });
       try {
         const plan = await migrationPlan();
-        // 0006 (S06) sits on top: reverse it first, then 0005 on its own.
-        await applyMigrations(h2.admin as never, plan.migrations, "down");
-        await applyMigrations(h2.admin as never, plan.migrations, "down");
+        // Reverse any later migrations (0006, 0007, ...) cleanly down to 0004, exercising 0005 reversal on its own.
+        for (const m of [...plan.migrations].reverse()) {
+          if (m.version <= "0004_incidents") break;
+          await applyMigrations(h2.admin as never, plan.migrations, "down");
+        }
         const v = (
           await h2.admin.query(
             "SELECT version FROM platform.schema_migrations ORDER BY version",
@@ -400,7 +402,7 @@ describe.skipIf(!process.env.SENTINEL_S05_PG_ADMIN_URL)(
               "SELECT count(*)::int AS n FROM platform.schema_migrations",
             )
           ).rows[0].n,
-        ).toBe(6); // 0001-0005 + 0006 (S06) re-applied
+        ).toBe(plan.migrations.length); // 0001-0005 + later migrations re-applied
       } finally {
         await h2.close();
       }

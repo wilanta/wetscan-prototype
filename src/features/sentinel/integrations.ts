@@ -7,6 +7,8 @@ import {
 import type { SentinelIncidentOverlaySource } from "../canvas/contracts";
 import type {
   CanvasIncidentHandoffV1,
+  CaseLibraryArchiveCandidateV1,
+  CaseLibraryPort,
   GuardBridgePorts,
   GuardInventoryV1,
   GuardPipelineEventV1,
@@ -19,6 +21,21 @@ import type { EvidenceRef, SentinelProjectContext } from "./types";
 export const futureGuardBridgePorts: GuardBridgePorts = {
   pipeline: unavailableSentinel,
   inventory: unavailableIntelligence,
+};
+/** S08 Case Library stays unavailable in S07; never auto-archives or auto-approves rules. */
+export const unavailableCaseLibrary: CaseLibraryPort = {
+  configured: false,
+  async archiveIncidentDraft(
+    context: SentinelProjectContext,
+    candidate: CaseLibraryArchiveCandidateV1,
+  ) {
+    assertSameScope(context.scope, candidate);
+    return {
+      status: "not_integrated",
+      backlogId: "S08",
+      reason: "S08 Internal Intelligence Case Library is not implemented in S07.",
+    };
+  },
 };
 function required(value: string): void {
   if (typeof value !== "string" || !value.trim())

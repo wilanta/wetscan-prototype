@@ -240,6 +240,8 @@ export function LiveTelemetry({
         <Link href={`/app/projects/${projectId}/sentinel/notifications`}>
           Notifications
         </Link>
+        {" · "}
+        <Link href={`/app/projects/${projectId}/sentinel/ghost`}>Ghost</Link>
       </p>
       <Notice>
         Repository access does not establish runtime monitoring. Runtime and

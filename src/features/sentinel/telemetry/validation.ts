@@ -142,6 +142,9 @@ const staticSegments = new Set([
   "health",
   "ghost",
   "decoy",
+  "__wetscan",
+  "ghost-decoy",
+  ".well-known",
   "admin",
   ".env",
   "wp-admin",
@@ -166,6 +169,12 @@ export function redactRoute(value: unknown): string {
     )
     .join("/");
 }
+const decoyPathCategories = new Set(["wetscan_decoy", "well_known_decoy"]);
+const signalClassifications = new Set([
+  "decoy_access",
+  "automated_crawler_or_scanner",
+  "controlled_test_hit",
+]);
 const reasons = new Set([
   "invalid_credentials",
   "unauthorized",
@@ -277,6 +286,9 @@ export function parseBatch(
         "reasonCode",
         "durationMs",
         "controlled",
+        "decoyPathCategory",
+        "signalClassification",
+        "correlationId",
       ]);
       event.attributes = {};
       if (a.reasonCode !== undefined) {
@@ -294,6 +306,25 @@ export function parseBatch(
         )
           throw new TelemetryError("invalid_attribute");
         event.attributes.durationMs = Number(a.durationMs);
+      }
+      if (a.decoyPathCategory !== undefined) {
+        if (
+          typeof a.decoyPathCategory !== "string" ||
+          !decoyPathCategories.has(a.decoyPathCategory)
+        )
+          throw new TelemetryError("invalid_attribute");
+        event.attributes.decoyPathCategory = a.decoyPathCategory;
+      }
+      if (a.signalClassification !== undefined) {
+        if (
+          typeof a.signalClassification !== "string" ||
+          !signalClassifications.has(a.signalClassification)
+        )
+          throw new TelemetryError("invalid_attribute");
+        event.attributes.signalClassification = a.signalClassification;
+      }
+      if (a.correlationId !== undefined) {
+        event.attributes.correlationId = uuid(a.correlationId);
       }
       if (a.controlled !== undefined) {
         if (typeof a.controlled !== "boolean")

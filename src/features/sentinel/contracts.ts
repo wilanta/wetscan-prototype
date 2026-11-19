@@ -173,3 +173,43 @@ export interface AIExplanationPort {
     IntegrationResult<{ text: string; untrusted: true; purpose: "draft_only" }>
   >;
 }
+/** Additive S07 typed summary for decoy hits forwarded through S02/S04 into future S08 case archival. */
+export interface GhostDecoyHitSummaryV1 extends SentinelScope {
+  schemaVersion: 1;
+  decoyId: string;
+  sourceId: string;
+  eventId: string;
+  origin: "runtime" | "controlled_test";
+  routeTemplate: string;
+  method: string;
+  signalClassification:
+    | "decoy_access"
+    | "automated_crawler_or_scanner"
+    | "controlled_test_hit";
+  occurredAt: string;
+  ingestedAt: string;
+  evidence: EvidenceRef;
+}
+/** Typed integration seam for future S08 Internal Intelligence Case Library. Not implemented in S07. */
+export interface CaseLibraryArchiveCandidateV1 extends SentinelScope {
+  schemaVersion: 1;
+  incidentId: string;
+  sourceId: string;
+  origin: "runtime" | "controlled_test";
+  category: "authentication" | "http" | "decoy";
+  evidenceIds: string[];
+  decoyHits?: GhostDecoyHitSummaryV1[];
+  falsePositiveNotice: string;
+}
+export interface CaseLibraryPort {
+  configured: boolean;
+  archiveIncidentDraft(
+    context: SentinelProjectContext,
+    candidate: CaseLibraryArchiveCandidateV1,
+  ): Promise<
+    IntegrationResult<{
+      caseId: string;
+      status: "draft_pending_review";
+    }>
+  >;
+}

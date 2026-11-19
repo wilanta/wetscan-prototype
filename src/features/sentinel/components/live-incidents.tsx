@@ -217,6 +217,7 @@ export function LiveIncidents({
           ["Alerts", "/alerts"],
           ["Incidents", "/incidents"],
           ["Notifications", "/notifications"],
+          ["Ghost", "/ghost"],
         ].map(([label, path]) => (
           <Link
             key={path}
