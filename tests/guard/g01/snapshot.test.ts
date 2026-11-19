@@ -314,3 +314,51 @@ it.each([
   },
   20000,
 );
+
+it("normal worker renews only owned immutable source with a fresh grant; old grant TTL is unchanged", async () => {
+  const f = fixture(),
+    adapter = new GuardSnapshotAdapter(f.source),
+    oldGrant = structuredClone(authority.grant),
+    snapshot = await adapter.acquire(oldGrant, f.request);
+  let owned: typeof snapshot = snapshot;
+  try {
+    const oldExpiry = oldGrant.expiresAt,
+      fresh = {
+        ...oldGrant,
+        issuedAt: Date.now(),
+        expiresAt: Date.now() + 60000,
+      };
+    vi.mocked(f.source.authorize).mockResolvedValue({
+      ...authority,
+      grant: fresh,
+    });
+    const next = await adapter.refresh(snapshot, fresh);
+    owned = next;
+    expect(oldGrant.expiresAt).toBe(oldExpiry);
+    expect(next.expiresAt).toBe(fresh.expiresAt);
+    expect(next.digest).toBe(snapshot.digest);
+    await expect(adapter.directory(snapshot)).rejects.toThrow();
+    await expect(adapter.directory(next)).resolves.toBeTruthy();
+    await expect(
+      adapter.refresh(structuredClone(next), fresh),
+    ).rejects.toThrow();
+    await expect(
+      adapter.refresh(next, { ...fresh, expiresAt: Date.now() - 1 }),
+    ).rejects.toThrow();
+  } finally {
+    await adapter.dispose(owned);
+  }
+});
+it("source renewal rejects revocation without adopting another source", async () => {
+  const f = fixture(),
+    adapter = new GuardSnapshotAdapter(f.source),
+    snapshot = await adapter.acquire(authority.grant, f.request);
+  try {
+    vi.mocked(f.source.authorize).mockRejectedValue(Error("revoked"));
+    await expect(adapter.refresh(snapshot, authority.grant)).rejects.toThrow(
+      "revoked",
+    );
+  } finally {
+    await adapter.dispose(snapshot);
+  }
+});

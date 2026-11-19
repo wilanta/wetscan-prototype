@@ -54,7 +54,7 @@ const manage = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const realProject =
-    /^\/app\/projects\/github-[1-9]\d*\/(?:canvas|sentinel(?:\/(?:activity|sources))?)$/.test(
+    /^\/app\/projects\/github-[1-9]\d*\/(?:canvas|guard(?:\/(?:scans|findings|integrity|remediation|releases))?|sentinel(?:\/(?:activity|sources))?)$/.test(
       pathname,
     );
   const accountState = useDashboardAccount();
@@ -72,9 +72,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           "Overview";
   function nav(items: typeof home) {
     return items.map(({ href, label, Icon }) => {
-      if (label === "Sentinel" && realProject) {
+      if (["Sentinel", "Guard", "Canvas"].includes(label) && realProject) {
         const projectId = pathname.split("/")[3];
-        href = `/app/projects/${projectId}/sentinel`;
+        href = `/app/projects/${projectId}/${label.toLowerCase()}`;
       }
       const active =
         href === "/app"
@@ -93,7 +93,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Icon size={18} />
             <span>{label}</span>
             {realProject && label === "Guard" && (
-              <span className="nav-new">DEMO</span>
+              <span className="nav-new">LIVE · COVERAGE REQUIRED</span>
             )}
             {label === "Canvas" && <span className="nav-new">APP MAP</span>}
             {label === "Guard" && <span className="nav-count">3</span>}

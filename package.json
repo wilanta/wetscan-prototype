@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start --hostname 0.0.0.0",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
@@ -17,7 +17,10 @@
     "test:platform:postgres": "node --env-file-if-exists=.env.sentinel.test.local --import tsx scripts/sentinel-postgres-test.ts",
     "test:sentinel:postgres": "node --env-file-if-exists=.env.sentinel.test.local --import tsx scripts/sentinel-telemetry-test.ts",
     "sentinel:emit": "node --env-file-if-exists=.env.sentinel.emitter.local --import tsx scripts/sentinel-emit.ts",
-    "format": "prettier --write src tests *.ts *.mjs README.md docs/*.md"
+    "format": "prettier --write src tests *.ts *.mjs README.md docs/*.md",
+    "test:mvp": "node scripts/mvp-check.mjs unit",
+    "guard:dev": "next dev --webpack --hostname 127.0.0.1 --port 3000",
+    "test:guard:live": "node scripts/guard-live-check.mjs unit"
   },
   "dependencies": {
     "@dagrejs/dagre": "3.1.3",

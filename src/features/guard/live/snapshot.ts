@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import {
   mkdtemp,
   mkdir,
@@ -7,9 +7,18 @@ import {
   lstat,
   readFile,
   unlink,
+  rename,
+  realpath,
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { basename, dirname, join, resolve } from "node:path";
+import {
+  basename,
+  dirname,
+  join,
+  resolve,
+  relative,
+  isAbsolute,
+} from "node:path";
 import { fingerprint } from "../../../platform/identity";
 import type {
   AuthorizedSnapshot,
@@ -293,6 +302,83 @@ export class GuardSnapshotAdapter implements SnapshotPort {
         throw new LiveGuardError("cleanup_failed");
       }
     }
+  }
+  /** Normal worker renewal between engines. No repository download, old grant extension, or orphan adoption. */
+  async refresh(
+    snapshot: AuthorizedSnapshot,
+    grant: Grant,
+  ): Promise<GuardSnapshot> {
+    const root = this.owned.get(snapshot),
+      current = snapshot as GuardSnapshot;
+    if (
+      !root ||
+      current.sourceKind !== "github" ||
+      current.digest !==
+        fingerprint({
+          repository: current.repository,
+          files: current.files,
+          coverage: current.coverage,
+        })
+    )
+      throw new LiveGuardError("source_integrity");
+    const authority = await this.source.authorize();
+    this.bind(authority, grant, {
+      ...current,
+      engines: [],
+      profile: "quick",
+      idempotencyKey: "owned-source-renewal",
+    });
+    if ((await lstat(root)).isSymbolicLink())
+      throw new LiveGuardError("source_integrity");
+    for (const file of current.files) {
+      const path = join(root, ...safePath(file.path).split("/"));
+      const actual = await realpath(path),
+        rootActual = await realpath(root),
+        within = relative(rootActual, actual);
+      if (within.startsWith("..") || isAbsolute(within))
+        throw new LiveGuardError("source_integrity");
+      const stat = await lstat(path);
+      if (
+        !stat.isFile() ||
+        stat.isSymbolicLink() ||
+        stat.size !== file.size ||
+        sha256(await readFile(path)) !== file.sha256
+      )
+        throw new LiveGuardError("source_integrity");
+    }
+    const fresh = await this.source.authorize();
+    this.bind(fresh, grant, {
+      ...current,
+      engines: [],
+      profile: "quick",
+      idempotencyKey: "owned-source-renewal",
+    });
+    const expiresAt = Math.min(grant.expiresAt, fresh.grant.expiresAt),
+      marker = root + ".lease",
+      lease = JSON.parse(await readFile(marker, "utf8"));
+    if (
+      lease.version !== 1 ||
+      lease.kind !== "guard-source" ||
+      lease.rootName !== basename(root) ||
+      !Number.isFinite(lease.createdAt) ||
+      lease.createdAt > Date.now()
+    )
+      throw new LiveGuardError("source_integrity");
+    const temp = marker + ".renew-" + randomUUID();
+    try {
+      await writeFile(temp, JSON.stringify({ ...lease, expiresAt }), {
+        flag: "wx",
+        mode: 0o600,
+      });
+      await rename(temp, marker);
+    } catch {
+      await rm(temp, { force: true });
+      throw new LiveGuardError("cleanup_failed");
+    }
+    const next = { ...current, expiresAt };
+    this.owned.delete(snapshot);
+    this.owned.set(next, root);
+    return next;
   }
   /** Internal worker capability only. Never serialize or expose this path through an API. */
   async directory(snapshot: AuthorizedSnapshot): Promise<string> {

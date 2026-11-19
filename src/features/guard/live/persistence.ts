@@ -2,9 +2,10 @@ import type { QueryResultRow } from "pg";
 import { PlatformDatabase } from "../../../platform/database";
 import { fingerprint } from "../../../platform/identity";
 import type { Grant, PersistencePort, ScanJob, Scope } from "../contracts";
-import { authorize, redact } from "../security";
+import { authorize, redact, safePath } from "../security";
 import { transition } from "../pipeline";
 import { GuardPostgresQueue } from "./queue";
+import { operationalJob, repositoryScanKind } from "./product-policy";
 import {
   LiveGuardError,
   type GuardStorage,
@@ -43,6 +44,16 @@ function bounded(job: ScanJob): ScanJob {
     job.runs.length > 9
   )
     throw new LiveGuardError("invalid_input", 400);
+  if (
+    operationalJob(job) &&
+    job.runs.some(
+      (r) =>
+        r.status === "completed" &&
+        (!/^[a-f0-9]{64}$/.test(r.artifactDigest ?? "") ||
+          r.executionEvidence?.cleanup !== "VERIFIED"),
+    )
+  )
+    throw new LiveGuardError("source_integrity");
   const copy: ScanJob = structuredClone({
     mode: job.mode,
     workspaceId: job.workspaceId,
@@ -56,6 +67,27 @@ function bounded(job: ScanJob): ScanJob {
     createdAt: job.createdAt,
     ...(job.finishedAt ? { finishedAt: job.finishedAt } : {}),
     ...(job.sourceCoverage ? { sourceCoverage: job.sourceCoverage } : {}),
+    ...(job.inventory
+      ? {
+          inventory: job.inventory.map((item) => {
+            safePath(item.sourcePath);
+            if (
+              !item.name ||
+              !item.version ||
+              item.ecosystem !== "npm" ||
+              item.name.length > 512 ||
+              item.version.length > 128
+            )
+              throw new LiveGuardError("invalid_input", 400);
+            return {
+              ...item,
+              name: redact(item.name),
+              version: redact(item.version),
+              license: item.license ? redact(item.license) : null,
+            };
+          }),
+        }
+      : {}),
     runs: job.runs,
     findings: job.findings,
     audit: job.audit,
@@ -89,7 +121,11 @@ function stored(row: ScanRow): StoredScan {
   };
 }
 export class PostgresGuardStore implements GuardStorage {
-  constructor(readonly db: PlatformDatabase) {
+  constructor(
+    readonly db: PlatformDatabase,
+    private readonly queueKind:
+      "guard.scan.prepare" | "guard.scan.repository" = "guard.scan.prepare",
+  ) {
     if (db.module !== "guard") throw new LiveGuardError("not_configured");
   }
   private allowed(
@@ -104,6 +140,8 @@ export class PostgresGuardStore implements GuardStorage {
   async create(grant: Grant, input: ScanJob): Promise<StoredScan> {
     this.allowed(grant, input, "scan");
     const job = bounded(input);
+    if (this.queueKind === repositoryScanKind && !operationalJob(job))
+      throw new LiveGuardError("invalid_input", 400);
     if (job.status !== "queued") throw new LiveGuardError("invalid_input", 400);
     return this.db.scoped(job, async (tx) => {
       await this.db.query(
@@ -136,16 +174,18 @@ export class PostgresGuardStore implements GuardStorage {
           job.createdAt,
         ],
       );
-      await new GuardPostgresQueue(this.db, job).enqueue(tx, {
+      await new GuardPostgresQueue(this.db, job, job.id, {
+        kind: this.queueKind,
+      }).enqueue(tx, {
         ...job,
         schemaVersion: 1,
         module: "guard",
         jobId: job.id,
-        kind: "guard.scan.prepare",
+        kind: this.queueKind,
         subjectRef: job.id,
         revision: 1,
         attempts: 0,
-        maxAttempts: 3,
+        maxAttempts: this.queueKind === repositoryScanKind ? 1 : 3,
         availableAt: job.createdAt,
         cancelRequested: false,
       });
@@ -332,7 +372,10 @@ export class PostgresGuardStore implements GuardStorage {
     });
   }
   /** Compatible orchestrator port: keep revision private and bind every save to this lease. */
-  persistence(fence: LeaseFence): PersistencePort {
+  persistence(
+    fence: LeaseFence,
+    sourceCoverage?: () => SourceCoverage | undefined,
+  ): PersistencePort {
     const revisions = new Map<string, number>();
     return {
       create: async (g, j) => {
@@ -348,7 +391,7 @@ export class PostgresGuardStore implements GuardStorage {
       save: async (g, j) => {
         const rev = revisions.get(j.id);
         if (!rev) throw new LiveGuardError("revision_conflict", 409);
-        const value = await this.update(g, j, rev, fence);
+        const value = await this.update(g, j, rev, fence, sourceCoverage?.());
         revisions.set(j.id, value.revision);
       },
     };

@@ -32,6 +32,7 @@ import {
 } from "./demo-session";
 import styles from "./workbench.module.css";
 import { DastScopeForm } from "./dast-scope-form";
+import { LocalArtifactTools } from "./local-artifact-tools";
 const names: Record<Engine, string> = {
   sast: "Code (SAST)",
   sca: "Dependencies (SCA)",
@@ -274,7 +275,13 @@ function IntegrityLab() {
     </div>
   );
 }
-export function GuardWorkbench({ section = "" }: { section?: string }) {
+export function GuardWorkbench({
+  section = "",
+  fixtureWorkflow = false,
+}: {
+  section?: string;
+  fixtureWorkflow?: boolean;
+}) {
   const state = useGuardDemo();
   const job = state.jobs.find((j) => j.id === state.selectedId);
   const [open, setOpen] = useState(false),
@@ -318,7 +325,7 @@ export function GuardWorkbench({ section = "" }: { section?: string }) {
       </p>
       <div className={styles.toolbar}>
         <Button onClick={() => setOpen(true)} disabled={state.busy}>
-          Scan My App
+          {fixtureWorkflow ? "Run fixture workflow" : "Scan My App"}
         </Button>
         {state.busy && (
           <Button variant="danger" onClick={cancelGuardDemo}>
@@ -326,7 +333,7 @@ export function GuardWorkbench({ section = "" }: { section?: string }) {
           </Button>
         )}
         <Button variant="secondary" onClick={() => setLive(true)}>
-          Check Live readiness
+          {fixtureWorkflow ? "View live dependencies" : "Check Live readiness"}
         </Button>
         <Button
           variant="ghost"
@@ -340,7 +347,8 @@ export function GuardWorkbench({ section = "" }: { section?: string }) {
       </div>
       <Notice>
         Demo jobs stay in this browser runtime only. Reload clears them and does
-        not invent completed results. Existing Orderly walkthrough remains
+        not invent completed results. Fixture results do not prove live
+        scanning. The original Orderly examples remain available separately
         below.
       </Notice>
       {state.error && <p role="alert">{state.error}</p>}
@@ -348,7 +356,9 @@ export function GuardWorkbench({ section = "" }: { section?: string }) {
         {job ? `Latest demo job: ${job.status}` : "No workbench scan has run."}{" "}
         Release: {release?.decision ?? "INCOMPLETE"}. No CI gate connected.
       </p>
-      {section === "/integrity" ? (
+      {section === "/inventory" || section === "/remediation" ? (
+        <LocalArtifactTools section={section} />
+      ) : section === "/integrity" ? (
         <IntegrityLab />
       ) : section === "/remediation" ? (
         <Notice>
@@ -547,7 +557,8 @@ export function GuardWorkbench({ section = "" }: { section?: string }) {
                   }
                 />
                 {names[engine]} -{" "}
-                {engine === "sast"
+                {engine === "sast" ||
+                (fixtureWorkflow && ["sca", "secrets", "iac"].includes(engine))
                   ? "synthetic parser simulation"
                   : "NOT_CONFIGURED (excluded from completed coverage)"}
               </label>
@@ -570,7 +581,7 @@ export function GuardWorkbench({ section = "" }: { section?: string }) {
             disabled={!selected.length || state.busy}
             onClick={() => {
               setOpen(false);
-              void runGuardDemo(profile, selected, failure);
+              void runGuardDemo(profile, selected, failure, fixtureWorkflow);
             }}
           >
             Start workbench simulation
@@ -591,10 +602,17 @@ export function GuardWorkbench({ section = "" }: { section?: string }) {
           </p>
           <ul>
             <li>
-              GitHub/GitLab snapshot reader: waiting on Auth/integration owner
+              Repository jobs require current project authorization and an
+              immutable snapshot
             </li>
-            <li>Durable storage and job queue: waiting on backend/platform</li>
-            <li>Isolated scanner worker and enforcing egress: unavailable</li>
+            <li>
+              Durable results/queue integration and runtime qualification
+              required
+            </li>
+            <li>
+              Scanner isolation and enforcing egress: live qualification
+              required
+            </li>
             <li>
               DAST: disabled; staging authorization not configured (GRD-011/012)
             </li>

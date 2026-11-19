@@ -4,7 +4,10 @@ vi.mock("../../../src/features/guard/live/github-source", () => ({
   githubSourceAccess: vi.fn(),
 }));
 import { githubSourceAccess } from "../../../src/features/guard/live/github-source";
-import { verifyGuardRevision } from "../../../src/features/guard/live/repository";
+import {
+  verifyGuardRevision,
+  resolveRepositoryRevision,
+} from "../../../src/features/guard/live/repository";
 import { brokerFixture } from "./broker-fixture";
 beforeEach(() => vi.clearAllMocks());
 async function fixture() {
@@ -68,4 +71,25 @@ it("does not touch Auth/provider for client identity fields or malformed SHA", a
     ),
   ).rejects.toThrow("invalid_input");
   expect(githubSourceAccess).not.toHaveBeenCalled();
+});
+
+it("normal product revision lookup returns the actual pin without creating an acceptance preparation or nonce", async () => {
+  const f = await fixture();
+  const result = await resolveRepositoryRevision(
+    undefined,
+    f.authority.grant.projectId,
+    { branch: "main" },
+    new AbortController().signal,
+  );
+  expect(result.commit).toBe("a".repeat(40));
+  expect(Object.keys(result).sort()).toEqual([
+    "commit",
+    "repository",
+    "scanAccepted",
+    "sourceRead",
+    "tree",
+    "verifiedAt",
+  ]);
+  expect(f.close).toHaveBeenCalledOnce();
+  expect(f.authorize).toHaveBeenCalledTimes(2);
 });

@@ -1,6 +1,12 @@
 import { open, readFile, lstat } from "node:fs/promises";
 import { join } from "node:path";
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
+import {
+  validateQualification,
+  validateProductPolicy,
+  type RepositoryScanPolicy,
+  type ScannerQualification,
+} from "../../src/features/guard/live/product-policy";
 import type {
   AuthorizedSnapshot,
   Grant,
@@ -16,6 +22,7 @@ import {
 import {
   normalizeOpengrep,
   normalizeOSV,
+  normalizeOSVInventory,
   normalizeGitleaks,
   normalizeTrivy,
   type NormalizationContext,
@@ -26,6 +33,7 @@ import type { GuardSnapshotAdapter } from "../../src/features/guard/live/snapsho
 import type { GuardJobBinding } from "./approval";
 import {
   validateSandboxSpec,
+  validateOperationalSandboxSpec,
   type SandboxSpec,
   type SandboxAttestation,
   type DockerDriver,
@@ -88,7 +96,16 @@ export interface ScannerInstallationEvidence {
 }
 /** Independently measured installation/rules artifact; an arbitrary hash or config version is insufficient. */
 export async function verifyScannerInstallation(
-  p: ScannerExecutionPermit,
+  p: Pick<
+    ScannerExecutionPermit,
+    | "installationArtifactSha256"
+    | "engine"
+    | "specDigest"
+    | "imageId"
+    | "scannerVersion"
+    | "rulePack"
+    | "rulePackSha256"
+  >,
   root: string,
 ) {
   const file = join(root, `installation.${p.installationArtifactSha256}.json`),
@@ -215,7 +232,7 @@ function relativeSourcePath(value: unknown, snapshot: AuthorizedSnapshot) {
   return path;
 }
 /** Only known output fields are converted. Absolute host paths, traversal and unlisted files fail closed. */
-function canonicalOutput(
+export function canonicalOutput(
   input: unknown,
   engine: RepositoryEngine,
   snapshot: AuthorizedSnapshot,
@@ -238,11 +255,25 @@ function canonicalOutput(
       const r = record(record(value).source);
       r.path = relativeSourcePath(r.path, snapshot);
     }
-  else
-    for (const value of array(record(data).Results)) {
+  else {
+    // Trivy emits a directory summary even when it has no findings. It is not a
+    // source location. Remove only the exact, explicitly clean root aggregate;
+    // root findings or any other unbound target still fail closed.
+    record(data).Results = array(record(data).Results).filter((value) => {
       const r = record(value);
+      if (
+        r.Target === "." &&
+        r.Class === "config" &&
+        record(r.MisconfSummary).Failures === 0 &&
+        (r.Misconfigurations == null ||
+          array(r.Misconfigurations).length === 0) &&
+        (r.Vulnerabilities == null || array(r.Vulnerabilities).length === 0)
+      )
+        return false;
       r.Target = relativeSourcePath(r.Target, snapshot);
-    }
+      return true;
+    });
+  }
   return data;
 }
 /** Real Docker execution in the source-owning parent only. No default image, host runner or Demo-to-live fallback. */
@@ -265,8 +296,33 @@ export function isolatedRepositoryScanner(input: {
     input.engine,
     input.spec,
   );
-  const check = () =>
-    validateScannerPermit(permit, input.binding, input.engine, input.spec);
+  return executeQualifiedScanner(input, permit, () =>
+    validateScannerPermit(permit, input.binding, input.engine, input.spec),
+  );
+}
+type ScannerResources = Omit<
+  Parameters<typeof isolatedRepositoryScanner>[0],
+  "permit"
+>;
+type ScannerAuthority = Pick<
+  ScannerExecutionPermit,
+  | "runId"
+  | "containerName"
+  | "expiresAt"
+  | "installationArtifactSha256"
+  | "engine"
+  | "specDigest"
+  | "imageId"
+  | "scannerVersion"
+  | "rulePack"
+  | "rulePackSha256"
+>;
+function executeQualifiedScanner(
+  input: ScannerResources,
+  permit: ScannerAuthority,
+  check: () => unknown,
+  validate: (spec: SandboxSpec) => void = validateSandboxSpec,
+): ScannerPort {
   return {
     engine: input.engine,
     async execute(snapshot, signal) {
@@ -345,7 +401,7 @@ export function isolatedRepositoryScanner(input: {
           check();
           if (fingerprint(actual) !== permit.specDigest)
             throw new LiveGuardError("approval_required");
-          validateSandboxSpec(actual);
+          validate(actual);
         },
         input.driver,
         undefined,
@@ -390,8 +446,20 @@ export function isolatedRepositoryScanner(input: {
       if (exitCode === undefined || (exitCode === 1 && !findings.length))
         throw new LiveGuardError("source_integrity");
       return {
+        ...(input.engine === "sca"
+          ? { inventory: normalizeOSVInventory(data) }
+          : {}),
         run: {
           engine: input.engine,
+          artifactDigest: ctx.artifactDigest,
+          executionEvidence: {
+            version: 1,
+            runId: permit.runId,
+            imageId: permit.imageId,
+            specDigest: permit.specDigest,
+            installationArtifactSha256: permit.installationArtifactSha256,
+            cleanup: "VERIFIED",
+          },
           status: "completed",
           scanner: scanners[input.engine],
           version: permit.scannerVersion,
@@ -403,4 +471,60 @@ export function isolatedRepositoryScanner(input: {
       };
     },
   };
+}
+
+/** Normal website worker authority: no acceptance job, target or approval window is accepted. */
+export function operationalRepositoryScanner(
+  input: ScannerResources & {
+    policy: RepositoryScanPolicy;
+    qualification: ScannerQualification;
+  },
+): ScannerPort {
+  const policy = structuredClone(input.policy),
+    q = structuredClone(input.qualification),
+    runId = randomUUID();
+  const check = () => {
+    validateProductPolicy(policy, {
+      ...input.binding,
+      idempotencyKey: input.binding.idempotencyKey,
+      requestedEngines: input.binding.engines,
+    });
+    validateQualification(q, input.engine, input.spec);
+    if (input.spec.timeoutMs > policy.scannerTimeoutMs)
+      throw new LiveGuardError("execution_not_ready");
+  };
+  check();
+  const authority: ScannerAuthority = {
+    ...q,
+    runId,
+    containerName: "wetscan-guard-" + runId,
+  };
+  const attestation: SandboxAttestation = {
+    verify: async (measurement) => {
+      check();
+      if (
+        measurement.specDigest !== q.specDigest ||
+        measurement.imageId !== q.imageId ||
+        measurement.image !== input.spec.image ||
+        measurement.daemonId !== q.daemonId ||
+        measurement.daemonVersion !== q.daemonVersion ||
+        measurement.kernelVersion !== q.kernelVersion
+      )
+        throw new LiveGuardError("execution_not_ready");
+      const measured = await input.evidence.verify(measurement);
+      if (
+        !measured ||
+        measured.expiresAt > Date.parse(q.expiresAt) ||
+        !measured.artifactRef
+      )
+        throw new LiveGuardError("execution_not_ready");
+      return measured;
+    },
+  };
+  return executeQualifiedScanner(
+    { ...input, evidence: attestation },
+    authority,
+    check,
+    validateOperationalSandboxSpec,
+  );
 }

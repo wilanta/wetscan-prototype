@@ -1,5 +1,5 @@
 import "server-only";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { requestToken } from "../../../lib/auth/session";
 import { requireOrigin } from "../../../lib/auth/http";
 import { AuthError } from "../../../lib/auth/config";
@@ -73,7 +73,14 @@ export async function guardRoute(
     | "cancel"
     | "source-acceptance"
     | "repository"
-    | "preparation",
+    | "preparation"
+    | "view"
+    | "triage"
+    | "reports"
+    | "product-cancel"
+    | "revision"
+    | "preflight"
+    | "resume",
   id?: string,
 ) {
   try {
@@ -82,10 +89,25 @@ export async function guardRoute(
     if (request.method !== "GET") requireOrigin(request);
     const token = requestToken(request),
       authority = await authorizeGuardProject(token, projectId);
-    if (resource === "repository" || resource === "preparation") {
+    if (
+      resource === "repository" ||
+      resource === "preparation" ||
+      resource === "revision"
+    ) {
       if (request.method !== "POST" || [...request.nextUrl.searchParams].length)
         throw new LiveGuardError("invalid_input", 400);
       const value = await boundedJson(request);
+      if (resource === "revision") {
+        const { resolveRepositoryRevision } = await import("./repository");
+        return reply(
+          await resolveRepositoryRevision(
+            token,
+            projectId,
+            value,
+            request.signal,
+          ),
+        );
+      }
       if (resource === "repository") {
         const { verifyGuardRevision } = await import("./repository");
         return reply(
@@ -124,13 +146,40 @@ export async function guardRoute(
         ),
       );
     }
-    const service = await guardLiveService();
+    if (resource === "preflight") {
+      if (request.method !== "POST" || [...request.nextUrl.searchParams].length)
+        throw new LiveGuardError("invalid_input", 400);
+      const v = await boundedJson(request);
+      if (!v || typeof v !== "object" || Object.keys(v).length)
+        throw new LiveGuardError("invalid_input", 400);
+      const { probeProductReadiness } = await import("./product-preflight");
+      return reply({
+        authenticated: true,
+        providerAuthorizationVerified: true,
+        ...(await probeProductReadiness(process.env, authority.grant)),
+      });
+    }
+    const service = await guardLiveService({
+      token,
+      authority,
+      access:
+        resource === "readiness" ||
+        resource === "resume" ||
+        (resource === "scans" && request.method === "POST")
+          ? "scan"
+          : "read",
+      defer: (task) => after(task),
+    });
     if (resource !== "scans" && [...request.nextUrl.searchParams].length)
       throw new LiveGuardError("invalid_input", 400);
     if (resource === "readiness")
       return reply({
-        status: "BLOCKED",
+        status:
+          service.capabilities().repositoryScanning === "CONFIGURED"
+            ? "READY"
+            : "BLOCKED",
         ...service.readiness,
+        product: service.capabilities(),
         scanAccepted: false,
       });
     if (resource === "scans") {
@@ -138,7 +187,11 @@ export async function guardRoute(
         if ([...request.nextUrl.searchParams].length)
           throw new LiveGuardError("invalid_input", 400);
         return reply(
-          await service.create(authority, await boundedJson(request)),
+          await service.create(
+            authority,
+            await boundedJson(request),
+            request.signal,
+          ),
           202,
         );
       }
@@ -146,6 +199,33 @@ export async function guardRoute(
         scans: await service.list(authority, request.nextUrl.searchParams),
       });
     }
+    if (resource === "resume") {
+      const v = await boundedJson(request);
+      if (!v || typeof v !== "object" || Object.keys(v).length)
+        throw new LiveGuardError("invalid_input", 400);
+      return reply(
+        await service.resumeProduct(authority, id ?? "", request.signal),
+        202,
+      );
+    }
+    if (resource === "view")
+      return reply(await service.view(authority, id ?? ""));
+    if (resource === "triage")
+      return reply(
+        await service.triage(authority, id ?? "", await boundedJson(request)),
+      );
+    if (resource === "product-cancel")
+      return reply(await service.cancelProduct(authority, id ?? ""));
+    if (resource === "reports")
+      return reply(
+        request.method === "POST"
+          ? await service.createReport(
+              authority,
+              id ?? "",
+              await boundedJson(request),
+            )
+          : { reports: await service.reports(authority, id ?? "") },
+      );
     if (resource === "cancel")
       return reply(await service.cancel(authority, id ?? ""));
     const { job, revision, coverage } = await service.get(authority, id ?? "");

@@ -60,8 +60,8 @@ export function inspectedBoundary(
     !h.ReadonlyRootfs ||
     h.NetworkMode !== "none" ||
     h.IpcMode !== "none" ||
-    h.Memory !== 268435456 ||
-    h.MemorySwap !== 268435456 ||
+    h.Memory !== spec.memoryMb * 1024 * 1024 ||
+    h.MemorySwap !== spec.memoryMb * 1024 * 1024 ||
     h.PidsLimit !== 64 ||
     h.NanoCpus !== 1e9 ||
     !h.CapDrop?.includes("ALL") ||
