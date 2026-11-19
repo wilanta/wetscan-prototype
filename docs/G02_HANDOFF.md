@@ -1,78 +1,69 @@
-# G02 handoff — 19 November 2026 (continuation session)
+# G02 handoff — 19 November 2026 (completion campaign)
 
-Status: **PARTIAL — not COMPLETE.** Everything testable offline is now proven on real scanner CLIs; the one remaining acceptance gate (authorized real GitHub repository, vulnerable + fixed revisions, positive findings in Guard Live) needs a new owner approval. `GUARD_PRODUCT_ENABLED=0` untouched. No real GitHub scan, no replay of job `e3025169…`, no operational DB access, no commit/push.
+Written for: the engineer or owner who continues Guard after this PR, and who must know exactly what is proven and what is not.
 
-## What this session did (all on branch `feat/guard-g02-g06-integration`, uncommitted)
+**Status: PARTIAL — not COMPLETE.** Everything that can be proven without the owner's interactive GitHub login and the operational database is now `REAL_SCANNER_VERIFIED`. One acceptance gate is `NOT_RUN`: a scan started through the product (owner Auth session, operational `wetscan_dev_guardg02`, Live UI showing the stored result). `GUARD_PRODUCT_ENABLED` stays `0` by default; nothing in this work enables it.
 
-The "uncommitted" work named in the previous handoff was already committed as `b7e740e`; the tree was clean at start. This machine had no scanner image, no `.local` build context, and no Docker daemon, so the physical evidence was rebuilt from public, checksum-pinned sources.
+## What changed in this package (branch `feat/guard-g02-completion`, based on master `8aa17b1`)
 
-| File | Change |
+The old `feat/guard-g02-g06-integration` branch was 47 commits behind master. Only its 7 own commits (G01 foundation, scoped scanner adapter, operational integration, G02 engines) were ported, in order; two conflicts were resolved by keeping both sides (`next.config.ts`: S11 security headers + Guard file-tracing exclusions; `app-shell.tsx`: S10/S11 Sentinel navigation + Guard Live navigation). The local uncommitted work of the previous engineer was preserved first as a patch (`.local/snapshots/`) and a local commit (`snapshot/g02-continuation-20261119`).
+
+| Area | Change |
 |---|---|
-| `worker/guard/installation/build-context.ts` (new) | Reproducible image build: 4 official release binaries (SHA256 vs `SOURCES.json`), official Opengrep JS/TS security rules at pinned commit `f1d2b562` (74 files), official Gitleaks config (pinned SHA), OSV npm snapshot, Trivy vulnerability DB (fetched by the pinned Trivy in a throwaway container), `docker build --network none`. Output only under ignored `.local/g02-install`. |
-| `worker/guard/installation/Dockerfile` | Aligned with `commands.ts`: rules → `/opt/g02/rules`, Trivy DB → `/opt/g02/trivy-cache`. |
-| `worker/guard/installation/commands.ts` | Removed the unverifiable "180 rules" claim (actual: 74, listed in `rules-manifest.json`). |
-| `worker/guard/installation/measured.ts` | Reads manifests from the build context instead of a non-existent `.local/g02-completion-public`. |
-| `worker/guard/installation/postgres-fixture.ts` | Docker path no longer hardcoded to another machine; uses `G02_INSTALL_DOCKER`. |
-| `worker/guard/installation/persistence-fixture.ts` | Measured root via `G02_MEASURED_ROOT`; waits for PostgreSQL after restart (was ECONNREFUSED). |
-| `tests/guard/live/measured.test.ts` | Real regression from `b7e740e`: fixture had `trivy-image` with the wrong executable and expected 5 deployments (now 6 incl. container). |
-| `eslint.config.mjs` | Ignore all of `.local/**` (downloaded third-party rule clones produced 442 false errors). |
+| Master reconciliation | `GUARD_PLATFORM_BASELINE = "0003_detection"`: the Guard plan hash pins platform migrations through 0003. Without it Sentinel 0004–0009 changed the Guard plan hash, which would invalidate every existing Guard approval and the provisioned `wetscan_dev_guardg02` ledger (3 platform + 1 Guard). Fixture and plan script use the same baseline. Sentinel migrations are untouched. |
+| IaC (found by the real GitHub run) | Trivy emits a clean per-module directory summary (`infra`). Only `.` was dropped, so any repository with Terraform below the root failed the whole IaC engine closed. Now any clean summary whose target is a *directory of the authorized manifest* is dropped; files, unknown/traversal targets and finding-bearing rows still fail closed. |
+| Retry | New authorized **Retry** = a *new linked scan* of the same pinned commit (details below). Queue invariants unchanged. |
+| Scanner image | `worker/guard/installation/build-context.ts` rebuilds the pinned scanner image reproducibly (checksum-verified binaries, 74 official JS/TS rules at commit `f1d2b562`, OSV npm snapshot, Trivy DB, `--network none` build). Dockerfile aligned with `commands.ts`. |
+| Evidence/EOL | `.gitattributes`: `docs/acceptance/** -text` (historical evidence is hash-verified over exact bytes). `evidence-retention` verifies every tracked artifact byte for byte and tolerates at most 3 gitignored local-only artifacts. |
+| Tests | `measured.test.ts` (6 engines, trivy-image executable), `s11-secret-scan` explicit 30 s budget (1.6 s alone, >5 s under worker contention), `retry.test.ts`, directory-summary test, Retry browser test. |
+| CI | Browser job also runs Guard Live UI (mocked transport) and the Guard Demo regression. Required S11 jobs untouched. |
+| Portability | `postgres-fixture.ts` no longer hardcodes another machine's Docker path; persistence fixture waits for PostgreSQL after restart. ESLint ignores `.local/**`. |
 
-## Scanner evidence (real CLIs in the hardened sandbox, controlled synthetic files — not an owner repository)
+## Retry design (and what was deliberately not done)
 
-Image `sha256:27c08e6ecaedb73fc2cfb2161fb34760606be7eedf3d08d81cd3e14247fc1f96` (python:3.13-slim-bookworm base digest `a5a7017e…`), report `.local/g02-install/physical-installation-report.9c174633-….json`. Sandbox controls all PASS: non-root, read-only root/source, no network, no capabilities/socket/secret env, seccomp, PID cap, noexec tmp; output-limit, timeout, cancel, OOM (137) and orphan identity tests PASS; owned cleanup verified.
+The queue and every Guard layer assert `maxAttempts = 1` because the owner's GitHub authorization lives only in process memory: a second attempt of the *same* job cannot be reauthorized after a restart, and re-running a used attempt would blur lease fencing and cleanup evidence. Retry is therefore a **new job** created through the normal admission path:
 
-| Engine | Version | Result |
+- eligible: `failed`, no engine result, recorded diagnostic is transient (`source_timeout`, `source_unavailable`, `github_unavailable`, `github_rate_limited`, `execution_not_ready`), cleanup not `UNKNOWN`, depth ≤ 3, backoff elapsed (exponential, deterministic jitter, ≤ 60 s), same actor as the original request;
+- fresh Auth/provider authorization + pinned-commit check + policy validation, exactly as for a normal scan; fixed idempotency key (`g02-live-retry-<scan id>`) so repeated clicks coalesce onto one retry;
+- the failed job, its audit and its attempt rows are never modified; the new scan records `retry_of:<id>;depth:<n>`;
+- terminal causes (authorization, integrity, limits, moved pin, unverified cleanup, unknown cause) are never retryable.
+
+Not done: automatic background re-queueing of the same job (would need a durable, re-authorizable owner capability); this is a design limit, not an oversight.
+
+## Evidence (all under `docs/acceptance/guard-g02/20261119/`)
+
+| File | Proves | Does not prove |
 |---|---|---|
-| Opengrep SAST | 2.0.0 | 1 finding |
-| OSV SCA / SBOM | 2.7.1 | 5 advisory matches (lodash 4.17.15); inventory 1; CycloneDX SBOM |
-| Gitleaks | 8.30.1 | 1 finding, redacted |
-| Trivy IaC | 0.76.2 | 3 findings |
-| Trivy Container (digest-bound OCI archive, offline DB) | 0.76.2 | 6 findings |
+| `scanner-installation.json` | Real CLIs in the hardened sandbox: image `sha256:27c08e6e…`, Opengrep 2.0.0 (1), OSV 2.7.1 (5), Gitleaks 8.30.1 (1), Trivy IaC 0.76.2 (3), Trivy Container 0.76.2 on a digest-bound OCI archive (6); non-root, read-only, no network/capabilities/socket/secrets, seccomp, PID cap, output/timeout/cancel/OOM/orphan, cleanup. | Owner repository scanning. |
+| `physical-broker-handoff.json` | Real broker → Docker → parsers for SAST/SCA/SBOM/Secrets/IaC, vulnerable and clean (10/10); IaC covers Terraform + Kubernetes + Dockerfile (25 findings) and clean = 0. | Container (covered by next row); GitHub; PostgreSQL. |
+| `postgres-persistence.json` | Isolated PostgreSQL 18, real scanners, Quick 7 / Standard 10 / Full 16 findings (Full = 6 engines incl. container), queue completed/attempt 1, duplicate coalesced, cross-workspace RLS read = null, triage, report, persistence after restart. | Real GitHub source. |
+| `github-acceptance.json` | **Real GitHub source** (private repo `wilanta/wetscan-g02-acceptance`, id 1464294716), pinned vulnerable commit `c1330c63` → 34 findings (SAST 3, SCA 5, Secrets 1, IaC 25, inventory 1, CycloneDX SBOM), 5/5 engines completed, evidence commit = pin; fixed commit `3c6a99ec` → 0 findings (IaC coverage honestly `partial`, job `completed_partial`); none of the vulnerable finding ids survives the fix; real worker lease/fence, persistence across PostgreSQL restart, raw canary absent. | Product Auth session, operational database, Live UI showing this data. |
 
-Container/OCI: the verified blobs are staged as a directory `image.oci` and Trivy reads it with `image --input`; this works end to end. (The staging problem flagged as in-progress is resolved.)
+Container evidence uses a harmless controlled OCI fixture bound by digest; no owner-authorized real image exists.
 
-## PostgreSQL + Live persistence (isolated PostgreSQL 18 container on a random port; never host 5432)
+## Not run / blocked (do not claim these)
 
-`node --import tsx worker/guard/installation/persistence-fixture.ts` (needs `G02_INSTALL_DOCKER`, `G02_MEASURED_ROOT`). Real broker → real Docker scanners → worker role → RLS-forced tables:
+1. **LIVE_REPOSITORY_VERIFIED through the product** — `NOT_RUN`. It needs the owner's interactive GitHub OAuth session in the app process and the operational DB password references (neither exists on the machine used here; they must not be fabricated). The earlier owner run `e3025169` proved the product pipeline up to zero findings; positive findings through that path are still unproven. The acceptance repository and harness are ready: `worker/guard/installation/github-acceptance.ts prepare|run`, and the repo is in the owner's account.
+2. Live UI over real stored data — only mocked-transport browser tests exist.
+3. Real container image acceptance, Kubernetes/Docker Compose beyond the fixtures, other ecosystems than npm, Git-history secret scanning (the authorized snapshot has no history; not attempted).
+4. Staging/production: nothing executed.
 
-| Profile | Scan | Status | Findings | Engines |
-|---|---|---|---|---|
-| quick | 014c033b… | completed, rev 13 | 7 | sast, sca, secrets |
-| standard | d98629e8… | completed, rev 17 | 10 | + iac, sbom |
-| full | e85619fa… | completed, rev 19 | 16 | + container |
+## Rebuild on another machine
 
-Also verified: durable queue state completed with attempt 1 and cleared lease; duplicate create coalesced; cross-workspace read returns null (RLS); triage + stale-revision rejection; report persisted; raw secret absent; records identical after PostgreSQL restart; fixture container/volume removed. Evidence: `test-results/g02-controlled-persistence.3f08a7d6-….json`.
+```
+node --import tsx worker/guard/installation/build-context.ts .local/g02-install        # ~20 min, network, Docker
+G02_INSTALL_DOCKER=<docker.exe> node --import tsx worker/guard/installation/qualify.ts .local/g02-install --full
+# private root must be a NEW empty dir directly under %TEMP% named wetscan-g01-snapshot-*, ACL-secured by secureSnapshotDirectory
+node --import tsx worker/guard/installation/measured.ts <report.json> <private-root>
+G02_MEASURED_ROOT=<private-root> node --import tsx worker/guard/installation/persistence-fixture.ts
+G02_MEASURED_ROOT=<private-root> node --import tsx worker/guard/installation/github-acceptance.ts run
+```
 
-## Quality gates (this machine, run serially)
+Measurements expire after one hour. OSV (2 GB budget) is load-sensitive: a clean-variant SBOM run timed out at 45 s once while other processes ran; it passed alone. Do not run other work during physical runs.
 
-- Guard unit/integration `guard-live-check unit`: **408/408**. Contracts: **516/516**.
-- Lint **0 errors** (2 old warnings). Typecheck and production Webpack build **PASS** (after deleting a stale, gitignored `.next` built from another branch).
-- Live browser (Edge, mocked API fixtures): **8/8** on rerun (first run 7/8; the one failure was a 60 s cold-start `goto` timeout).
-- Full `vitest run` under load showed 8 failures; 7 are I/O-load flakiness (all pass in isolation), 1 is environmental: `tests/guard/evidence-retention.test.ts` fails here because `core.autocrlf=true` rewrites historical evidence files to CRLF (blob content in git is correct; `tr -d '\r'` reproduces the expected SHA256). Historical evidence was not modified. A `.gitattributes` `docs/acceptance/** -text` would remove this class of failure, but needs a re-checkout of those files, so it was not done unattended.
+## Next owner actions
 
-## Requirement status
+1. Start the app in the owner process with the existing reviewed config, `GUARD_PRODUCT_ENABLED=0` during preflight; select `wilanta/wetscan-g02-acceptance` and pin `c1330c63…`, then `3c6a99ec…`; approve exactly those two runs; deactivate afterwards.
+2. Decide whether container acceptance is wanted (needs an owner OCI archive + `image` scope).
 
-| Requirement | Status |
-|---|---|
-| GRD-006 SAST | PARTIAL — 74 official JS/TS rules, positive + clean proven; real repo vulnerable/fixed pair not yet |
-| GRD-007 SCA | PARTIAL — npm only; 5 real advisories; alias/fix metadata preserved |
-| GRD-008 Secrets | PARTIAL — working tree only (no git history scan) |
-| GRD-009 IaC | PARTIAL — Terraform proven; Kubernetes/Dockerfile cases untested |
-| GRD-010 SBOM | PARTIAL — repository SBOM done |
-| GRD-010 Container | PARTIAL (was BLOCKED) — digest-bound OCI path proven offline with a controlled fixture; no owner-authorized real image |
-| Profiles / orchestration / limits / cancel / cleanup | DONE offline |
-| Queue, RLS, persistence, restart | DONE on isolated PostgreSQL |
-| Guard Live UI | DONE offline (mocked API browser tests) |
-| Real GitHub → scanner → PostgreSQL → UI with positive findings | **BLOCKED on owner approval** |
-| Transient auto-retry / authorized failed-job retry UI | NOT DONE (policy `maxAttempts=1`) |
-
-## Remaining work and owner actions
-
-1. Owner: approve one limited real run on the authorized test repository with a vulnerable and a fixed revision (SAST+SCA+Secrets+IaC), in the owner's legitimate process with real Auth and operational DB. This session could not do it: no owner OAuth session, no operational DB credentials, and the task forbids it without fresh approval.
-2. Owner: if Container acceptance is wanted, supply a digest-pinned OCI archive + `image` scope in policy.
-3. Engineering: transient-failure retry and authorized retry UI; Kubernetes/Dockerfile IaC fixtures; wider rule coverage; Trivy/OSV DB refresh procedure (databases are time-dependent; hashes are recorded in the manifests).
-4. Rebuild on a new machine: `node --import tsx worker/guard/installation/build-context.ts .local/g02-install` (≈20 min, needs network; Trivy DB download is slow), then `qualify.ts … --full`, then `measured.ts <report> <private-root-under-%TEMP%>`. `secureSnapshotDirectory` only accepts new empty directories directly under `%TEMP%` (named `wetscan-g01-snapshot-*`); it failed once transiently on the slow machine (5 s icacls/PowerShell budget), succeeded on retry. Measurements expire after 1 hour.
-
-## Known limits of the evidence
-
-Controlled synthetic files, auth/provider/lease verification are explicit doubles in the fixture, and PostgreSQL is a throwaway container — none of this is owner-repository acceptance. The `handoff.ts` runner (single-engine Docker/broker path) still caps deployments at 5 and has no container case; the persistence fixture covers the container path instead. Do not start G03 from this evidence.
+Do not start G03 from this evidence; G03 must use real persisted findings from step 1. Continuation prompt: see `docs/agent-handoffs/HANDOFF_GUARD_G02.md`.

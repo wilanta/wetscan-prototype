@@ -1,5 +1,75 @@
 # CHANGELOG_FIXES
 
+### Fix #17 — G02 Retry: authorized re-run of a failed repository scan as a new linked scan (IMPLEMENTED + FIXTURE_VERIFIED 2026-11-19; no real transient provider failure induced)
+
+| Field | Detail |
+| --- | --- |
+| Tanggal | 2026-11-19 |
+| File | `src/features/guard/live/retry.ts` (new), `product-admission.ts`, `service.ts`, `http.ts`, `product-view.ts`, `live-workspace.tsx`, `model.ts`, `src/app/api/guard/projects/[projectId]/scans/[jobId]/[resource]/route.ts`, `tests/guard/live/retry.test.ts`, `tests/guard/live/live-ui.spec.ts` |
+| Masalah | G02 had `maxAttempts=1` and no way to recover a scan that failed on a transient provider/infrastructure condition; the only path was a manual new scan with no link to the failure. |
+| Akar | Every Guard layer (policy, host, handler, runtime, persistence) asserts attempts=1 because the owner authorization lives in process memory; a second attempt of the same job cannot be reauthorized after a restart. |
+| Fix | Retry = a new job via the normal admission path (fresh Auth/provider check, pinned commit, policy), fixed idempotency key `g02-live-retry-<scan id>`, link `retry_of:<id>;depth:<n>` in the request audit. Eligible only: failed, no engine result, transient code, cleanup not UNKNOWN, depth <= 3, exponential backoff + deterministic jitter, same actor. Failed job/attempt history untouched. |
+| Verifikasi | 24 unit/admission tests (decision matrix, backoff growth, depth limit, refusals: actor/revoked/moved pin/terminal/backoff) + browser test; `vitest tests/guard/live` 252/252 at the time. |
+| Pelajaran | Retry that rewrites a used attempt blurs fencing and cleanup evidence; link a new job instead. Operational jobs require the `g02-live-` idempotency prefix. |
+| Log Keyword | `retry_of`, `retry_backoff`, `retry_not_allowed`, `g02-live-retry-`, `MAX_RETRY_DEPTH` |
+| Deploy | NOT deployed. No migration. |
+
+### Fix #16 — G02 evidence retention and secret-scan tests were not CI-clean; CRLF changed hash-verified historical evidence on Windows (2026-11-19)
+
+| Field | Detail |
+| --- | --- |
+| Tanggal | 2026-11-19 |
+| File | `.gitattributes`, `tests/guard/evidence-retention.test.ts`, `tests/sentinel/s11-secret-scan.test.ts` |
+| Masalah | `evidence-retention` failed with a different SHA256 for `worker-auth-request.job-2c18db66.json` under `core.autocrlf=true`; it also required 3 gitignored `test-results/` files that exist only on the producing machine (guaranteed failure on a clean CI checkout). The S11 repo-wide secret scan exceeded the 5 s default (1.6 s alone) under worker contention. |
+| Akar | Hash-verified evidence had no EOL protection; a test depended on untracked local output; a repo-size-dependent scan used the default timeout. |
+| Fix | `docs/acceptance/** -text` (files re-materialized from the same blobs); tracked artifacts compared byte for byte, local-only absences tolerated only for `test-results/` and capped at 3; 30 s explicit budget for the scan. S11 pins (`*.ps1`, scripts) untouched. |
+| Verifikasi | Retention test passes with LF working tree on Windows autocrlf; all 30 tracked artifacts match; secret scan 21/21. |
+| Pelajaran | A test that reads a gitignored file cannot be a CI gate; do not raise timeouts globally, size them per test. |
+| Log Keyword | `evidence-retention`, `-text`, `core.autocrlf`, `s11-secret-scan` |
+| Deploy | NOT deployed. |
+
+### Fix #15 — G02 IaC engine failed closed on Terraform in a subdirectory; found only by the real GitHub repository run (REAL_SCANNER_VERIFIED 2026-11-19)
+
+| Field | Detail |
+| --- | --- |
+| Tanggal | 2026-11-19 |
+| File | `worker/guard/scanner-adapter.ts`, `tests/guard/scanner-adapter.test.ts`, `worker/guard/installation/{handoff,iac-fixtures,acceptance-fixtures,github-acceptance}.ts` |
+| Masalah | On `wilanta/wetscan-g02-acceptance` both revisions ended `completed_partial` with IaC `failed` (`not_configured`); fixtures with Terraform at the root had passed. |
+| Akar | Trivy emits a clean per-module summary whose Target is a directory (`infra`). The adapter dropped only Target `.`; every other unbound target is refused by design, so one clean module summary failed the whole engine. |
+| Fix | Drop a clean summary (Class config, 0 failures, no findings) whose target is a directory of the authorized manifest and not a file. Files, traversal, unknown targets and finding-bearing directory rows still fail closed (unit test). |
+| Verifikasi | Real Trivy probe: targets `infra`(0), `infra/main.tf`(3), `infra/Dockerfile`(4), `infra/k8s/deployment.yaml`(18). Rerun: vulnerable `c1330c63` IaC completed 25 findings; fixed `3c6a99ec` 0. Broker handoff 10/10. |
+| Pelajaran | Controlled fixtures at the repository root hid a common layout; acceptance on a realistic repository is not redundant. Fixed revision IaC coverage is `partial` (a `locals`-only file yields no Trivy target) and stays reported as partial. |
+| Log Keyword | `summaryDirectory`, `MisconfSummary`, `infra`, `controlled_iac_terraform_kubernetes_dockerfile_mismatch` |
+| Deploy | NOT deployed. |
+
+### Fix #14 — G02 physical evidence could not be reproduced on a new machine; 6-engine measurement assumed 5 (2026-11-19)
+
+| Field | Detail |
+| --- | --- |
+| Tanggal | 2026-11-19 |
+| File | `worker/guard/installation/{build-context,Dockerfile,commands,measured,postgres-fixture,persistence-fixture,handoff}.ts`, `tests/guard/live/measured.test.ts`, `eslint.config.mjs` |
+| Masalah | No scanner image or build context existed; `measured.test.ts` failed from commit b7e740e (fixture `trivy-image` executable and 5 vs 6 deployments); `handoff.ts` capped at 5; PG fixture hardcoded another machine's Docker path and read before PostgreSQL was ready after restart; "180 rules" claim vs 74 installed; ESLint scanned downloaded rule repos (442 false errors). |
+| Akar | Build context was an untracked local artifact; assumptions were not re-checked when `container` became a sixth engine. |
+| Fix | Reproducible `build-context.ts` (checksum-verified, OSV cache at `osv-cache/osv-scalibr/npm`, `--network none` build); manifests drive digests; fixtures configurable by env; readiness retry; claim removed; `.local/**` ignored by ESLint. |
+| Verifikasi | Image `sha256:27c08e6e...`; qualification all sandbox controls PASS; Opengrep 1 / OSV 5 / Gitleaks 1 / Trivy IaC 3 / Trivy image 6; isolated PostgreSQL 18 Quick 7 / Standard 10 / Full 16, restart-persistent. |
+| Pelajaran | OSV 2.7.1 needs its cache dir prebuilt at `osv-scalibr/`; an image reference must be the content ID (`sha256:...`), not a tag; OSV (2 GB) times out at 45 s if other work runs concurrently. |
+| Log Keyword | `build-context`, `osv-scalibr`, `G02_MEASURED_ROOT`, `G02_INSTALL_DOCKER`, `scanner_measurement_incomplete` |
+| Deploy | NOT deployed. |
+
+### Fix #13 — Guard migration plan hash drifted when master gained Sentinel 0004-0009 (2026-11-19)
+
+| Field | Detail |
+| --- | --- |
+| Tanggal | 2026-11-19 |
+| File | `src/features/guard/live/migrations.ts`, `worker/guard/installation/postgres-fixture.ts`, `scripts/guard-g02-db-plan.ts` |
+| Masalah | After porting the G01/G02 commits onto master, `s03-compatibility` failed: the Guard plan listed nine platform migrations instead of three. |
+| Akar | `guardMigrationPlan()` used the live `migrationPlan()`; the Guard plan hash (which approvals and the provisioned `wetscan_dev_guardg02` ledger bind to) silently followed Sentinel's migrations. |
+| Fix | `GUARD_PLATFORM_BASELINE = "0003_detection"` via the existing `migrationPlan(through)` prefix mechanism. Sentinel migrations unchanged. |
+| Verifikasi | `s03-compatibility` + `db-plan` 11/11; typecheck PASS. |
+| Pelajaran | A frozen baseline must be frozen in code, not by convention. |
+| Log Keyword | `GUARD_PLATFORM_BASELINE`, `platformVersions`, `migrationPlanSha256` |
+| Deploy | NOT deployed. No migration. |
+
 ### Fix #12 — S11 post-merge hardening: forward-compatible schema health, real POST error-hygiene coverage, complete secret scan, production E2E in CI, line-ending/hash-pin compatibility (regression-safe follow-up to Fix #11; verified on disposable PostgreSQL 17.12 + fixtures + read-only dev-DB checks 2026-11-19; real-session E2E, real providers, staging, production NOT_RUN; H09 owner decision PENDING)
 
 | Field | Detail |

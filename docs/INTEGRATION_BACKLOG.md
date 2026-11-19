@@ -1,5 +1,9 @@
 ## Closure confirmed: deactivation and post-restart persistence
 
+## G02 completion — 19 November 2026
+
+GRD-006..GRD-010: REAL_SCANNER_VERIFIED on a real private GitHub revision (Container FIXTURE_VERIFIED; no owner image). Retry for failed scans implemented as a new linked scan. NOT_RUN: product Auth session → operational DB → Live UI with a stored positive finding. CAN-006 (Guard SAST/SCA/secrets overlay on Canvas) is unchanged by this work. G03 AI/patch/retest, G04 provider enforcement, G05 HTTP invariants and G06 delivery are not started. See [G02 handoff](G02_HANDOFF.md).
+
 Owner supplied actual terminal JSON productEnabled=0, confirmed server Ready, and authenticated GET HTTP200 after restart for e30251691f7c628804b1cdce99fe9afbc87c121ba6fa83131ec92ef13d366e5b. The stored result remains completed_partial/revision7, Opengrep completed/11 files,0 findings, release INCOMPLETE, matching pre-restart API and PostgreSQL. Deactivation and post-restart API persistence are now VERIFIED. Earlier pending reports are retained as historical checkpoints. Evidence: test-results/g02-live-sast-e3025169.CLOSURE.json. No replay or new runtime authority. No independent visual browser/DB observation by agent is claimed. G02 remains PARTIAL; zero finding rows do not establish positive finding persistence or repository safety. G01 remains2/16 PASS.
 
 ## G02 actual repository SAST result ? 19 November19:00 WIB

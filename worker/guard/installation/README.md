@@ -9,3 +9,13 @@ The control path is for explicitly authorized synthetic installation tests only.
 Public release/rules/database provenance is pinned in SOURCES.json; downloaded assets remain ignored. qualify.ts uses only fixed server-owned commands and controlled files, records actual spec/duration, and preserves failed reports. measured.ts refuses missing/expired/failed controls, scanner failures, changed commands, excess runtime or unknown cleanup. It writes exclusive hash-named artifacts only into an already ACL-verified new G02 directory and performs a Docker metadata recheck. It does not generate a database approval, repository policy, enqueue or scan permission. Artifacts expire from measurement time after one hour; do not re-date old evidence.
 
 Operational OSV alone allows2048MiB because its full npm offline database exceeded256MiB in the actual test. The legacy G01 validator still rejects that limit, and other operational engines stay256MiB. Current setup uses45s per engine,1CPU,64PIDs,2MB stdout/stderr budget and16MiB noexec tmpfs. No system-wide resource limit or retry mechanism was changed.
+
+## Reproducible build and acceptance runbook (19 November 2026)
+
+`build-context.ts` builds the scanner image from public, checksum-pinned sources (see `SOURCES.json`; rule files and the OSV/Trivy databases are recorded in manifests inside the context). `qualify.ts --full` measures it, `measured.ts` exports the measurement to a private root under `%TEMP%`, and then:
+
+- `handoff.ts <root>`: real broker → Docker → parsers for SAST, SCA, SBOM, Secrets and IaC (Terraform + Kubernetes + Dockerfile), vulnerable and clean. The image-bound container engine is exercised by `persistence-fixture.ts`.
+- `persistence-fixture.ts`: isolated PostgreSQL 18, Quick/Standard/Full, RLS, restart persistence.
+- `github-acceptance.ts prepare|run`: one dedicated private owner repository with a vulnerable and a fixed commit, read-only GitHub REST source, isolated PostgreSQL. Not the product Auth path, not the operational database.
+
+Environment: `G02_INSTALL_DOCKER` (absolute docker path), `G02_MEASURED_ROOT` (private root). Run nothing else during physical runs: OSV runs with a 2 GB / 45 s budget and times out under load. Measurements expire after one hour. `.local/` is untracked and ignored by Git and ESLint.

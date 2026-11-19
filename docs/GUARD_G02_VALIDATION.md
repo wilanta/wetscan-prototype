@@ -1,5 +1,22 @@
 # G02 functional validation ? 19 November 2026
 
+## Completion campaign — 19 November 2026 (branch `feat/guard-g02-completion`)
+
+**PARTIAL.** Supersedes the "container BLOCKED" and "no positive findings persisted" rows below; all older sections stay as historical checkpoints. Full explanation: [G02 handoff](G02_HANDOFF.md); readiness per requirement: [release readiness](GUARD_G02_RELEASE_READINESS.md). Evidence files: `docs/acceptance/guard-g02/20261119/`.
+
+| Requirement | Status now | Evidence |
+|---|---|---|
+| GRD-006/007/008/009 engines | REAL_SCANNER_VERIFIED | `scanner-installation.json` (Opengrep 2.0.0 / OSV 2.7.1 / Gitleaks 8.30.1 / Trivy 0.76.2 positive), `physical-broker-handoff.json` (10/10, vulnerable + clean), `github-acceptance.json` (real GitHub revision: SAST 3, SCA 5, Secrets 1, IaC 25). |
+| GRD-010 SBOM | REAL_SCANNER_VERIFIED | CycloneDX component count 1 bound to commit; both fixtures and the GitHub run. |
+| GRD-010 Container | FIXTURE_VERIFIED (was BLOCKED) | Digest-bound OCI archive, Trivy 0.76.2 offline DB: 6 findings; Full profile persists them (`postgres-persistence.json`). No real owner image. |
+| Retry | IMPLEMENTED | New linked scan; `tests/guard/live/retry.test.ts`, browser test. |
+| Real GitHub → PostgreSQL | REAL_SCANNER_VERIFIED | Private repo `wilanta/wetscan-g02-acceptance`: vulnerable `c1330c63` 34 findings, fixed `3c6a99ec` 0, isolated PostgreSQL 18, restart-persistent. |
+| Product session → operational DB → Live UI | NOT_RUN | Needs owner interactive login and DB credentials. |
+
+Defects found and fixed in this campaign (details in CHANGELOG_FIXES.md Fix #13–#17): Guard plan hash drift against master (platform baseline), IaC engine failing on nested Terraform modules (found only by the real repository), 6-engine measurement fixture, CI-unsafe evidence-retention test and CRLF drift, fixture portability and restart race.
+
+Gates on the final candidate are recorded in [G02 handoff](G02_HANDOFF.md) and the PR description.
+
 ## Closure confirmed: deactivation and post-restart persistence
 
 Owner supplied actual terminal JSON productEnabled=0, confirmed server Ready, and authenticated GET HTTP200 after restart for e30251691f7c628804b1cdce99fe9afbc87c121ba6fa83131ec92ef13d366e5b. The stored result remains completed_partial/revision7, Opengrep completed/11 files,0 findings, release INCOMPLETE, matching pre-restart API and PostgreSQL. Deactivation and post-restart API persistence are now VERIFIED. Earlier pending reports are retained as historical checkpoints. Evidence: test-results/g02-live-sast-e3025169.CLOSURE.json. No replay or new runtime authority. No independent visual browser/DB observation by agent is claimed. G02 remains PARTIAL; zero finding rows do not establish positive finding persistence or repository safety. G01 remains2/16 PASS.
