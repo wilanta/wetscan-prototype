@@ -40,7 +40,14 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run typecheck
       - run: npm run lint
-      - run: npm test
+      - name: Unit/contract suite
+        # cmd, not the default pwsh: the S04 suites spawn Windows PowerShell 5.1, which cannot autoload
+        # Microsoft.PowerShell.Security (Get-Acl) when the runner's pwsh PSModulePath leaks into it (96 failures observed on
+        # the first PR run, 2026-11-19). Pinning PSModulePath fixes the environment; no test is skipped.
+        shell: cmd
+        env:
+          PSModulePath: C:\Program Files\WindowsPowerShell\Modules;C:\Windows\system32\WindowsPowerShell1.0\Modules
+        run: npm test
       - name: Secret scan (prints file:line:rule only, never values)
         run: npm run sentinel:secret-scan
       - name: Dependency audit (high/critical fail the build)
