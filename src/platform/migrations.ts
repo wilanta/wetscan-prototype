@@ -114,6 +114,38 @@ export async function applyMigrations(
       if (!applied.length || applied.length > migrations.length)
         throw new PlatformError("target_denied");
       const latest = migrations[applied.length - 1];
+      if (latest.version === "0009_external_intelligence") {
+        // Refuses ANY catalog, history, run, inventory or advisory-sync job row; only the seeded ext_sources rows may be discarded.
+        const tables = [
+          "ext_inventory_items",
+          "ext_inventory_snapshots",
+          "ext_history",
+          "ext_affected",
+          "ext_advisories",
+          "ext_runs",
+        ];
+        await client.query(
+          `LOCK TABLE ${tables.map((t) => `sentinel.${t}`).join(",")},sentinel.ext_sources,platform.jobs IN ACCESS EXCLUSIVE MODE`,
+        );
+        for (const table of tables) {
+          const occupied = await client.query(
+            `SELECT EXISTS(SELECT 1 FROM sentinel.${table} LIMIT 1) AS occupied`,
+          );
+          if (occupied.rows[0].occupied)
+            throw new PlatformError("target_denied");
+        }
+        const touched = await client.query(
+          "SELECT EXISTS(SELECT 1 FROM sentinel.ext_sources WHERE status<>'never_run' OR last_attempt_at IS NOT NULL) OR EXISTS(SELECT 1 FROM platform.jobs WHERE module='sentinel' AND kind LIKE 'sentinel.advisory.%') AS occupied",
+        );
+        if (touched.rows[0].occupied) throw new PlatformError("target_denied");
+        await client.query(latest.down);
+        await client.query(
+          "DELETE FROM platform.schema_migrations WHERE version=$1",
+          [latest.version],
+        );
+        await client.query("COMMIT");
+        return;
+      }
       if (latest.version === "0008_internal_intelligence") {
         // Refuses ANY case, evidence, candidate or audit row; no force or cascade.
         const tables = [

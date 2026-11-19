@@ -59,6 +59,8 @@ describe.skipIf(!hasPg)(
     it("0008 migration: up/up idempotent, empty down reverses and re-applies, populated down refuses", async () => {
       const plan = await migrationPlan();
       await applyMigrations(h.migrator, plan.migrations, "up");
+      // The empty 0009_external_intelligence sits on top of 0008: reverse it first.
+      await applyMigrations(h.migrator, plan.migrations, "down");
       await applyMigrations(h.migrator, plan.migrations, "down");
       const after = (
         await h.admin.query(

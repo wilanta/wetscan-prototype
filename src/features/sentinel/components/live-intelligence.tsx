@@ -17,6 +17,7 @@ import type {
   IntelOverview,
   RuleCandidate,
 } from "../intelligence/model";
+import { LiveExternalIntelligence } from "./live-external";
 
 const knownErrors: Record<string, string> = {
   intelligence_not_configured:
@@ -79,6 +80,7 @@ const reviewTone = {
 
 export function LiveIntelligence({ projectId }: { projectId: string }) {
   const root = `/api/sentinel/projects/${encodeURIComponent(projectId)}/intelligence`;
+  const [tab, setTab] = useState<"internal" | "external">("internal");
   const [ov, setOv] = useState<IntelOverview | null>(null);
   const [detail, setDetail] = useState<IntelCaseDetail | null>(null);
   const [error, setError] = useState("");
@@ -165,6 +167,17 @@ export function LiveIntelligence({ projectId }: { projectId: string }) {
           </Link>
         ))}
       </nav>
+      <div className="segmented intelligence-tabs" role="group" aria-label="Intelligence source">
+        <button className={tab === "internal" ? "selected" : ""} aria-pressed={tab === "internal"} onClick={() => setTab("internal")}>
+          Case library (internal)
+        </button>
+        <button className={tab === "external" ? "selected" : ""} aria-pressed={tab === "external"} onClick={() => setTab("external")}>
+          External advisories
+        </button>
+      </div>
+      {tab === "external" && <LiveExternalIntelligence projectId={projectId} />}
+      {/* The S08 case library below is unchanged; it is only hidden (not unmounted) while the external tab is shown. */}
+      <div hidden={tab === "external"}>
       <Notice tone="amber">
         {ov?.grouping.disclaimer ??
           "Similarity is a deterministic indicator match. It does not prove a common attacker or successful exploitation."}{" "}
@@ -736,6 +749,7 @@ export function LiveIntelligence({ projectId }: { projectId: string }) {
           </Card>
         </>
       )}
+      </div>
     </div>
   );
 }

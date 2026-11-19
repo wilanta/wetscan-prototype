@@ -31,6 +31,8 @@ import {
   type AcceptanceIsolation,
 } from "./acceptance";
 import { assertAdmission } from "../../src/platform/job-admission";
+import type { ExternalActivation } from "../../src/features/sentinel/external/activation";
+import { externalLoop, type ExternalLoopInput } from "./external-sync";
 import {
   closeHealthServer,
   ShutdownCoordinator,
@@ -56,6 +58,9 @@ export async function runSentinelWorker(input: {
   incidents?: IncidentActivation;
   /** S05: absent ⇒ the response queue is never created (NO-OP / NOT_CONFIGURED). */
   response?: ResponseActivation;
+  /** S09: absent => no feed client exists and the worker makes no external request (NOT_CONFIGURED). */
+  external?: ExternalActivation;
+  externalFeed?: ExternalLoopInput["feed"];
   env?: Readonly<Record<string, string | undefined>>;
   isolation?: AcceptanceIsolation;
   workerId: string;
@@ -115,6 +120,11 @@ export async function runSentinelWorker(input: {
         response: input.response
           ? "enabled_for_approved_local_fixture"
           : "disabled_pending_approval",
+        externalIntelligence:
+          input.external &&
+          migrations.some((m) => m.version === "0009_external_intelligence")
+            ? "enabled_for_approved_public_feeds"
+            : "disabled_pending_approval",
         // Delivery lives in the credential-isolated notifier lane; this worker only produces ledger intents.
         notifications: "delegated_to_isolated_notifier",
       }),
@@ -125,7 +135,8 @@ export async function runSentinelWorker(input: {
   healthServer.maxConnections = 10;
   let schemaReady = false;
   let pulse = Promise.resolve(),
-    work = Promise.resolve();
+    work = Promise.resolve(),
+    external = Promise.resolve();
   let acceptanceDeadline: ReturnType<typeof setTimeout> | undefined;
   try {
     if (
@@ -397,13 +408,27 @@ export async function runSentinelWorker(input: {
         }
       }
     })();
+    if (
+      input.external &&
+      !input.isolation &&
+      migrations.some((m) => m.version === "0009_external_intelligence")
+    )
+      external = externalLoop({
+        db,
+        activation: input.external,
+        workerId,
+        options,
+        signal: stop.signal,
+        once: input.once,
+        feed: input.externalFeed,
+      });
     // A pending DB/handler operation must not postpone entering bounded cleanup.
     const requested = new Promise<void>((resolve) => {
       if (stop.signal.aborted) resolve();
       else
         stop.signal.addEventListener("abort", () => resolve(), { once: true });
     });
-    await Promise.race([work, requested]);
+    await Promise.race([Promise.all([work, external]), requested]);
   } finally {
     if (acceptanceDeadline) clearTimeout(acceptanceDeadline);
     stop.request("completed");
@@ -414,7 +439,7 @@ export async function runSentinelWorker(input: {
         const httpClosed = closeHealthServer(healthServer);
         try {
           await within(
-            Promise.allSettled([work, pulse]),
+            Promise.allSettled([work, pulse, external]),
             Math.min(5000, remaining()),
           );
           await within(httpClosed, remaining());

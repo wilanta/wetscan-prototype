@@ -78,7 +78,8 @@ describe("S08 additive SQL review and reversal protocol - not PostgreSQL executi
     );
   });
   it("down refuses a populated table and only removes 0008 when empty", async () => {
-    const p = await migrationPlan();
+    // Pinned: the S08 reversal protocol is exercised against the plan whose latest migration is 0008.
+    const p = await migrationPlan("0008_internal_intelligence");
     const run = async (occupied: boolean) => {
       const c = new RecordingClient();
       c.respond = async (sql) => ({

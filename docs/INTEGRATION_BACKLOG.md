@@ -259,6 +259,7 @@ No external issues created. Dependencies require owner handoffs. G01 adds Guard-
 - State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
 - Owner/dependency: Intelligence owner.
 - Contract: IntelligencePort.publish; scoped commit InventoryItem[].
+- S09 consumer note (19 Nov 2026): Sentinel External Intelligence does NOT depend on this producer. It uses a repository-lockfile inventory (`repository_lockfile`, declared dependencies only) and keeps `guardInventoryPort.configured === false`; no Guard code was changed. A future GRD-020 producer needs a widened `source_kind` in a new migration and ecosystem mapping (see HANDOFF_S09).
 - Source (relative to src/features/guard unless explicitly prefixed): contracts.ts (IntelligencePort), evidence.ts (normalizeOSVInventory), adapters.ts.
 - Safety/storage/environment: No fictional advisories; unknown licenses explicit.
 - Tests / acceptance / definition of done: Idempotent validated ingestion and tenant isolation.
