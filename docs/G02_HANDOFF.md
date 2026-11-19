@@ -31,6 +31,10 @@ The queue and every Guard layer assert `maxAttempts = 1` because the owner's Git
 
 Not done: automatic background re-queueing of the same job (would need a durable, re-authorizable owner capability); this is a design limit, not an oversight.
 
+## CI on PR #17 (GitHub Actions, windows-2025 + ubuntu-24.04)
+
+Static (typecheck, lint, 2685 unit/contract tests, secret scan, audit), production build, PostgreSQL integration and browser jobs pass. The first run exposed a hosted-runner defect that no local run could: 25 Guard tests that create private ACL-restricted directories failed because an elevated runner account can never satisfy the exact owner + SYSTEM ACL (Administrators owner and ACE) and the PowerShell verification took 20-37 s per call (module autoload in a minimal environment). Fixed in CHANGELOG Fix #18 with a temporary diagnostic job (removed). The Vercel preview deployment status is a separate, non-required check and its cause could not be inspected without Vercel credentials.
+
 ## Evidence (all under `docs/acceptance/guard-g02/20261119/`)
 
 | File | Proves | Does not prove |
