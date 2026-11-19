@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import pg from "pg";
 import { PlatformDatabase } from "../../src/platform/database";
 import { applyMigrations, migrationPlan } from "../../src/platform/migrations";
+import { heartbeatWorker, platformHealth } from "../../src/platform/health";
 import { workerConfig } from "../../src/platform/config";
 import { runSentinelWorker } from "../../worker/sentinel/runtime";
 import { collectLiveReport } from "../../src/features/sentinel/reports/collect";
@@ -472,6 +473,44 @@ describe.skipIf(!hasPg)(
       const text = JSON.stringify(await collectLiveReport(h.app, A, 7));
       for (const id of a2.concat(b)) expect(text).not.toContain(id);
       expect(a.length).toBeGreaterThan(0);
+    });
+
+    it("S11 health on the real ledger: an older build on a newer database is ready only with an operator acceptance, and a real checksum drift is never safe", async () => {
+      const full = (await migrationPlan()).migrations;
+      const older = (await migrationPlan("0008_internal_intelligence"))
+        .migrations;
+      await heartbeatWorker(h.worker, randomUUID(), "running");
+      const current = await platformHealth(h.worker, undefined, full);
+      expect(current).toMatchObject({
+        schemaStatus: "current",
+        warnings: [],
+      });
+      // Build that only knows 0001-0008 against the real 0009 ledger.
+      const unattested = await platformHealth(h.worker, undefined, older);
+      expect(unattested).toMatchObject({
+        status: "degraded",
+        schemaStatus: "ahead_unverified",
+      });
+      const attested = await platformHealth(h.worker, undefined, older, {
+        acceptAheadThrough: "0009_external_intelligence",
+      });
+      expect(attested).toMatchObject({
+        schemaStatus: "ahead_compatible",
+        schema: "0009_external_intelligence",
+        warnings: ["schema_ahead_of_code:0009_external_intelligence"],
+      });
+      // Overlap checksum drift outranks everything, even with a blanket acceptance.
+      const drifted = older.map((x, n) =>
+        n === 2 ? { ...x, checksum: "f".repeat(64) } : x,
+      );
+      expect(
+        await platformHealth(h.worker, undefined, drifted, {
+          acceptAheadThrough: "0009_external_intelligence",
+        }),
+      ).toMatchObject({
+        status: "degraded",
+        schemaStatus: "checksum_mismatch",
+      });
     });
   },
 );

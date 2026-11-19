@@ -163,6 +163,11 @@ jobs:
           for c in telemetry detection incident response notification ghost intelligence external; do
             npx playwright test -c tests/sentinel/$c.playwright.config.ts --timeout=300000
           done
+      - name: Production-build E2E (next build + next start, provider-substituted GitHub fixtures, no real credentials)
+        # Builds the application, starts three isolated production servers on 3107-3109 with generated test-only
+        # configuration and a stubbed GitHub, then runs the Auth/Onboarding/Dashboard/Canvas specs against them.
+        timeout-minutes: 15
+        run: node tests/auth/run-github-e2e.mjs
       - name: Retain failure evidence (bounded, 7 days)
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -176,13 +181,13 @@ jobs:
           if-no-files-found: ignore
 
   dependency-review:
-    name: dependency review (advisory)
-    if: github.event_name == 'pull_request'
+    name: dependency review (optional, needs GHAS)
+    # Runs ONLY when the owner has enabled GitHub Advanced Security / the dependency graph and set the repository
+    # variable GHAS_ENABLED=true. Without it the action answers "Forbidden", which would put a predictable failing
+    # check on every PR. The enforced dependency gate is `npm audit --audit-level=high` in the static job.
+    if: github.event_name == 'pull_request' && vars.GHAS_ENABLED == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
-    # Needs GitHub Advanced Security on private repositories; when unavailable this job reports a failure but
-    # must not hide the enforced `npm audit` gate above. Branch protection should require the other four jobs.
-    continue-on-error: true
     permissions:
       contents: read
     steps:

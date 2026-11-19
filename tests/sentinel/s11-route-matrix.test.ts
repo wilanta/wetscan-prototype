@@ -17,6 +17,18 @@ vi.mock("../../src/features/canvas/server/github-reader", () => ({
   workspaceScope: () => "github-user-7:fixture",
   authorizeCanvasProject: vi.fn(),
 }));
+// The Canvas overlay route needs an authorized cached graph before it opens storage; serve one that matches the request.
+vi.mock("../../src/features/canvas/server/project-service", () => ({
+  projectCanvasService: () => ({
+    cached: async (revision: string) => ({
+      graph: {
+        revision,
+        mode: "live",
+        projectRef: "github-user-7/github-123",
+      },
+    }),
+  }),
+}));
 vi.mock("../../src/features/sentinel/server/project-context", () => ({
   authorizeSentinelProject: vi.fn(),
 }));
@@ -69,6 +81,19 @@ const ROUTES: Route[] = [
   { name: "rules", mod: rules as never },
   { name: "sources", mod: sources as never },
 ];
+/** Minimal valid POST commands for routes that validate the body BEFORE touching storage (others accept {}). */
+const POST_BODY: Record<string, unknown> = {
+  sources: {
+    action: "disable",
+    sourceId: "00000000-0000-4000-8000-000000000001",
+  },
+  rules: { action: "seed" },
+  intelligence: {
+    action: "archive",
+    incidentId: "00000000-0000-4000-8000-000000000002",
+  },
+  external: { action: "refresh_inventory" },
+};
 const ORIGIN = "http://localhost:3000";
 const call = (
   route: Route,
@@ -178,7 +203,7 @@ describe.each(cases)("S11 route matrix: %s", (_n, route, method) => {
     expect(res.headers.get("x-content-type-options")).toBe("nosniff");
   });
 
-  it("a storage failure is a generic 503 that leaks no connection detail", async () => {
+  it("a storage failure is a sanitized 503 and the storage dependency was really reached", async () => {
     vi.mocked(authorizeSentinelProject).mockResolvedValue({
       scope: {
         mode: "live",
@@ -192,12 +217,19 @@ describe.each(cases)("S11 route matrix: %s", (_n, route, method) => {
     vi.mocked(telemetryStore).mockRejectedValue(
       new Error("password=hunter2 host=10.0.0.5 SELECT * FROM sentinel.x"),
     );
-    // POST bodies are validated before storage; a syntactically valid empty command may be rejected as 4xx.
-    const res = await call(route, method, "github-123");
+    // Body-first POST routes validate the command before they open storage, so each gets a minimal VALID command.
+    const res = await call(route, method, "github-123", {
+      body: JSON.stringify(POST_BODY[route.name] ?? {}),
+    });
     const text = await res.text();
-    expect(text).not.toMatch(/hunter2|10\.0\.0\.5|SELECT|stack/i);
-    expect(res.status).not.toBe(200);
-    expect(res.status).toBeLessThan(600);
+    // The request must have got past authentication AND validation to the failing dependency.
+    expect(authorizeSentinelProject).toHaveBeenCalledTimes(1);
+    expect(telemetryStore).toHaveBeenCalled();
+    expect(res.status).toBe(503);
+    expect(JSON.parse(text)).toEqual({ error: "telemetry_unavailable" });
+    expect(text).not.toMatch(
+      /hunter2|10.0.0.5|SELECT|sentinel.x|stack|password/i,
+    );
   });
 });
 

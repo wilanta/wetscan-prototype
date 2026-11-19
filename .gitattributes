@@ -1,3 +1,10 @@
-# S11: the S04 audit/provision scripts are pinned by SHA-256 over their LF bytes (e.g. Invoke-S04AuditProcedure.ps1 pins
-# sentinel-provision-common.ps1). A CRLF checkout (Windows autocrlf, hosted runners) changes the bytes and the pin fails closed.
+# S11: the S04 audit/provision scripts are pinned by SHA-256 over their exact bytes (e.g. Invoke-S04AuditProcedure.ps1 pins
+# sentinel-provision-common.ps1). A checkout that rewrites line endings (Windows autocrlf, hosted runners) changes the bytes
+# and the pin correctly fails closed. Pins found in the repository and in the owner's private manifests are over LF bytes,
+# with ONE exception (see below). tests/sentinel/s11-pinned-script-bytes.test.ts enforces this.
 *.ps1 text eol=lf
+# Pinned in CRLF form by a private S04 provision-package manifest (verified 2026-11-19): keep its historical bytes.
+scripts/Invoke-S04ProvisionPackage.ps1 text eol=crlf
+# Pinned by LF hash inside scripts/Invoke-S04OwnerSessionArchiveAudit.ps1 and private manifests, but not covered by *.ps1.
+scripts/sentinel-owner-session-audit.ts text eol=lf
+scripts/sentinel-owner-auth-snapshot.ts text eol=lf
