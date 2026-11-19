@@ -134,6 +134,16 @@ Prerequisites: S02/S04; approve safe non-sensitive path/honeytoken, app, allowed
 
 Proposed env: reuse H02 sender variables; `SENTINEL_GHOST_DECOY_PATH` (`/__wetscan/ghost-decoy`). Expected proof: actual labeled test hit -> `ghost.decoy_triggered` -> evidence/incident; legitimate scanners may trigger it, so no breach inference.
 
+## H-S08-AI - optional AI explanation provider (new gate, S08)
+
+**Status: NOT_CONFIGURED / DEFERRED (optional; does not block S08). Who: owner.**
+
+S08 ships only the disabled `AIExplanationPort` default (`disabledAIExplanation`). No provider, key, model call or data egress exists. Before any adapter is written the owner must decide and record: provider and region, cost budget, privacy/consent (what, if anything, may leave the system), retention at the provider, and per-project opt-in. The maximum input is fixed by `redactedGroupSummary` (indicator labels and counts only: no ids, titles, notes, actors, sources or evidence). Output must remain labelled untrusted/draft-only and can never create, approve, validate or enable a rule. Proposed env names only: `SENTINEL_AI_EXPLAIN_ENABLED`, `SENTINEL_AI_PROVIDER`, `SENTINEL_AI_API_KEY` (server-only). Expected proof: opt-in test project, redacted payload captured and reviewed before the first call.
+
+## H-S08-DEVDB - persistent `wetscan_dev` upgrade to `0008` (new, S08)
+
+**Status: PENDING (owner). `NOT_RUN` - the persistent development database was not inspected or changed.** Follow `H-S06-ROLE`, then apply `0005`-`0008` after a verified backup and issue new sealed `app`/`worker` approvals bound to plan sha256 `7ac3e11c4f1fc3caf30e782f2e8e3b73d1a6cdf19438d722bf3cb1d805733012` (details in `SENTINEL_S08_MIGRATION_REVIEW.md`). No backfill: the case library starts empty and humans archive incidents explicitly.
+
 ## H08 - public advisories and actual inventory
 
 **Status: DEFERRED to S09; NVD optional. Who: owner + Guard/inventory owner.**
@@ -155,7 +165,7 @@ Prerequisites: active packets tested; inspect original-vs-integrated UI, two-pro
 | Database driver/migration tool, PostgreSQL version, port/roles/budgets and retention | Owner/platform, WAITING_USER H01                  | S01 prepares pg/custom checksummed runner, dedicated PG17/55432 and isolated roles; approve exact target/image/volume/marker and application. Event/evidence retention remains future scope. |
 | Team/shared workspace identity, rename/transfer                                      | H10 APPROVED; Daud owner-reported                 | Both approvals dated 14 November 2026 (Asia/Jakarta), no amendments; Daud's source is owner-reported. Future immutable team ID requires explicit migration.                                  |
 | Guard actual producer, repository permission recheck and source-to-node mapping      | Guard/Canvas owners, DEFERRED GRD-020/021/CAN-008 | Approve future adapters after producer evidence; approve narrow S04/S10 router/UI handoff.                                                                                                   |
-| AI provider/privacy/budget                                                           | Owner, DEFERRED optional                          | No AI env/key selected; require opt-in/redaction, explanatory drafts only. Never publish rules or apply responses automatically.                                                             |
+| AI provider/privacy/budget                                                           | Owner, DEFERRED optional (gate `H-S08-AI`)        | No AI env/key selected; require opt-in/redaction, explanatory drafts only. Never publish rules or apply responses automatically.                                                             |
 | Public exposure/tunnel/provider callbacks                                            | Target owner, DEFERRED                            | Not required for S00 or localhost ingest tests; explicit allowed HTTPS endpoint and signatures before enabling later.                                                                        |
 
 No entry is CONFIGURED/TESTED merely because a contract or mock exists. Existing user provider setup was not inspected, so this file does not assert it is missing globally.

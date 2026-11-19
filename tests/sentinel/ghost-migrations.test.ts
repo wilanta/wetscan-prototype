@@ -18,6 +18,7 @@ describe("S07 additive SQL and reversal protocol - not PostgreSQL execution", ()
       "0005_response",
       "0006_notifications",
       "0007_ghost",
+      "0008_internal_intelligence",
     ]);
     expect(full.sha256).not.toBe(s06.sha256);
   });
@@ -50,9 +51,9 @@ describe("S07 additive SQL and reversal protocol - not PostgreSQL execution", ()
   });
 
   it.each(["ghost_audit", "ghost_decoys"])(
-    "down refuses populated %s without running DROP SQL",
+    "down refuses populated %s without running DROP SQL (0007 as latest migration)",
     async (table) => {
-      const p = await migrationPlan();
+      const p = await migrationPlan("0007_ghost");
       const c = new RecordingClient();
       c.respond = async (sql) => ({
         rows: sql.includes("to_regclass")
@@ -72,8 +73,8 @@ describe("S07 additive SQL and reversal protocol - not PostgreSQL execution", ()
     },
   );
 
-  it("empty reversal removes only 0007_ghost", async () => {
-    const p = await migrationPlan();
+  it("empty reversal removes only 0007_ghost when it is the latest applied migration", async () => {
+    const p = await migrationPlan("0007_ghost");
     const c = new RecordingClient();
     c.respond = async (sql) => ({
       rows: sql.includes("to_regclass")

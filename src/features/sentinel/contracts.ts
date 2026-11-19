@@ -209,7 +209,8 @@ export interface CaseLibraryPort {
   ): Promise<
     IntegrationResult<{
       caseId: string;
-      status: "draft_pending_review";
+      /** S08: current case review status (an already-archived incident is returned unchanged, never reset). */
+      status: "draft_pending_review" | "reviewed" | "dismissed";
     }>
   >;
 }

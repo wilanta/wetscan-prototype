@@ -114,6 +114,33 @@ export async function applyMigrations(
       if (!applied.length || applied.length > migrations.length)
         throw new PlatformError("target_denied");
       const latest = migrations[applied.length - 1];
+      if (latest.version === "0008_internal_intelligence") {
+        // Refuses ANY case, evidence, candidate or audit row; no force or cascade.
+        const tables = [
+          "intel_audit",
+          "intel_candidate_cases",
+          "intel_candidates",
+          "intel_case_evidence",
+          "intel_cases",
+        ];
+        await client.query(
+          `LOCK TABLE ${tables.map((t) => `sentinel.${t}`).join(",")} IN ACCESS EXCLUSIVE MODE`,
+        );
+        for (const table of tables) {
+          const occupied = await client.query(
+            `SELECT EXISTS(SELECT 1 FROM sentinel.${table} LIMIT 1) AS occupied`,
+          );
+          if (occupied.rows[0].occupied)
+            throw new PlatformError("target_denied");
+        }
+        await client.query(latest.down);
+        await client.query(
+          "DELETE FROM platform.schema_migrations WHERE version=$1",
+          [latest.version],
+        );
+        await client.query("COMMIT");
+        return;
+      }
       if (latest.version === "0007_ghost") {
         // Refuses ANY Ghost decoy or audit row; no force or cascade.
         const tables = ["ghost_audit", "ghost_decoys"];
