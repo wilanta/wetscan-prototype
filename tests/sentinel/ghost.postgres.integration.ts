@@ -73,6 +73,8 @@ describe.skipIf(!hasPg)(
       const plan = await migrationPlan();
       // Idempotent up/up
       await applyMigrations(h.migrator, plan.migrations, "up");
+      // Later empty migrations (0008_internal_intelligence) sit on top of 0007: reverse them first.
+      await applyMigrations(h.migrator, plan.migrations, "down");
       // Down reverses only 0007_ghost when empty
       await applyMigrations(h.migrator, plan.migrations, "down");
       const versionsAfterDown = (
@@ -463,11 +465,13 @@ describe.skipIf(!hasPg)(
         ).rejects.toThrow();
       });
 
-      // Populated 0007_ghost down migration must refuse cleanly
+      // Populated 0007_ghost down migration must refuse cleanly (after the empty 0008 is reversed and re-applied)
       const plan = await migrationPlan();
+      await applyMigrations(h.migrator, plan.migrations, "down");
       await expect(
         applyMigrations(h.migrator, plan.migrations, "down"),
       ).rejects.toThrow("target_denied");
+      await applyMigrations(h.migrator, plan.migrations, "up");
     });
 
     it("S07 worker crash/restart preserves single incident without duplication", async () => {

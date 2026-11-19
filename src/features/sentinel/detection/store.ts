@@ -17,6 +17,7 @@ import {
   type SecurityAlert,
   type AlertPage,
   type Evaluation,
+  type RuleDefinition,
 } from "./model";
 import { evaluate, eventWindow } from "./evaluator";
 import { seedRules } from "./seeds";
@@ -263,6 +264,33 @@ export class DetectionStore {
       if (!updated.rowCount) throw new TelemetryError("revision_conflict", 409);
       return { ruleId: c.ruleId, revision: next, status };
     });
+  }
+  /** S08 seam: persist one rule as DRAFT inside the caller's transaction (same capacity, versioning and audit as `create`). Never enables. Caller must hold the project binding lock. */
+  async createDraftInTx(
+    tx: TransactionContext,
+    context: SentinelProjectContext,
+    d: RuleDefinition,
+  ): Promise<string> {
+    const s = scopeValues(context.scope);
+    const count = Number(
+      (
+        await this.db.query(
+          tx,
+          `SELECT count(*)::int AS n FROM sentinel.detection_rules WHERE ${where}`,
+          s,
+        )
+      ).rows[0].n,
+    );
+    if (count >= detectionLimits.rules)
+      throw new TelemetryError("rule_capacity", 409);
+    const id = randomUUID();
+    await this.db.query(
+      tx,
+      `INSERT INTO sentinel.detection_rules(mode,workspace_id,project_id,rule_id,current_version,seed_key) VALUES($1,$2,$3,$4,1,NULL)`,
+      [...s, id],
+    );
+    await this.version(tx, context, id, 1, "DRAFT", d, "create");
+    return id;
   }
   private async version(
     tx: TransactionContext,

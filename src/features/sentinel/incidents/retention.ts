@@ -29,10 +29,20 @@ export async function retainIncidents(
     const responsePin = responses
       ? " AND NOT EXISTS(SELECT 1 FROM sentinel.response_actions r WHERE r.mode=i.mode AND r.workspace_id=i.workspace_id AND r.project_id=i.project_id AND r.incident_id=i.incident_id)"
       : "";
+    // S08: an active, undismissed Intelligence case pins its source incident (and through it the evidence events). 0008 may not be applied yet.
+    const intel = (
+      await db.query(
+        tx,
+        "SELECT to_regclass('sentinel.intel_cases') IS NOT NULL AS present",
+      )
+    ).rows[0].present as boolean;
+    const intelPin = intel
+      ? " AND NOT EXISTS(SELECT 1 FROM sentinel.intel_cases c WHERE c.mode=i.mode AND c.workspace_id=i.workspace_id AND c.project_id=i.project_id AND c.incident_id=i.incident_id AND c.shelf_state='active' AND c.status<>'dismissed')"
+      : "";
     const expired = (
       await db.query(
         tx,
-        `SELECT i.incident_id FROM sentinel.incidents i WHERE i.mode=$1 AND i.workspace_id=$2 AND i.project_id=$3 AND i.status='closed' AND i.closed_at IS NOT NULL AND i.closed_at<statement_timestamp()-interval '30 days' AND NOT EXISTS(SELECT 1 FROM sentinel.incident_evidence e JOIN platform.jobs j ON j.module='sentinel' AND j.mode=e.mode AND j.workspace_id=e.workspace_id AND j.project_id=e.project_id AND j.subject_ref=e.source_id::text||'/'||e.event_id::text WHERE e.mode=i.mode AND e.workspace_id=i.workspace_id AND e.project_id=i.project_id AND e.incident_id=i.incident_id AND j.state IN ('queued','leased')) ${responsePin} ORDER BY i.closed_at,i.incident_id LIMIT 100`,
+        `SELECT i.incident_id FROM sentinel.incidents i WHERE i.mode=$1 AND i.workspace_id=$2 AND i.project_id=$3 AND i.status='closed' AND i.closed_at IS NOT NULL AND i.closed_at<statement_timestamp()-interval '30 days' AND NOT EXISTS(SELECT 1 FROM sentinel.incident_evidence e JOIN platform.jobs j ON j.module='sentinel' AND j.mode=e.mode AND j.workspace_id=e.workspace_id AND j.project_id=e.project_id AND j.subject_ref=e.source_id::text||'/'||e.event_id::text WHERE e.mode=i.mode AND e.workspace_id=i.workspace_id AND e.project_id=i.project_id AND e.incident_id=i.incident_id AND j.state IN ('queued','leased')) ${responsePin}${intelPin} ORDER BY i.closed_at,i.incident_id LIMIT 100`,
         s,
       )
     ).rows.map((r) => r.incident_id as string);
