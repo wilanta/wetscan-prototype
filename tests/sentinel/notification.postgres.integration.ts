@@ -4,7 +4,7 @@ import pg from "pg";
 import { PlatformDatabase } from "../../src/platform/database";
 import { PostgresOutbox } from "../../src/platform/outbox";
 import { PostgresQueue } from "../../src/platform/queue";
-import { produceIncidentOpened } from "../../src/features/sentinel/notifications/store";
+import { produceIncidentOpened, retainNotifications } from "../../src/features/sentinel/notifications/store";
 import { SenderStore } from "../../src/features/sentinel/notifications/sender-store";
 import { runNotifier } from "../../worker/notifier/runtime";
 import { migrationPlan } from "../../src/platform/migrations";
@@ -386,6 +386,27 @@ describe("S06-A7 revocation, destination change and tenant/role isolation", () =
     await expect(applyMigrations(migrator, full.migrations, "down")).rejects.toThrow();
     expect((await rows("SELECT version FROM platform.schema_migrations ORDER BY version")).map((r) => r.version)).toContain("0006_notifications");
     await migrator.end();
+  });
+});
+
+describe("S06 retention (worker role)", () => {
+  it("deletes only terminal ledger rows older than the window; pending/attempted rows and fresh history are never touched", async () => {
+    const mk = (id: string, state: string, age: string, fin: boolean) =>
+      h.admin.query(
+        `INSERT INTO sentinel.notification_deliveries(mode,workspace_id,project_id,delivery_id,channel,trigger,subject_ref,origin,dedup_key,state,reason,created_by,created_at,finished_at)
+         VALUES('live',$1,$2,$3,'telegram','incident_opened','x','runtime',$3,$4,'old','t',now()-$5::interval,${fin ? "now()-$5::interval" : "NULL"})`,
+        [h.context.scope.workspaceId, h.context.scope.projectId, id, state, age],
+      );
+    await mk("ret-old-failed", "failed", "40 days", true);
+    await mk("ret-old-suppressed", "suppressed", "40 days", true);
+    await mk("ret-fresh-failed", "failed", "1 day", true);
+    await mk("ret-old-pending", "pending", "40 days", false);
+    expect(await retainNotifications(h.worker, h.context.scope, 30)).toBe(2);
+    const left = (await rows("SELECT delivery_id FROM sentinel.notification_deliveries WHERE delivery_id LIKE 'ret-%' ORDER BY delivery_id")).map((r) => r.delivery_id);
+    expect(left).toEqual(["ret-fresh-failed", "ret-old-pending"]);
+    // wrong-scope worker pass cannot delete this project's rows
+    expect(await retainNotifications(h.worker, h.other.scope, 1)).toBe(0);
+    await h.admin.query("DELETE FROM sentinel.notification_deliveries WHERE delivery_id LIKE 'ret-%'");
   });
 });
 

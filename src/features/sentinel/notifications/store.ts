@@ -441,7 +441,7 @@ export async function retainNotifications(db: PlatformDatabase, scope: SentinelS
       tx,
       `DELETE FROM sentinel.notification_deliveries WHERE (mode,workspace_id,project_id,delivery_id) IN (
         SELECT mode,workspace_id,project_id,delivery_id FROM sentinel.notification_deliveries WHERE ${where}
-        AND state NOT IN ('pending','attempted') AND finished_at<clock_timestamp()-($4::int*interval '1 day') ORDER BY finished_at LIMIT 200 FOR UPDATE SKIP LOCKED)`,
+        AND state NOT IN ('pending','attempted') AND finished_at<clock_timestamp()-($4::int*interval '1 day') ORDER BY finished_at LIMIT 200)`, // no row lock: the worker role has no UPDATE on the ledger
       [...sv(scope), days],
     );
     return r.rowCount ?? 0;

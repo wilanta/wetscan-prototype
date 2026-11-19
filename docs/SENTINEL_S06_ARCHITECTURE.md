@@ -1,7 +1,7 @@
 # Sentinel S06 — Durable Notifications, Telegram First & Delivery Ledger
 
 **Status: DEV accepted on an isolated throwaway PostgreSQL + loopback mock providers (19 Nov 2026). `live tested` against Telegram/Resend: NOT_RUN (no credentials were available; H04/H05 not yet exercised). WhatsApp: not integrated by design (H06).**
-Brief: [CLAUDE_PLAN_S06_Notifications.md](../CLAUDE_PLAN_S06_Notifications.md). Validation evidence: [SENTINEL_S06_VALIDATION.md](SENTINEL_S06_VALIDATION.md). Migration review: [SENTINEL_S06_MIGRATION_REVIEW.md](SENTINEL_S06_MIGRATION_REVIEW.md).
+Brief: owner planning brief `CLAUDE_PLAN_S06_Notifications.md` (supplied with the task; not stored in this repository). Validation evidence: [SENTINEL_S06_VALIDATION.md](SENTINEL_S06_VALIDATION.md). Migration review: [SENTINEL_S06_MIGRATION_REVIEW.md](SENTINEL_S06_MIGRATION_REVIEW.md).
 
 ## Answer to the architecture question
 > *How should notification delivery reuse the S01 outbox while preserving the main worker's deliberate removal of provider environment variables?*
