@@ -88,13 +88,13 @@ async function secureNewRoot(root: string) {
       "foreach($s in @($u,[System.Security.Principal.SecurityIdentifier]::new('S-1-5-18'))) { " +
       "$r=[System.Security.AccessControl.FileSystemAccessRule]::new($s,[System.Security.AccessControl.FileSystemRights]::FullControl," +
       "[System.Security.AccessControl.InheritanceFlags]'ContainerInherit,ObjectInherit',[System.Security.AccessControl.PropagationFlags]::None," +
-      "[System.Security.AccessControl.AccessControlType]::Allow); $a.AddAccessRule($r) }; Set-Acl -LiteralPath $p -AclObject $a";
+      "[System.Security.AccessControl.AccessControlType]::Allow); $a.AddAccessRule($r) }; [System.IO.DirectoryInfo]::new($p).SetAccessControl($a)";
     await promisify(execFile)(
       join(system, "System32/WindowsPowerShell/v1.0/powershell.exe"),
       ["-NoProfile", "-NonInteractive", "-Command", command],
       {
         windowsHide: true,
-        timeout: 10000,
+        timeout: 20000,
         maxBuffer: 16000,
         env: { SystemRoot: system, WINDIR: system, NODE_ENV: process.env.NODE_ENV ?? "development" },
       },
