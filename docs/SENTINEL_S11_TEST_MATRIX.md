@@ -12,15 +12,15 @@ DEV-PG (owner persistent database).
 | --- | --- | --- | --- |
 | A1-1 | static | clean tree / `npm run typecheck` / exit 0 | PASS |
 | A1-2 | static | clean tree / `npm run lint` / exit 0 | PASS |
-| A1-3 | unit | clean tree / `vitest run` / 2098/2098 | PASS |
+| A1-3 | unit | clean tree / `vitest run` / every test passes (counts: register E-A1-3) | PASS |
 | A1-4 | build | clean tree / `npm run build` / exit 0 (no dotenv needed) | PASS |
-| A1-5 | repeat | each gate ran on the clean master baseline, on the candidate locally, and on GitHub-hosted runners / identical counts (2098 unit, 77 browser, 142 PG) | PASS (CI repeat executed; two failures that looked flaky were diagnosed as a hydration race and a teardown error, see register F) |
+| A1-5 | repeat | each gate ran on the clean master baseline, on the candidate locally, and on GitHub-hosted runners / identical counts (see register sections B, F and H) | PASS (CI repeat executed; two failures that looked flaky were diagnosed as a hydration race and a teardown error, see register F) |
 
 ## S11-A2 - PostgreSQL and two-project isolation
 | ID | Level | Given / When / Then | Result |
 | --- | --- | --- | --- |
 | A2-1 | Postgres | 0001-0009 applied / ledger vs plan; second `up` / ledger identical (idempotent) | PASS |
-| A2-2 | Postgres | every table in `sentinel`,`platform` / catalog / 37 tenant tables have tenant columns, `ENABLE`+`FORCE` RLS and a policy | PASS |
+| A2-2 | Postgres | every table in `sentinel`,`platform` / catalog / every tenant table has tenant columns, `ENABLE`+`FORCE` RLS and a policy | PASS |
 | A2-3 | Postgres | unscoped tables / catalog / equals the exact 8-entry allowlist (new unscoped table fails) | PASS |
 | A2-4 | Postgres | 4 roles / `pg_roles` / no super/createrole/createdb/replication/bypassrls | PASS |
 | A2-5 | Postgres | all tables / ACL + `has_*_privilege` / no PUBLIC ACL; no runtime CREATE/TRUNCATE/TRIGGER/REFERENCES | PASS |
@@ -29,9 +29,9 @@ DEV-PG (owner persistent database).
 | A2-8 | Postgres | scope A, A2, B / `SELECT DISTINCT workspace,project` per table / only own pair; forged (ws B + project A, ws A + project B, unknown project, `demo`, `controlled_test`) read nothing | PASS |
 | A2-9 | Postgres | scope B / `DELETE`/`UPDATE` rows of project A in every table / 0 rows affected, row counts unchanged | PASS |
 | A2-10 | Postgres | scope A / `DELETE`/`UPDATE` on 7 audit/timeline tables / denied or 0 rows, counts unchanged | PASS |
-| A2-11 | Postgres | S01 platform suite (queue, leases, fencing, outbox, RLS, retention) | PASS 14/14 |
-| A2-12 | Postgres | S05/S06/S07/S08/S09/S10 module suites (RLS, forged scope, demo mode, wrong role, populated-`down` refusal) | PASS 23/22/8/15/41/6 |
-| A2-13 | DEV-PG | `wetscan_dev` 0004 -> 0009 / pre vs post snapshots / 24 of 25 tables identical, ledger +5 | PASS |
+| A2-11 | Postgres | S01 platform suite (queue, leases, fencing, outbox, RLS, retention) | PASS (register E-A2-8) |
+| A2-12 | Postgres | S05/S06/S07/S08/S09/S10 module suites (RLS, forged scope, demo mode, wrong role, populated-`down` refusal) | PASS (register E-A2-1 to E-A2-6) |
+| A2-13 | DEV-PG | `wetscan_dev` 0004 -> 0009 / pre vs post snapshots / pre-existing tables identical except the ledger (register E-DB-10) | PASS |
 | A2-14 | DEV-PG | backup restored on another container / per-table count+md5 / identical | PASS |
 
 ## S11-A3 - controlled development E2E and worker restart
@@ -67,17 +67,17 @@ DEV-PG (owner persistent database).
 ## S11-A5 - browser and UI
 | ID | Level | Given / When / Then | Result |
 | --- | --- | --- | --- |
-| A5-1 | browser | S10 suite: overview, no-source never "safe", unreadable module never healthy, retry w/o stale figures, foreign-project response rejected | PASS 26/26 |
+| A5-1 | browser | S10 suite: overview, no-source never "safe", unreadable module never healthy, retry w/o stale figures, foreign-project response rejected | PASS (register E-A5-1) |
 | A5-2 | browser | Reports window/provenance/limitations, authorized export links, print hides chrome | PASS |
 | A5-3 | browser | Canvas overlay: mapped incident with provenance, unmapped listed "not placed", revision/project mismatch discarded, coverage states honest | PASS |
 | A5-4 | browser | no horizontal overflow at 1440/768/390 for Overview, Reports, Canvas | PASS |
 | A5-5 | browser | dark theme contrast; keyboard reachability and labels; axe: no serious/critical | PASS |
 | A5-6 | browser | demo routes issue zero live Sentinel/Canvas API calls; original demo chrome and Ghost/Intelligence nav intact | PASS |
-| A5-7 | browser | S02-S09 module UIs (telemetry, detection, incident, response, notification, ghost, intelligence, external) | PASS 5/6/3/3/6/4/8/10 |
-| A5-8 | browser | original Orderly Demo walkthrough + interaction suites unchanged | PASS 6/6 |
-| A5-9 | E2E | production build; login/onboarding/installation/dashboard session/Canvas with provider-substituted identities | PASS 21/21 |
+| A5-7 | browser | S02-S09 module UIs (telemetry, detection, incident, response, notification, ghost, intelligence, external) | PASS (register E-A5-2 to E-A5-9) |
+| A5-8 | browser | original Orderly Demo walkthrough + interaction suites unchanged | PASS (register E-A5-10) |
+| A5-9 | E2E | production build; login/onboarding/installation/dashboard session/Canvas with provider-substituted identities | PASS (register E-A5-11) |
 | A5-10 | HTTP | production server / `/demo`, `/login`, `/api/sentinel/ingest` | all carry the S11 headers - PASS (manual curl, run during development on the same code; unit asserts the config) |
-| A5-11 | API | 12 routes x GET/POST: malformed/demo id 404, 401, foreign 404 `not_found`, CSRF 403, unknown query 4xx w/o SQL, generic 503 | PASS 298/298 |
+| A5-11 | API | 12 routes x GET/POST: malformed/demo id 404, 401, foreign 404 `not_found`, CSRF 403, unknown query 4xx w/o SQL, generic 503 | PASS (route matrix, register E-A1-3 and section H) |
 | A5-12 | Postgres | live report for A contains no incident id of A2 or B | PASS |
 | A5-13 | E2E | **real GitHub session** against owner repository | **NOT_RUN** |
 | A5-14 | browser | visual diff against historical screenshots (`evidence/`) | NOT_RUN (assertions, not pixel diff; historical files preserved unchanged) |
@@ -85,8 +85,8 @@ DEV-PG (owner persistent database).
 ## S11-A6 - CI and secret protection
 | ID | Level | Given / When / Then | Result |
 | --- | --- | --- | --- |
-| A6-1 | CI | `ci.yml` jobs static, build, postgres, browser (+ advisory dependency-review) on a real PR / pinned SHAs, minimal permissions | **PASS** 4/4 enforced jobs at `cf61ff3`; dependency review BLOCKED (repo setting) |
-| A6-2 | unit | secret scan detects 5 credential shapes, ignores loopback/placeholder URLs, never echoes values, flags tracked dotenv | PASS 10/10 |
+| A6-1 | CI | `ci.yml` jobs static, build, postgres, browser (+ advisory dependency-review) on a real PR / pinned SHAs, minimal permissions | **PASS** all enforced jobs on hosted runners (register F, H); dependency review BLOCKED (repo setting) |
+| A6-2 | unit | secret scan detects 5 credential shapes, ignores loopback/placeholder URLs, never echoes values, flags tracked dotenv | PASS (register E-A1-3) |
 | A6-3 | static | secret scan over all tracked files / 0 findings (5 reviewed fixtures allow-listed by exact file+rule) | PASS |
 | A6-4 | static | `npm audit` / 0 vulnerabilities | PASS |
 | A6-5 | CI | CI never targets `wetscan_dev`: only two loopback disposable service containers; harnesses refuse non-loopback hosts; the CI approval is self-labelled and carries no authority | PASS (executed on a hosted runner) |

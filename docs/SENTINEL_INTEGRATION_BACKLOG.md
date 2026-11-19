@@ -1,5 +1,14 @@
 # Sentinel integration backlog
 
+## S11 post-merge remediation - 19 November 2026
+
+The nine review findings on merged S11 (PR #15, `master@830bb99`) and the `.gitattributes`/hash-pin question are resolved on
+`fix/s11-post-merge-hardening` (no migration, nothing activated, `wetscan_dev` unchanged): forward-compatible schema health with
+an explicit operator attestation, real POST error-hygiene coverage, a complete secret scan, the production-build E2E in CI, the
+H09 release-gate matrix, and corrected line-ending rules (`Invoke-S04ProvisionPackage.ps1` stays CRLF). Details:
+[register section H](SENTINEL_S11_EVIDENCE_REGISTER.md), [security review section 4](SENTINEL_S11_SECURITY_REVIEW.md), Fix #12.
+Verdicts are unchanged: production `NO_GO`, staging `DEFER`, `H09_OWNER_DECISION_PENDING`.
+
 ## Current S11 status - 19 November 2026
 
 S11 (hardening, regression, operational readiness, H09 handoff) is **IMPLEMENTED and engineering-accepted on candidate

@@ -1,0 +1,85 @@
+SHA cfaeaddd9d187dbfc3a03b2fc8e14b329c94179a dirty=0
+### typecheck START 2026-11-19T09:49:07Z
+### typecheck EXIT=0 END 2026-11-19T09:49:12Z
+### lint START 2026-11-19T09:49:12Z
+### lint EXIT=0 END 2026-11-19T09:49:54Z
+### unit START 2026-11-19T09:49:54Z
+### unit EXIT=0 END 2026-11-19T09:52:09Z
+ Test Files  114 passed (114)
+      Tests  2135 passed (2135)
+### build START 2026-11-19T09:52:09Z
+### build EXIT=0 END 2026-11-19T09:52:42Z
+### secret-scan START 2026-11-19T09:52:42Z
+### secret-scan EXIT=0 END 2026-11-19T09:52:45Z
+secret-scan: 778 files, 737 scanned, 41 binary skipped, 0 finding(s), 0 incomplete
+### audit START 2026-11-19T09:52:45Z
+### audit EXIT=0 END 2026-11-19T09:52:48Z
+found 0 vulnerabilities
+### pg-response START 2026-11-19T09:52:48Z
+### pg-response EXIT=0 END 2026-11-19T09:52:59Z
+ Test Files  2 passed (2)
+      Tests  23 passed (23)
+### pg-notifications START 2026-11-19T09:53:00Z
+### pg-notifications EXIT=0 END 2026-11-19T09:53:15Z
+ Test Files  2 passed (2)
+      Tests  22 passed (22)
+### pg-ghost START 2026-11-19T09:53:15Z
+### pg-ghost EXIT=0 END 2026-11-19T09:53:23Z
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+### pg-intelligence START 2026-11-19T09:53:23Z
+### pg-intelligence EXIT=0 END 2026-11-19T09:53:28Z
+ Test Files  1 passed (1)
+      Tests  15 passed (15)
+### pg-external START 2026-11-19T09:53:28Z
+### pg-external EXIT=0 END 2026-11-19T09:53:38Z
+ Test Files  1 passed (1)
+      Tests  41 passed (41)
+### pg-s10 START 2026-11-19T09:53:38Z
+### pg-s10 EXIT=0 END 2026-11-19T09:53:42Z
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+### pg-s11 START 2026-11-19T09:53:42Z
+### pg-s11 EXIT=0 END 2026-11-19T09:53:50Z
+ Test Files  1 passed (1)
+      Tests  14 passed (14)
+### pg-s01 START 2026-11-19T09:53:52Z
+### pg-s01 EXIT=0 END 2026-11-19T09:54:00Z
+ Test Files  1 passed (1)
+      Tests  14 passed (14)
+### pw-s10 START 2026-11-19T09:54:00Z
+### pw-s10 EXIT=0 END 2026-11-19T09:56:30Z
+  ok  4 tests\sentinel\s10.spec.ts:374:3 › S10 live Sentinel integration (mocked transport, no database) › a failed summary shows an alert with retry and no stale figures (4.0s)
+  26 passed (2.4m)
+### pw-telemetry START 2026-11-19T09:56:30Z
+### pw-telemetry EXIT=0 END 2026-11-19T09:57:10Z
+  5 passed (35.4s)
+### pw-detection START 2026-11-19T09:57:10Z
+### pw-detection EXIT=0 END 2026-11-19T09:57:56Z
+  6 passed (42.3s)
+### pw-incident START 2026-11-19T09:57:56Z
+### pw-incident EXIT=0 END 2026-11-19T09:58:34Z
+  3 passed (33.0s)
+### pw-response START 2026-11-19T09:58:34Z
+### pw-response EXIT=0 END 2026-11-19T09:59:06Z
+  3 passed (26.6s)
+### pw-notification START 2026-11-19T09:59:06Z
+### pw-notification EXIT=0 END 2026-11-19T09:59:49Z
+  6 passed (38.0s)
+### pw-ghost START 2026-11-19T09:59:49Z
+### pw-ghost EXIT=0 END 2026-11-19T10:00:29Z
+  4 passed (36.3s)
+### pw-intelligence START 2026-11-19T10:00:29Z
+### pw-intelligence EXIT=0 END 2026-11-19T10:01:14Z
+  8 passed (41.4s)
+### pw-external START 2026-11-19T10:01:14Z
+### pw-external EXIT=0 END 2026-11-19T10:02:01Z
+  10 passed (42.4s)
+### pw-demo START 2026-11-19T10:02:01Z
+### pw-demo EXIT=0 END 2026-11-19T10:04:52Z
+  6 passed (2.8m)
+### auth-e2e START 2026-11-19T10:04:52Z
+### auth-e2e EXIT=0 END 2026-11-19T10:07:04Z
+  ok  6 tests\e2e\dashboard-session.spec.ts:240:1 › failed logout keeps the session and offers retry instead of claiming success (3.9s)
+  21 passed (1.6m)
+ALLDONE 2026-11-19T10:07:04Z
