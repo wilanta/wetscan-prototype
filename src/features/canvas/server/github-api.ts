@@ -1,4 +1,5 @@
 import "server-only";
+import { transportDiagnostic } from "@/lib/auth/provider-diagnostics";
 import { AuthError } from "@/lib/auth/config";
 
 /** Fixed origin, bounded response streaming and one shared snapshot deadline. */
@@ -36,7 +37,13 @@ export async function sourceRequest<T>(
         throw new AuthError("repository_denied", 403);
       if ([409, 422].includes(response.status))
         throw new AuthError("revision_unavailable", 409);
-      throw new AuthError("github_unavailable", 502);
+      throw Object.assign(new AuthError("github_unavailable", 502), {
+        githubDiagnostic: {
+          boundary: "github_source",
+          reason: "UPSTREAM_HTTP",
+          upstreamStatus: response.status,
+        },
+      });
     }
     const reader = response.body?.getReader();
     if (!reader) throw new AuthError("github_response", 502);
@@ -56,9 +63,12 @@ export async function sourceRequest<T>(
     }
   } catch (error) {
     if (error instanceof AuthError) throw error;
-    throw new AuthError(
-      signal.aborted ? "source_timeout" : "github_unavailable",
-      502,
+    throw Object.assign(
+      new AuthError(
+        signal.aborted ? "source_timeout" : "github_unavailable",
+        502,
+      ),
+      { githubDiagnostic: transportDiagnostic(error, "github_source") },
     );
   }
 }

@@ -186,6 +186,47 @@ export async function normalizeOSV(
             "OSV advisory matched an installed package. Severity is conservative pending advisory/CVSS review; reachability is not verified.",
           )),
           severityKnown: false,
+          advisory: {
+            id: redact(text(vuln.id)),
+            ecosystem:
+              info.ecosystem == null ? "UNKNOWN" : redact(text(info.ecosystem)),
+            aliases: [
+              ...new Set(
+                array(vuln.aliases ?? [])
+                  .slice(0, 50)
+                  .map((v) => redact(text(v, 200))),
+              ),
+            ],
+            fixedVersions: [
+              ...new Set(
+                array(vuln.affected ?? []).flatMap((a) => {
+                  const affected = record(a),
+                    p = record(affected.package ?? {});
+                  if (p.name !== info.name || p.ecosystem !== info.ecosystem)
+                    return [];
+                  return array(affected.ranges ?? []).flatMap((r) =>
+                    array(record(r).events ?? []).flatMap((e) => {
+                      const fixed = record(e).fixed;
+                      return typeof fixed === "string" && fixed !== "0"
+                        ? [redact(text(fixed, 128))]
+                        : [];
+                    }),
+                  );
+                }),
+              ),
+            ].slice(0, 50),
+            cvss: array(vuln.severity ?? [])
+              .slice(0, 10)
+              .flatMap((v) => {
+                const row = record(v);
+                return typeof row.type === "string" &&
+                  /^CVSS_V[234]$/.test(row.type) &&
+                  typeof row.score === "string" &&
+                  /^CVSS:[234]\.[0-9]\//.test(row.score)
+                  ? [{ type: row.type, vector: redact(text(row.score, 500)) }]
+                  : [];
+              }),
+          },
         });
       }
     }

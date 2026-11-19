@@ -14,14 +14,20 @@ import type { Engine } from "../contracts";
 import type { ScanSummary } from "./model";
 import type { StoredScanView } from "./product-view";
 import type { StoredGuardReport } from "./product-artifacts";
+import { repositoryProfiles } from "./scan-profiles";
 import { guidance } from "../evidence";
-import { reportHtml } from "../release";
+import { analysisReportHtml } from "./analysis-report";
 import { LiveGuardWorkbench } from "./workbench";
 import styles from "../workbench.module.css";
+import { LiveAnalysisPanel, LivePreflightButton } from "./analysis-panel";
 interface Readiness {
   database: string;
   schema: string;
-  product?: { repositoryScanning: string; reason: string | null };
+  product?: {
+    repositoryScanning: string;
+    reason: string | null;
+    allowedEngines?: Engine[];
+  };
 }
 const tabs = [
   ["Overview", ""],
@@ -68,6 +74,10 @@ export function LiveGuardWorkspace({
     [branch, setBranch] = useState(initialBranch),
     [commit, setCommit] = useState(""),
     [engines, setEngines] = useState<Engine[]>(["sast", "sca", "secrets"]);
+  const [profile, setProfile] = useState<"quick" | "standard" | "full">(
+    "quick",
+  );
+  const [severityFilter, setSeverityFilter] = useState("all");
   const [reason, setReason] = useState(""),
     [outcome, setOutcome] = useState("under_review"),
     [key, setKey] = useState<string | null>(null);
@@ -207,6 +217,10 @@ export function LiveGuardWorkspace({
     }
   }
   const canScan = ready?.product?.repositoryScanning === "CONFIGURED";
+  const allowedEngines = ready?.product?.allowedEngines;
+  const effectiveEngines = engines.filter(
+    (e) => !allowedEngines || allowedEngines.includes(e),
+  );
   const mutate =
     view?.execution === "repository_scan" && terminal.includes(view.status);
   const selectedFinding = view?.findings[0];
@@ -313,13 +327,47 @@ export function LiveGuardWorkspace({
                 Resolve pinned commit
               </Button>
             </div>
+            <label className="field">
+              Scan profile
+              <select
+                aria-label="Scan profile"
+                value={profile}
+                disabled={busy}
+                onChange={(e) => {
+                  const p = e.target.value as typeof profile;
+                  setProfile(p);
+                  setEngines([...repositoryProfiles[p]]);
+                  setKey(null);
+                }}
+              >
+                <option value="quick">Quick</option>
+                <option value="standard">Standard</option>
+                <option value="full">Full</option>
+              </select>
+            </label>
+            <p>
+              Profiles define required coverage. Unavailable or unselected
+              engines keep release evaluation incomplete.
+            </p>
             <fieldset>
               <legend>Requested repository engines</legend>
-              {(["sast", "sca", "secrets", "iac"] as Engine[]).map((engine) => (
+              {(
+                [
+                  "sast",
+                  "sca",
+                  "secrets",
+                  "iac",
+                  "sbom",
+                  "container",
+                ] as Engine[]
+              ).map((engine) => (
                 <label className="check-line" key={engine}>
                   <input
                     type="checkbox"
-                    checked={engines.includes(engine)}
+                    checked={effectiveEngines.includes(engine)}
+                    disabled={
+                      !!allowedEngines && !allowedEngines.includes(engine)
+                    }
                     onChange={(e) => {
                       setEngines(
                         e.target.checked
@@ -334,7 +382,7 @@ export function LiveGuardWorkspace({
               ))}
             </fieldset>
             <p>
-              Container/SBOM: NOT_CONFIGURED. Scanner commands and images are
+              Container: requires a separately authorized digest-pinned image. Scanner commands and images are
               server-owned.
             </p>
             <Button
@@ -342,7 +390,7 @@ export function LiveGuardWorkspace({
                 busy ||
                 !canScan ||
                 !/^[a-f0-9]{40}$/.test(commit) ||
-                !engines.length
+                !effectiveEngines.length
               }
               onClick={() => {
                 const idempotency = key ?? "g02-live-" + crypto.randomUUID();
@@ -350,8 +398,8 @@ export function LiveGuardWorkspace({
                 void action("scans", {
                   branch,
                   commit,
-                  engines,
-                  profile: engines.includes("iac") ? "standard" : "quick",
+                  engines: effectiveEngines,
+                  profile,
                   idempotencyKey: idempotency,
                 });
               }}
@@ -434,6 +482,14 @@ export function LiveGuardWorkspace({
                         <td>{r.status}</td>
                         <td>
                           {r.scanner} {r.version} / {r.rulePack} / {r.reason}
+                          {r.coverage && (
+                            <span>
+                              {" "}
+                              / {r.coverage.status}: {r.coverage.scannedFiles}/
+                              {r.coverage.eligibleFiles} files /{" "}
+                              {r.coverage.scope}
+                            </span>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -458,63 +514,137 @@ export function LiveGuardWorkspace({
                     before drawing conclusions.
                   </Notice>
                 )}
-                {view.findings.map((f) => (
-                  <article key={f.id} className={styles.item}>
-                    <h3>{f.title}</h3>
-                    <p>
-                      {f.severityKnown === false
-                        ? "UNKNOWN severity"
-                        : f.severity}{" "}
-                      / {f.status} / {f.source.scanner} {f.source.version} /{" "}
-                      {f.source.ruleId}
-                    </p>
-                    <p className={styles.meta}>
-                      {f.location.path}:{f.location.line ?? "unknown"}{" "}
-                      {f.location.package} {f.location.installedVersion}
-                    </p>
-                    {f.evidence.map((e) => (
-                      <p className={styles.meta} key={e.id}>
-                        {e.summary} / commit {e.commit} / artifact SHA256{" "}
-                        {e.artifactDigest} / {e.recordedAt}
-                      </p>
+                <label className="field">
+                  Severity filter
+                  <select
+                    aria-label="Severity filter"
+                    value={severityFilter}
+                    onChange={(e) => setSeverityFilter(e.target.value)}
+                  >
+                    {[
+                      "all",
+                      "critical",
+                      "high",
+                      "medium",
+                      "low",
+                      "info",
+                      "unknown",
+                    ].map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
                     ))}
-                    <label className="field">
-                      Review outcome
-                      <select
-                        value={outcome}
-                        onChange={(e) => setOutcome(e.target.value)}
+                  </select>
+                </label>
+                {!!view.inventory.length && (
+                  <details>
+                    <summary>Dependency inventory</summary>
+                    <ul>
+                      {view.inventory.map((p, i) => (
+                        <li key={i}>
+                          {p.name} {p.version} / {p.ecosystem} / {p.sourcePath}{" "}
+                          / license: {p.license ?? "UNKNOWN"}
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+                {view.sbom && (
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      const url = URL.createObjectURL(
+                        new Blob([JSON.stringify(view.sbom, null, 2)], {
+                          type: "application/vnd.cyclonedx+json",
+                        }),
+                      );
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = "guard-" + view.scanId + ".cdx.json";
+                      a.click();
+                      setTimeout(() => URL.revokeObjectURL(url), 1000);
+                    }}
+                  >
+                    Download recorded CycloneDX SBOM
+                  </Button>
+                )}
+                {view.findings
+                  .filter(
+                    (f) =>
+                      severityFilter === "all" ||
+                      (f.severityKnown === false
+                        ? severityFilter === "unknown"
+                        : f.severity === severityFilter),
+                  )
+                  .map((f) => (
+                    <article key={f.id} className={styles.item}>
+                      <h3>{f.title}</h3>
+                      <p>
+                        {f.severityKnown === false
+                          ? "UNKNOWN severity"
+                          : f.severity}{" "}
+                        / {f.status} / {f.source.scanner} {f.source.version} /{" "}
+                        {f.source.ruleId}
+                      </p>
+                      <p className={styles.meta}>
+                        {f.location.artifactKind === "image" ? "Image artifact: " + f.location.imageDigest + " / " : ""}{f.location.path}:{f.location.line ?? "unknown"}{" "}
+                        {f.location.package} {f.location.installedVersion}
+                      </p>
+                      {f.evidence.map((e) => (
+                        <p className={styles.meta} key={e.id}>
+                          {e.summary} / commit {e.commit} / artifact SHA256{" "}
+                          {e.artifactDigest} / {e.recordedAt}
+                        </p>
+                      ))}
+                      {f.advisory && (
+                        <p className={styles.meta}>
+                          Advisory {f.advisory.id} / {f.advisory.ecosystem};
+                          aliases:{" "}
+                          {f.advisory.aliases.join(", ") || "none recorded"};
+                          advisory fix milestones (review compatibility):{" "}
+                          {f.advisory.fixedVersions.join(", ") || "unknown"};
+                          CVSS vectors (not independently scored):{" "}
+                          {f.advisory.cvss.map((c) => c.vector).join(", ") ||
+                            "unknown"}
+                        </p>
+                      )}
+                      <label className="field">
+                        Review outcome
+                        <select
+                          value={outcome}
+                          onChange={(e) => setOutcome(e.target.value)}
+                        >
+                          <option value="under_review">Under review</option>
+                          <option value="fix_pending_retest">
+                            Fix pending real retest
+                          </option>
+                          <option value="false_positive">False positive</option>
+                          <option value="risk_accepted">Risk accepted</option>
+                        </select>
+                      </label>
+                      <label className="field">
+                        Review reason
+                        <textarea
+                          maxLength={1000}
+                          value={reason}
+                          onChange={(e) => setReason(e.target.value)}
+                        />
+                      </label>
+                      <Button
+                        disabled={busy || !mutate || reason.trim().length < 8}
+                        onClick={() =>
+                          void action("scans/" + view.scanId + "/triage", {
+                            findingId: f.id,
+                            revision: view.revision,
+                            status: outcome,
+                            reason,
+                          })
+                        }
                       >
-                        <option value="under_review">Under review</option>
-                        <option value="fix_pending_retest">
-                          Fix pending real retest
-                        </option>
-                        <option value="false_positive">False positive</option>
-                        <option value="risk_accepted">Risk accepted</option>
-                      </select>
-                    </label>
-                    <label className="field">
-                      Review reason
-                      <textarea
-                        maxLength={1000}
-                        value={reason}
-                        onChange={(e) => setReason(e.target.value)}
-                      />
-                    </label>
-                    <Button
-                      disabled={busy || !mutate || reason.trim().length < 8}
-                      onClick={() =>
-                        void action("scans/" + view.scanId + "/triage", {
-                          findingId: f.id,
-                          revision: view.revision,
-                          status: outcome,
-                          reason,
-                        })
-                      }
-                    >
-                      Save finding review
-                    </Button>
-                  </article>
-                ))}
+                        Save finding review
+                      </Button>
+                    </article>
+                  ))}
               </>
             )}
             {section === "integrity" && (
@@ -537,6 +667,14 @@ export function LiveGuardWorkspace({
             {section === "remediation" && (
               <>
                 <h2>Remediation from recorded findings</h2>
+                <LiveAnalysisPanel
+                  projectId={projectId}
+                  scanId={view.scanId}
+                  revision={view.revision}
+                  findings={view.findings}
+                  enabled={mutate}
+                  onChanged={() => void refresh()}
+                />
                 {selectedFinding ? (
                   <>
                     <h3>{selectedFinding.title}</h3>
@@ -560,6 +698,15 @@ export function LiveGuardWorkspace({
             {section === "releases" && (
               <>
                 <h2>Release Status: {view.release.decision}</h2>
+                <LiveAnalysisPanel
+                  integrations
+                  projectId={projectId}
+                  scanId={view.scanId}
+                  revision={view.revision}
+                  findings={view.findings}
+                  enabled={mutate}
+                  onChanged={() => void refresh()}
+                />
                 <p>{view.release.reasons.join(" ")}</p>
                 <Notice>
                   Evaluation only; GitHub Checks and Vercel enforcement are
@@ -597,7 +744,7 @@ export function LiveGuardWorkspace({
                       variant="secondary"
                       onClick={() =>
                         download(
-                          reportHtml(r.body),
+                          analysisReportHtml(r.body),
                           "guard-live-" + r.id + ".html",
                           "text/html",
                         )
@@ -635,14 +782,17 @@ export function LiveGuardWorkspace({
           )}
       </Card>
       {section === "" && (
-        <details>
-          <summary>Historical source-preparation diagnostics</summary>
-          <LiveGuardWorkbench
-            projectId={projectId}
-            repositoryName={repositoryName}
-            branch={initialBranch}
-          />
-        </details>
+        <>
+          <LivePreflightButton projectId={projectId} />
+          <details>
+            <summary>Historical source-preparation diagnostics</summary>
+            <LiveGuardWorkbench
+              projectId={projectId}
+              repositoryName={repositoryName}
+              branch={initialBranch}
+            />
+          </details>
+        </>
       )}
     </div>
   );

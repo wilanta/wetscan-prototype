@@ -32,6 +32,8 @@ async function fixture(engine: RepositoryEngine) {
   const path = {
       sast: "fixture.ts",
       sca: "package-lock.json",
+      sbom: "package-lock.json",
+      container: "image.oci.tar",
       secrets: "fixture.js",
       iac: "main.tf",
     }[engine],
@@ -66,6 +68,8 @@ async function fixture(engine: RepositoryEngine) {
       {
         sast: "opengrep",
         sca: "osv-scanner",
+        sbom: "osv-scanner",
+        container: "trivy",
         secrets: "gitleaks",
         iac: "trivy",
       }[engine],
@@ -116,6 +120,8 @@ async function fixture(engine: RepositoryEngine) {
     installation,
   );
   let output: unknown = {
+    sbom: { results: [] },
+    container: { Results: [] },
     sast: {
       results: [
         {
@@ -129,6 +135,7 @@ async function fixture(engine: RepositoryEngine) {
         },
       ],
       errors: [],
+      paths: { scanned: ["/source/" + path] },
     },
     sca: {
       results: [

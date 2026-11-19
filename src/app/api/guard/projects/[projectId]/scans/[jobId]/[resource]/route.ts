@@ -11,16 +11,21 @@ export async function GET(
 ) {
   const params = await context.params;
   if (
-    !["findings", "evidence", "coverage", "view", "reports"].includes(
-      params.resource,
-    )
+    ![
+      "findings",
+      "evidence",
+      "coverage",
+      "view",
+      "reports",
+      "remediation",
+    ].includes(params.resource)
   )
     return new Response(null, { status: 404 });
   return guardRoute(
     request,
     params.projectId,
     params.resource as
-      "findings" | "evidence" | "coverage" | "view" | "reports",
+      "findings" | "evidence" | "coverage" | "view" | "reports" | "remediation",
     params.jobId,
   );
 }
@@ -32,12 +37,31 @@ export async function POST(
   },
 ) {
   const p = await context.params;
-  if (!["triage", "reports", "product-cancel", "resume"].includes(p.resource))
+  if (
+    ![
+      "triage",
+      "reports",
+      "product-cancel",
+      "resume",
+      "remediation",
+      "remediation-review",
+      "retest-compare",
+      "integrations",
+    ].includes(p.resource)
+  )
     return new Response(null, { status: 404 });
   return guardRoute(
     request,
     p.projectId,
-    p.resource as "triage" | "reports" | "product-cancel" | "resume",
+    p.resource as
+      | "triage"
+      | "reports"
+      | "product-cancel"
+      | "resume"
+      | "remediation"
+      | "remediation-review"
+      | "retest-compare"
+      | "integrations",
     p.jobId,
   );
 }

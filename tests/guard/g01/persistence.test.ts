@@ -208,3 +208,57 @@ it("an exact-job worker claim and failure reconciliation cannot select other pro
     expect(query.values[4]).toBe(job.id);
   }
 });
+
+it("preserves a commit-bound SBOM in existing JSONB and rejects tampering before SQL (database double)", async () => {
+  const { client, store, job } = await setup();
+  const { repositorySbom } = await import("../../../src/features/guard/sbom");
+  job.inventory = [
+    {
+      name: "is-number",
+      version: "7.0.0",
+      ecosystem: "npm",
+      license: null,
+      sourcePath: "package-lock.json",
+    },
+  ];
+  job.runs = job.runs.filter((r) => r.engine !== "sbom");
+  job.runs.push({
+    engine: "sbom",
+    status: "completed",
+    scanner: "osv-scanner",
+    version: "2.7.1",
+    rulePack: "npm",
+    reason: "controlled fixture",
+    artifactDigest: "b".repeat(64),
+    executionEvidence: {
+      version: 1,
+      runId: "unit",
+      imageId: "sha256:" + "c".repeat(64),
+      specDigest: "d".repeat(64),
+      installationArtifactSha256: "e".repeat(64),
+      cleanup: "VERIFIED",
+    },
+  });
+  job.sbom = repositorySbom(job.inventory, job.repository, "b".repeat(64));
+  client.respond = async (sql) => ({
+    rows: sql.startsWith("INSERT INTO guard.scans")
+      ? [{ job, revision: 1, coverage: null }]
+      : sql.startsWith("SELECT scan_id")
+        ? [{ scan_id: job.id }]
+        : sql.startsWith("INSERT INTO platform.jobs")
+          ? [{ job_id: job.id }]
+          : [],
+    rowCount: 1,
+  });
+  await store.create(grant, job);
+  const insert = client.calls.find((c) =>
+    c.sql.startsWith("INSERT INTO guard.scans"),
+  );
+  expect(JSON.stringify(insert?.values)).toContain("CycloneDX");
+  client.calls.length = 0;
+  job.sbom.metadata.properties[1].value = "f".repeat(40);
+  await expect(store.create(grant, job)).rejects.toMatchObject({
+    code: "source_integrity",
+  });
+  expect(client.calls).toHaveLength(0);
+});

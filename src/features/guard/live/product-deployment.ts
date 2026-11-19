@@ -44,7 +44,7 @@ export function validateDeployment(v: ProductDeployment): ProductDeployment {
     v.policies.length > 20 ||
     !Array.isArray(v.deployments) ||
     !v.deployments.length ||
-    v.deployments.length > 4 ||
+    v.deployments.length > 6 ||
     new Set(v.deployments.map((d) => d.engine)).size !== v.deployments.length
   )
     throw new LiveGuardError("not_configured");

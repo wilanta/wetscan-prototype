@@ -3,7 +3,9 @@ export const scannerCommands = {
   opengrep: [
     "scan",
     "--config",
-    "/opt/guard/rules",
+    "/opt/g02/rules",
+    "--jobs",
+    "1",
     "--json",
     "--no-git-ignore",
     "--x-ignore-semgrepignore-files",
@@ -15,8 +17,9 @@ export const scannerCommands = {
     "--offline",
     "--format",
     "json",
-    "--lockfile",
-    "/source/package-lock.json",
+    "--recursive",
+    "--no-ignore",
+    "/source",
     "--no-resolve",
     "--no-call-analysis=go",
     "--no-call-analysis=rust",
@@ -25,6 +28,7 @@ export const scannerCommands = {
     "--all-packages",
   ],
   gitleaks: ["dir", "/source"],
+  "trivy-image": ["image", "--input", "/source/image.oci", "--offline-scan", "--skip-db-update", "--skip-java-db-update", "--scanners", "vuln", "--format", "json", "--exit-code", "1", "--cache-dir", "/opt/g02/trivy-cache", "--cache-backend", "memory", "--max-image-size", "256MB", "--config", "/opt/guard/config/empty.yaml", "--ignorefile", "/opt/guard/config/empty.ignore"],
   trivy: [
     "config",
     "--config",
@@ -42,8 +46,10 @@ export const scannerCommands = {
   ],
 } as const;
 export const installedScope = {
-  opengrep: "official JS/Python subset",
-  "osv-scanner": "npm package-lock only; full official npm snapshot",
+  opengrep: "180 pinned official JavaScript/TypeScript security rule files",
+  "osv-scanner":
+    "npm lockfiles in bounded snapshot, recursive; full official npm snapshot",
   gitleaks: "official default config v8.30.1",
+  "trivy-image": "offline OCI archive, pinned official Trivy vulnerability database",
   trivy: "embedded IaC checks v0.76.2",
 } as const;

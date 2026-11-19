@@ -79,8 +79,10 @@ export function measuredDeployments(
     [
       ["opengrep", "sast"],
       ["osv-scanner", "sca"],
+      ["osv-scanner", "sbom"],
       ["gitleaks", "secrets"],
       ["trivy", "iac"],
+      ... (r.scanners["trivy-image"] ? [["trivy-image", "container"] as const] : []),
     ] as const
   ).map(([cli, engine]) => {
     const s = r.scanners[cli];
@@ -90,7 +92,7 @@ export function measuredDeployments(
       s.versionStatus !== "PASS" ||
       !s.spec ||
       s.spec.image !== r.imageId ||
-      s.spec.executable !== "/usr/local/bin/" + cli ||
+      s.spec.executable !== "/usr/local/bin/" + (cli === "trivy-image" ? "trivy" : cli) ||
       s.spec.timeoutMs !== 45000 ||
       !Number.isFinite(s.elapsedMs) ||
       s.elapsedMs <= 0 ||
@@ -171,13 +173,14 @@ async function main() {
   const bytes = await readFile(reportFile),
     r = JSON.parse(bytes.toString()) as Measurement;
   const context = resolve(".local/g02-install/context");
-  const rules = await readFile(join(context, "rules-manifest.json")),
+  const rules = await readFile(resolve(".local/g02-completion-public/rules-manifest-v2.json")),
     osv = await readFile(join(context, "osv-db-manifest.json"));
   const digests = {
     opengrep: sha(rules),
     "osv-scanner": sha(osv),
     gitleaks: sha(await readFile(join(context, "config/gitleaks.toml"))),
     trivy: sha(r.imageId + ":embedded-IaC-v0.76.2"),
+    "trivy-image": sha(await readFile(resolve(".local/g02-completion-public/trivy-db-oci-manifest.json"))),
   };
   const records = measuredDeployments(r, digests, sha(bytes));
   const deployments = [];

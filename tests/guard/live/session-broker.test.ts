@@ -1,3 +1,4 @@
+import { pipelineFailureReason } from "../../../worker/guard/source-failure";
 import { it, expect, vi } from "vitest";
 import { ProductSessionBroker } from "../../../worker/guard/product-broker";
 import {
@@ -109,4 +110,19 @@ it("historical jobs are refused without consulting the owner session", async () 
       ),
   ).toThrow();
   expect(f.authorize).not.toHaveBeenCalled();
+});
+
+it("broker authorization failure is distinct from source acquisition failure without leaking provider text", async () => {
+  const f = await fixture();
+  f.authorize.mockRejectedValue(
+    Object.assign(Error("PRIVATE_TOKEN"), { code: "forbidden" }),
+  );
+  const e = await f.broker.freshGrant().catch((e) => e);
+  expect(
+    JSON.parse(pipelineFailureReason(e, "snapshot_acquire")),
+  ).toMatchObject({ component: "broker", code: "forbidden" });
+  expect(f.owner.acquire).not.toHaveBeenCalled();
+  expect(pipelineFailureReason(e, "snapshot_acquire")).not.toContain(
+    "PRIVATE_TOKEN",
+  );
 });

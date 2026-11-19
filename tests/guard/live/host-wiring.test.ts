@@ -188,3 +188,32 @@ it("stored results reader needs only app role and does not require scanner/worke
   expect(state.physical).not.toHaveBeenCalled();
   expect(state.run).not.toHaveBeenCalled();
 });
+
+it("early worker/broker failure emits only allowlisted operational diagnostic, not raw errors", async () => {
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  try {
+    const { productHostService } =
+      await import("../../../src/features/guard/live/product-host");
+    const tasks: (() => Promise<void>)[] = [];
+    const service = (await productHostService(
+      {
+        token: "OFFLINE_SESSION_REFERENCE",
+        authority,
+        defer: (t) => tasks.push(t),
+      },
+      env,
+    )) as unknown as { onQueued(j: ScanJob): Promise<void> };
+    state.run.mockRejectedValue(
+      Object.assign(Error("PRIVATE_SOURCE_TOKEN"), { code: "forbidden" }),
+    );
+    await service.onQueued(await operationalJobFixture());
+    await tasks[0]();
+    expect(warn).toHaveBeenCalled();
+    const text = JSON.stringify(warn.mock.calls);
+    expect(text).toContain("repository_worker_failed");
+    expect(text).toContain("broker");
+    expect(text).not.toContain("PRIVATE_SOURCE_TOKEN");
+  } finally {
+    warn.mockRestore();
+  }
+});

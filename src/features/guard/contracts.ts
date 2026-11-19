@@ -65,6 +65,8 @@ export interface Provenance {
   rulePack: string;
 }
 export interface Location {
+  artifactKind?: "image";
+  imageDigest?: string;
   path?: string;
   line?: number;
   package?: string;
@@ -72,6 +74,7 @@ export interface Location {
   endpoint?: string;
 }
 export interface Evidence {
+  imageDigest?: string;
   id: string;
   commit: string;
   recordedAt: string;
@@ -79,7 +82,15 @@ export interface Evidence {
   artifactDigest: string;
   synthetic: boolean;
 }
+export interface AdvisoryMetadata {
+  id: string;
+  ecosystem: string;
+  aliases: string[];
+  fixedVersions: string[];
+  cvss: { type: string; vector: string }[];
+}
 export interface Finding extends Scope {
+  advisory?: AdvisoryMetadata;
   id: string;
   title: string;
   severity: Severity;
@@ -92,8 +103,22 @@ export interface Finding extends Scope {
   evidence: Evidence[];
 }
 export interface EngineRun {
-  artifactDigest?:string;
-  executionEvidence?:{version:1;runId:string;imageId:string;specDigest:string;installationArtifactSha256:string;cleanup:"VERIFIED"};
+  image?: ImageProvenance;
+  coverage?: {
+    status: "complete" | "partial" | "not_applicable";
+    scannedFiles: number;
+    eligibleFiles: number;
+    scope: string;
+  };
+  artifactDigest?: string;
+  executionEvidence?: {
+    version: 1;
+    runId: string;
+    imageId: string;
+    specDigest: string;
+    installationArtifactSha256: string;
+    cleanup: "VERIFIED";
+  };
   engine: Engine;
   status: EngineStatus;
   reason: string;
@@ -119,6 +144,7 @@ export interface SourceCoverageSummary {
 }
 export interface ScanJob extends Scope {
   inventory?: InventoryItem[];
+  sbom?: import("./sbom").RepositorySbom;
   sourceCoverage?: SourceCoverageSummary;
   id: string;
   idempotencyKey: string;
@@ -143,7 +169,9 @@ export interface SnapshotFile {
   size: number;
   sha256: string;
 }
+export interface ImageProvenance { reference:string; digest:string; configDigest:string; archiveSha256:string; archiveBytes:number; commitAssociation:"OPERATOR_POLICY_NOT_BUILD_ATTESTATION"; }
 export interface AuthorizedSnapshot extends Scope {
+  image?: ImageProvenance;
   coverage?: {
     status: "complete" | "partial";
     retrievedFiles: number;
@@ -186,6 +214,7 @@ export interface ScannerPort {
     run: EngineRun;
     findings: Finding[];
     inventory?: InventoryItem[];
+    sbom?: import("./sbom").RepositorySbom;
   }>;
 }
 export interface SandboxPort {

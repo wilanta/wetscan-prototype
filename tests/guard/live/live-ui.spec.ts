@@ -333,3 +333,377 @@ test("authenticated preflight uses the actual local app process and remains read
     /passwordPath|installationToken|sessionToken/,
   );
 });
+
+test("recorded remediation review and pending handoff use scoped APIs without scanner or GitHub writes", async ({
+  page,
+}) => {
+  await login(page, 915);
+  let current = view(),
+    proposals: Record<string, unknown>[] = [],
+    bundles: Record<string, unknown>[] = [];
+  const posts: { path: string; body: Record<string, unknown> }[] = [];
+  await page.route("**/api/guard/projects/github-101/**", async (route) => {
+    const r = route.request(),
+      p = new URL(r.url()).pathname;
+    if (r.method() === "POST") {
+      const body = r.postDataJSON();
+      posts.push({ path: p, body });
+      current = { ...current, revision: current.revision + 1 };
+      if (p.endsWith("/remediation"))
+        proposals = [
+          {
+            version: 1,
+            id: "f".repeat(64),
+            findingId: current.findings[0].id,
+            baseCommit: commit,
+            evidenceSha256: "e".repeat(64),
+            requestKey: body.requestKey,
+            aiConsent: false,
+            actorId: "fixture-owner",
+            createdAt: new Date().toISOString(),
+            state: "completed",
+            source: "deterministic",
+            review: "pending",
+            untrusted: true,
+            patchApplied: false,
+            retest: "NOT_EXECUTED",
+            advice: {
+              explanation: "Recorded rule advice",
+              recommendation: "Review the authorized source",
+              risks: "No patch was applied",
+              verification: "Run a real scanner",
+            },
+          },
+        ];
+      else if (p.endsWith("/remediation-review"))
+        proposals = proposals.map((a) => ({ ...a, review: body.decision }));
+      else if (p.endsWith("/integrations"))
+        bundles = [
+          {
+            id: "9".repeat(64),
+            acknowledged: false,
+            delivery: {
+              canvas: "PENDING_CONSUMER_NOT_CONFIGURED",
+              intelligence: "PENDING_CONSUMER_NOT_CONFIGURED",
+              sentinel: "PENDING_CONSUMER_NOT_CONFIGURED",
+            },
+          },
+        ];
+      else
+        return route.fulfill({
+          status: 503,
+          json: { error: "not_configured" },
+        });
+      return route.fulfill({ json: { revision: current.revision } });
+    }
+    if (p.endsWith("/readiness"))
+      return route.fulfill({
+        json: {
+          database: "approved",
+          schema: "verified",
+          product: { repositoryScanning: "BLOCKED", reason: "test_only" },
+        },
+      });
+    if (p.endsWith("/scans"))
+      return route.fulfill({
+        json: {
+          scans: [
+            {
+              id,
+              revision: current.revision,
+              status: current.status,
+              repository: current.repository,
+              createdAt: current.createdAt,
+            },
+          ],
+        },
+      });
+    if (p.endsWith("/view")) return route.fulfill({ json: current });
+    if (p.endsWith("/reports")) return route.fulfill({ json: { reports: [] } });
+    if (p.endsWith("/remediation"))
+      return route.fulfill({
+        json: {
+          revision: current.revision,
+          proposals,
+          retests: [],
+          bundles,
+          provider: {
+            enabled: false,
+            modelConfigured: false,
+            credentialReferencePresent: false,
+            dataPolicyApproved: false,
+          },
+        },
+      });
+    return route.fulfill({ status: 404, json: { error: "not_found" } });
+  });
+  await page.goto(path + "/remediation");
+  const panel = page.getByRole("region", {
+    name: "Recorded remediation",
+    exact: true,
+  });
+  const prepare = panel.getByRole("button", {
+    name: "Prepare remediation advice",
+    exact: true,
+  });
+  await expect(prepare).toBeEnabled();
+  await prepare.click();
+  await expect(
+    panel.getByText("explanation: Recorded rule advice", { exact: true }),
+  ).toBeVisible();
+  await panel
+    .getByLabel("Advice review reason")
+    .fill("Reviewed actual API contract fixture");
+  await panel
+    .getByRole("button", { name: "Approve advice only", exact: true })
+    .click();
+  await expect(
+    panel.getByRole("heading", { name: /review approved/ }),
+  ).toBeVisible();
+  expect(posts[0].body).toMatchObject({
+    aiConsent: false,
+    findingId: "c".repeat(64),
+    revision: 1,
+  });
+  await page
+    .getByRole("navigation", { name: "Live Guard sections" })
+    .getByRole("link", { name: "Release Status", exact: true })
+    .click();
+  const integration = page.getByRole("region", {
+    name: "Integration handoff",
+    exact: true,
+  });
+  await expect(
+    integration.getByRole("button", {
+      name: "Prepare integration handoff",
+      exact: true,
+    }),
+  ).toBeEnabled();
+  await integration
+    .getByRole("button", { name: "Prepare integration handoff", exact: true })
+    .click();
+  await expect(integration.getByText(/acknowledged: false/)).toBeVisible();
+  expect(posts.map((p) => p.path.split("/").at(-1))).toEqual([
+    "remediation",
+    "remediation-review",
+    "integrations",
+  ]);
+});
+
+test("failed source acquisition shows recorded diagnostic and zero findings without implying a clean scan or starting work", async ({
+  page,
+}) => {
+  await login(page, 916);
+  const diagnostic = JSON.stringify({
+    version: 1,
+    stage: "snapshot_acquire",
+    component: "source",
+    code: "source_timeout",
+    source: { phase: "blob", timedOut: true, cleanup: "NOT_CREATED" },
+  });
+  const failed = {
+    ...view(),
+    status: "failed",
+    findings: [],
+    sourceCoverage: null,
+    scannerExecution: "NOT_RUN",
+    engines: [
+      {
+        engine: "sast",
+        status: "failed",
+        scanner: "unavailable",
+        version: "not_configured",
+        rulePack: "not_configured",
+        reason: "Scanner not started; " + diagnostic,
+      },
+    ],
+    audit: [
+      {
+        at: "2026-11-19T08:00:00Z",
+        action: "worker_stopped",
+        reason: diagnostic,
+      },
+    ],
+    release: {
+      decision: "INCOMPLETE",
+      reasons: ["Source acquisition failed; no scanner coverage."],
+      enforced: false,
+    },
+  };
+  let posts = 0;
+  await page.route("**/api/guard/projects/github-101/**", (route) => {
+    const u = new URL(route.request().url());
+    if (route.request().method() === "POST") posts++;
+    return route.fulfill({
+      json: u.pathname.endsWith("/readiness")
+        ? {
+            product: {
+              repositoryScanning: "BLOCKED",
+              reason: "disabled",
+              allowedEngines: [],
+            },
+          }
+        : u.pathname.endsWith("/scans")
+          ? {
+              scans: [
+                {
+                  id,
+                  status: "failed",
+                  repository: failed.repository,
+                  createdAt: failed.createdAt,
+                  revision: 1,
+                },
+              ],
+            }
+          : u.pathname.endsWith("/reports")
+            ? { reports: [] }
+            : failed,
+    });
+  });
+  await page.goto(path + "?scan=" + id);
+  const panel = page.getByRole("region", {
+    name: "Guard live workspace",
+    exact: true,
+  });
+  await expect(panel.getByText(/Scanner not started/)).toContainText(
+    "source_timeout",
+  );
+  await expect(
+    panel.getByRole("button", { name: "Start repository scan", exact: true }),
+  ).toBeDisabled();
+  await page
+    .getByRole("navigation", { name: "Live Guard sections" })
+    .getByRole("link", { name: "Findings", exact: true })
+    .click();
+  await expect(panel.getByText(/No recorded findings/)).toBeVisible();
+  expect(posts).toBe(0);
+});
+
+test("operational profiles expose supported SBOM coverage and keep unconfigured image scanning disabled (API fixtures)", async ({
+  page,
+}) => {
+  await login(page, 7);
+  await page.route("**/api/guard/projects/github-101/**", (route) => {
+    const u = new URL(route.request().url());
+    return route.fulfill({
+      json: u.pathname.endsWith("/readiness")
+        ? {
+            product: {
+              repositoryScanning: "CONFIGURED",
+              allowedEngines: ["sast", "sca", "secrets", "iac", "sbom"],
+            },
+          }
+        : { scans: [] },
+    });
+  });
+  await page.goto(path);
+  const panel = page.getByRole("region", {
+    name: "Guard live workspace",
+    exact: true,
+  });
+  await panel
+    .getByRole("combobox", { name: "Scan profile", exact: true })
+    .selectOption("standard");
+  await expect(
+    panel.getByRole("checkbox", { name: "sbom", exact: true }),
+  ).toBeChecked();
+  await panel
+    .getByRole("combobox", { name: "Scan profile", exact: true })
+    .selectOption("full");
+  await expect(
+    panel.getByRole("checkbox", { name: "container", exact: true }),
+  ).toBeDisabled();
+  await expect(
+    panel.getByText(/Profiles define required coverage/),
+  ).toBeVisible();
+  await expect(
+    panel.getByRole("button", { name: "Start repository scan", exact: true }),
+  ).toBeDisabled();
+});
+
+test("recorded inventory/SBOM download and unknown-severity filter remain separate from actual scanner execution (API fixtures)", async ({
+  page,
+}) => {
+  await login(page, 8);
+  const { repositorySbom } = await import("../../../src/features/guard/sbom");
+  const inventory = [
+    {
+      name: "is-number",
+      version: "7.0.0",
+      ecosystem: "npm",
+      license: null,
+      sourcePath: "packages/app/package-lock.json",
+    },
+  ];
+  const original = view();
+  const result = {
+    ...original,
+    inventory,
+    sbom: repositorySbom(
+      inventory,
+      { provider: "github", repositoryId: "101", branch: "main", commit },
+      "e".repeat(64),
+    ),
+    findings: [
+      ...original.findings,
+      {
+        ...original.findings[0],
+        id: "f".repeat(64),
+        title: "Unknown advisory fixture",
+        severityKnown: false,
+      },
+    ],
+  };
+  await page.route("**/api/guard/projects/github-101/**", (route) => {
+    const u = new URL(route.request().url());
+    return route.fulfill({
+      json: u.pathname.endsWith("/readiness")
+        ? { product: { repositoryScanning: "BLOCKED" } }
+        : u.pathname.endsWith("/reports")
+          ? { reports: [] }
+          : u.pathname.endsWith("/scans")
+            ? { scans: [] }
+            : result,
+    });
+  });
+  await page.goto(path + "/findings?scan=" + id);
+  const panel = page.getByRole("region", {
+    name: "Guard live workspace",
+    exact: true,
+  });
+  await expect(
+    panel.getByText("Recorded inventory:", { exact: false }),
+  ).toContainText("1 packages");
+  await panel
+    .getByRole("combobox", { name: "Severity filter", exact: true })
+    .selectOption("unknown");
+  await expect(
+    panel.getByRole("heading", {
+      name: "Unknown advisory fixture",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    panel.getByRole("heading", {
+      name: original.findings[0].title,
+      exact: true,
+    }),
+  ).toHaveCount(0);
+  const waiting = page.waitForEvent("download");
+  await panel
+    .getByRole("button", {
+      name: "Download recorded CycloneDX SBOM",
+      exact: true,
+    })
+    .click();
+  const download = await waiting;
+  expect(download.suggestedFilename()).toBe("guard-" + id + ".cdx.json");
+  const { readFile } = await import("node:fs/promises");
+  const document = JSON.parse(await readFile((await download.path())!, "utf8"));
+  expect(document.bomFormat).toBe("CycloneDX");
+  expect(document.components).toHaveLength(1);
+  expect(document.metadata.properties).toContainEqual({
+    name: "wetscan:commit",
+    value: commit,
+  });
+});

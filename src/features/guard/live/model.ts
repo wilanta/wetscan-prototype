@@ -52,6 +52,7 @@ export interface SourceLease {
   blob(
     sha: string,
     signal: AbortSignal,
+    responseLimit?: number,
   ): Promise<{ sha: string; size: number; encoding: string; content: string }>;
   close(): Promise<void>;
 }

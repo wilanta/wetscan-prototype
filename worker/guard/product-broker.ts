@@ -1,3 +1,4 @@
+import { tagFailure } from "./source-failure";
 import type {
   Grant,
   ScanJob,
@@ -30,21 +31,30 @@ export class ProductSessionBroker {
     private job: ScanJob,
     private policy: RepositoryScanPolicy,
     private source: SourceAccess,
-    readonly owner = new GuardSnapshotAdapter(source),
+    readonly owner = new GuardSnapshotAdapter(source, undefined, undefined, {
+      blobConcurrency: 3,
+      largeDependencyManifests: true,
+    }),
   ) {
     if (!operationalJob(job)) throw new LiveGuardError("not_found", 404);
     validateProductPolicy(policy, job);
     this.snapshots = {
       acquire: async (g, r, s) => {
-        if (this.acquired) throw new LiveGuardError("execution_not_ready");
-        await this.freshGrant();
-        this.sameRequest(r);
-        authorize(g, this.job, "scan");
-        this.acquired = true;
-        const snap = await this.owner.acquire(g, r, s);
-        this.coverage = structuredClone(snap.coverage);
-        this.owned.add(snap);
-        return snap;
+        try {
+          if (this.acquired) throw new LiveGuardError("execution_not_ready");
+          await this.freshGrant();
+          this.sameRequest(r);
+          authorize(g, this.job, "scan");
+          this.acquired = true;
+          const snap = await this.owner.acquire(g, r, s).catch((error) => {
+            throw tagFailure(error, "source");
+          });
+          this.coverage = structuredClone(snap.coverage);
+          this.owned.add(snap);
+          return snap;
+        } catch (error) {
+          throw tagFailure(error, "broker");
+        }
       },
       refresh: async (s, g) => {
         if (!this.owned.has(s)) throw new LiveGuardError("source_integrity");
@@ -88,17 +98,21 @@ export class ProductSessionBroker {
       throw new LiveGuardError("source_integrity");
   }
   async freshGrant(): Promise<Grant> {
-    if (this.closed) throw new LiveGuardError("source_unavailable");
-    const a = await this.source.authorize();
-    authorize(a.grant, this.job, "scan");
-    if (
-      a.grant.actorId !== this.job.audit[0]?.actorId ||
-      a.repositoryId !== this.job.repository.repositoryId ||
-      a.branch !== this.job.repository.branch
-    )
-      throw new LiveGuardError("not_found", 404);
-    validateProductPolicy(this.policy, this.job);
-    return a.grant;
+    try {
+      if (this.closed) throw new LiveGuardError("source_unavailable");
+      const a = await this.source.authorize();
+      authorize(a.grant, this.job, "scan");
+      if (
+        a.grant.actorId !== this.job.audit[0]?.actorId ||
+        a.repositoryId !== this.job.repository.repositoryId ||
+        a.branch !== this.job.repository.branch
+      )
+        throw new LiveGuardError("not_found", 404);
+      validateProductPolicy(this.policy, this.job);
+      return a.grant;
+    } catch (error) {
+      throw tagFailure(error, "broker");
+    }
   }
   async close() {
     this.closed = true;

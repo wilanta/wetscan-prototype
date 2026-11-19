@@ -4,10 +4,15 @@ import { authorize } from "../security";
 import { operationalJob } from "./product-policy";
 import { evaluate, type ReleasePolicy } from "../release";
 import { profiles } from "../pipeline";
+import { repositoryProfiles } from "./scan-profiles";
 export function releasePolicy(value: StoredScan): ReleasePolicy {
   return {
     id: "guard-default-v1",
-    required: [...profiles[value.job.profile]],
+    required: [
+      ...(operationalJob(value.job) ? repositoryProfiles : profiles)[
+        value.job.profile
+      ],
+    ],
     blockSeverities: ["critical", "high"],
     blockPotential: true,
   };
@@ -51,6 +56,7 @@ export function storedScanView(authority: ProjectAuthority, value: StoredScan) {
     sourceCoverage: j.sourceCoverage ?? null,
     engines: j.runs,
     inventory: j.inventory ?? [],
+    sbom: j.sbom ?? null,
     findings: j.findings,
     audit: j.audit,
     release: evaluate(j, releasePolicy(value)),

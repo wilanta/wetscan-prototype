@@ -165,9 +165,10 @@ export function githubSourceAccess(
           });
           return { sha: sha(value.sha), truncated: value.truncated, entries };
         },
-        async blob(hash, s) {
+        async blob(hash, s, responseLimit) {
+          if (responseLimit !== undefined && (!Number.isInteger(responseLimit) || responseLimit < 120000 || responseLimit > 3000000)) throw new LiveGuardError("invalid_input",400);
           const value = record(
-            await read<unknown>(`${base}/git/blobs/${sha(hash)}`, s, 120000),
+            await read<unknown>(`${base}/git/blobs/${sha(hash)}`, s, responseLimit ?? 120000),
           );
           return {
             sha: sha(value.sha),

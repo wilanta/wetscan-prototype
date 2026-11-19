@@ -7,6 +7,7 @@ import { authorizeGuardProject } from "./project";
 import { guardLiveService } from "./runtime";
 import { LiveGuardError } from "./model";
 import { GuardError } from "../security";
+import { safeGithubDiagnostic } from "../../../lib/auth/provider-diagnostics";
 import { githubSourceAccess } from "./github-source";
 import { sourceAcceptance } from "./source-acceptance";
 const headers = {
@@ -80,7 +81,11 @@ export async function guardRoute(
     | "product-cancel"
     | "revision"
     | "preflight"
-    | "resume",
+    | "resume"
+    | "remediation"
+    | "remediation-review"
+    | "retest-compare"
+    | "integrations",
   id?: string,
 ) {
   try {
@@ -156,6 +161,14 @@ export async function guardRoute(
       return reply({
         authenticated: true,
         providerAuthorizationVerified: true,
+        binding: {
+          workspaceId: authority.grant.workspaceId,
+          projectId,
+          repositoryId: authority.repositoryId,
+          repositoryName: authority.repositoryName,
+          branch: authority.branch,
+          actorId: authority.grant.actorId,
+        },
         ...(await probeProductReadiness(process.env, authority.grant)),
       });
     }
@@ -208,6 +221,42 @@ export async function guardRoute(
         202,
       );
     }
+    if (resource === "remediation")
+      return reply(
+        request.method === "GET"
+          ? await service.remediationState(authority, id ?? "")
+          : await service.proposeRemediation(
+              authority,
+              id ?? "",
+              await boundedJson(request),
+              request.signal,
+              () => authorizeGuardProject(token, projectId),
+            ),
+      );
+    if (resource === "remediation-review")
+      return reply(
+        await service.reviewRemediation(
+          authority,
+          id ?? "",
+          await boundedJson(request),
+        ),
+      );
+    if (resource === "retest-compare")
+      return reply(
+        await service.compareRetest(
+          authority,
+          id ?? "",
+          await boundedJson(request),
+        ),
+      );
+    if (resource === "integrations")
+      return reply(
+        await service.prepareIntegrations(
+          authority,
+          id ?? "",
+          await boundedJson(request),
+        ),
+      );
     if (resource === "view")
       return reply(await service.view(authority, id ?? ""));
     if (resource === "triage")
@@ -251,6 +300,13 @@ export async function guardRoute(
     if (error instanceof AuthError)
       return reply(
         {
+          ...(resource === "preflight" && error.code === "github_unavailable"
+            ? {
+                phase: "provider_authorization",
+                diagnostic: safeGithubDiagnostic(error),
+                runtimeOperations: 0,
+              }
+            : {}),
           error:
             error.status === 403 || error.status === 404
               ? "not_found"

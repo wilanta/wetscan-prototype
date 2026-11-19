@@ -1,4 +1,5 @@
 import "server-only";
+import { transportDiagnostic } from "./provider-diagnostics";
 import {
   createHash,
   createPrivateKey,
@@ -78,8 +79,10 @@ export async function githubRequest<T>(
     cache: "no-store",
     signal: AbortSignal.timeout(20000),
     redirect: "error",
-  }).catch(() => {
-    throw new AuthError("github_unavailable", 502);
+  }).catch((error: unknown) => {
+    throw Object.assign(new AuthError("github_unavailable", 502), {
+      githubDiagnostic: transportDiagnostic(error, "github_api"),
+    });
   });
   if (
     !response.ok &&
@@ -93,7 +96,14 @@ export async function githubRequest<T>(
     path.endsWith("/access_tokens")
   )
     throw new AuthError("github_permissions", 403);
-  if (!response.ok) throw githubHttpError(response, path.startsWith("/app"));
+  if (!response.ok)
+    throw Object.assign(githubHttpError(response, path.startsWith("/app")), {
+      githubDiagnostic: {
+        boundary: "github_api",
+        reason: "UPSTREAM_HTTP",
+        upstreamStatus: response.status,
+      },
+    });
   return response.json().catch(() => {
     throw new AuthError("github_response", 502);
   }) as Promise<T>;
@@ -113,8 +123,10 @@ async function tokenRequest(
     cache: "no-store",
     signal: AbortSignal.timeout(20000),
     redirect: "error",
-  }).catch(() => {
-    throw new AuthError("github_unavailable", 502);
+  }).catch((error: unknown) => {
+    throw Object.assign(new AuthError("github_unavailable", 502), {
+      githubDiagnostic: transportDiagnostic(error, "github_oauth"),
+    });
   });
   if (!response.ok) throw githubHttpError(response);
   const result = (await response.json().catch(() => {
