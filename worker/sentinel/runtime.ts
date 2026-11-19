@@ -96,7 +96,7 @@ export async function runSentinelWorker(input: {
       res.end(JSON.stringify({ status: "stopping" }));
       return;
     }
-    const health = await platformHealth(db, workerId);
+    const health = await platformHealth(db, workerId, migrations);
     res.writeHead(health.status === "ready" ? 200 : 503, {
       "Content-Type": "application/json",
       "Cache-Control": "no-store",

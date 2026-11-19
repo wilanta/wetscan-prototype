@@ -15,7 +15,33 @@ export async function heartbeatWorker(
     );
   });
 }
-export async function platformHealth(db: PlatformDatabase, workerId?: string) {
+export interface ExpectedMigration {
+  version: string;
+  checksum: string;
+}
+export type SchemaStatus =
+  "current" | "behind" | "checksum_mismatch" | "unknown_version" | "unverified";
+/** Compares the applied ledger with the code's migration plan. Never "current" unless every version+checksum agrees. */
+export function schemaStatus(
+  applied: ReadonlyArray<ExpectedMigration>,
+  expected?: ReadonlyArray<ExpectedMigration>,
+): SchemaStatus {
+  if (!expected) return "unverified";
+  const want = new Map(expected.map((m) => [m.version, m.checksum]));
+  if (applied.some((m) => !want.has(m.version))) return "unknown_version";
+  if (applied.some((m) => want.get(m.version) !== m.checksum))
+    return "checksum_mismatch";
+  return applied.length < want.size ? "behind" : "current";
+}
+/**
+ * `expected` (the code's migration plan) lets health report the real schema state; without it the schema is
+ * `unverified` and only the foundation migration is checked, as in S01.
+ */
+export async function platformHealth(
+  db: PlatformDatabase,
+  workerId?: string,
+  expected?: ReadonlyArray<ExpectedMigration>,
+) {
   try {
     return await db.transaction(async (tx) => {
       db.requireWorker(tx);
@@ -25,6 +51,13 @@ export async function platformHealth(db: PlatformDatabase, workerId?: string) {
       );
       if (migration.rows[0]?.version !== "0001_foundation")
         throw new Error("schema_not_ready");
+      const ledger = (
+        await db.query(
+          tx,
+          "SELECT version,checksum FROM platform.schema_migrations ORDER BY version",
+        )
+      ).rows as ExpectedMigration[];
+      const schemaState = schemaStatus(ledger, expected);
       const heartbeat = await db.query(
         tx,
         `SELECT count(*)::int AS fresh FROM platform.worker_heartbeats WHERE module=$1 AND status='running'
@@ -53,11 +86,15 @@ export async function platformHealth(db: PlatformDatabase, workerId?: string) {
       const fresh = Number(heartbeat.rows[0].fresh) > 0;
       return {
         status:
-          fresh && !Number(queue.expired) && !Number(queue.failed)
+          fresh &&
+          !Number(queue.expired) &&
+          !Number(queue.failed) &&
+          (schemaState === "current" || schemaState === "unverified")
             ? ("ready" as const)
             : ("degraded" as const),
         database: "connected" as const,
-        schema: "0001_foundation",
+        schema: ledger.at(-1)?.version ?? "0001_foundation",
+        schemaStatus: schemaState,
         worker: fresh ? ("running" as const) : ("stale_or_stopped" as const),
         queue: {
           queued: Number(queue.queued),
