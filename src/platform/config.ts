@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { isAbsolute } from "node:path";
 
-export type Purpose = "app" | "worker" | "migration";
+export type Purpose = "app" | "worker" | "migration" | "notifier";
 export type ApprovedAction =
   "runtime" | "migrate_up" | "migrate_down" | "integration_test";
 export type Environment = Readonly<Record<string, string | undefined>>;
@@ -39,6 +39,7 @@ export const roleNames = {
   app: "wetscan_app",
   worker: "wetscan_sentinel_worker",
   migration: "wetscan_migrator",
+  notifier: "wetscan_sentinel_notifier",
 } as const;
 export function integer(
   value: string | undefined,
@@ -147,7 +148,7 @@ export async function approvedDatabaseConfig(
     purpose,
     user: roleNames[purpose],
     password,
-    max: purpose === "app" ? 5 : purpose === "migration" ? 1 : 3,
+    max: purpose === "app" ? 5 : purpose === "migration" ? 1 : purpose === "notifier" ? 2 : 3,
     approval,
   };
 }

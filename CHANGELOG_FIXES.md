@@ -1,5 +1,19 @@
 # CHANGELOG_FIXES
 
+### Fix #6 — S06 durable notifications, Telegram first, delivery ledger and credential-isolated sender (DEV accepted on isolated PostgreSQL 2026-11-19; not deployed; live provider send NOT_RUN)
+
+| Field | Detail |
+|---|---|
+| Tanggal | 2026-11-19 |
+| File | `migrations/sentinel/0006_notifications.*`, `infra/sentinel/provision-roles-s06.sql`, `src/features/sentinel/notifications/**`, `worker/notifier/**`, `incidents/store.ts` (producer hook), `worker/sentinel/runtime.ts` (ledger retention + health text), `server/notification-http.ts` + `/notifications` route, `components/live-notifications.tsx`, `platform/{config,migrations}.ts`, live route guard, docs `SENTINEL_S06_*` |
+| Masalah | S01 outbox/attempt tables stored intents but nothing produced, delivered or recorded them; the Notifications UI was demo-only; `main.ts` strips provider env so the main worker could not send. |
+| Akar | No channel/consent model, no ledger separating provider acceptance from delivery, no isolated lane able to hold provider secrets. |
+| Fix | Additive `0006` (channels, ledger, audit; FORCE RLS; WITH CHECK so only the sender advances state); in-transaction, savepoint-isolated, deduplicated producer; notifier process with its own DB role (outbox jobs of one approved scope only), `attempted` committed before the call, jittered bounded retries, dead letter, crash/poison sweep, send-time consent/destination re-check; Telegram + Resend adapters behind `SenderPort`; WhatsApp unavailable; strict API + live UI. `main.ts` env strip unchanged. |
+| Verifikasi | 22/22 S06 PostgreSQL (throwaway PG 17.12, real S03→S04 pipeline, real lease handler, real `runNotifier`, real `notifier/main.ts` process vs loopback mock); S05 PostgreSQL 23/23; unit 1544/1545 (1 pre-existing PowerShell timing test fails identically on base `9b8b718`); browser 6/6 S06 + S05/S04/S03/legacy specs green; tsc/eslint/next build clean. A5/H05 live sends and dev-DB upgrade: NOT_RUN. |
+| Pelajaran | Three defects surfaced only against real PostgreSQL: `FOR UPDATE` in retention/retry needs an UPDATE privilege the least-privilege roles deliberately lack (would have made every worker pass degraded - caught by the S05 worker-loop test); editing `provision-roles.sql` silently changes the accepted S04 plan hash (new role file instead); S05's live route guard never allowed `/responses` (fixed). A test fixture that leaves earlier rules enabled makes every later event open extra incidents - disable prior rules per trigger. |
+| Log Keyword | `sentinel.outbox`, `notification_deliveries`, `provider_accepted`, `previous_attempt_outcome_unknown`, `provider_not_configured`, `deferred_quiet_hours`, `destination_changed`, `wetscan_sentinel_notifier`, `notifications_not_configured`, `H04`, `H-S06-ROLE` |
+| Deploy | NOT deployed. Worker/app on a real DB need H-S06-ROLE (role, migration, new approval hash). Retention: terminal ledger rows 30 d. `live tested` against Telegram/Resend: NOT_RUN. |
+
 ### Fix #5 — S05 controlled response, independent verification and TTL rollback (DEV accepted on isolated PostgreSQL 2026-11-19; not deployed)
 
 | Field | Detail |

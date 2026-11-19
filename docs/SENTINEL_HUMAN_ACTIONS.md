@@ -94,7 +94,9 @@ Proposed env: `SENTINEL_RESPONSE_BASE_URL`, `SENTINEL_RESPONSE_TOKEN`, `SENTINEL
 
 ## H04 - Telegram
 
-**Status: DEFERRED to S06. Who: owner of a dedicated test bot and approved destination.**
+**Status: ADAPTER READY (S06 `fixture-tested`, `DEV accepted`); live test send `NOT_RUN` - no bot token or approved destination exists locally. The owner authorized one controlled test send to a bot/destination they own once these exist (19 Nov 2026). Who: owner of a dedicated test bot and approved destination.**
+
+S06 procedure (secrets never enter chat, Git, the browser or the main worker): (1) create the bot in @BotFather privately; (2) save the token in an ignored file and set `TELEGRAM_BOT_TOKEN_FILE` **only** for the notifier process (`infra/sentinel/notifier.env.example`); (3) start the bot chat and obtain the numeric chat ID; (4) in the project UI **Sentinel > Notifications**, enter the chat ID, tick the consent box, **Save**, then **Send one test message**; (5) the message arriving + a ledger row `provider_accepted` with the provider message id is the proof. Acceptance is *not* a read receipt. `TELEGRAM_CHAT_ID`/`SENTINEL_TEST_*` env names are not used: the destination is per-project, consented data in PostgreSQL.
 
 Prerequisites: S04 + transactional outbox, explicit permission for one real test send. In Telegram, open @BotFather, create a dedicated bot, privately retain token, start a private bot chat or authorize a test group; obtain the intended chat ID through the supported bot update flow. Enter token/destination server-side, review destination in the future channel UI and explicitly request a test send. Codex implements official `sendMessage`, destination consent, timeout/retries and redacted ledger. It does not register the bot or send during S00.
 
@@ -102,7 +104,9 @@ Proposed env: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`. Expected proof: actual m
 
 ## H05 - email
 
-**Status: DEFERRED (optional S06). Who: owner of sending domain/provider account.**
+**Status: ADAPTER READY (optional; `fixture-tested`); live send `NOT_RUN` - no Resend key, verified sender domain or approved recipient exists locally. Who: owner of sending domain/provider account.**
+
+S06 uses `RESEND_API_KEY`/`RESEND_API_KEY_FILE` and `NOTIFICATION_FROM_EMAIL` on the notifier only; the recipient is entered as the project's email destination. No delivery webhook is implemented, so email can reach `provider_accepted` but never `delivered`.
 
 Prerequisites: choose provider and authorize test recipient/send. If using Resend, create transactional account, add controlled sending subdomain, apply provider-provided SPF/DKIM records in DNS, wait for verification, create sending-only key; enter server env and sender, then authorize one test. Codex adds a portable email adapter and verified delivery callbacks only if configured; no DNS/account mutations here.
 
@@ -110,11 +114,15 @@ Proposed env: `RESEND_API_KEY`, `NOTIFICATION_FROM_EMAIL`, `SENTINEL_TEST_EMAIL_
 
 ## H06 - WhatsApp
 
-**Status: DEFERRED, not a core vertical-slice blocker. Who: business/number owner.**
+**Status: DEFERRED (S06 ships only the unavailable state `Requires business setup / Not configured`; DB CHECKs make enabling WhatsApp impossible and the activation block rejects it). Not a core vertical-slice blocker. Who: business/number owner.**
 
 Prerequisites: select official WhatsApp Business Platform, permitted business phone, recipient opt-in, approved template and costs/usage scope. Human completes Meta Business setup, creates scoped credentials and records phone-number ID/template/consent. A real callback requires separately approved public HTTPS and signature verification. Until then show `Requires business setup` and previews only; no unofficial session/browser automation.
 
 Proposed env: `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_APP_SECRET`, `WHATSAPP_WEBHOOK_VERIFY_TOKEN`; per-project consent/template/destination stored securely in S06, never a generic recipient broadcast. Expected proof: opt-in test recipient receives approved template and verified callback records delivery independently of API acceptance.
+
+## H-S06-ROLE - notifier database role, migration 0005/0006 and approvals (new, S06)
+
+**Status: PENDING (owner). Not performed against the owner development database.** The notifier is a separate credential domain, so before it (or the new app/worker code) can run on a real database the owner must: review `infra/sentinel/provision-roles-s06.sql` and create `wetscan_sentinel_notifier` with its own password file (`SENTINEL_DB_NOTIFIER_PASSWORD_FILE`); back up the target (`pg_dump`); apply `0005_response` (if absent) and `0006_notifications` as `wetscan_migrator` after plan review (full plan sha256 `82e20396...1e8c`, see [SENTINEL_S06_MIGRATION_REVIEW.md](SENTINEL_S06_MIGRATION_REVIEW.md)); issue **new** app and worker approvals bound to that plan hash, and a sender approval containing a `notifications` block for exactly one project (channels `telegram` and/or `email`). Until then the existing dev app/worker, sealed to the older hash, are intentionally unaffected.
 
 ## H07 - Ghost Lite placement
 

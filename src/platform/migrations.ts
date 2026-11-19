@@ -43,14 +43,24 @@ export async function migrationPlan(through?: string) {
       "utf8",
     )
   ).replace(/\r\n/g, "\n");
-  const sha256 = createHash("sha256")
+  const hash = createHash("sha256")
     .update(
       JSON.stringify(
         migrations.map(({ version, checksum }) => ({ version, checksum })),
       ),
     )
-    .update(roles)
-    .digest("hex");
+    .update(roles);
+  // S06 role provisioning is hashed only into plans that include 0006, keeping the reviewed S01-S04 prefix hash stable.
+  if (migrations.some((m) => m.version === "0006_notifications"))
+    hash.update(
+      (
+        await readFile(
+          join(directory, "..", "..", "infra", "sentinel", "provision-roles-s06.sql"),
+          "utf8",
+        )
+      ).replace(/\r\n/g, "\n"),
+    );
+  const sha256 = hash.digest("hex");
   return { sha256, migrations };
 }
 /** Dedicated client + advisory lock + one transaction; never called by worker/app startup. */
@@ -104,6 +114,31 @@ export async function applyMigrations(
       if (!applied.length || applied.length > migrations.length)
         throw new PlatformError("target_denied");
       const latest = migrations[applied.length - 1];
+      if (latest.version === "0006_notifications") {
+        // Refuses ANY notification row (config, ledger, audit); no force or cascade.
+        const tables = [
+          "notification_audit",
+          "notification_deliveries",
+          "notification_channels",
+        ];
+        await client.query(
+          `LOCK TABLE ${tables.map((t) => `sentinel.${t}`).join(",")},platform.jobs IN ACCESS EXCLUSIVE MODE`,
+        );
+        for (const table of tables) {
+          const occupied = await client.query(
+            `SELECT EXISTS(SELECT 1 FROM sentinel.${table} LIMIT 1) AS occupied`,
+          );
+          if (occupied.rows[0].occupied)
+            throw new PlatformError("target_denied");
+        }
+        await client.query(latest.down);
+        await client.query(
+          "DELETE FROM platform.schema_migrations WHERE version=$1",
+          [latest.version],
+        );
+        await client.query("COMMIT");
+        return;
+      }
       if (latest.version === "0005_response") {
         // Refuses ANY response row (targets, actions, append-only audit); no force or cascade.
         const tables = ["response_audit", "response_actions", "response_targets"];

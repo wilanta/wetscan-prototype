@@ -69,7 +69,7 @@ describe.skipIf(!process.env.SENTINEL_S05_PG_ADMIN_URL)(
           "SELECT version FROM platform.schema_migrations ORDER BY version",
         )
       ).rows.map((r) => r.version);
-      expect(v).toEqual([
+      expect(v.slice(0, 5)).toEqual([
         "0001_foundation",
         "0002_telemetry",
         "0003_detection",
@@ -372,6 +372,8 @@ describe.skipIf(!process.env.SENTINEL_S05_PG_ADMIN_URL)(
       const h2 = await setupHarness({ seedIncident: false });
       try {
         const plan = await migrationPlan();
+        // 0006 (S06) sits on top: reverse it first, then 0005 on its own.
+        await applyMigrations(h2.admin as never, plan.migrations, "down");
         await applyMigrations(h2.admin as never, plan.migrations, "down");
         const v = (
           await h2.admin.query(
@@ -398,7 +400,7 @@ describe.skipIf(!process.env.SENTINEL_S05_PG_ADMIN_URL)(
               "SELECT count(*)::int AS n FROM platform.schema_migrations",
             )
           ).rows[0].n,
-        ).toBe(5);
+        ).toBe(6); // 0001-0005 + 0006 (S06) re-applied
       } finally {
         await h2.close();
       }
