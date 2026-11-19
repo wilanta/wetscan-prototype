@@ -1,0 +1,31 @@
+# S10 Integration Matrix — producers, status, and what a visual claim may say
+
+Status vocabulary: `IMPLEMENTED` (code exists) · `DEV_ACCEPTED` (accepted on isolated PostgreSQL/mocked browser fixtures) · `NOT_CONFIGURED` (needs owner setup) · `NOT_RUN` · `DEFERRED` · `NOT_INTEGRATED`.
+
+| Module | Producer (persisted source) | S10 surface | Status | UI claim allowed | UI claim forbidden |
+| --- | --- | --- | --- | --- | --- |
+| S02 Telemetry | `sentinel.telemetry_*` | Overview, Activity, Sources, Reports, CAN-008 coverage | DEV_ACCEPTED | "N sources connected", event counts by origin | "monitored/safe" without a connected source |
+| S03 Detection | `detection_rules/alerts` | Overview, Rules, Alerts, Reports | DEV_ACCEPTED | alert counts by severity/origin | "enabled" for a DRAFT rule |
+| S04 Incidents | `incidents`, `incident_evidence` | Incidents, Overview, Reports, **CAN-008 overlay** | DEV_ACCEPTED | open incident mapped to an API node by route evidence | closure = mitigation verified |
+| S05 Responses | `response_actions` | Responses, Overview, Reports | DEV_ACCEPTED (fixture scope) | "independently verified" only for status `verified`; `applied`/`verification_pending`/`inconclusive` are reported as **not verified** | green "protected" from `applied` |
+| S06 Notifications | `notification_*` | Notifications, Overview, Reports | DEV_ACCEPTED | "provider accepted" and "delivery confirmed" as separate counters | "delivered/read" from acceptance |
+| S07 Ghost | `ghost_*` | Ghost, Overview, Reports | DEV_ACCEPTED | decoy signal count, rule status | a decoy hit as proof of intrusion |
+| S08 Internal Intelligence | `intel_*` | Intelligence, Overview, Reports | DEV_ACCEPTED | cases, DRAFT candidates awaiting review | candidate = active rule |
+| S09 External Intelligence | `ext_*` | Intelligence, Overview, Reports | DEV_ACCEPTED (worker activation NOT_RUN) | `potential_exposure` / `cannot_assess` / `no_match_within_coverage` with disclaimer | "clean", "exploited", "deployed" |
+| **CAN-008** Sentinel → Canvas | S04 incidents + telemetry route evidence + authorized Canvas graph | Canvas Security lens, inspector | **IMPLEMENTED, DEV_ACCEPTED** (mocked transport + isolated PG) | marker only on an unambiguous route match; unmapped listed as "not placed" | any marker without persisted evidence; synthetic nodes |
+| **GRD-020** Guard inventory | none | Overview/Reports integration table | `NOT_INTEGRATED` | "No Guard inventory producer exists"; S09 lockfile inventory is labelled independent | Guard-produced inventory |
+| **GRD-021** Guard pipeline audit | none | Overview/Reports integration table | `NOT_INTEGRATED` | "No Guard pipeline producer exists" | `release_evaluated` / `remediation_retested` events |
+| Guard trust/workflow lenses | none | Canvas Trust/Workflows | `not_tested` / `not_executed` (unchanged) | existing wording | — |
+
+## CAN-008 contract (as built)
+
+- **Endpoint:** `GET /api/sentinel/projects/<projectId>/canvas?revision=<40-hex>` (only `revision` accepted; one value).
+- **Inputs from the server only:** workspace/project/mode from the session via `authorizeSentinelProject`; graph from the authorized Canvas cache (`projectCanvasService(...).cached(revision)`, which re-authorizes and re-validates the session); the graph must be `live`, equal the pinned revision, and have `projectRef === context.canvasProjectRef` or the route answers `409 graph_unavailable` before touching storage.
+- **Mapping (`src/features/sentinel/canvas/mapping.ts`):** an open (`open`/`investigating`) incident maps to a node only if its persisted evidence events carry `request.routeTemplate` that matches **exactly one** source-observed (`status=observed_in_source`) `api` node's `metadata.route`; HTTP method must be allowed when the node's methods are known; catch-all routes never match; telemetry redacts non-allow-listed segments to `:redacted`, so a match through a redacted segment is reported as the weaker `route_redacted_segments` basis; a second candidate for any event → `ambiguous_nodes` → **not placed**. Inferred/manual nodes are never targets.
+- **Coverage (`sentinel` field):** `not_monitored` (no enabled source ever made contact), `stale` (contact exists but nothing currently connected — last-known records), `partial` (not all enabled sources connected, no runtime source connected, any incident not placed, or list truncated at 100), `available` (all enabled sources connected, ≥1 runtime, nothing unplaced — still "not proof of safety"), `failed`/`unavailable` (client side, on transport/validation error or revision/project mismatch; `503 telemetry_not_configured`/`migration_not_ready` → `not_monitored`). `guard` stays `not_scanned`.
+- **Client (`canvas/adapters/sentinel-overlay.ts`):** validates with the existing `validateSecurityOverlay` + `scopeSecurity`, and additionally rejects an overlay whose `sentinelDetail.sourceRevision` ≠ the displayed graph revision, whose `projectRef` differs, or whose mode is not `live`. No last-known overlay is cached by the browser, so a stale mapping cannot outlive its revision.
+- **Evidence & links:** each mapped incident carries origin (`runtime`/`controlled_test`), source id, severity, first/last observed, up to 20 evidence ids, matched routes, and the authorized `href` (`/app/projects/<id>/sentinel/incidents/<uuid>` — validated by `safeActionHref`).
+
+## Live report contract (as built)
+
+`LiveReport` (`reports/live-report.ts`): `schemaVersion 1`, `kind wetscan.sentinel.live_report`, `mode live`, `synthetic false`, `generatedAt`, `scope.projectId`, `windowDays ∈ {1,7,30}`, eight sections each `{state: ok|not_configured|unavailable, asOf, data?}`, `integrations` (CAN-008/GRD-020/GRD-021), `limitations`. Sections are built from whitelisted aggregate fields only. Redaction: no actor ids, workspace ids, notification destinations, provider message ids, subject/target refs, raw events or request attributes. CSV: every cell quoted, leading `= + - @ TAB CR` neutralized with `'`; ≤ 2000 rows; JSON/CSV served as `attachment` with `nosniff`, `private, no-store`, filename `wetscan-sentinel-report-<projectId>-<date>.<ext>`. No audit row is written (no existing reporting-audit contract; reading is already scoped and idempotent).
