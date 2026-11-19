@@ -16,6 +16,12 @@ import { retainTelemetry } from "../../src/features/sentinel/telemetry/store";
 import { DetectionStore } from "../../src/features/sentinel/detection/store";
 import { retainDetection } from "../../src/features/sentinel/detection/retention";
 import type { DetectionActivation } from "../../src/features/sentinel/detection/activation";
+import type { ResponseActivation } from "../../src/features/sentinel/response/activation";
+import { ResponseStore } from "../../src/features/sentinel/response/store";
+import { responseJobKinds } from "../../src/features/sentinel/response/model";
+import { adapterForTarget } from "../../src/features/sentinel/response/local-rate-limit-adapter";
+import { FixtureVerifier } from "../../src/features/sentinel/response/verifier";
+import { handleResponseJob } from "./response-handlers";
 import { retainIncidents } from "../../src/features/sentinel/incidents/retention";
 import type { IncidentActivation } from "../../src/features/sentinel/incidents/activation";
 import {
@@ -47,6 +53,9 @@ export async function runSentinelWorker(input: {
   options: ReturnType<typeof workerConfig>;
   detection?: DetectionActivation;
   incidents?: IncidentActivation;
+  /** S05: absent ⇒ the response queue is never created (NO-OP / NOT_CONFIGURED). */
+  response?: ResponseActivation;
+  env?: Readonly<Record<string, string | undefined>>;
   isolation?: AcceptanceIsolation;
   workerId: string;
   control: WorkerControl;
@@ -102,6 +111,9 @@ export async function runSentinelWorker(input: {
           : migrations.some((m) => m.version === "0004_incidents")
             ? "disabled_pending_approval"
             : "not_implemented",
+        response: input.response
+          ? "enabled_for_approved_local_fixture"
+          : "disabled_pending_approval",
         notifications: "not_configured",
       }),
     );
@@ -125,6 +137,18 @@ export async function runSentinelWorker(input: {
         !Number.isFinite(Date.parse(input.incidents.notBefore)) ||
         Date.parse(input.incidents.notBefore) <
           Date.parse(input.detection.notBefore))
+    )
+      throw new PlatformError("approval_required");
+    if (
+      input.response &&
+      (!input.incidents ||
+        input.isolation ||
+        !migrations.some((m) => m.version === "0005_response") ||
+        input.response.scope.workspaceId !==
+          input.incidents.scope.workspaceId ||
+        input.response.scope.projectId !== input.incidents.scope.projectId ||
+        Date.parse(input.response.notBefore) <
+          Date.parse(input.incidents.notBefore))
     )
       throw new PlatformError("approval_required");
     if (input.isolation) {
@@ -231,6 +255,47 @@ export async function runSentinelWorker(input: {
             )
               await retainTelemetry(db, scope, detectionReady, incidentsReady);
             if (stop.signal.aborted) break;
+            if (
+              input.response &&
+              scope.workspaceId === input.response.scope.workspaceId &&
+              scope.projectId === input.response.scope.projectId
+            ) {
+              const store = new ResponseStore(db);
+              const env = input.env ?? process.env;
+              await store.ensureReconcile(scope);
+              const rq = new PostgresQueue(
+                db,
+                scope,
+                Object.values(responseJobKinds),
+                input.response.notBefore,
+              );
+              const rl = await rq.claim({
+                module: "sentinel",
+                workerId,
+                limit: options.concurrency,
+                leaseMs: options.leaseMs,
+              });
+              await Promise.all(
+                rl.map((lease) =>
+                  executeLease(
+                    rq,
+                    lease,
+                    (job, signal) =>
+                      handleResponseJob(job, signal, {
+                        store,
+                        adapter: (t) => adapterForTarget(env, t),
+                        verifier: (t) =>
+                          new FixtureVerifier({ origin: t.origin }),
+                      }),
+                    {
+                      heartbeatMs: options.heartbeatMs,
+                      timeoutMs: options.timeoutMs,
+                      signal: stop.signal,
+                    },
+                  ),
+                ),
+              );
+            }
             const claimNotBefore =
               input.isolation?.packet === "s04" && input.incidents
                 ? input.incidents.notBefore
@@ -277,7 +342,8 @@ export async function runSentinelWorker(input: {
                       );
                       return;
                     }
-                    if (input.isolation) throw new PlatformError("scope_denied");
+                    if (input.isolation)
+                      throw new PlatformError("scope_denied");
                     await retainInfrastructure(db, job, options.retentionDays);
                     if (incidentsReady) await retainIncidents(db, job);
                     if (detectionReady)

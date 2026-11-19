@@ -16,6 +16,8 @@
     "sentinel:health": "node --env-file-if-exists=.env.sentinel.local --import tsx scripts/sentinel-health.ts",
     "test:platform:postgres": "node --env-file-if-exists=.env.sentinel.test.local --import tsx scripts/sentinel-postgres-test.ts",
     "test:sentinel:postgres": "node --env-file-if-exists=.env.sentinel.test.local --import tsx scripts/sentinel-telemetry-test.ts",
+    "sentinel:response:fixture": "node --import tsx scripts/sentinel-response-fixture.ts",
+    "test:sentinel:response:postgres": "vitest run -c tests/sentinel/response-postgres.config.ts",
     "sentinel:emit": "node --env-file-if-exists=.env.sentinel.emitter.local --import tsx scripts/sentinel-emit.ts",
     "format": "prettier --write src tests *.ts *.mjs README.md docs/*.md"
   },

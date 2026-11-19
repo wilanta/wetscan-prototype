@@ -52,7 +52,7 @@ describe.skipIf(process.env.SENTINEL_S04_ACCEPTANCE_RUN !== "1")(
     let before: EvidenceSnapshot;
     let beforeFull: FullS04Snapshot;
     let createdIncidentId = "";
-    const planPromise = migrationPlan();
+    const planPromise = migrationPlan("0004_incidents");
 
     beforeAll(async () => {
       const plan = await planPromise;

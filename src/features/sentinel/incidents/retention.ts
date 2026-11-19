@@ -19,10 +19,20 @@ export async function retainIncidents(
       )
     ).rows[0];
     if (!held || held.retention_hold) return { incidents: 0, timeline: 0 };
+    // S05: incidents referenced by a response action (append-only audit, FK RESTRICT) are pinned. 0005 may not be applied yet.
+    const responses = (
+      await db.query(
+        tx,
+        "SELECT to_regclass('sentinel.response_actions') IS NOT NULL AS present",
+      )
+    ).rows[0].present as boolean;
+    const responsePin = responses
+      ? " AND NOT EXISTS(SELECT 1 FROM sentinel.response_actions r WHERE r.mode=i.mode AND r.workspace_id=i.workspace_id AND r.project_id=i.project_id AND r.incident_id=i.incident_id)"
+      : "";
     const expired = (
       await db.query(
         tx,
-        `SELECT i.incident_id FROM sentinel.incidents i WHERE i.mode=$1 AND i.workspace_id=$2 AND i.project_id=$3 AND i.status='closed' AND i.closed_at IS NOT NULL AND i.closed_at<statement_timestamp()-interval '30 days' AND NOT EXISTS(SELECT 1 FROM sentinel.incident_evidence e JOIN platform.jobs j ON j.module='sentinel' AND j.mode=e.mode AND j.workspace_id=e.workspace_id AND j.project_id=e.project_id AND j.subject_ref=e.source_id::text||'/'||e.event_id::text WHERE e.mode=i.mode AND e.workspace_id=i.workspace_id AND e.project_id=i.project_id AND e.incident_id=i.incident_id AND j.state IN ('queued','leased')) ORDER BY i.closed_at,i.incident_id LIMIT 100`,
+        `SELECT i.incident_id FROM sentinel.incidents i WHERE i.mode=$1 AND i.workspace_id=$2 AND i.project_id=$3 AND i.status='closed' AND i.closed_at IS NOT NULL AND i.closed_at<statement_timestamp()-interval '30 days' AND NOT EXISTS(SELECT 1 FROM sentinel.incident_evidence e JOIN platform.jobs j ON j.module='sentinel' AND j.mode=e.mode AND j.workspace_id=e.workspace_id AND j.project_id=e.project_id AND j.subject_ref=e.source_id::text||'/'||e.event_id::text WHERE e.mode=i.mode AND e.workspace_id=i.workspace_id AND e.project_id=i.project_id AND e.incident_id=i.incident_id AND j.state IN ('queued','leased')) ${responsePin} ORDER BY i.closed_at,i.incident_id LIMIT 100`,
         s,
       )
     ).rows.map((r) => r.incident_id as string);

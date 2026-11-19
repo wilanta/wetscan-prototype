@@ -9,7 +9,7 @@ import {
 
 describe("S04 additive SQL and reversal protocol - not PostgreSQL execution", () => {
   it("keeps historical checksums intact and registers 0004_incidents with FORCE RLS and append-only timeline grants", async () => {
-    const p = await migrationPlan();
+    const p = await migrationPlan("0004_incidents");
     const m = p.migrations[3];
     expect(p.sha256).toBe(reviewedS04Plan);
     expect(p.migrations.map((x) => x.version)).toEqual([
@@ -60,7 +60,7 @@ describe("S04 additive SQL and reversal protocol - not PostgreSQL execution", ()
     "incident_alerts",
     "incidents",
   ])("refuses populated S04 %s without down SQL", async (table) => {
-    const p = await migrationPlan();
+    const p = await migrationPlan("0004_incidents");
     const c = new RecordingClient();
     c.respond = async (sql) => ({
       rows: sql.includes("to_regclass")
@@ -88,7 +88,7 @@ describe("S04 additive SQL and reversal protocol - not PostgreSQL execution", ()
   });
 
   it("empty S04 reversal removes only 0004_incidents and never S01-S03 tables or data", async () => {
-    const p = await migrationPlan();
+    const p = await migrationPlan("0004_incidents");
     const c = new RecordingClient();
     c.respond = async (sql) => ({
       rows: sql.includes("to_regclass")

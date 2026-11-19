@@ -28,7 +28,7 @@ async function main() {
     parseApproval(c.approval, c.target, "migrate_up", reviewedS04Plan);
     await incidentAcceptancePermission(c.approval);
   }
-  const plan = await migrationPlan();
+  const plan = await migrationPlan("0004_incidents");
   if (plan.sha256 !== reviewedS04Plan)
     throw new PlatformError("approval_required");
   process.exitCode = await new Promise<number>((resolve, reject) => {

@@ -86,7 +86,7 @@ Implemented S02 emitter env: `SENTINEL_EMITTER_ENABLED`, `SENTINEL_EMITTER_OWNED
 
 ## H03 - controlled response scope
 
-**Status: DEFERRED to S05. Who: owner of the exact response target and per-action reviewer.**
+**Status: GRANTED for S05 local development only (owner, 19 Nov 2026): in-repo loopback fixture on `127.0.0.1`, max TTL 600 s, self-approval permitted for the controlled fixture with full audit, isolated throwaway database. No real application, WAF/CDN/cloud or production target is approved; those stay `NO-OP / NOT_CONFIGURED` until a new H03 record names them.** Who: owner of the exact response target and per-action reviewer. See [SENTINEL_S05_ARCHITECTURE.md](SENTINEL_S05_ARCHITECTURE.md).
 
 Prerequisites: S04 incident evidence; choose an owned reversible local rate-limit target, operation, permitted actor scope, max TTL (propose 600 s), rollback and benign control. Record approval proof and per-action consent before applying live changes. Codex first supplies unavailable/NO-OP behavior, then the approved local adapter and independent verifier. No cloud/WAF/firewall/deployment change is approved by this document.
 
