@@ -131,3 +131,54 @@ Branch protection / required status checks: **not configured** (master unprotect
 | E-G-4 | `npm run sentinel:secret-scan` / `npm audit --audit-level=high` | 776 files, 0 findings / 0 vulnerabilities |
 | E-G-5 | S10, S11, S08 PG suites and `detection` browser suite after the infrastructure changes | PASS 6/6, 13/13, 15/15, 6/6 |
 | E-G-6 | S01 gated suite through the new CI fixture script against a fresh container (`scripts/sentinel-ci-s01-fixture.ts`) | PASS 14/14 |
+
+## H. Post-merge remediation (branch `fix/s11-post-merge-hardening`, base `master@830bb99`)
+
+Code candidate `cfaeadd` (the local matrix below ran on this exact committed tree, clean at start; documentation edits followed and
+touch no executable file). Receipts: `post-merge-matrix-cfaeadd.log`, `post-merge-devdb-snapshot-{before,after}.txt`. Same
+environment as section B except PostgreSQL ran on a new throwaway container (`wetscan-s12-*`, destroyed afterwards).
+Times are UTC on 2026-11-19, `09:` / `10:` + mm:ss.
+
+| ID | Package | Command | Start-End | Result | Count | Class |
+| --- | --- | --- | --- | --- | --- | --- |
+| E-H-1 | all | `npm run typecheck` | 49:07-49:12 | PASS | exit 0 | - |
+| E-H-2 | all | `npm run lint` | 49:12-49:54 | PASS | exit 0 | - |
+| E-H-3 | S00-S11 | `npx vitest run` | 49:54-52:09 | PASS | **2135/2135, 114 files** (merge candidate: 2098/112; +37 = schema states, pool-error guard, pinned bytes, scanner, POST hygiene) | FIXTURE |
+| E-H-4 | all | `npm run build` | 52:09-52:42 | PASS | exit 0 | - |
+| E-H-5 | repo | `npm run sentinel:secret-scan` | 52:42-52:45 | PASS | 778 files, 737 scanned, 41 binary skipped, **0 findings, 0 incomplete** | - |
+| E-H-6 | deps | `npm audit --audit-level=high` | 52:45-52:48 | PASS | 0 vulnerabilities | - |
+| E-H-7 | S05, S06, S07, S08, S09, S10 | `test:sentinel:{response,notifications,ghost,intelligence,external,s10}:postgres` | 52:48-53:42 | PASS | 23, 22, 8, 15, 41, 6 | DISPOSABLE-PG |
+| E-H-8 | S11 | `test:sentinel:s11:postgres` (adds the real-ledger schema-health test) | 53:42-53:50 | PASS | **14/14** (was 13) | DISPOSABLE-PG |
+| E-H-9 | S01 | `test:platform:postgres` through `scripts/sentinel-ci-s01-fixture.ts` on a fresh container, with the new pool-error guard | 53:52-54:00 | PASS | 14/14 | DISPOSABLE-PG |
+| E-H-10 | S10, S02-S09 | Playwright module suites (mocked transport) | 54:00-10:02:01 | PASS | 26, 5, 6, 3, 3, 6, 4, 8, 10 | FIXTURE |
+| E-H-11 | Demo | original Orderly Demo walkthroughs | 10:02:01-10:04:52 | PASS | 6/6 | FIXTURE |
+| E-H-12 | Auth/Canvas | `node tests/auth/run-github-e2e.mjs` (production build, Edge, Windows) | 10:04:52-10:07:04 | PASS | 21/21 | FIXTURE-E2E |
+| E-H-13 | F1 | schema-state unit matrix (current, behind, mismatch, ahead-compatible, ahead-unverified x8 shapes) + real-ledger PG test (older plan on the real 0009 ledger: unattested -> `ahead_unverified`, attested -> `ahead_compatible` + warning, drifted checksum -> `checksum_mismatch`) | inside E-H-3, E-H-8 | PASS | - | DISPOSABLE-PG |
+| E-H-14 | F3 | route matrix, mutation check: removing the two route-specific POST bodies makes exactly the `rules` and `sources` POST cases fail | ad hoc | PASS (the test can fail) | 2 of 298 fail under mutation | FIXTURE |
+| E-H-15 | F4 | scanner tests: token after character 4000, token straddling the window boundary, 3 MB file, hard cap, unreadable and missing paths, binary counting, changed / appended / copied exception lines | inside E-H-3 | PASS | - | - |
+| E-H-16 | F8 | pool-error guard tests: tolerates `57P01/ECONNRESET/EPIPE`; rethrows `23505/42501/28P01/57P03` and codeless errors | inside E-H-3 | PASS | - | - |
+| E-H-17 | F10 | fresh `git clone -c core.autocrlf=true` of the branch: repository pins byte-exact; private-manifest PowerShell pins byte-exact | ad hoc, read-only | PASS | 5/5 repository pins; 16/16 PowerShell scripts found in 1,923 private files | - |
+| E-H-18 | F10 | `s11-pinned-script-bytes.test.ts` mutation: removing the two TypeScript `eol=lf` lines makes it fail | ad hoc | PASS (the test can fail) | 1 of 4 fail under mutation | - |
+| E-H-19 | F5 | the two agent-written private approvals: `approvedBy` corrected to the real authorship (`previousApprovedBy`, `authoredBy`, `authorizedBy`, `provenanceCorrectedAt` added; `approvedAt`, actions, plan hash untouched). Offline `parseApproval` for `migrate_up` / `runtime`, `sentinel:db status`, `sentinel:health` | after edit | PASS: both still accepted, `schemaStatus current`, `warnings []` | - | DEV-PG (read-only) |
+| E-H-20 | dev DB | all 45 tables (rows + md5 of row text) before the remediation vs after every check above | before any change / after 10:07 | **IDENTICAL**; ledger still 9 rows, latest `0009_external_intelligence`; no activation, no worker started | 45/45 tables | DEV-PG |
+
+
+GitHub-hosted results for the same code (PR #16, run `44502965648`, head `21f5c40`; GitHub Actions, class CI-HOSTED). First attempt,
+no hosted failure to report this time:
+
+| ID | Job | Result | Count |
+| --- | --- | --- | --- |
+| E-H-21 | typecheck + lint + unit + secret scan + audit (Windows) | **PASS** 6m29s | unit **2135/2135, 114 files**; secret scan 781 files, 740 scanned, 41 binary skipped, 0 findings, 0 incomplete; audit 0 vulnerabilities |
+| E-H-22 | production build (Linux) | **PASS** 54s | - |
+| E-H-23 | PostgreSQL service (Linux) | **PASS** 1m22s | S01 14, S05 23, S06 22, S07 8, S08 15, S09 41, S10 6, S11 14 |
+| E-H-24 | browser (Linux, Chromium) incl. the NEW production-build E2E step | **PASS** 8m07s | module suites 26, 6 (demo), 5, 6, 3, 3, 6, 4, 8, 10; **production-build E2E 21/21 on Linux** (`next build` + `next start`, stubbed GitHub, no credentials) |
+| E-H-25 | dependency review (optional) | **SKIPPED** by design (`GHAS_ENABLED` unset): no red check | - |
+
+E-DB-08 (section C) described those approvals as quoting the owner's instruction; E-H-19 supersedes the wording of their `approvedBy`
+field only. The original text is preserved inside each file.
+
+Diagnostics during the remediation (kept): a lost backslash turned the version regex into `d{4}` (caught by the first run of the new
+unit matrix); a mis-nested test block was reported by vitest as "test inside a test" and fixed; a scanner window test padded the
+token with word characters so `\b` could not match (test artifact, fixed by a space); the Canvas overlay route needs a cached graph
+before it opens storage, so the leak test now serves one.
+

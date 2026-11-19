@@ -19,6 +19,10 @@ async function main() {
           new PlatformDatabase(pool, true),
           undefined,
           plan.migrations,
+          {
+            acceptAheadThrough:
+              process.env.SENTINEL_SCHEMA_AHEAD_ACCEPTED_THROUGH,
+          },
         ),
         null,
         2,

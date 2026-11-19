@@ -37,6 +37,19 @@ must update the helper (`scopeSql`) and will fail loudly rather than silently pa
 expected plan get `unverified` (S01 behaviour). Only the worker passes the plan, so unit fixtures and the legacy S01 smoke
 script keep working.
 
+**ADR-3 addendum (post-merge).** The first version treated any database newer than the code as `unknown_version` (503). That
+contradicted the rollback story for additive migrations. Options: (a) keep 503 and always roll forward; (b) treat any extra version as
+fine; (c) overlap-first comparison plus an explicit operator attestation. **Chosen (c)**: overlapping checksums are compared first
+(`checksum_mismatch` / `behind` stay unhealthy), and extra versions are `ahead_compatible` (ready + warning) only for a gap-free,
+well-formed suffix the operator accepted with `SENTINEL_SCHEMA_AHEAD_ACCEPTED_THROUGH`; otherwise `ahead_unverified` (503). Why not
+(b): a build cannot know that a migration it has never seen is additive, so "verified" has to be a human attestation bound to an
+exact version, not a guess. Trade-off: a rollback needs one environment variable and a review.
+
+**ADR-6 - Secret-scan exceptions.** Options: file+rule allowlist (shipped in S11), exact matched value, exact line. **Chosen: exact
+trimmed line hash.** A matched-value hash would allow a real key whose header equals the fake one (`-----BEGIN ... PRIVATE KEY-----`);
+a file+rule exception lets any new credential into an allowlisted file. The line hash breaks on any edit, on a copy to another file
+and on an extra credential line. Completeness is part of the verdict (incomplete scan = failure).
+
 **ADR-4 - Headers.** Options: (a) full nonce-based CSP; (b) non-script directives only; (c) nothing. **Chosen (b).** A
 script-restricting CSP needs per-request nonces threaded through Next/React and a full visual regression, i.e. a separate
 reviewed change; `frame-ancestors 'none'`, `base-uri`, `form-action`, `object-src 'none'` cannot break rendering.
@@ -56,7 +69,7 @@ because the owner authorized it for that exact target and the backup + restore r
 ## 4. Trust and mode boundaries (re-verified, not changed)
 
 DEMO (`orderly-demo`), LIVE and CONTROLLED_TEST remain distinct: demo/malformed ids are 404 before identity or storage
-(298-case matrix); `mode` is server-derived and the database returns nothing for `demo`/`controlled_test` scope reads of live
+(route matrix); `mode` is server-derived and the database returns nothing for `demo`/`controlled_test` scope reads of live
 rows (matrix `forged mode` case; write refusal is asserted by the S07/S08/S09 suites); controlled-test provenance is carried per source/incident and never promoted to runtime.
 Advisories (S09) never create alerts, incidents, responses or notifications (S09-A2 test); `action_applied` is not
 `neutralization_verified` (S05 suite); provider `accepted` is not `delivered` (S06 suite).

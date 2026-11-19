@@ -54,6 +54,10 @@ environment flag both exist**.
    decision was recorded), exact `target`, `actions` (`runtime`, `migrate_up`, `migrate_down`, `integration_test`) and the exact
    `migrationPlanSha256`. Activation blocks (`detection`, `incidents`, `response`, `externalIntel`, `notifications`) are added
    per project only when the owner decides. A migration approval and a runtime approval are **separate files**.
+   **Authorship convention:** an approval file that an agent wrote must say so (`approvedBy` = "Recorded by Claude Code ... under
+   the owner's <package> authorization (<date>)", plus `authoredBy` / `authorizedBy`); it must never read as the owner's own
+   signature. When correcting an existing file keep the old text in `previousApprovedBy` and record `provenanceCorrectedAt`;
+   the verifier ignores these extra fields, so the plan hash and the approval stay valid.
 6. **Project binding**: projects come from the existing Auth/Canvas GitHub identity (`github-<repoId>`). Telemetry sources are
    created in the UI/API after the owner confirms the application is theirs; sources, credentials and projects can each be
    disabled or revoked independently.
@@ -62,8 +66,18 @@ environment flag both exist**.
 
 ### 3.1 Health and status
 - `npm run sentinel:health` (worker role): `schema` is the **latest applied ledger version** and `schemaStatus` is
-  `current | behind | checksum_mismatch | unknown_version | unverified`. Anything but `current` makes the worker health
-  endpoint return 503 (S11 fix; before it the field was hard-coded to `0001_foundation`).
+  `current | behind | checksum_mismatch | ahead_compatible | ahead_unverified | unverified`. The worker health endpoint returns
+  503 for everything except `current`, `unverified` (caller gave no plan) and `ahead_compatible` (S11 fix; before it the field
+  was hard-coded to `0001_foundation`). Overlapping versions are compared FIRST: a checksum difference is `checksum_mismatch`
+  and a required migration missing from the database is `behind`, whatever else the ledger contains.
+- **Database newer than the running build (rollback / staggered rollout).** The extra versions are `ahead_compatible` only when
+  ALL hold: every migration this build knows is present with an identical checksum; the extras are a gap-free, well-formed
+  suffix that starts right after this build's last migration; and the operator has attested them by setting
+  `SENTINEL_SCHEMA_AHEAD_ACCEPTED_THROUGH=<highest accepted version>` for the worker (and `npm run sentinel:health`). The worker
+  then stays `ready` and the response carries `warnings: ["schema_ahead_of_code:<versions>"]`. Without the attestation, or with
+  a gap / out-of-order / malformed extra, the state is `ahead_unverified` and the worker is `degraded` (503): the code cannot
+  know a migration it has never seen is additive, so a human must say so. Never set the variable for a migration you have not
+  reviewed as additive and backward compatible; remove it once the build catches up.
 - `status: degraded` is truthful when no worker heartbeat in 30 s, expired leases or failed jobs exist. On the development
   database it currently reports 8 queued + 1 failed historical `sentinel.telemetry.accepted` jobs from S02-S04 acceptance
   (about 4 days old) because detection is not activated; they are preserved, not purged.
@@ -113,7 +127,9 @@ sync scope when possible; the dump contains tenant data and credential hashes. O
 | Symptom | Meaning | Action |
 | --- | --- | --- |
 | `schemaStatus: behind` | code newer than DB | backup, new approval, `up`. Do not start the worker meanwhile. |
-| `schemaStatus: checksum_mismatch` / `unknown_version` | migration file edited or DB newer than code | stop; do not apply; compare ledger with `plan`; deploy matching code |
+| `schemaStatus: checksum_mismatch` | migration file edited, or a different branch's migration with the same version | stop; do not apply; compare ledger with `plan`; deploy matching code |
+| `schemaStatus: ahead_unverified` | DB newer than this build and not attested (or gap / odd suffix) | roll the build forward, or review the extra migrations as additive and set `SENTINEL_SCHEMA_AHEAD_ACCEPTED_THROUGH` |
+| `schemaStatus: ahead_compatible` (warning) | attested rollback window | expected during a rollback; plan the roll-forward and remove the attestation afterwards |
 | `approval_required` / `target_denied` | wrong plan hash, action, host, db or marker | correct the approval; never loosen the verifier |
 | Provider outage | notifier retries with bounded jittered backoff, then dead-letters (`unknown`) | check provider status; manual retry creates ONE linked intent |
 | Source stops sending | coverage turns `stale/disconnected` in Overview/Canvas | rotate or re-enable source; never read as "safe" |
@@ -126,13 +142,23 @@ sync scope when possible; the dump contains tenant data and credential hashes. O
    `npm audit`), `build`, `postgres` (S01/S05-S11 suites on two disposable service containers), `browser`. Hosted-runner notes: the Windows unit
    job pins `PSModulePath` and `TEMP` (S04 owner-runner suites); `.gitattributes` keeps `*.ps1` on LF (their SHA-256 pins); the S01
    suite gets a CI-generated approval (`scripts/sentinel-ci-s01-fixture.ts`) that names itself a CI fixture and cannot reach any
-   persistent database. Make the four jobs **required** in branch protection (owner O-5); dependency review needs GitHub Advanced Security.
+   persistent database. The browser job also runs the production-build E2E (`node tests/auth/run-github-e2e.mjs`: `next build` +
+   `next start` on 3107-3109 with stubbed GitHub fixtures, no real credentials; 15-minute step timeout; failure screenshots/traces
+   are kept for 7 days). Make the four jobs **required** in branch protection (owner O-5). The optional dependency-review job
+   runs only when GitHub Advanced Security is on and the repository variable `GHAS_ENABLED=true` is set; otherwise it is skipped
+   (no predictable red check) and `npm audit --audit-level=high` in the static job remains the enforced dependency gate.
+   `npm run sentinel:secret-scan` fails when it finds a credential-shaped value, a tracked dotenv file, OR any tracked text it
+   could not inspect (unreadable, over the 64 MiB cap); long lines are scanned in overlapping windows, binary files are counted.
+   Reviewed fake fixtures are exempted by the SHA-256 of their exact line, not by file name. `.gitattributes` pins line endings
+   of hash-pinned scripts; `tests/sentinel/s11-pinned-script-bytes.test.ts` fails if a new pin needs an attribute it lacks.
 2. Staging promotion criteria: the above + owner UAT of the original Orderly Demo, a real-session login on a test repository,
    migrations applied to a **staging clone** first, worker started without activation blocks, health `ready`.
 3. Rollout order: DB backup -> migrate -> worker (no activation) -> app -> activation blocks one capability at a time
    (detection -> incidents -> notifications -> response -> external intelligence), smoke test after each.
-4. Rollback: stop worker/notifier -> deploy previous app build -> (only if schema must change back) restore the backup;
-   additive migrations are compatible with the previous build, so rolling the app back alone is normally enough.
+4. Rollback: stop worker/notifier -> deploy previous build. If the database already carries a newer additive migration, the
+   rolled-back worker reports `ahead_unverified` (503) until you attest the migrations: review them, then start the worker with
+   `SENTINEL_SCHEMA_AHEAD_ACCEPTED_THROUGH=<newest accepted version>` and expect `ahead_compatible` plus a warning. Restore the
+   backup only if data (not just schema) must go back, never with `down` on a populated database.
 5. Required production monitoring (**NOT_RUN / not provisioned**): alert on health 503, `queue.failed > 0`, `queue.expired > 0`,
    `lagSeconds` growth, outbox `pending` growth, no worker heartbeat for 60 s, disk growth, backup age.
 6. Costs: private-repo CI runs one Windows job (billed at a multiplier) plus three Linux jobs; the worker is capped at 256 MB,

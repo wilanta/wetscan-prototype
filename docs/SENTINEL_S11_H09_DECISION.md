@@ -27,12 +27,12 @@ things below are kept apart on purpose:
    GRD-020/021 (`NOT_INTEGRATED`), WhatsApp, NVD, AI explanations, production deployment.
 2. **Only fixture-tested?** S05 (response target is a loopback fixture), S06 (providers are loopback mocks), S07 (loopback decoy),
    S09 (offline feed fixtures), S10 (mocked transport), plus the whole browser layer.
-3. **Passed authenticated real-project E2E?** None. Provider-substituted production-build E2E: 21/21. Real GitHub session: `NOT_RUN`.
+3. **Passed authenticated real-project E2E?** None. Provider-substituted production-build E2E passed (register E-A5-11). Real GitHub session: `NOT_RUN`.
 4. **Tested on the persistent dev database?** Platform only: backup, restore rehearsal, migration 0004 -> 0009 with data preserved,
    least-privilege roles, fail-closed approvals, idle worker start/stop, ledger-verified health. No feature was *activated* there.
 5. **Real providers with verified acceptance evidence?** None in S11. (S09 had one bounded real-feed smoke on a throwaway DB.)
 6. **Absent or deferred?** See 1; plus staging, monitoring/alerting, edge rate limiting, script-restricting CSP, HSTS.
-7. **Security requirements proven?** Tenant isolation and least privilege across all 37 tenant tables, route authentication/CSRF/
+7. **Security requirements proven?** Tenant isolation and least privilege across all tenant tables, route authentication/CSRF/
    enumeration/error hygiene, append-only audit, fail-closed activation, replay/forgery rejection, no secrets/vulnerable deps in
    the repository, baseline response headers. See the [security review](SENTINEL_S11_SECURITY_REVIEW.md).
 8. **Still `NOT_RUN`?** Register section E (N-1..N-10).
@@ -40,6 +40,39 @@ things below are kept apart on purpose:
 10. **Release blockers (production)?** B-1..B-6 below.
 11. **Ready for controlled staging?** Technically yes after O-1/O-2/O-5; today only with fixtures.
 12. **Ready for production users?** **No.**
+
+## 2A. Mandatory release-gate matrix
+
+The minimal set of gates that actually establishes Sentinel reliability and security, and which missing gate forces `NO_GO`.
+`VERIFIED` = executed and passed (evidence ID in the [register](SENTINEL_S11_EVIDENCE_REGISTER.md)); `NOT_RUN`,
+`NOT_CONFIGURED`, `BLOCKED`, `PENDING` are literal. "Blocks" means: while the gate is not VERIFIED for that environment, that
+environment must not go ahead. Counts live only in the register.
+
+| # | Gate | Required evidence | Status today | Blocks staging | Blocks production | Owner action |
+| --- | --- | --- | --- | --- | --- | --- |
+| G1 | CI `static`: typecheck, lint, unit/contract, secret scan (incl. completeness), `npm audit` | green hosted run on the exact release SHA | VERIFIED (register F, H) | yes | yes | none |
+| G2 | CI `build`: production build | green hosted run | VERIFIED (register F, H) | yes | yes | none |
+| G3 | CI `postgres`: S01 and S05-S11 suites on disposable services, incl. the catalog-driven RLS / privilege / two-project matrix | green hosted run | VERIFIED (register F, H) | yes | yes | none |
+| G4 | CI `browser`: mocked-transport suites, accessibility, original Demo, production-build E2E with stubbed GitHub | green hosted run | VERIFIED (register F, H), including the production-build E2E on Linux | yes | yes | none |
+| G5 | Required status checks + branch protection on `master` | repository settings show G1-G4 required | NOT_CONFIGURED | no (advised) | **yes** | O-5 |
+| G6 | Database safety on the TARGET environment: identity marker, backup, restore rehearsal, additive migration, least-privilege roles, fail-closed approvals | receipts like register section C for that target | VERIFIED on `wetscan_dev` only; target environments NOT_RUN | **yes** | **yes** | run the runbook sections 3.4-3.5 there |
+| G7 | Authenticated real-GitHub-session E2E on an owned repository | UAT record: login, project, telemetry, incident, Canvas overlay, report | NOT_RUN (fixture identities only) | **yes** | **yes** | O-1 |
+| G8 | Consented real notification delivery (Telegram / Resend), accepted vs delivered recorded separately | owner-approved test send + provider receipt | NOT_RUN | no (keep notifications off) | **yes if notifications are in scope** | O-2 |
+| G9 | Controlled response against an owner-approved real or staging target (apply, independent verify, TTL rollback) | receipts from the target, never production traffic | NOT_RUN (loopback fixture only) | no (keep response off) | **yes if response is in scope** | H03 decision |
+| G10 | Worker health + monitoring + alerting (health 503, `queue.failed/expired`, lag, heartbeat, outbox, backup age) | alert rules firing in a drill | NOT_CONFIGURED | no (manual checks acceptable) | **yes** | provision monitoring |
+| G11 | Rollback rehearsal on the target including the schema-ahead path (`ahead_unverified` -> attestation -> `ahead_compatible`) | rehearsal record | logic VERIFIED (unit + real ledger PG test); rehearsal NOT_RUN | yes (once) | **yes** | rehearse on staging |
+| G12 | Backups on a schedule and a tested restore time | schedule + last restore evidence | NOT_CONFIGURED (one-off rehearsal verified on dev) | no | **yes** | schedule backups |
+| G13 | Credential lifecycle rehearsal: rotate/revoke telemetry key, notifier password, provider tokens | rehearsal record | partly (creation verified; rotation NOT_RUN) | no | **yes** | rehearse |
+| G14 | Edge controls: TLS + HSTS, pre-authentication ingest rate limiting (R-4), optional nonce CSP | edge configuration evidence | NOT_CONFIGURED | no | **yes** | edge / WAF |
+| G15 | A staging environment that mirrors production topology | environment exists, G6/G7/G11 run there | NOT_RUN (none exists) | **yes** | **yes** | provision |
+| G16 | Independent security review of the release candidate | reviewer sign-off | NOT_RUN | no | owner decision | O-6 |
+| G17 | Optional dependency review (needs GitHub Advanced Security) | job green with `GHAS_ENABLED=true` | not enabled; job skipped | no | no | enable if wanted |
+| G18 | Deferred features (Guard GRD-020/021, WhatsApp, NVD, AI port) are not represented as live | UI/docs audit | VERIFIED (`not_integrated` states) | yes | yes | none |
+| G19 | Owner UAT and the recorded H09 decision | section 6 below filled in | `H09_OWNER_DECISION_PENDING` | **yes** | **yes** | O-6 |
+
+Reading the matrix: **staging** is blocked today by G6 (target), G7, G11, G15 and G19. **Production** is additionally blocked by
+G5, G8/G9 (if in scope), G10, G12, G13, G14 and the open owner decision on G16, so production stays `NO_GO` and staging `DEFER`.
+A gate may only move to VERIFIED with new executed evidence in the register.
 
 ## 3. Hard release blockers (production)
 
