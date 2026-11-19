@@ -171,8 +171,8 @@ export async function normalizeOSV(
         info = record(pkg.package);
       for (const vulnerability of array(pkg.vulnerabilities ?? [])) {
         const vuln = record(vulnerability);
-        findings.push(
-          await finding(
+        findings.push({
+          ...(await finding(
             ctx,
             "sca",
             text(vuln.id),
@@ -184,8 +184,9 @@ export async function normalizeOSV(
             },
             "Dependency advisory: " + text(vuln.id),
             "OSV advisory matched an installed package. Severity is conservative pending advisory/CVSS review; reachability is not verified.",
-          ),
-        );
+          )),
+          severityKnown: false,
+        });
       }
     }
   }

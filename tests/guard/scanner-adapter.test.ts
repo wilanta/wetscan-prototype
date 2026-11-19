@@ -4,7 +4,9 @@ import { tmpdir } from "node:os";
 import { basename, dirname, join } from "node:path";
 import { randomUUID, createHash } from "node:crypto";
 import {
+  canonicalOutput,
   isolatedRepositoryScanner,
+  operationalRepositoryScanner,
   type RepositoryEngine,
   type ScannerExecutionPermit,
 } from "../../worker/guard/scanner-adapter";
@@ -330,6 +332,104 @@ it("G02 offline: permission loss after execution blocks results while keeping ow
       ),
     ).rejects.toThrow("revoked");
     expect(f.driver.entries.size).toBe(0);
+  } finally {
+    await f.cleanup();
+  }
+});
+
+it.each(["sast", "sca", "secrets", "iac"] as RepositoryEngine[])(
+  "normal %s adapter reuses real sandbox/parser code with Docker DOUBLE, not an acceptance permit",
+  async (engine) => {
+    const f = await fixture(engine);
+    try {
+      const job = await createJob(f.grant, {
+          ...f.request,
+          engines: [engine],
+          idempotencyKey: "g02-live-offline-" + engine,
+        }),
+        binding = bindGuardJob(job);
+      const q = {
+        version: 1 as const,
+        classification: "LIVE_VERIFIED_SANDBOX" as const,
+        engine,
+        specDigest: fingerprint(f.input.spec),
+        imageId: f.input.permit.imageId,
+        scannerVersion: f.input.permit.scannerVersion,
+        rulePack: f.input.permit.rulePack,
+        rulePackSha256: f.input.permit.rulePackSha256,
+        installationArtifactSha256: f.input.permit.installationArtifactSha256,
+        verifiedAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 60000).toISOString(),
+        evidenceSha256: "b".repeat(64),
+        daemonId: "unit-daemon",
+        daemonVersion: "unit-version",
+        kernelVersion: "unit-kernel",
+        controls: sandboxControls,
+      };
+      f.input.evidence.verify.mockResolvedValue({
+        expiresAt: Date.parse(q.expiresAt),
+        verified: sandboxControls,
+        artifactRef: "OFFLINE_DOUBLE_NOT_RUNTIME_QUALIFICATION",
+      });
+      const policy = {
+        version: 1 as const,
+        id: "operational",
+        workspaceId: binding.workspaceId,
+        projectId: binding.projectId,
+        repositoryId: binding.repository.repositoryId,
+        branches: [binding.repository.branch],
+        engines: [engine],
+        scannerTimeoutMs: 1000,
+        jobTimeoutMs: 120000,
+        maxAttempts: 1 as const,
+      };
+      const result = await operationalRepositoryScanner({
+        ...f.input,
+        binding,
+        policy,
+        qualification: q,
+      }).execute(f.snapshot, new AbortController().signal);
+      expect(result.run.status).toBe("completed");
+      expect(result.findings[0].evidence[0].synthetic).toBe(false);
+      expect(f.driver.entries.size).toBe(0);
+      if (engine === "sca") {
+        expect(result.inventory).toHaveLength(1);
+        expect(result.findings[0].severityKnown).toBe(false);
+      }
+    } finally {
+      await f.cleanup();
+    }
+  },
+);
+
+it("Trivy clean root aggregate has no file finding; actual file targets remain manifest-bound", async () => {
+  const f = await fixture("iac");
+  try {
+    const clean = {
+      Target: ".",
+      Class: "config",
+      MisconfSummary: { Failures: 0 },
+      Misconfigurations: null,
+    };
+    expect(
+      canonicalOutput(
+        { Results: [clean, { Target: "main.tf", Misconfigurations: [] }] },
+        "iac",
+        f.snapshot,
+      ),
+    ).toEqual({ Results: [{ Target: "main.tf", Misconfigurations: [] }] });
+    for (const row of [
+      {
+        ...clean,
+        MisconfSummary: { Failures: 1 },
+        Misconfigurations: [{ ID: "real" }],
+      },
+      { ...clean, Target: "../other" },
+      { ...clean, Target: ".", MisconfSummary: {} },
+    ])
+      expect(() =>
+        canonicalOutput({ Results: [row] }, "iac", f.snapshot),
+      ).toThrow();
   } finally {
     await f.cleanup();
   }

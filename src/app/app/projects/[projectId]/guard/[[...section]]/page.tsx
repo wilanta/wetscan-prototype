@@ -3,12 +3,14 @@ import { notFound, redirect } from "next/navigation";
 import { SESSION_COOKIE } from "@/lib/auth/session";
 import { AuthError } from "@/lib/auth/config";
 import { authorizeGuardProject } from "@/features/guard/live/project";
-import { LiveGuardWorkbench } from "@/features/guard/live/workbench";
+import { LiveGuardWorkspace } from "@/features/guard/live/live-workspace";
 export const dynamic = "force-dynamic";
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: Promise<{ projectId: string; section?: string[] }>;
+  searchParams: Promise<{ scan?: string }>;
 }) {
   const { projectId, section = [] } = await params;
   if (projectId === "orderly-demo") {
@@ -22,7 +24,14 @@ export default async function Page({
       />
     );
   }
-  if (!/^github-[1-9]\d{0,15}$/.test(projectId) || section.length) notFound();
+  if (
+    !/^github-[1-9]\d{0,15}$/.test(projectId) ||
+    section.length > 1 ||
+    !["", "scans", "findings", "integrity", "remediation", "releases"].includes(
+      section.join("/"),
+    )
+  )
+    notFound();
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   let authority: Awaited<ReturnType<typeof authorizeGuardProject>>;
   try {
@@ -45,10 +54,12 @@ export default async function Page({
     );
   }
   return (
-    <LiveGuardWorkbench
+    <LiveGuardWorkspace
       projectId={projectId}
       repositoryName={authority.repositoryName}
       branch={authority.branch}
+      section={section.join("/")}
+      initialScanId={(await searchParams).scan}
     />
   );
 }

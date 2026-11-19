@@ -9,13 +9,17 @@ import {
   type ProjectAuthority,
 } from "./model";
 import { validGuardBranch } from "./revision";
+import type { ProductAdmission } from "./product-admission";
+import type { PostgresGuardArtifacts } from "./product-artifacts";
+import { storedScanView } from "./product-view";
+import { requireOperationalJob } from "./product-policy";
 export interface FoundationReadiness {
   database: "approved" | "approval_required" | "not_configured";
   schema: "verified" | "unverified";
   queue: "verified" | "unverified";
   sandbox: "verified" | "BLOCKED";
   workerAuthorization: "configured" | "not_configured";
-  execution: "G02_NOT_CONFIGURED";
+  execution: "G02_NOT_CONFIGURED" | "REPOSITORY_SCAN_CONFIGURED";
 }
 export const defaultReadiness: FoundationReadiness = {
   database: "approval_required",
@@ -61,7 +65,19 @@ export class GuardLiveService {
   constructor(
     private readonly storage: GuardStorage | undefined,
     readonly readiness: FoundationReadiness = defaultReadiness,
+    private readonly product?: ProductAdmission,
+    private readonly artifacts?: PostgresGuardArtifacts,
   ) {}
+  capabilities() {
+    return {
+      repositoryScanning:
+        this.product && this.storage ? "CONFIGURED" : "BLOCKED",
+      reason: this.product
+        ? null
+        : "qualified_scanner_and_owner_session_broker_not_configured",
+      operationalApprovalWindow: false,
+    };
+  }
   private store(
     authority: ProjectAuthority,
     operation: Grant["operations"][number],
@@ -77,11 +93,25 @@ export class GuardLiveService {
       throw new LiveGuardError("approval_required");
     return this.storage;
   }
-  async create(authority: ProjectAuthority, input: unknown) {
+  async create(
+    authority: ProjectAuthority,
+    input: unknown,
+    signal = new AbortController().signal,
+  ) {
     scanInput(input);
     this.store(authority, "scan");
-    // G01 never turns a missing G02 engine into an accepted scan or simulated Live result.
+    if (this.product) return this.product.create(authority, input, signal);
+    // Missing qualified production composition never accepts a scan.
     throw new LiveGuardError("execution_not_ready");
+  }
+  async resumeProduct(
+    authority: ProjectAuthority,
+    id: string,
+    signal: AbortSignal,
+  ) {
+    this.store(authority, "scan");
+    if (!this.product?.resume) throw new LiveGuardError("execution_not_ready");
+    return this.product.resume(authority, id, signal);
   }
   async list(authority: ProjectAuthority, params: URLSearchParams) {
     if (
@@ -113,6 +143,34 @@ export class GuardLiveService {
     );
     if (!value) throw new LiveGuardError("not_found", 404);
     return value;
+  }
+  async view(authority: ProjectAuthority, id: string) {
+    return storedScanView(authority, await this.get(authority, id));
+  }
+  async triage(authority: ProjectAuthority, id: string, value: unknown) {
+    this.store(authority, "triage");
+    if (!this.artifacts) throw new LiveGuardError("not_configured");
+    return this.artifacts.triage(authority.grant, authority.grant, id, value);
+  }
+  async createReport(authority: ProjectAuthority, id: string, value: unknown) {
+    this.store(authority, "report");
+    if (!this.artifacts) throw new LiveGuardError("not_configured");
+    return this.artifacts.createReport(
+      authority.grant,
+      authority.grant,
+      id,
+      value,
+    );
+  }
+  async reports(authority: ProjectAuthority, id: string) {
+    this.store(authority, "report");
+    if (!this.artifacts) throw new LiveGuardError("not_configured");
+    return this.artifacts.reports(authority.grant, authority.grant, id);
+  }
+  async cancelProduct(authority: ProjectAuthority, id: string) {
+    const current = await this.get(authority, id);
+    requireOperationalJob(authority.grant, current.job);
+    return this.cancel(authority, id);
   }
   async cancel(authority: ProjectAuthority, id: string) {
     const current = await this.get(authority, id);

@@ -61,7 +61,13 @@ export default async function Page({
       </Suspense>
     );
   if (
-    ["guard", "guard/scans", "guard/findings", "guard/releases"].includes(rest)
+    [
+      "guard",
+      "guard/scans",
+      "guard/findings",
+      "guard/inventory",
+      "guard/releases",
+    ].includes(rest)
   )
     return <Guard section={rest.replace("guard", "")} />;
   if (/^guard\/findings\/FIND-10[234]$/.test(rest))

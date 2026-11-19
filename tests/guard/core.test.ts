@@ -455,3 +455,17 @@ it("accepts OSV empty vulnerabilities as missing matches, not malformed output",
     ),
   ).toEqual([]);
 });
+
+it("live advisory with unknown severity cannot become a policy PASS", async () => {
+  const job = await completed();
+  job.mode = "live";
+  job.sourceCoverage = {
+    status: "complete",
+    retrievedFiles: 1,
+    excludedFiles: 0,
+    treeTruncated: false,
+  };
+  job.findings[0].severityKnown = false;
+  job.findings[0].status = "potential";
+  expect(evaluate(job, policy).decision).toBe("INCOMPLETE");
+});

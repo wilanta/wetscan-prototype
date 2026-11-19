@@ -10,6 +10,8 @@ import type {
   Scope,
   SnapshotPort,
 } from "../../src/features/guard/contracts";
+import { LiveGuardError } from "../../src/features/guard/live/model";
+import { within } from "../sentinel/lifecycle";
 import { transition } from "../../src/features/guard/pipeline";
 import { deduplicate } from "../../src/features/guard/evidence";
 import {
@@ -64,6 +66,8 @@ export function validateSnapshot(
     );
 }
 export interface WorkerPorts {
+  /** Trusted broker callback; renews authorization, never extends an old grant. */
+  freshGrant?(): Promise<Grant>;
   storage: PersistencePort;
   snapshots: SnapshotPort;
   sandbox: SandboxPort;
@@ -77,7 +81,18 @@ export async function executeScopedJob(
   jobId: string,
   signal: AbortSignal,
 ): Promise<ScanJob> {
-  authorize(grant, scope, "scan");
+  const originalActor = grant.actorId;
+  const refresh = async () => {
+    if (ports.freshGrant) {
+      const next = await ports.freshGrant();
+      authorize(next, scope, "scan");
+      if (next.actorId !== originalActor)
+        throw new GuardError("forbidden", "Authorization changed.");
+      grant = next;
+    }
+    authorize(grant, scope, "scan");
+  };
+  await refresh();
   let job = await ports.storage.get(grant, scope, jobId);
   if (!job)
     throw new GuardError(
@@ -85,9 +100,13 @@ export async function executeScopedJob(
       "Scan job not found in this project.",
     );
   if (job.status !== "queued") return job;
+  const repositoryOperation =
+    job.mode === "live" &&
+    job.audit.some((a) => a.action === "repository_scan_requested");
   let snapshot: AuthorizedSnapshot | undefined;
   let disposalAttempted = false;
   const save = async (next: ScanJob) => {
+    await refresh();
     await ports.storage.save(grant, next);
     job = next;
   };
@@ -126,6 +145,7 @@ export async function executeScopedJob(
       },
       signal,
     );
+    await refresh();
     validateSnapshot(grant, job, snapshot);
     if (snapshot.coverage)
       job = {
@@ -139,6 +159,11 @@ export async function executeScopedJob(
       };
     await save(transition(job, "running", grant.actorId));
     for (const engine of job.requestedEngines) {
+      await refresh();
+      if (ports.snapshots.refresh) {
+        snapshot = await ports.snapshots.refresh(snapshot, grant);
+        validateSnapshot(grant, job, snapshot);
+      }
       if (signal.aborted) throw new Error("cancelled");
       const scanner = ports.scanners.find((s) => s.engine === engine);
       if (!scanner) continue;
@@ -149,9 +174,11 @@ export async function executeScopedJob(
       const relay = () => controller.abort();
       signal.addEventListener("abort", relay, { once: true });
       let timer: ReturnType<typeof setTimeout> | undefined;
+      let scannerWork: ReturnType<ScannerPort["execute"]> | undefined;
       try {
+        scannerWork = scanner.execute(snapshot, controller.signal);
         const result = await Promise.race([
-          scanner.execute(snapshot, controller.signal),
+          scannerWork,
           new Promise<never>((_, reject) => {
             timer = setTimeout(() => {
               timedOut = true;
@@ -185,6 +212,17 @@ export async function executeScopedJob(
             "invalid_input",
             "Scanner result lacks completed provenance.",
           );
+        if (
+          job.mode === "live" &&
+          job.audit.some((a) => a.action === "repository_scan_requested") &&
+          result.run.status === "completed" &&
+          (!/^[a-f0-9]{64}$/.test(result.run.artifactDigest ?? "") ||
+            result.run.executionEvidence?.cleanup !== "VERIFIED")
+        )
+          throw new GuardError(
+            "invalid_input",
+            "Completed repository engine requires qualified execution and cleanup evidence.",
+          );
         for (const f of result.findings) {
           authorize(grant, f, "scan");
           if (
@@ -215,6 +253,7 @@ export async function executeScopedJob(
           ...job,
           runs: job.runs.map((r) => (r.engine === engine ? run : r)),
           findings: deduplicate([...job.findings, ...result.findings]),
+          ...(result.inventory ? { inventory: result.inventory } : {}),
         });
       } catch (error) {
         if (
@@ -246,6 +285,25 @@ export async function executeScopedJob(
         clearTimeout(timer);
         signal.removeEventListener("abort", relay);
         controller.abort();
+        if (repositoryOperation && scannerWork) {
+          // A timeout only requests cancellation. Do not dispose source while the
+          // source-owning sandbox is still completing its normal cleanup.
+          let settled: PromiseSettledResult<Awaited<typeof scannerWork>>[];
+          try {
+            settled = await within(Promise.allSettled([scannerWork]), 10000);
+          } catch {
+            disposalAttempted = true; // Preserve the source; cleanup is unknown.
+            throw new LiveGuardError("cleanup_failed");
+          }
+          const failed = settled[0];
+          if (
+            failed.status === "rejected" &&
+            failed.reason?.code === "cleanup_failed"
+          ) {
+            disposalAttempted = true;
+            throw new LiveGuardError("cleanup_failed");
+          }
+        }
       }
     }
     await save(transition(job, "normalizing", grant.actorId));
@@ -272,6 +330,12 @@ export async function executeScopedJob(
       ),
     );
   } catch (error) {
+    if (
+      repositoryOperation &&
+      error instanceof LiveGuardError &&
+      error.code === "cleanup_failed"
+    )
+      throw error;
     if (
       !["completed", "completed_partial", "failed", "cancelled"].includes(
         job.status,

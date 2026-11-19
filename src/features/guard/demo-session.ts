@@ -4,6 +4,7 @@ import type { Engine, Grant, ScanJob } from "./contracts";
 import { createJob, transition, triage } from "./pipeline";
 import { normalizeOpengrep } from "./evidence";
 import { digest } from "./security";
+import { localFixtureEngines, localFixtureFindings } from "./local-fixtures";
 export const demoScope = {
   workspaceId: "orderly-demo",
   projectId: "orderly-demo",
@@ -27,9 +28,26 @@ const empty: Session = { jobs: [], busy: false, error: "", selectedId: null };
 let state = empty;
 let active: AbortController | null = null;
 const listeners = new Set<() => void>();
+const completions = new Set<() => void>();
+export function onGuardDemoCompleted(listener: () => void) {
+  completions.add(listener);
+  return () => {
+    completions.delete(listener);
+  };
+}
 function publish(next: Session) {
+  const newlyCompleted = next.jobs.some(
+    (job) =>
+      ["completed", "completed_partial"].includes(job.status) &&
+      !state.jobs.some(
+        (previous) =>
+          previous.id === job.id &&
+          ["completed", "completed_partial"].includes(previous.status),
+      ),
+  );
   state = next;
   listeners.forEach((l) => l());
+  if (newlyCompleted) completions.forEach((listener) => listener());
 }
 function replace(job: ScanJob) {
   publish({
@@ -43,6 +61,9 @@ function subscribe(listener: () => void) {
   return () => {
     listeners.delete(listener);
   };
+}
+export function getGuardDemoSnapshot() {
+  return state;
 }
 export function useGuardDemo() {
   return useSyncExternalStore(
@@ -87,6 +108,7 @@ export async function runGuardDemo(
   profile: ScanJob["profile"],
   selected: Engine[],
   failSast = false,
+  fixtureWorkflow = false,
 ): Promise<void> {
   if (state.busy) return;
   const controller = new AbortController();
@@ -170,6 +192,26 @@ export async function runGuardDemo(
           rulePack: "synthetic-eval-v1",
         },
       );
+    if (fixtureWorkflow && process.env.NODE_ENV !== "production") {
+      job.findings = await localFixtureFindings(job, selected, failSast);
+      job.runs = job.runs.map((run) =>
+        selected.includes(run.engine) &&
+        localFixtureEngines.includes(run.engine)
+          ? {
+              ...run,
+              status:
+                run.engine === "sast" && failSast ? "failed" : "completed",
+              reason:
+                "Reviewed synthetic JSON normalized in browser. Scanner NOT_EXECUTED.",
+              scanner: "local-fixture-" + run.engine,
+              version: "fixture-v1-NOT_EXECUTED",
+              rulePack: "reviewed-local-fixture-v1",
+              startedAt: job!.createdAt,
+              finishedAt: recordedAt,
+            }
+          : run,
+      );
+    }
     if (controller.signal.aborted) throw new Error("cancelled");
     job = transition(
       job,

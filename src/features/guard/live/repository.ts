@@ -14,6 +14,49 @@ export async function verifyGuardRevision(
   input: unknown,
   signal: AbortSignal,
 ) {
+  const { authority, head, current } = await authorizedRevision(
+    token,
+    projectId,
+    input,
+    signal,
+  );
+  const request = {
+    branch: authority.branch,
+    commit: head.commit,
+    profile: "quick" as const,
+    engines: ["sast" as const],
+    idempotencyKey: randomUUID(),
+  };
+  const job = await prepareAuthorizedScan(current, request, head.commit);
+  const plan = await guardMigrationPlan();
+  return {
+    preparation: {
+      status: "REVIEW_REQUIRED",
+      execution: "prepare_only",
+      request,
+      binding: bindGuardJob(job),
+      repositoryName: authority.repositoryName,
+      migrationPlanSha256: plan.sha256,
+    },
+    repository: {
+      id: authority.repositoryId,
+      name: authority.repositoryName,
+      branch: authority.branch,
+    },
+    commit: head.commit,
+    tree: head.tree,
+    verifiedAt: new Date().toISOString(),
+    sourceRead: false,
+    scanAccepted: false,
+  };
+}
+
+async function authorizedRevision(
+  token: string | undefined,
+  projectId: string,
+  input: unknown,
+  signal: AbortSignal,
+) {
   const revision = guardRevision(input),
     source = githubSourceAccess(token, projectId, revision);
   const authority = await source.authorize();
@@ -30,36 +73,33 @@ export async function verifyGuardRevision(
       current.installationId !== authority.installationId
     )
       throw new LiveGuardError("not_found", 404);
-    const request = {
-      branch: authority.branch,
-      commit: head.commit,
-      profile: "quick" as const,
-      engines: ["sast" as const],
-      idempotencyKey: randomUUID(),
-    };
-    const job = await prepareAuthorizedScan(current, request, head.commit);
-    const plan = await guardMigrationPlan();
-    return {
-      preparation: {
-        status: "REVIEW_REQUIRED",
-        execution: "prepare_only",
-        request,
-        binding: bindGuardJob(job),
-        repositoryName: authority.repositoryName,
-        migrationPlanSha256: plan.sha256,
-      },
-      repository: {
-        id: authority.repositoryId,
-        name: authority.repositoryName,
-        branch: authority.branch,
-      },
-      commit: head.commit,
-      tree: head.tree,
-      verifiedAt: new Date().toISOString(),
-      sourceRead: false,
-      scanAccepted: false,
-    };
+    return { authority, head, current };
   } finally {
     await lease.close();
   }
+}
+export async function resolveRepositoryRevision(
+  token: string | undefined,
+  projectId: string,
+  input: unknown,
+  signal: AbortSignal,
+) {
+  const { authority, head } = await authorizedRevision(
+    token,
+    projectId,
+    input,
+    signal,
+  );
+  return {
+    repository: {
+      id: authority.repositoryId,
+      name: authority.repositoryName,
+      branch: authority.branch,
+    },
+    commit: head.commit,
+    tree: head.tree,
+    verifiedAt: new Date().toISOString(),
+    sourceRead: false,
+    scanAccepted: false,
+  };
 }

@@ -83,6 +83,8 @@ export interface Finding extends Scope {
   id: string;
   title: string;
   severity: Severity;
+  /** false means the displayed category is only a placeholder, not an advisory/CVSS assessment. */
+  severityKnown?: boolean;
   confidence: "low" | "medium" | "high";
   status: FindingStatus;
   source: Provenance;
@@ -90,6 +92,8 @@ export interface Finding extends Scope {
   evidence: Evidence[];
 }
 export interface EngineRun {
+  artifactDigest?:string;
+  executionEvidence?:{version:1;runId:string;imageId:string;specDigest:string;installationArtifactSha256:string;cleanup:"VERIFIED"};
   engine: Engine;
   status: EngineStatus;
   reason: string;
@@ -114,6 +118,7 @@ export interface SourceCoverageSummary {
   treeTruncated: boolean;
 }
 export interface ScanJob extends Scope {
+  inventory?: InventoryItem[];
   sourceCoverage?: SourceCoverageSummary;
   id: string;
   idempotencyKey: string;
@@ -151,6 +156,11 @@ export interface AuthorizedSnapshot extends Scope {
   expiresAt: number;
 }
 export interface SnapshotPort {
+  /** Reauthorize an already-owned immutable source without changing any grant TTL. */
+  refresh?(
+    snapshot: AuthorizedSnapshot,
+    grant: Grant,
+  ): Promise<AuthorizedSnapshot>;
   acquire(
     grant: Grant,
     request: ScanRequest,
@@ -172,7 +182,11 @@ export interface ScannerPort {
   execute(
     snapshot: AuthorizedSnapshot,
     signal: AbortSignal,
-  ): Promise<{ run: EngineRun; findings: Finding[] }>;
+  ): Promise<{
+    run: EngineRun;
+    findings: Finding[];
+    inventory?: InventoryItem[];
+  }>;
 }
 export interface SandboxPort {
   ready: boolean;

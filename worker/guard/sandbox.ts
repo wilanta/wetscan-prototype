@@ -29,7 +29,7 @@ export interface SandboxSpec {
   executable: string;
   args: readonly string[];
   cpu: 1;
-  memoryMb: 256;
+  memoryMb: 256 | 2048;
   pids: 64;
   timeoutMs: number;
   outputBytes: number;
@@ -182,6 +182,24 @@ export function validateSandboxSpec(spec: SandboxSpec) {
   )
     throw new LiveGuardError("not_configured");
 }
+/** Operational-only local build identity. Legacy G01 validator remains registry-digest-only. */
+export function validateOperationalSandboxSpec(spec: SandboxSpec) {
+  const local = /^sha256:[a-f0-9]{64}$/.test(spec.image);
+  if (
+    spec.memoryMb !== 256 &&
+    !(
+      spec.memoryMb === 2048 && spec.executable === "/usr/local/bin/osv-scanner"
+    )
+  )
+    throw new LiveGuardError("not_configured");
+  validateSandboxSpec({
+    ...spec,
+    memoryMb: 256,
+    image: local
+      ? "ghcr.io/wetscan-local/content-addressed@" + spec.image
+      : spec.image,
+  });
+}
 /** Arguments are server-reviewed spec, never source scripts, Dockerfiles, package hooks or client input. */
 export function sandboxCreateArgs(
   spec: SandboxSpec,
@@ -297,7 +315,9 @@ export class DockerGuardSandbox {
       !daemon.KernelVersion ||
       !/^sha256:[a-f0-9]{64}$/.test(image.Id ?? "") ||
       !Array.isArray(image.RepoDigests) ||
-      !pinnedImagePresent(this.spec.image, image.RepoDigests)
+      !(this.extension && /^sha256:[a-f0-9]{64}$/.test(this.spec.image)
+        ? this.spec.image === image.Id
+        : pinnedImagePresent(this.spec.image, image.RepoDigests))
     )
       throw new LiveGuardError("execution_not_ready");
     const proof = await this.evidence.verify({
@@ -394,7 +414,7 @@ export class DockerGuardSandbox {
         host.NetworkMode !== "none" ||
         host.IpcMode !== "none" ||
         host.Tmpfs?.["/tmp"] !== "rw,noexec,nosuid,nodev,size=16777216" ||
-        host.Memory !== 256 * 1024 * 1024 ||
+        host.Memory !== this.spec.memoryMb * 1024 * 1024 ||
         host.MemorySwap !== host.Memory ||
         host.PidsLimit !== 64 ||
         host.NanoCpus !== 1e9 ||
