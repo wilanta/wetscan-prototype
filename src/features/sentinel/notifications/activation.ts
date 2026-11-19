@@ -14,11 +14,22 @@ export interface NotificationActivation {
  * `SENTINEL_NOTIFIER_ENABLED=1` alone never enables anything; WhatsApp can never be approved here (H06).
  * Block: { mode:"live", workspaceId, projectId, notBefore, channels:["telegram"|"email"], approvedUse:"owner_controlled_notifications" }
  */
-export function notificationActivation(approval: DatabaseApproval, enabled: boolean): NotificationActivation | undefined {
+export function notificationActivation(
+  approval: DatabaseApproval,
+  enabled: boolean,
+): NotificationActivation | undefined {
   if (!enabled) return;
-  const raw = (approval as DatabaseApproval & { notifications?: unknown }).notifications;
+  const raw = (approval as DatabaseApproval & { notifications?: unknown })
+    .notifications;
   try {
-    const r = object(raw, ["mode", "workspaceId", "projectId", "notBefore", "channels", "approvedUse"]);
+    const r = object(raw, [
+      "mode",
+      "workspaceId",
+      "projectId",
+      "notBefore",
+      "channels",
+      "approvedUse",
+    ]);
     if (
       r.mode !== "live" ||
       r.approvedUse !== "owner_controlled_notifications" ||
@@ -28,13 +39,21 @@ export function notificationActivation(approval: DatabaseApproval, enabled: bool
       !/^github-[1-9][0-9]*$/.test(r.projectId) ||
       !Array.isArray(r.channels) ||
       !r.channels.length ||
-      r.channels.some((c) => !(channels as readonly string[]).includes(c as string) || c === "whatsapp")
+      r.channels.some(
+        (c) =>
+          !(channels as readonly string[]).includes(c as string) ||
+          c === "whatsapp",
+      )
     )
       throw Error();
     const notBefore = timestamp(r.notBefore);
     if (Date.parse(notBefore) < Date.parse(approval.approvedAt)) throw Error();
     return {
-      scope: { mode: "live", workspaceId: r.workspaceId, projectId: r.projectId },
+      scope: {
+        mode: "live",
+        workspaceId: r.workspaceId,
+        projectId: r.projectId,
+      },
       notBefore,
       channels: [...new Set(r.channels as NotificationChannel[])],
     };

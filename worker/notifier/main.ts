@@ -1,10 +1,22 @@
 import { randomUUID } from "node:crypto";
-import { approvedDatabaseConfig, integer, PlatformError, workerConfig } from "../../src/platform/config";
+import {
+  approvedDatabaseConfig,
+  integer,
+  PlatformError,
+  workerConfig,
+} from "../../src/platform/config";
 import { ApprovedPool, PlatformDatabase } from "../../src/platform/database";
 import { migrationPlan } from "../../src/platform/migrations";
 import { notificationActivation } from "../../src/features/sentinel/notifications/activation";
-import { ResendSender, secretReader, TelegramSender } from "../../src/features/sentinel/notifications/providers";
-import type { NotificationChannel, SenderPort } from "../../src/features/sentinel/notifications/model";
+import {
+  ResendSender,
+  secretReader,
+  TelegramSender,
+} from "../../src/features/sentinel/notifications/providers";
+import type {
+  NotificationChannel,
+  SenderPort,
+} from "../../src/features/sentinel/notifications/model";
 import { runNotifier } from "./runtime";
 
 /**
@@ -14,25 +26,58 @@ import { runNotifier } from "./runtime";
  */
 async function main() {
   const options = workerConfig(process.env);
-  if (options.heartbeatMs * 2 >= options.leaseMs || options.timeoutMs >= options.leaseMs) throw new PlatformError("invalid_input");
+  if (
+    options.heartbeatMs * 2 >= options.leaseMs ||
+    options.timeoutMs >= options.leaseMs
+  )
+    throw new PlatformError("invalid_input");
   // Capture provider secrets references first, then drop everything this lane must never carry.
   const providerEnv = Object.fromEntries(
-    Object.entries(process.env).filter(([k]) => /^(TELEGRAM_|RESEND_|NOTIFICATION_FROM_EMAIL$)/.test(k)),
+    Object.entries(process.env).filter(([k]) =>
+      /^(TELEGRAM_|RESEND_|NOTIFICATION_FROM_EMAIL$)/.test(k),
+    ),
   );
   for (const key of Object.keys(process.env))
     if (/^(AUTH_|GITHUB_|AWS_|WHATSAPP_)/.test(key)) delete process.env[key];
-  for (const purpose of ["APP", "WORKER", "MIGRATION", "TEST", "BOOTSTRAP"]) delete process.env[`SENTINEL_DB_${purpose}_PASSWORD_FILE`];
+  for (const purpose of ["APP", "WORKER", "MIGRATION", "TEST", "BOOTSTRAP"])
+    delete process.env[`SENTINEL_DB_${purpose}_PASSWORD_FILE`];
   const plan = await migrationPlan();
-  const config = await approvedDatabaseConfig(process.env, "notifier", "runtime", plan.sha256);
-  const activation = notificationActivation(config.approval, process.env.SENTINEL_NOTIFIER_ENABLED === "1");
+  const config = await approvedDatabaseConfig(
+    process.env,
+    "notifier",
+    "runtime",
+    plan.sha256,
+  );
+  const activation = notificationActivation(
+    config.approval,
+    process.env.SENTINEL_NOTIFIER_ENABLED === "1",
+  );
   if (!activation) throw new PlatformError("not_configured");
   // Rotation/revocation of a secret file takes effect within this window, without a restart.
-  const secretTtl = integer(process.env.SENTINEL_NOTIFIER_SECRET_TTL_MS, 15000, 0, 60000);
+  const secretTtl = integer(
+    process.env.SENTINEL_NOTIFIER_SECRET_TTL_MS,
+    15000,
+    0,
+    60000,
+  );
   const senders = new Map<NotificationChannel, SenderPort>();
   if (activation.channels.includes("telegram"))
-    senders.set("telegram", new TelegramSender({ token: secretReader(providerEnv, "TELEGRAM_BOT_TOKEN", secretTtl), baseUrl: providerEnv.TELEGRAM_API_BASE_URL }));
+    senders.set(
+      "telegram",
+      new TelegramSender({
+        token: secretReader(providerEnv, "TELEGRAM_BOT_TOKEN", secretTtl),
+        baseUrl: providerEnv.TELEGRAM_API_BASE_URL,
+      }),
+    );
   if (activation.channels.includes("email"))
-    senders.set("email", new ResendSender({ apiKey: secretReader(providerEnv, "RESEND_API_KEY", secretTtl), from: providerEnv.NOTIFICATION_FROM_EMAIL, baseUrl: providerEnv.RESEND_API_BASE_URL }));
+    senders.set(
+      "email",
+      new ResendSender({
+        apiKey: secretReader(providerEnv, "RESEND_API_KEY", secretTtl),
+        from: providerEnv.NOTIFICATION_FROM_EMAIL,
+        baseUrl: providerEnv.RESEND_API_BASE_URL,
+      }),
+    );
   const pool = new ApprovedPool(config);
   await runNotifier({
     db: new PlatformDatabase(pool, true),
@@ -43,7 +88,12 @@ async function main() {
     senders,
     workerId: randomUUID(),
     control: process,
-    healthPort: integer(process.env.SENTINEL_NOTIFIER_HEALTH_PORT, 3113, 1024, 65535),
+    healthPort: integer(
+      process.env.SENTINEL_NOTIFIER_HEALTH_PORT,
+      3113,
+      1024,
+      65535,
+    ),
     once: process.argv.includes("--once"),
     report: (event) => console.log(JSON.stringify(event)),
   });

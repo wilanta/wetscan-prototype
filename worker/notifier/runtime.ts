@@ -5,10 +5,19 @@ import type { PlatformDatabase, SqlPool } from "../../src/platform/database";
 import type { Migration } from "../../src/platform/migrations";
 import { PostgresQueue } from "../../src/platform/queue";
 import { executeLease } from "../sentinel/executor";
-import { closeHealthServer, ShutdownCoordinator, within, type WorkerControl } from "../sentinel/lifecycle";
+import {
+  closeHealthServer,
+  ShutdownCoordinator,
+  within,
+  type WorkerControl,
+} from "../sentinel/lifecycle";
 import { processLease } from "./handler";
 import { SenderStore } from "../../src/features/sentinel/notifications/sender-store";
-import { notificationJobKind, type NotificationChannel, type SenderPort } from "../../src/features/sentinel/notifications/model";
+import {
+  notificationJobKind,
+  type NotificationChannel,
+  type SenderPort,
+} from "../../src/features/sentinel/notifications/model";
 import type { NotificationActivation } from "../../src/features/sentinel/notifications/activation";
 
 export interface NotifierEvent {
@@ -33,23 +42,51 @@ export async function runNotifier(input: {
   once?: boolean;
   report: (event: NotifierEvent) => void;
 }) {
-  const { db, pool, migrations, options, activation, senders, workerId, control } = input;
-  const emit = (phase: NotifierEvent["phase"], extra: Partial<NotifierEvent> = {}) =>
-    input.report({ event: "notifier_lifecycle", phase, pid: process.pid, workerId, ...extra });
-  const stop = new ShutdownCoordinator(control, (reason) => emit("shutdown_requested", { reason }));
+  const {
+    db,
+    pool,
+    migrations,
+    options,
+    activation,
+    senders,
+    workerId,
+    control,
+  } = input;
+  const emit = (
+    phase: NotifierEvent["phase"],
+    extra: Partial<NotifierEvent> = {},
+  ) =>
+    input.report({
+      event: "notifier_lifecycle",
+      phase,
+      pid: process.pid,
+      workerId,
+      ...extra,
+    });
+  const stop = new ShutdownCoordinator(control, (reason) =>
+    emit("shutdown_requested", { reason }),
+  );
   const health = createServer((req, res) => {
     if (req.method !== "GET" || req.url !== "/health") {
       res.writeHead(404);
       res.end();
       return;
     }
-    res.writeHead(stop.signal.aborted ? 503 : 200, { "Content-Type": "application/json", "Cache-Control": "no-store" });
+    res.writeHead(stop.signal.aborted ? 503 : 200, {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store",
+    });
     // Presence of adapters only; never a token, destination or ledger content.
     res.end(
       JSON.stringify({
         status: stop.signal.aborted ? "stopping" : "ready",
         lane: "notifier",
-        channels: Object.fromEntries(activation.channels.map((c) => [c, senders.has(c) ? "adapter_loaded" : "not_configured"])),
+        channels: Object.fromEntries(
+          activation.channels.map((c) => [
+            c,
+            senders.has(c) ? "adapter_loaded" : "not_configured",
+          ]),
+        ),
         whatsapp: "requires_business_setup",
       }),
     );
@@ -57,13 +94,30 @@ export async function runNotifier(input: {
   health.requestTimeout = 5000;
   health.headersTimeout = 5000;
   health.maxConnections = 10;
-  const queue = new PostgresQueue(db, activation.scope, [notificationJobKind], activation.notBefore);
+  const queue = new PostgresQueue(
+    db,
+    activation.scope,
+    [notificationJobKind],
+    activation.notBefore,
+  );
   const store = new SenderStore(db, queue);
   let work = Promise.resolve();
   try {
     await db.transaction(async (tx) => {
-      const rows = (await db.query(tx, "SELECT version,checksum FROM platform.schema_migrations ORDER BY version")).rows;
-      if (rows.length !== migrations.length || rows.some((r, i) => r.version !== migrations[i].version || r.checksum !== migrations[i].checksum))
+      const rows = (
+        await db.query(
+          tx,
+          "SELECT version,checksum FROM platform.schema_migrations ORDER BY version",
+        )
+      ).rows;
+      if (
+        rows.length !== migrations.length ||
+        rows.some(
+          (r, i) =>
+            r.version !== migrations[i].version ||
+            r.checksum !== migrations[i].checksum,
+        )
+      )
         throw new PlatformError("target_denied");
     });
     if (stop.signal.aborted) return;
@@ -72,25 +126,45 @@ export async function runNotifier(input: {
       health.listen(input.healthPort, "127.0.0.1", resolve);
     });
     const address = health.address();
-    emit("started", { port: typeof address === "object" && address ? address.port : input.healthPort });
+    emit("started", {
+      port:
+        typeof address === "object" && address
+          ? address.port
+          : input.healthPort,
+    });
     work = (async () => {
       while (!stop.signal.aborted) {
         try {
           await store.sweep(activation.scope);
-          const leases = await queue.claim({ module: "sentinel", workerId, limit: Math.min(options.concurrency, 2), leaseMs: options.leaseMs });
+          const leases = await queue.claim({
+            module: "sentinel",
+            workerId,
+            limit: Math.min(options.concurrency, 2),
+            leaseMs: options.leaseMs,
+          });
           await Promise.all(
             leases.map((lease) =>
               executeLease(
                 queue,
                 lease,
-                (_job, signal, current) => processLease(store, senders, current, signal),
-                { heartbeatMs: options.heartbeatMs, timeoutMs: options.timeoutMs, signal: stop.signal },
+                (_job, signal, current) =>
+                  processLease(store, senders, current, signal),
+                {
+                  heartbeatMs: options.heartbeatMs,
+                  timeoutMs: options.timeoutMs,
+                  signal: stop.signal,
+                },
               ),
             ),
           );
         } catch {
           if (input.once) throw new PlatformError("database_unavailable");
-          console.warn(JSON.stringify({ status: "degraded", reason: "database_or_schema_unavailable" }));
+          console.warn(
+            JSON.stringify({
+              status: "degraded",
+              reason: "database_or_schema_unavailable",
+            }),
+          );
         }
         if (input.once || stop.signal.aborted) break;
         try {
@@ -102,7 +176,8 @@ export async function runNotifier(input: {
     })();
     const requested = new Promise<void>((resolve) => {
       if (stop.signal.aborted) resolve();
-      else stop.signal.addEventListener("abort", () => resolve(), { once: true });
+      else
+        stop.signal.addEventListener("abort", () => resolve(), { once: true });
     });
     await Promise.race([work, requested]);
   } finally {

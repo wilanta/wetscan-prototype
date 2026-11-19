@@ -1,10 +1,24 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { Badge, Button, Card, Empty, Notice, PageHeader } from "@/components/ui";
+import {
+  Badge,
+  Button,
+  Card,
+  Empty,
+  Notice,
+  PageHeader,
+} from "@/components/ui";
 import type { ChannelView, DeliveryView } from "../notifications/store";
 
-const names: Record<string, string> = { telegram: "Telegram", email: "Email", whatsapp: "WhatsApp" };
-const stateLabel: Record<string, [string, "neutral" | "blue" | "green" | "amber" | "red"]> = {
+const names: Record<string, string> = {
+  telegram: "Telegram",
+  email: "Email",
+  whatsapp: "WhatsApp",
+};
+const stateLabel: Record<
+  string,
+  [string, "neutral" | "blue" | "green" | "amber" | "red"]
+> = {
   pending: ["Queued · not yet sent", "amber"],
   attempted: ["Attempted · awaiting outcome", "amber"],
   // Provider acceptance is NOT delivery and NOT a read receipt.
@@ -37,12 +51,16 @@ const reasons: Record<string, string> = {
   attempts_exhausted_outcome_unknown: "Retries exhausted; outcome uncertain.",
 };
 const errors: Record<string, string> = {
-  notifications_not_configured: "Notifications are not configured (NOT_CONFIGURED). Database migration 0006 is not applied.",
-  revision_conflict: "This channel changed in another session. Refresh and retry.",
+  notifications_not_configured:
+    "Notifications are not configured (NOT_CONFIGURED). Database migration 0006 is not applied.",
+  revision_conflict:
+    "This channel changed in another session. Refresh and retry.",
   consent_required: "Record recipient consent first.",
   destination_required: "Enter a destination first.",
-  destination_not_verified: "Send a test message and wait for provider acceptance before enabling.",
-  channel_unavailable: "This channel is unavailable until official business setup is complete.",
+  destination_not_verified:
+    "Send a test message and wait for provider acceptance before enabling.",
+  channel_unavailable:
+    "This channel is unavailable until official business setup is complete.",
   invalid_destination: "That destination is not valid for this channel.",
   invalid_timezone: "Choose a valid IANA timezone, e.g. Asia/Jakarta.",
   invalid_quiet_hours: "Quiet hours need different start and end times.",
@@ -60,14 +78,33 @@ async function api(path: string, body?: unknown) {
     body: body ? JSON.stringify(body) : undefined,
   });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw Error(errors[j.error] ?? (r.status === 401 ? "Sign in again." : "Request rejected."));
+  if (!r.ok)
+    throw Error(
+      errors[j.error] ??
+        (r.status === 401 ? "Sign in again." : "Request rejected."),
+    );
   return j;
 }
-const hex = () => Array.from(crypto.getRandomValues(new Uint8Array(32)), (b) => b.toString(16).padStart(2, "0")).join("");
-const at = (v: string) => new Date(v).toLocaleString("en-GB", { timeZone: "Asia/Jakarta" }) + " WIB";
-const hm = (m: number | null) => (m === null ? "" : `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`);
+const hex = () =>
+  Array.from(crypto.getRandomValues(new Uint8Array(32)), (b) =>
+    b.toString(16).padStart(2, "0"),
+  ).join("");
+const at = (v: string) =>
+  new Date(v).toLocaleString("en-GB", { timeZone: "Asia/Jakarta" }) + " WIB";
+const hm = (m: number | null) =>
+  m === null
+    ? ""
+    : `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 
-function ChannelCard({ c, run, busy }: { c: ChannelView; run: (b: unknown) => Promise<void>; busy: boolean }) {
+function ChannelCard({
+  c,
+  run,
+  busy,
+}: {
+  c: ChannelView;
+  run: (b: unknown) => Promise<void>;
+  busy: boolean;
+}) {
   const [destination, setDestination] = useState("");
   const [consent, setConsent] = useState(false);
   const [minSeverity, setMinSeverity] = useState(c.minSeverity);
@@ -76,7 +113,11 @@ function ChannelCard({ c, run, busy }: { c: ChannelView; run: (b: unknown) => Pr
   const [tz, setTz] = useState(c.quiet.timezone ?? "Asia/Jakarta");
   const [qs, setQs] = useState(hm(c.quiet.startMinute) || "22:00");
   const [qEnd, setQEnd] = useState(hm(c.quiet.endMinute) || "06:00");
-  const base = { action: "save_channel", channel: c.channel, ...(c.revision ? { expectedRevision: c.revision } : {}) };
+  const base = {
+    action: "save_channel",
+    channel: c.channel,
+    ...(c.revision ? { expectedRevision: c.revision } : {}),
+  };
   if (!c.available)
     return (
       <Card>
@@ -96,24 +137,51 @@ function ChannelCard({ c, run, busy }: { c: ChannelView; run: (b: unknown) => Pr
     <Card>
       <h3>{names[c.channel]}</h3>
       {statusBadge}{" "}
-      {c.destinationMasked && <Badge tone={c.destinationVerified ? "blue" : "amber"}>{c.destinationMasked} · {c.destinationVerified ? "test accepted by provider" : "untested"}</Badge>}
+      {c.destinationMasked && (
+        <Badge tone={c.destinationVerified ? "blue" : "amber"}>
+          {c.destinationMasked} ·{" "}
+          {c.destinationVerified ? "test accepted by provider" : "untested"}
+        </Badge>
+      )}
       <div className="form-grid">
         <label>
-          {c.channel === "telegram" ? "Telegram chat ID (numeric)" : "Recipient email"}
+          {c.channel === "telegram"
+            ? "Telegram chat ID (numeric)"
+            : "Recipient email"}
           <input
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
-            placeholder={c.destinationMasked ?? (c.channel === "telegram" ? "e.g. 123456789" : "owner@example.com")}
+            placeholder={
+              c.destinationMasked ??
+              (c.channel === "telegram"
+                ? "e.g. 123456789"
+                : "owner@example.com")
+            }
             autoComplete="off"
           />
         </label>
         <label className="check-line">
-          <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />I own or am authorized to use this destination and consent to receive Sentinel notifications there.
+          <input
+            type="checkbox"
+            checked={consent}
+            onChange={(e) => setConsent(e.target.checked)}
+          />
+          I own or am authorized to use this destination and consent to receive
+          Sentinel notifications there.
         </label>
         <Button
           variant="secondary"
           disabled={busy || (!destination && !consent)}
-          onClick={() => run({ ...base, ...(destination ? { destination } : {}), ...(consent ? { consent: true } : {}) }).then(() => { setDestination(""); setConsent(false); })}
+          onClick={() =>
+            run({
+              ...base,
+              ...(destination ? { destination } : {}),
+              ...(consent ? { consent: true } : {}),
+            }).then(() => {
+              setDestination("");
+              setConsent(false);
+            })
+          }
         >
           Save destination
         </Button>
@@ -121,18 +189,31 @@ function ChannelCard({ c, run, busy }: { c: ChannelView; run: (b: unknown) => Pr
       <div className="form-grid">
         <label>
           Minimum severity
-          <select value={minSeverity} onChange={(e) => setMinSeverity(e.target.value as typeof minSeverity)}>
+          <select
+            value={minSeverity}
+            onChange={(e) =>
+              setMinSeverity(e.target.value as typeof minSeverity)
+            }
+          >
             <option value="low">Low and above</option>
             <option value="medium">Medium and above</option>
             <option value="high">High only</option>
           </select>
         </label>
         <label className="check-line">
-          <input type="checkbox" checked={controlled} onChange={(e) => setControlled(e.target.checked)} />
+          <input
+            type="checkbox"
+            checked={controlled}
+            onChange={(e) => setControlled(e.target.checked)}
+          />
           Include controlled-test incidents
         </label>
         <label className="check-line">
-          <input type="checkbox" checked={qe} onChange={(e) => setQe(e.target.checked)} />
+          <input
+            type="checkbox"
+            checked={qe}
+            onChange={(e) => setQe(e.target.checked)}
+          />
           Quiet hours
         </label>
         {qe && (
@@ -143,42 +224,80 @@ function ChannelCard({ c, run, busy }: { c: ChannelView; run: (b: unknown) => Pr
             </label>
             <label>
               From
-              <input type="time" value={qs} onChange={(e) => setQs(e.target.value)} />
+              <input
+                type="time"
+                value={qs}
+                onChange={(e) => setQs(e.target.value)}
+              />
             </label>
             <label>
               Until
-              <input type="time" value={qEnd} onChange={(e) => setQEnd(e.target.value)} />
+              <input
+                type="time"
+                value={qEnd}
+                onChange={(e) => setQEnd(e.target.value)}
+              />
             </label>
           </>
         )}
         <Button
           variant="secondary"
           disabled={busy || !c.revision}
-          onClick={() => run({ ...base, minSeverity, includeControlledTest: controlled, quiet: qe ? { enabled: true, timezone: tz, start: qs, end: qEnd } : { enabled: false } })}
+          onClick={() =>
+            run({
+              ...base,
+              minSeverity,
+              includeControlledTest: controlled,
+              quiet: qe
+                ? { enabled: true, timezone: tz, start: qs, end: qEnd }
+                : { enabled: false },
+            })
+          }
         >
           Save preferences
         </Button>
       </div>
       <div className="actions-row">
-        <Button disabled={busy || !c.consentAt || !c.destinationMasked} onClick={() => run({ action: "test", channel: c.channel, idempotencyKey: hex() })}>
+        <Button
+          disabled={busy || !c.consentAt || !c.destinationMasked}
+          onClick={() =>
+            run({ action: "test", channel: c.channel, idempotencyKey: hex() })
+          }
+        >
           Send one test message
         </Button>
         {c.enabled ? (
-          <Button variant="secondary" disabled={busy} onClick={() => run({ ...base, enabled: false })}>
+          <Button
+            variant="secondary"
+            disabled={busy}
+            onClick={() => run({ ...base, enabled: false })}
+          >
             Disable
           </Button>
         ) : (
-          <Button disabled={busy || !c.consentAt || !c.destinationVerified} onClick={() => run({ ...base, enabled: true })}>
+          <Button
+            disabled={busy || !c.consentAt || !c.destinationVerified}
+            onClick={() => run({ ...base, enabled: true })}
+          >
             Enable notifications
           </Button>
         )}
         {c.consentAt && (
-          <Button variant="secondary" disabled={busy} onClick={() => run({ ...base, consent: false })}>
+          <Button
+            variant="secondary"
+            disabled={busy}
+            onClick={() => run({ ...base, consent: false })}
+          >
             Revoke consent
           </Button>
         )}
       </div>
-      {!c.destinationVerified && c.consentAt && <p className="small-text muted">A provider-accepted test message is required before enabling. Acceptance is not read confirmation.</p>}
+      {!c.destinationVerified && c.consentAt && (
+        <p className="small-text muted">
+          A provider-accepted test message is required before enabling.
+          Acceptance is not read confirmation.
+        </p>
+      )}
     </Card>
   );
 }
@@ -193,7 +312,10 @@ export function LiveNotifications({ projectId }: { projectId: string }) {
   const load = useCallback(async () => {
     try {
       setError("");
-      const [c, d] = await Promise.all([api(root), api(`${root}?view=deliveries`)]);
+      const [c, d] = await Promise.all([
+        api(root),
+        api(`${root}?view=deliveries`),
+      ]);
       setChannels(c.channels);
       setDeliveries(d.deliveries);
       setNow(Date.now());
@@ -221,7 +343,10 @@ export function LiveNotifications({ projectId }: { projectId: string }) {
       setBusy(false);
     }
   };
-  const stale = (d: DeliveryView) => d.state === "pending" && now > 0 && now - new Date(d.createdAt).getTime() > 120000;
+  const stale = (d: DeliveryView) =>
+    d.state === "pending" &&
+    now > 0 &&
+    now - new Date(d.createdAt).getTime() > 120000;
   return (
     <>
       <PageHeader
@@ -230,49 +355,96 @@ export function LiveNotifications({ projectId }: { projectId: string }) {
         description="Opt-in, project-scoped incident notifications with a durable delivery ledger. Messages are sent only by an isolated sender process; this page never holds provider credentials."
       />
       <Notice tone="neutral">
-        Live configuration for this project only. Orderly Demo previews are unchanged and never send. A message accepted by Telegram or the email provider is not a read receipt or confirmed delivery.
+        Live configuration for this project only. Orderly Demo previews are
+        unchanged and never send. A message accepted by Telegram or the email
+        provider is not a read receipt or confirmed delivery.
       </Notice>
       {error && <Notice tone="amber">{error}</Notice>}
       {channels && channels.length === 0 && !error ? (
-        <Card><Empty title="NO-OP / NOT_CONFIGURED" description="No notification channels are available." /></Card>
+        <Card>
+          <Empty
+            title="NO-OP / NOT_CONFIGURED"
+            description="No notification channels are available."
+          />
+        </Card>
       ) : (
         <div className="three-columns channel-grid">
           {(channels ?? []).map((c) => (
-            <ChannelCard key={`${c.channel}:${c.revision}`} c={c} run={run} busy={busy} />
+            <ChannelCard
+              key={`${c.channel}:${c.revision}`}
+              c={c}
+              run={run}
+              busy={busy}
+            />
           ))}
         </div>
       )}
       <Card>
         <h3>Delivery history</h3>
         {deliveries.length === 0 ? (
-          <Empty title="No deliveries yet" description="Deliveries appear here when an incident matches an enabled channel, or after a test message." />
+          <Empty
+            title="No deliveries yet"
+            description="Deliveries appear here when an incident matches an enabled channel, or after a test message."
+          />
         ) : (
           <div className="table-wrap">
             <table>
               <thead>
-                <tr><th>When</th><th>Channel</th><th>Trigger</th><th>State</th><th>Detail</th><th /></tr>
+                <tr>
+                  <th>When</th>
+                  <th>Channel</th>
+                  <th>Trigger</th>
+                  <th>State</th>
+                  <th>Detail</th>
+                  <th />
+                </tr>
               </thead>
               <tbody>
                 {deliveries.map((d) => {
-                  const [label, tone] = stateLabel[d.state] ?? [d.state, "neutral" as const];
+                  const [label, tone] = stateLabel[d.state] ?? [
+                    d.state,
+                    "neutral" as const,
+                  ];
                   return (
                     <tr key={d.deliveryId}>
                       <td>{at(d.createdAt)}</td>
                       <td>{names[d.channel]}</td>
-                      <td>{d.trigger.replaceAll("_", " ")}{d.origin === "controlled_test" && d.trigger !== "test" ? " · controlled test" : ""}</td>
-                      <td><Badge tone={tone}>{label}</Badge></td>
                       <td>
-                        {d.reason ? reasons[d.reason] ?? d.reason : ""}
-                        {d.attemptCount ? ` · ${d.attemptCount} attempt${d.attemptCount > 1 ? "s" : ""}` : ""}
-                        {d.deadLetter ? " · dead letter" : ""}
-                        {stale(d) ? " · no sender has picked this up (sender not running or not configured)" : ""}
+                        {d.trigger.replaceAll("_", " ")}
+                        {d.origin === "controlled_test" && d.trigger !== "test"
+                          ? " · controlled test"
+                          : ""}
                       </td>
                       <td>
-                        {["failed", "unknown"].includes(d.state) && d.trigger !== "test" && (
-                          <Button variant="secondary" disabled={busy} onClick={() => run({ action: "retry", deliveryId: d.deliveryId, idempotencyKey: hex() })}>
-                            Retry
-                          </Button>
-                        )}
+                        <Badge tone={tone}>{label}</Badge>
+                      </td>
+                      <td>
+                        {d.reason ? (reasons[d.reason] ?? d.reason) : ""}
+                        {d.attemptCount
+                          ? ` · ${d.attemptCount} attempt${d.attemptCount > 1 ? "s" : ""}`
+                          : ""}
+                        {d.deadLetter ? " · dead letter" : ""}
+                        {stale(d)
+                          ? " · no sender has picked this up (sender not running or not configured)"
+                          : ""}
+                      </td>
+                      <td>
+                        {["failed", "unknown"].includes(d.state) &&
+                          d.trigger !== "test" && (
+                            <Button
+                              variant="secondary"
+                              disabled={busy}
+                              onClick={() =>
+                                run({
+                                  action: "retry",
+                                  deliveryId: d.deliveryId,
+                                  idempotencyKey: hex(),
+                                })
+                              }
+                            >
+                              Retry
+                            </Button>
+                          )}
                       </td>
                     </tr>
                   );
