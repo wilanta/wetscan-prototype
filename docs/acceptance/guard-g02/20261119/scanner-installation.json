@@ -1,0 +1,189 @@
+{
+  "classification": "REAL_CLI_CONTROLLED_INSTALLATION_NOT_OWNER_SCAN",
+  "completedAt": "2026-11-19T15:03:57.018Z",
+  "imageId": "sha256:27c08e6ecaedb73fc2cfb2161fb34760606be7eedf3d08d81cd3e14247fc1f96",
+  "base": "python@sha256:a5a7017efc5969e00ae2b91c8eb0631049a569652aa4ffc4501769049ae45c72",
+  "daemonVersion": "29.9.2",
+  "cleanupVerified": true,
+  "sandboxTests": {
+    "controls": "PASS",
+    "output": "PASS",
+    "timeout": "PASS",
+    "cancel": "PASS",
+    "oom": "PASS",
+    "orphan": "PASS"
+  },
+  "controls": {
+    "non_root": true,
+    "read_only_root": true,
+    "read_only_source": true,
+    "source_readable": true,
+    "no_socket": true,
+    "no_network": true,
+    "no_privileges": true,
+    "seccomp": true,
+    "pids": true,
+    "tmp_noexec": true,
+    "no_secret_env": true
+  },
+  "scanners": {
+    "opengrep": {
+      "version": "2.0.0",
+      "findings": 1,
+      "elapsedMs": 2625,
+      "outputSha256": "4a4dffc3d5abf06a9d413a3652ee6de35248b22b068876bb8ffad4b8784d8ff6",
+      "memoryMb": 256,
+      "args": [
+        "scan",
+        "--config",
+        "/opt/g02/rules",
+        "--jobs",
+        "1",
+        "--json",
+        "--no-git-ignore",
+        "--x-ignore-semgrepignore-files",
+        "/source"
+      ],
+      "scope": "pinned official JavaScript/TypeScript security rule files (count recorded in rules-manifest.json)"
+    },
+    "osv-scanner": {
+      "version": "osv-scanner version: 2.7.1",
+      "findings": 5,
+      "elapsedMs": 18124,
+      "outputSha256": "2a9126dbd1665268cdf23ccd3d341ba327c55c7bb41a953425e12c3edddab549",
+      "memoryMb": 2048,
+      "args": [
+        "scan",
+        "source",
+        "--offline",
+        "--format",
+        "json",
+        "--recursive",
+        "--no-ignore",
+        "/source",
+        "--no-resolve",
+        "--no-call-analysis=go",
+        "--no-call-analysis=rust",
+        "--config",
+        "/opt/guard/config/empty.toml",
+        "--all-packages"
+      ],
+      "scope": "npm lockfiles in bounded snapshot, recursive; full official npm snapshot"
+    },
+    "gitleaks": {
+      "version": "8.30.1",
+      "findings": 1,
+      "elapsedMs": 2570,
+      "outputSha256": "5c882702a32f7c1875207d2177b92f9bc7da583239eff4d261a250f1f6f42241",
+      "memoryMb": 256,
+      "args": [
+        "dir",
+        "/source"
+      ],
+      "scope": "official default config v8.30.1"
+    },
+    "trivy": {
+      "version": "Version: 0.76.2",
+      "findings": 3,
+      "elapsedMs": 3433,
+      "outputSha256": "ed21d006b253a604432887e7ae50b2e2f87974a96f2ebe3ae6155fc3c6ebf5dc",
+      "memoryMb": 256,
+      "args": [
+        "config",
+        "--config",
+        "/opt/guard/config/empty.yaml",
+        "--ignorefile",
+        "/opt/guard/config/empty.ignore",
+        "--skip-check-update",
+        "--format",
+        "json",
+        "--exit-code",
+        "1",
+        "--cache-dir",
+        "/tmp/trivy",
+        "/source"
+      ],
+      "scope": "embedded IaC checks v0.76.2"
+    },
+    "trivy-image": {
+      "version": "Version: 0.76.2",
+      "findings": 6,
+      "elapsedMs": 1461,
+      "outputSha256": "cbd7f972e47030ed27197de30ca38b196f72623100cd085239551a41e95f5b04",
+      "memoryMb": 2048,
+      "args": [
+        "image",
+        "--input",
+        "/source/image.oci",
+        "--offline-scan",
+        "--skip-db-update",
+        "--skip-java-db-update",
+        "--scanners",
+        "vuln",
+        "--format",
+        "json",
+        "--exit-code",
+        "1",
+        "--cache-dir",
+        "/opt/g02/trivy-cache",
+        "--cache-backend",
+        "memory",
+        "--max-image-size",
+        "256MB",
+        "--config",
+        "/opt/guard/config/empty.yaml",
+        "--ignorefile",
+        "/opt/guard/config/empty.ignore"
+      ],
+      "scope": "offline OCI archive, pinned official Trivy vulnerability database"
+    }
+  },
+  "components": {
+    "releases": [
+      {
+        "repository": "opengrep/opengrep",
+        "version": "v2.0.0",
+        "name": "opengrep_linux_x86",
+        "sha256": "37e93f4da5fd04a18c5c1febbdd12f7e98dfccd4d0c9cf2593bcb25eeb462da0"
+      },
+      {
+        "repository": "google/osv-scanner",
+        "version": "v2.7.1",
+        "name": "osv-scanner_linux_amd64",
+        "sha256": "fb7dab19a8bd9bbe5c3189f09d4b7ee1820c9553a23bac202648a56efd2f6ee8"
+      },
+      {
+        "repository": "gitleaks/gitleaks",
+        "version": "v8.30.1",
+        "name": "gitleaks_8.30.1_linux_x64.tar.gz",
+        "sha256": "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"
+      },
+      {
+        "repository": "aquasecurity/trivy",
+        "version": "v0.76.2",
+        "name": "trivy_0.76.2_Linux-64bit.tar.gz",
+        "sha256": "bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf"
+      }
+    ],
+    "rules": {
+      "source": "https://github.com/opengrep/opengrep-rules",
+      "commit": "f1d2b562b414783763fd02a6ed2736eaed622efa",
+      "files": 74
+    },
+    "osv": {
+      "source": "https://osv-vulnerabilities.storage.googleapis.com/npm/all.zip",
+      "sha256": "0601339e91c58525433117f107327a55c96a060534c5614ee6375f6f7bf366f9",
+      "bytes": 221817800,
+      "ecosystems": [
+        "npm"
+      ],
+      "downloadedAt": "2026-11-19T13:44:08.073Z"
+    },
+    "trivyDb": {
+      "Version": 2,
+      "NextUpdate": "2026-11-20T13:02:29.533007307Z",
+      "UpdatedAt": "2026-11-19T13:02:29.533007734Z",
+      "DownloadedAt": "2026-11-19T13:48:25.689724557Z"
+    }
+  }
+}

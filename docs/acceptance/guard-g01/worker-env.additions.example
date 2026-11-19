@@ -1,0 +1,10 @@
+# Worker/Auth ACCEPTANCE PREPARATION ONLY. All referenced operator permits remain WAITING_USER.
+# No GitHub/Auth variables, passwords or tokens in this sidecar. Do not append to existing.env.local.
+GUARD_LIVE_READ_ENABLED=1
+GUARD_DB_APP_APPROVAL_FILE="C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7/db-app-approval.json"
+GUARD_DB_APP_PASSWORD_FILE="C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/app.password"
+GUARD_DB_WORKER_APPROVAL_FILE="C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7/db-worker-approval.json"
+GUARD_DB_WORKER_PASSWORD_FILE="C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/worker.password"
+GUARD_PREPARATION_APPROVAL_FILE="C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7/preparation-approval.json"
+GUARD_WORKER_APPROVAL_FILE="C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7/worker-approval.json"
+GUARD_SOURCE_ACCEPTANCE_APPROVAL_FILE="C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7/source-approval.json"

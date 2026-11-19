@@ -79,6 +79,15 @@ it.each([
   "coverage",
   "cancel",
   "source-acceptance",
+  "repository",
+  "preparation",
+  "revision",
+  "preflight",
+  "resume",
+  "view",
+  "triage",
+  "reports",
+  "product-cancel",
 ] as const)(
   "rejects unauthenticated %s before runtime activation",
   async (resource) => {
@@ -177,4 +186,80 @@ it("blocks source acceptance without operator approval before storage activation
   expect(result.status).toBe(503);
   expect(await result.json()).toEqual({ error: "approval_required" });
   expect(guardLiveService).not.toHaveBeenCalled();
+});
+
+it("requires same-origin revision/preparation requests before provider or runtime access", async () => {
+  for (const resource of ["repository", "preparation"] as const) {
+    const response = await guardRoute(
+      request("POST", "{}", { origin: "https://foreign.example" }),
+      "github-123",
+      resource,
+    );
+    expect(response.status).toBe(403);
+  }
+  expect(authorizeGuardProject).not.toHaveBeenCalled();
+  expect(guardLiveService).not.toHaveBeenCalled();
+});
+it("rejects client identity fields before Guard revision transport", async () => {
+  const response = await guardRoute(
+    request("POST", JSON.stringify({ branch: "main", owner: "forged" })),
+    "github-123",
+    "repository",
+  );
+  expect(response.status).toBe(400);
+  expect(await response.json()).toEqual({ error: "invalid_input" });
+  expect(guardLiveService).not.toHaveBeenCalled();
+});
+
+it.each(["scans", "triage", "reports", "product-cancel", "revision"] as const)(
+  "product %s mutation rejects foreign Origin before Auth/storage",
+  async (resource) => {
+    const result = await guardRoute(
+      request("POST", "{}", { origin: "https://foreign.example" }),
+      "github-123",
+      resource,
+      "a".repeat(64),
+    );
+    expect(result.status).toBe(403);
+    expect(authorizeGuardProject).not.toHaveBeenCalled();
+    expect(guardLiveService).not.toHaveBeenCalled();
+  },
+);
+
+it("mounted product revision route requires current Auth before provider/persistence", async () => {
+  vi.mocked(authorizeGuardProject).mockRejectedValue(
+    new AuthError("unauthenticated", 401),
+  );
+  const { POST } =
+    await import("../../../src/app/api/guard/projects/[projectId]/revision/route");
+  const result = await POST(request("POST", '{"branch":"main"}'), {
+    params: Promise.resolve({ projectId: "github-123" }),
+  });
+  expect(result.status).toBe(401);
+  expect(guardLiveService).not.toHaveBeenCalled();
+});
+
+it("preflight cannot run without the current owner session", async () => {
+  vi.mocked(authorizeGuardProject).mockRejectedValue(
+    new AuthError("unauthenticated", 401),
+  );
+  const { POST } =
+    await import("../../../src/app/api/guard/projects/[projectId]/preflight/route");
+  expect(
+    (
+      await POST(request("POST", "{}"), {
+        params: Promise.resolve({ projectId: "github-123" }),
+      })
+    ).status,
+  ).toBe(401);
+  expect(guardLiveService).not.toHaveBeenCalled();
+});
+it("preflight rejects cross-origin before auth or database configuration", async () => {
+  const r = await guardRoute(
+    request("POST", "{}", { origin: "https://foreign.example" }),
+    "github-123",
+    "preflight",
+  );
+  expect(r.status).toBe(403);
+  expect(authorizeGuardProject).not.toHaveBeenCalled();
 });

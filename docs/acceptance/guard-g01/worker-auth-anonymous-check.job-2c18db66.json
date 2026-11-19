@@ -1,0 +1,13 @@
+{
+  "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+  "startedAt": "2026-11-15T16:02:03.115Z",
+  "finishedAt": "2026-11-15T16:02:05.708Z",
+  "method": "GET",
+  "path": "/api/guard/projects/github-839286157/scans",
+  "cookiesSent": false,
+  "tokensSent": false,
+  "httpStatus": 401,
+  "contentType": "application/json",
+  "error": "unauthenticated",
+  "passed": true
+}

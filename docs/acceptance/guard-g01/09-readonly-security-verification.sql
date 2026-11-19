@@ -1,0 +1,14 @@
+BEGIN READ ONLY;
+DO $target$ BEGIN IF current_database()<>'wetscan_s01_test_guardg01' OR current_user<>'postgres' OR inet_server_port() IS DISTINCT FROM 5432 OR NOT COALESCE(inet_server_addr() IN('127.0.0.1'::inet,'::1'::inet),false) OR current_setting('server_version_num')::int<>180006 OR shobj_description((SELECT oid FROM pg_database WHERE datname=current_database()),'pg_database') IS DISTINCT FROM 'wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f' OR (SELECT pg_get_userbyid(datdba) FROM pg_database WHERE datname=current_database())<>'wetscan_guard_migrator' THEN RAISE EXCEPTION 'guard_g01_target_denied'; END IF; END $target$;
+SELECT version,checksum FROM platform.schema_migrations ORDER BY version;
+SELECT version,checksum FROM guard.schema_migrations ORDER BY version;
+SELECT n.nspname,c.relname,pg_get_userbyid(c.relowner) AS owner,c.relrowsecurity,c.relforcerowsecurity FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname IN('guard','platform','sentinel') AND c.relkind='r' ORDER BY 1,2;
+SELECT schemaname,tablename,policyname,cmd,qual,with_check FROM pg_policies WHERE schemaname IN('guard','platform') ORDER BY 1,2,3;
+SELECT set_config('wetscan.module','',true),set_config('wetscan.mode','',true),set_config('wetscan.workspace','',true),set_config('wetscan.project','',true);
+SET LOCAL ROLE wetscan_guard_app;
+DO $deny$ BEGIN IF has_schema_privilege(current_user,'sentinel','USAGE') OR EXISTS(SELECT 1 FROM guard.scans) OR has_database_privilege(current_user,current_database(),'CREATE') THEN RAISE EXCEPTION 'guard_g01_least_privilege_or_unscoped_read_failure'; END IF; END $deny$;
+SELECT current_user AS tested_role,count(*) AS unscoped_visible_rows FROM guard.scans;
+SET LOCAL ROLE wetscan_guard_worker;
+DO $deny$ BEGIN IF has_schema_privilege(current_user,'sentinel','USAGE') OR EXISTS(SELECT 1 FROM guard.scans) OR has_database_privilege(current_user,current_database(),'CREATE') THEN RAISE EXCEPTION 'guard_g01_least_privilege_or_unscoped_read_failure'; END IF; END $deny$;
+SELECT current_user AS tested_role,count(*) AS unscoped_visible_rows FROM guard.scans;
+ROLLBACK;

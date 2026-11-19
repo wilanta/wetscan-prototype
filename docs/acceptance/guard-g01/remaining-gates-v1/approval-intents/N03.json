@@ -1,0 +1,133 @@
+{
+  "intentSha256": "ba56335bf2f90382f4fd5c93dbf303acc91e23d9fc5e23f7a8671fa3576da1f4",
+  "packet": {
+    "schemaVersion": 1,
+    "module": "guard-g01-remaining-acceptance-review-intent",
+    "caseId": "N03",
+    "status": "REVIEW_ONLY_NOT_EXECUTABLE",
+    "title": "Actual permit expiry during work",
+    "authorizationGranted": false,
+    "activatePermits": false,
+    "approvedBy": null,
+    "approvedAt": null,
+    "expiresAt": null,
+    "maximumWindowMinutes": 25,
+    "futureFreshApprovalRequired": true,
+    "target": {
+      "host": "localhost",
+      "port": 5432,
+      "database": "wetscan_s01_test_guardg01",
+      "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f",
+      "owner": "wetscan_guard_migrator",
+      "existingFixtureOnly": true
+    },
+    "proposedJob": {
+      "caseId": "N03",
+      "status": "PROPOSED_OFFLINE_NOT_A_LIVE_AUTH_GRANT_OR_DB_JOB",
+      "binding": {
+        "mode": "live",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "jobId": "ac55f222070eb67b21ca12c8301a998ba962a6089018d31167bf40d7cd604e73",
+        "actorId": "github-user-145520313",
+        "repository": {
+          "provider": "github",
+          "repositoryId": "839286157",
+          "branch": "main",
+          "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+        },
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-n03"
+      },
+      "request": {
+        "branch": "main",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "profile": "quick",
+        "engines": [
+          "sast"
+        ],
+        "idempotencyKey": "g01-remain-v1-n03"
+      },
+      "maximumCreatedJobs": 1,
+      "maximumEnqueueCalls": 1,
+      "maximumWorkerLaunches": 1,
+      "sourceHeadMustBeFreshAtActivation": true,
+      "oldJobMustNeverBeSubstituted": true
+    },
+    "cleanupOnlyReferenceCase": null,
+    "baseline": {
+      "branch": "feat/guard-g01-s03-integration",
+      "head": "1b28fb88ae65a29902e0f1f314efdce44ed3c643",
+      "writableRoot": "C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate",
+      "stagedIndexSha256": "40d77c02186b074dacfd2fe3a6f2816d89a7e59d5f279cbe8be8c75c9c716c4f",
+      "implementationHashSource": "code-gap-audit.json",
+      "currentOnlyNotApprovalForFutureCode": true,
+      "migrationPlanSha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d"
+    },
+    "operations": {
+      "enqueueCallsAtMost": 1,
+      "durableJobsCreatedAtMost": 1,
+      "workerLaunchesAtMost": 1,
+      "sourceAcquisitionsAtMost": 1,
+      "ownedContainerCreatesAtMost": 1,
+      "exactJobCancelCallsAtMost": 1,
+      "simultaneousGuardContainersAtMost": 1,
+      "scopedReadOnlyObservers": true
+    },
+    "permittedEffectDescription": "Shortened worker subpermit expires on the real clock at 90 seconds while approved hold probe is running",
+    "databaseEffects": "Add only this new case's Guard scan/queue/attempt/audit and worker heartbeat; normal fenced state transitions and explicit listed cancellation. Retain every case row. No Sentinel/catalog/role changes.",
+    "controlledFault": "Real expiry; no Date mock/backdating. Role/cleanup permit remains independently valid; new work is never extended.",
+    "expectedEvidence": "No protected forward write after expiry; cleanup-only authority settles owned resources and retained job within outer valid control window",
+    "technicalNeedBeyondCompletedTests": "Real expired in-flight capability instead of fake-clock/unit checks.",
+    "dependencies": [
+      "I01"
+    ],
+    "readiness": {
+      "executionReady": false,
+      "reason": "Implementation/spec/ownership artifacts must be completed and frozen before FINAL execution approval.",
+      "localPrerequisites": [
+        "GAP-03",
+        "GAP-04",
+        "GAP-05"
+      ],
+      "executionArtifactHashes": null,
+      "sourceOwnerRegistration": "MUST_BE_MEASURED_AT_RUN_TIME_NOT_FABRICATED",
+      "daemonImageSpecTuple": "MUST_BE_MEASURED_AND_FROZEN_BEFORE_APPROVAL"
+    },
+    "checkpointRules": [
+      "Fresh current actor/workspace/project/repository/HEAD proof through existing owner session; no forged grants",
+      "Current code/spec/program/control artifact hashes must equal the FINAL execution packet",
+      "If planned binding/HEAD/target/actions/counts change, prepare a different reviewed packet and obtain new approval",
+      "Each expected fault has an explicit assertion; any other failure stops the case and subsequent mutations",
+      "Only declared rescue cleanup is permitted after an expected injected fault; no work retry or extra launch",
+      "Before and after each phase compare the preserved fixture/Sentinel projection and original three rows; expected additions are this phase's Guard rows only",
+      "Do not manufacture future PID/container ID/snapshot root/positive attestation or PASS evidence"
+    ],
+    "forbidden": [
+      "old job 2c18db66 mutation/relaunch/replay",
+      "new database creation",
+      "access to historical 127.0.0.1:55432",
+      "Sentinel mutations",
+      "GitHub repository/settings/App-permission writes",
+      "scanner or G02-G06 execution",
+      "credential/.env/Auth-store inspection or direct edits",
+      "module-wide container prune/reaper",
+      "historical .used/.used.UUID/result/approval-marker deletion, or rewriting/backdating any lease marker",
+      "fixture deletion or DB reset",
+      "unrelated process/service termination",
+      "commit/push/merge/deploy before separate publication permission"
+    ],
+    "evidenceRetention": "Exclusive per-case public metadata artifacts and private owned-resource registry; raw source/credentials/lease tokens never in public logs; keep failed/used/result records",
+    "cleanupAuthority": {
+      "exactOwnedResourcesOnly": true,
+      "mustVerifyJobRunSpecImageNameIdAndRootConfinement": true,
+      "graceAfterWorkAuthorityExpiresSeconds": 30,
+      "noForwardWorkOrPublicationDuringGrace": true,
+      "historicalMarkersExcluded": true,
+      "cannotOverrideOneHourSourceReaper": true
+    }
+  }
+}

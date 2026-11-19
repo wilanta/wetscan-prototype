@@ -1,4 +1,31 @@
+> Current instruction, 16 November 2026: owner/Codex owns G02-G06 on `feat/guard-g01-s03-integration`, PR #7. Publication to this existing branch is authorized after verification. Runtime cases still require fresh exact-case approval. See [active continuation and actual audit](GUARD_DEVELOPMENT_CONTINUATION.md) and [executable remaining-gate packages](acceptance/guard-g01/remaining-gates-v2/README.md). Earlier dated restrictions and assignments below are historical where superseded; preservation and runtime safety constraints remain.
+
+# Current continuation: remaining G01 acceptance plans; no new runtime/publication approval
+
+The owner requested four separate remaining-gate plans and fresh specific approvals before runtime mutations. Connected Worker/Auth prepare_only and the old exact-job evidence stay PASS/frozen; its 2 enqueue + 1 launch budget is consumed and must not be repeated. Plans and 16 inactive review intents are in [remaining-gates-v1](acceptance/guard-g01/remaining-gates-v1/README.md). They do not activate permits or authorize jobs/containers/faults. Runtime composition, exact specs, case-scoped controls and final artifact hashes must be completed before final execution approval.
+
+Scope is existing localhost:5432/wetscan_s01_test_guardg01 only. Owner confirms external Sentinel NOT_VERIFIED / TARGET_NOT_IDENTIFIED; never probe historical127.0.0.1:55432, create another DB or change Sentinel. Successful down/up on retained rows is blocked by this preservation constraint; source-orphan reaping needs real one-hour age and a new cleanup-only approval window. These limits are not PASS or an automatic G01 waiver. Overall remains PARTIALLY COMPLETE. Publication will require new explicit permission after the final gate decision; historical permission statements below do not authorize commit/push now. G02-G06 not started.
+
+---
+
 # G01 live foundation - pre-implementation audit
+
+## Current finalization status - 15 November 2026
+
+See [GUARD_G01_FINALIZATION.md](GUARD_G01_FINALIZATION.md) for the current audit, implementation, test results and exact remaining approval checklist. Overall **PARTIALLY COMPLETE**, real acceptance **BLOCKED**. Latest user explicitly authorizes candidate commit/push despite the known baseline Sentinel failure; the earlier publication hold below is historical and superseded. No Sentinel fix/assertion edit, G02, real SQL/provider/worker/container operation, merge or deploy is performed. Current old Guard HEAD is92ee6fa, preserved; do not restore historical7207a16 state. New producer is prepare_only, lease getter is now forwarded, snapshot request mismatch/concurrency and sandbox identity/evidence boundaries are fixed; earlier descriptions of missing implementations describe their historical phase.
+
+
+## Actual S03 candidate addendum - 15 November 2026
+
+The audited Guard delta is now on an explicitly authorized new candidate worktree based onf7bfeef. No queue/executor source compatibility patch was needed; all707combined unit cases and42focused contracts pass. Old Guard tree/source is preserved. Actual plan includes0003_detection with aggregateb63e1e... and unchanged Guard SQL. See [integration validation](GUARD_G01_S03_INTEGRATION_VALIDATION.md). Browser verification is59/60, blocked by a pre-existing Sentinel form/loading error-state race. User declined the proposed one-file Sentinel change and held commit/push; no Sentinel source/SQL/shared platform change or runtime activation was made. Historical static/missing-candidate descriptions below are superseded only by this measured candidate state.
+
+
+## Current worker composition addendum - 15 November 2026
+
+[Worker Auth review](GUARD_G01_WORKER_AUTH_REVIEW.md) supersedes the earlier interface-only resolver/unconditional launcher-stub description. Guard now has a concrete private inherited IPC broker/resolver and bounded one-job prepare launcher. It runs Auth/source access in the existing Auth process, child receives grants/metadata only, exact active lease and persisted identity are revalidated, and independent exact launch/app/worker approvals gate activation. No route auto-starts it; no Live service was activated. Parent restart requires a fresh authenticated binding; continuous supervision and real cleanup/concurrency remain acceptance work.
+
+Master concurrently advanced to S03/f7bfeef; this Guard worktree remains7207a16 with local changes. Shared queue/executor changes were audited read-only, not integrated or combined-tested. Platform migration0003 makes this worktree's two-version plan unsuitable for an S03 target; review/align baseline and regenerate approvals first. No shared implementation or SQL is modified. Prior architecture sections are historical context where noted.
+
 
 Date: 15 November 2026 (Asia/Jakarta). Main working tree: master cd313ce, clean. Isolated worktree: C:/laragon/www/wetscan-2/wetscan-guard-g01, branch feat/guard-g01-live-integration, same baseline. S02 is already merged; historical uncommitted Sentinel work is not present. No G02 file is read or started. No commit, push, PR, database connection, migration, worker activation or real GitHub acceptance is authorized by G01.
 

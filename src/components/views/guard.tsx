@@ -1,6 +1,9 @@
 "use client";
 import { useState } from "react";
-import { GuardWorkbench } from "@/features/guard/workbench";
+import {
+  GuardDemoWorkspace,
+  GuardDemoExamples,
+} from "@/features/guard/local-workspace";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -18,6 +21,11 @@ import {
 } from "lucide-react";
 import { findings, PROJECT } from "@/data/demo";
 import { scans } from "@/services/adapters";
+import {
+  runGuardDemo,
+  getGuardDemoSnapshot,
+} from "@/features/guard/demo-session";
+import { profiles } from "@/features/guard/pipeline";
 import { useDemo, toast } from "../demo-provider";
 import {
   Badge,
@@ -38,9 +46,10 @@ export function GuardTabs({ active }: { active: string }) {
         ["Overview", ""],
         ["Scan history", "/scans"],
         ["Findings", "/findings"],
+        ["Inventory", "/inventory"],
         ["Logic & workflows", "/integrity"],
         ["Remediation", "/remediation"],
-        ["Release status", "/releases"],
+        ["Policy & reports", "/releases"],
       ].map(([label, path]) => (
         <Link
           key={label}
@@ -54,14 +63,23 @@ export function GuardTabs({ active }: { active: string }) {
   );
 }
 export function SimulateScan() {
-  const { dispatch } = useDemo();
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(false);
   async function run() {
     setBusy(true);
     try {
-      await scans.run();
-      dispatch({ type: "scan" });
+      await runGuardDemo(
+        "quick",
+        [...profiles.quick],
+        false,
+        process.env.NODE_ENV !== "production",
+      );
+      if (
+        !["completed", "completed_partial"].includes(
+          getGuardDemoSnapshot().jobs[0]?.status ?? "",
+        )
+      )
+        throw new Error("Demo incomplete");
       toast.success("Demo scan completed. Synthetic findings are ready.");
       setOpen(false);
     } catch {
@@ -115,112 +133,116 @@ export function Guard({ section = "" }: { section?: string }) {
       <PageHeader
         eyebrow="GUARD · CHECK BEFORE YOU SHIP"
         title={
-          section === "/scans"
-            ? "Every check has a story."
-            : section === "/findings"
-              ? "A clear path from risk to resolution."
-              : section === "/releases"
-                ? "A thoughtful pause before release."
-                : "Build with a little more confidence."
+          section === "/inventory"
+            ? "Understand your dependency inventory."
+            : section === "/scans"
+              ? "Every check has a story."
+              : section === "/findings"
+                ? "A clear path from risk to resolution."
+                : section === "/releases"
+                  ? "A thoughtful pause before release."
+                  : "Build with a little more confidence."
         }
         description="Understand the evidence, what was checked, and what still needs your attention."
-        action={<SimulateScan />}
       />
       <GuardTabs active={section} />
-      <GuardWorkbench section={section} />
-      {section === "/findings" ? (
-        <FindingsList />
-      ) : section === "/scans" ? (
-        <ScanHistory />
-      ) : section === "/releases" ? (
-        <ReleaseStatus />
-      ) : (
-        <>
-          <div className="three-columns">
-            <Card className="summary-card">
-              <span className="stat-icon blue">
-                <ShieldCheck />
-              </span>
-              <small>Latest check</small>
-              <h2>Demo scan #{state.scans}</h2>
-              <Badge tone="blue">Simulated</Badge>
-              <p>{state.branch} · a1b2c3d · synthetic commit</p>
-            </Card>
-            <Card className="summary-card">
-              <span className="stat-icon amber">
-                <TriangleAlert />
-              </span>
-              <small>Findings to review</small>
-              <h2>
-                {state.findingStatus === "verified_fixed" ? 2 : 3} findings
-              </h2>
-              <Badge tone="amber">1 high priority</Badge>
-              <p>Access control is a good place to start.</p>
-            </Card>
-            <Card className="summary-card">
-              <span className="stat-icon neutral">
-                <LockKeyhole />
-              </span>
-              <small>Release decision</small>
-              <h2>Review required</h2>
-              <Badge>No real gate connected</Badge>
-              <p>Incomplete checks never mean a pass.</p>
-            </Card>
-          </div>
-          <div className="two-columns">
-            <Card>
-              <SectionHeading title="Your security checks">
-                <Badge>Availability</Badge>
-              </SectionHeading>
-              <div className="checks-list">
-                {[
-                  ["Code analysis (SAST)", "Demo fixtures", "blue"],
-                  ["Dependencies (SCA)", "Demo inventory", "blue"],
-                  ["Secrets & configuration", "Demo fixtures", "blue"],
-                  ["API access-control tests", "Demo simulation", "blue"],
-                  ["Logic & workflows", "Demo simulation", "blue"],
-                  [
-                    "Staging DAST",
-                    state.staging.url
-                      ? "Scope configured · runner unavailable"
-                      : "Not configured",
-                    "neutral",
-                  ],
-                  ["Container & SBOM", "Runner unavailable", "neutral"],
-                  ["AI remediation", "Not configured", "neutral"],
-                ].map(([label, status, tone]) => (
-                  <div key={label}>
-                    <span>{label}</span>
-                    <Badge tone={tone as "blue" | "neutral"}>{status}</Badge>
-                  </div>
-                ))}
-              </div>
-            </Card>
-            <Card className="recommended-finding">
-              <div className="eyebrow">RECOMMENDED NEXT STEP</div>
-              <span className="big-feature-icon amber">
-                <FileCode2 size={30} />
-              </span>
-              <h2>Who can see an order?</h2>
-              <p>
-                A customer may be able to read another customer’s order. Start
-                with the evidence and a small, scoped fix.
-              </p>
-              <Badge tone="amber">High · Access control</Badge>
-              <LinkButton href={`${PROJECT}/guard/findings/FIND-102`}>
-                Understand this finding <ArrowRight size={16} />
-              </LinkButton>
-              <TextLink href={`${PROJECT}/canvas?node=orders-api`}>
-                See it on your application map
-              </TextLink>
-            </Card>
-          </div>
-          <Notice>
-            Every check shown here uses local demo fixtures. No source code,
-            deployment, credentials, or real customer records are scanned.
-          </Notice>
-        </>
-      )}
+      <GuardDemoWorkspace section={section} />
+      <GuardDemoExamples title="Original Orderly example walkthrough">
+        <SimulateScan />
+        {section === "/findings" ? (
+          <FindingsList />
+        ) : section === "/scans" ? (
+          <ScanHistory />
+        ) : section === "/releases" ? (
+          <ReleaseStatus />
+        ) : (
+          <>
+            <div className="three-columns">
+              <Card className="summary-card">
+                <span className="stat-icon blue">
+                  <ShieldCheck />
+                </span>
+                <small>Latest check</small>
+                <h2>Demo scan #{state.scans}</h2>
+                <Badge tone="blue">Simulated</Badge>
+                <p>{state.branch} · a1b2c3d · synthetic commit</p>
+              </Card>
+              <Card className="summary-card">
+                <span className="stat-icon amber">
+                  <TriangleAlert />
+                </span>
+                <small>Findings to review</small>
+                <h2>
+                  {state.findingStatus === "verified_fixed" ? 2 : 3} findings
+                </h2>
+                <Badge tone="amber">1 high priority</Badge>
+                <p>Access control is a good place to start.</p>
+              </Card>
+              <Card className="summary-card">
+                <span className="stat-icon neutral">
+                  <LockKeyhole />
+                </span>
+                <small>Release decision</small>
+                <h2>Review required</h2>
+                <Badge>No real gate connected</Badge>
+                <p>Incomplete checks never mean a pass.</p>
+              </Card>
+            </div>
+            <div className="two-columns">
+              <Card>
+                <SectionHeading title="Your security checks">
+                  <Badge>Availability</Badge>
+                </SectionHeading>
+                <div className="checks-list">
+                  {[
+                    ["Code analysis (SAST)", "Demo fixtures", "blue"],
+                    ["Dependencies (SCA)", "Demo inventory", "blue"],
+                    ["Secrets & configuration", "Demo fixtures", "blue"],
+                    ["API access-control tests", "Demo simulation", "blue"],
+                    ["Logic & workflows", "Demo simulation", "blue"],
+                    [
+                      "Staging DAST",
+                      state.staging.url
+                        ? "Scope configured · runner unavailable"
+                        : "Not configured",
+                      "neutral",
+                    ],
+                    ["Container & SBOM", "Runner unavailable", "neutral"],
+                    ["AI remediation", "Not configured", "neutral"],
+                  ].map(([label, status, tone]) => (
+                    <div key={label}>
+                      <span>{label}</span>
+                      <Badge tone={tone as "blue" | "neutral"}>{status}</Badge>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+              <Card className="recommended-finding">
+                <div className="eyebrow">RECOMMENDED NEXT STEP</div>
+                <span className="big-feature-icon amber">
+                  <FileCode2 size={30} />
+                </span>
+                <h2>Who can see an order?</h2>
+                <p>
+                  A customer may be able to read another customer’s order. Start
+                  with the evidence and a small, scoped fix.
+                </p>
+                <Badge tone="amber">High · Access control</Badge>
+                <LinkButton href={`${PROJECT}/guard/findings/FIND-102`}>
+                  Understand this finding <ArrowRight size={16} />
+                </LinkButton>
+                <TextLink href={`${PROJECT}/canvas?node=orders-api`}>
+                  See it on your application map
+                </TextLink>
+              </Card>
+            </div>
+            <Notice>
+              Every check shown here uses local demo fixtures. No source code,
+              deployment, credentials, or real customer records are scanned.
+            </Notice>
+          </>
+        )}
+      </GuardDemoExamples>
     </div>
   );
 }
@@ -737,111 +759,115 @@ export function Integrity() {
         description="Check that important actions follow the workflow you intended."
       />
       <GuardTabs active="/integrity" />
-      <GuardWorkbench section="/integrity" />
-      <div className="two-columns">
-        <Card>
-          <SectionHeading title="Define the invariant">
-            <Workflow size={21} />
-          </SectionHeading>
-          <label className="field">
-            Test template
-            <select
-              value={template}
-              onChange={(e) => setTemplate(e.target.value)}
-            >
-              {[
-                "Illegal state transition",
-                "Workflow step bypass",
-                "Access control",
-                "Replay / idempotency",
-                "Unauthorized data modification",
-              ].map((t) => (
-                <option key={t}>{t}</option>
-              ))}
-            </select>
-          </label>
-          <Notice>
-            Templates organize your review. The executable demo scenario remains
-            a locked-order edit test.
-          </Notice>
-          <label className="field">
-            Expected rule
-            <textarea
-              value={invariant}
-              onChange={(e) => setInvariant(e.target.value)}
-              rows={3}
-            />
-          </label>
-          <div className="workflow-steps compact">
-            <span>Draft</span>
-            <ArrowRight size={16} />
-            <span>Approved</span>
-            <ArrowRight size={16} />
-            <span>Locked</span>
-          </div>
-          <label className="check-line">
-            <input
-              type="checkbox"
-              checked={patched}
-              onChange={(e) => setPatched(e.target.checked)}
-            />
-            Use demo fix: reject updates when locked
-          </label>
-          <Button disabled={busy || !invariant.trim()} onClick={run}>
-            <Play size={16} />
-            {busy ? "Checking demo invariant…" : "Run simulated workflow test"}
-          </Button>
-        </Card>
-        <Card>
-          <SectionHeading title="Expected → observed → evidence">
-            <Badge
-              tone={
-                state.integrity === "failed"
-                  ? "red"
-                  : state.integrity === "passed"
-                    ? "green"
-                    : "neutral"
-              }
-            >
-              {state.integrity === "not_run"
-                ? "Not run"
-                : `${state.integrity} · demo`}
-            </Badge>
-          </SectionHeading>
-          {state.integrity === "not_run" ? (
-            <Empty
-              title="Make the rule explicit"
-              description="Confirm the invariant, then run the local simulation."
-            />
-          ) : (
-            <>
-              <p>
-                <strong>Expected</strong>
-                <br />
-                {invariant}
-              </p>
-              <p>
-                <strong>Observed</strong>
-                <br />
-                {state.integrity === "passed"
-                  ? "409 Conflict. Locked order unchanged."
-                  : "200 OK. Locked order was edited in the fixture."}
-              </p>
-              <pre>
-                <code>{`PATCH /api/orders/ord_demo_b\n{ "state": "locked", "items": ["changed"] }\n\nDemo result: ${state.integrity === "passed" ? "409 — rejected" : "200 — accepted"}\nEvidence: EV-INTEGRITY-01 (synthetic)`}</code>
-              </pre>
-              <Notice tone={state.integrity === "failed" ? "amber" : "blue"}>
-                {state.integrity === "failed"
-                  ? "Check order state before applying changes, and enforce the invariant in a transaction."
-                  : "The separate synthetic retest confirms this invariant only within the demo fixture."}
-              </Notice>
-            </>
-          )}
-          <TextLink href={`${PROJECT}/canvas`}>
-            Visualize the workflow on Canvas
-          </TextLink>
-        </Card>
-      </div>
+      <GuardDemoWorkspace section="/integrity" />
+      <GuardDemoExamples title="Original Orderly integrity example">
+        <div className="two-columns">
+          <Card>
+            <SectionHeading title="Define the invariant">
+              <Workflow size={21} />
+            </SectionHeading>
+            <label className="field">
+              Test template
+              <select
+                value={template}
+                onChange={(e) => setTemplate(e.target.value)}
+              >
+                {[
+                  "Illegal state transition",
+                  "Workflow step bypass",
+                  "Access control",
+                  "Replay / idempotency",
+                  "Unauthorized data modification",
+                ].map((t) => (
+                  <option key={t}>{t}</option>
+                ))}
+              </select>
+            </label>
+            <Notice>
+              Templates organize your review. The executable demo scenario
+              remains a locked-order edit test.
+            </Notice>
+            <label className="field">
+              Expected rule
+              <textarea
+                value={invariant}
+                onChange={(e) => setInvariant(e.target.value)}
+                rows={3}
+              />
+            </label>
+            <div className="workflow-steps compact">
+              <span>Draft</span>
+              <ArrowRight size={16} />
+              <span>Approved</span>
+              <ArrowRight size={16} />
+              <span>Locked</span>
+            </div>
+            <label className="check-line">
+              <input
+                type="checkbox"
+                checked={patched}
+                onChange={(e) => setPatched(e.target.checked)}
+              />
+              Use demo fix: reject updates when locked
+            </label>
+            <Button disabled={busy || !invariant.trim()} onClick={run}>
+              <Play size={16} />
+              {busy
+                ? "Checking demo invariant…"
+                : "Run simulated workflow test"}
+            </Button>
+          </Card>
+          <Card>
+            <SectionHeading title="Expected → observed → evidence">
+              <Badge
+                tone={
+                  state.integrity === "failed"
+                    ? "red"
+                    : state.integrity === "passed"
+                      ? "green"
+                      : "neutral"
+                }
+              >
+                {state.integrity === "not_run"
+                  ? "Not run"
+                  : `${state.integrity} · demo`}
+              </Badge>
+            </SectionHeading>
+            {state.integrity === "not_run" ? (
+              <Empty
+                title="Make the rule explicit"
+                description="Confirm the invariant, then run the local simulation."
+              />
+            ) : (
+              <>
+                <p>
+                  <strong>Expected</strong>
+                  <br />
+                  {invariant}
+                </p>
+                <p>
+                  <strong>Observed</strong>
+                  <br />
+                  {state.integrity === "passed"
+                    ? "409 Conflict. Locked order unchanged."
+                    : "200 OK. Locked order was edited in the fixture."}
+                </p>
+                <pre>
+                  <code>{`PATCH /api/orders/ord_demo_b\n{ "state": "locked", "items": ["changed"] }\n\nDemo result: ${state.integrity === "passed" ? "409 — rejected" : "200 — accepted"}\nEvidence: EV-INTEGRITY-01 (synthetic)`}</code>
+                </pre>
+                <Notice tone={state.integrity === "failed" ? "amber" : "blue"}>
+                  {state.integrity === "failed"
+                    ? "Check order state before applying changes, and enforce the invariant in a transaction."
+                    : "The separate synthetic retest confirms this invariant only within the demo fixture."}
+                </Notice>
+              </>
+            )}
+            <TextLink href={`${PROJECT}/canvas`}>
+              Visualize the workflow on Canvas
+            </TextLink>
+          </Card>
+        </div>
+      </GuardDemoExamples>
     </div>
   );
 }
@@ -854,27 +880,29 @@ export function Remediation() {
         description="Understand the proposed change before you apply it."
       />
       <GuardTabs active="/remediation" />
-      <GuardWorkbench section="/remediation" />
-      <Notice>
-        AI is not configured. Suggestions are prewritten examples and require
-        your review.
-      </Notice>
-      <Card>
-        <Code2 size={30} />
-        <h2>Add an order ownership check</h2>
-        <p>
-          Limit the query to both the requested ID and the authenticated
-          customer. Reject requests that do not match.
-        </p>
-        <Badge tone="blue">Example remediation · FIND-102</Badge>
-        <p>
-          No file edits, pull requests, or automatic remediation occur in this
-          prototype.
-        </p>
-        <LinkButton href={`${PROJECT}/guard/findings/FIND-102`}>
-          Review evidence and fix example <ArrowRight size={16} />
-        </LinkButton>
-      </Card>
+      <GuardDemoWorkspace section="/remediation" />
+      <GuardDemoExamples title="Original Orderly remediation example">
+        <Notice>
+          AI is not configured. Suggestions are prewritten examples and require
+          your review.
+        </Notice>
+        <Card>
+          <Code2 size={30} />
+          <h2>Add an order ownership check</h2>
+          <p>
+            Limit the query to both the requested ID and the authenticated
+            customer. Reject requests that do not match.
+          </p>
+          <Badge tone="blue">Example remediation · FIND-102</Badge>
+          <p>
+            No file edits, pull requests, or automatic remediation occur in this
+            prototype.
+          </p>
+          <LinkButton href={`${PROJECT}/guard/findings/FIND-102`}>
+            Review evidence and fix example <ArrowRight size={16} />
+          </LinkButton>
+        </Card>
+      </GuardDemoExamples>
     </div>
   );
 }

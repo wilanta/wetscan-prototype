@@ -1,0 +1,20 @@
+{
+  "kind": "guard_exact_target_readonly_metadata",
+  "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+  "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+  "observedAt": "2026-11-15T16:23:56.696Z",
+  "readOnly": true,
+  "actual": {
+    "database": "wetscan_s01_test_guardg01",
+    "role": "wetscan_guard_app",
+    "port": 5432,
+    "server_version": "18.6",
+    "owner": "wetscan_guard_migrator",
+    "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f",
+    "superuser": false,
+    "bypass_rls": false
+  },
+  "matchesApprovedTarget": true,
+  "source": "Existing approved app purpose loader; metadata SELECT only; no Auth/session or credential contents displayed",
+  "rollback": "issued in finally"
+}

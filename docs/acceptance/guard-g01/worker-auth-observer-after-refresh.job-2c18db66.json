@@ -1,0 +1,26 @@
+{
+  "kind": "guard_exact_job_operator_observer",
+  "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+  "observedAt": "2026-11-15T16:06:09.189Z",
+  "readOnly": true,
+  "currentAuthProof": "SEPARATE_EXISTING_BACKEND_RESPONSE_REQUIRED",
+  "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+  "scope": {
+    "mode": "live",
+    "workspaceId": "github-user-145520313:testing",
+    "projectId": "github-839286157",
+    "actorId": "github-user-145520313"
+  },
+  "bindingMatches": null,
+  "scan": null,
+  "queue": [],
+  "attempts": [],
+  "heartbeats": [],
+  "foundationPrepared": false,
+  "coverage": null,
+  "storedPreparationVerified": false,
+  "scannerExecution": "NOT_RUN",
+  "sandboxExecution": "NOT_RUN",
+  "authSessionCreated": false,
+  "leaseTokensSelected": false
+}

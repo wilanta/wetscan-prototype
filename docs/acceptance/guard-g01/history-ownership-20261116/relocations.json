@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "reason": "Owner changed all G02-G06 development ownership to owner/Codex; original handoff paths removed only after preservation in active continuation documentation.",
+  "historicalInstructionsActive": false,
+  "activeDocument": "docs/GUARD_DEVELOPMENT_CONTINUATION.md",
+  "relocations": [
+    {
+      "originalPath": "docs/agent-handoffs/HANDOFF_WILL_G02_G06.md",
+      "archivedPath": "docs/acceptance/guard-g01/history-ownership-20261116/HANDOFF_WILL_G02_G06.md.historical.txt",
+      "rawSha256": "a4be9574ea82d069475f8509f4e6d2977a43a98b8fdba105368d92e735349a74",
+      "bytes": 6528
+    },
+    {
+      "originalPath": "docs/agent-handoffs/HANDOFF_WILL_G01_GATE_CLOSURE_PLAN.md",
+      "archivedPath": "docs/acceptance/guard-g01/history-ownership-20261116/HANDOFF_WILL_G01_GATE_CLOSURE_PLAN.md.historical.txt",
+      "rawSha256": "c2f8bd0ed845441c190612179ce7c02a31cf9bf168a501bfbdc2c9d16223b04d",
+      "bytes": 1812
+    }
+  ]
+}

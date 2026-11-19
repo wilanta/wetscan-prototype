@@ -1,0 +1,60 @@
+{
+  "status": "REMAINING_GATE_PLANS_PREPARED_NO_RUNTIME_AUTHORIZATION",
+  "currentApplicationImplementationUnchanged": true,
+  "runtimeMutationsExecuted": 0,
+  "approvalIntents": 16,
+  "plannedNewJobsAtMost": 11,
+  "priorCompletedJobReused": false,
+  "scope": {
+    "onlyExistingFixture": true,
+    "createDatabase": false,
+    "externalSentinel": "NOT_VERIFIED / TARGET_NOT_IDENTIFIED",
+    "historical55432Access": false
+  },
+  "localPrerequisites": [
+    "Explicit foundation-probe composition and authority",
+    "Compatible exact image/executable/trusted program and real control attestation",
+    "Private case-scoped fault/PID/resource/cleanup registry and observers",
+    "Read-only-default already_applied runner"
+  ],
+  "demonstratedConstraints": [
+    {
+      "id": "EXT-SENTINEL",
+      "status": "NOT_VERIFIED",
+      "reason": "TARGET_NOT_IDENTIFIED",
+      "source": "Explicit owner statement; no target probe or availability claim"
+    },
+    {
+      "id": "SCHEMA-DOWN",
+      "status": "BLOCKED_BY_PRESERVATION_CONSTRAINT",
+      "source": "Canonical down refuses retained scans/jobs; actual latest observer reports three retained scans; owner forbids new databases or fixture deletion",
+      "notAnAcceptancePass": true
+    },
+    {
+      "id": "ORPHAN-AGE",
+      "status": "REAL_TIME_TWO_WINDOW_REQUIREMENT",
+      "source": "Existing reapExpired requires actual source age >=3600000ms; each proposed approval is <=55minutes",
+      "requiresNewCleanupApprovalAfterWait": true
+    },
+    {
+      "id": "PROVIDER-REVOCATION",
+      "status": "NOT_VERIFIED / BLOCKED_BY_SCOPE",
+      "source": "Real GitHub App/access mutation is excluded; normal owner-session logout tests session revocation only, not provider permission revocation",
+      "notAnAcceptancePass": true
+    }
+  ],
+  "publication": {
+    "status": "NOT_AUTHORIZED",
+    "futureExplicitPermissionRequired": true,
+    "commit": false,
+    "push": false,
+    "stagingChanged": false
+  },
+  "g02Started": false,
+  "readOnlyOperatorStep": {
+    "caseId": "L02",
+    "prepared": true,
+    "executed": false,
+    "newMutationApprovalRequired": false
+  }
+}

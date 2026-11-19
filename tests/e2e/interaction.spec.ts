@@ -11,6 +11,10 @@ test("scan loading, graph controls, edge inspection, mobile navigation and repre
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(`${project}/guard`);
+  // G01/G02: the original Orderly walkthrough lives in a collapsed section below the Guard demo workbench.
+  await page
+    .getByText("Original Orderly example walkthrough", { exact: true })
+    .click();
   await page
     .getByRole("button", { name: "Simulate scan", exact: true })
     .click();

@@ -54,7 +54,7 @@ const manage = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const realProject =
-    /^\/app\/projects\/github-[1-9]\d*\/(?:canvas|sentinel(?:\/(?:activity|sources|rules|alerts|incidents(?:\/[a-f0-9-]+)?|responses|notifications|ghost|intelligence|reports))?)$/.test(
+    /^\/app\/projects\/github-[1-9]\d*\/(?:canvas|guard(?:\/(?:scans|findings|integrity|remediation|releases))?|sentinel(?:\/(?:activity|sources|rules|alerts|incidents(?:\/[a-f0-9-]+)?|responses|notifications|ghost|intelligence|reports))?)$/.test(
       pathname,
     );
   const accountState = useDashboardAccount();
@@ -73,9 +73,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   function nav(items: typeof home) {
     return items.map(({ href, label, Icon }) => {
       if (realProject) {
-        const sentinel = `/app/projects/${pathname.split("/")[3]}/sentinel`;
+        const projectId = pathname.split("/")[3];
+        const sentinel = `/app/projects/${projectId}/sentinel`;
         // Real projects never link to the synthetic demo pages for modules that have a live view.
-        if (label === "Sentinel") href = sentinel;
+        if (["Sentinel", "Guard", "Canvas"].includes(label))
+          href = `/app/projects/${projectId}/${label.toLowerCase()}`;
         if (label === "Notifications") href = `${sentinel}/notifications`;
         if (label === "Reports") href = `${sentinel}/reports`;
       }
@@ -97,8 +99,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             <Icon size={18} />
             <span>{label}</span>
-            {realProject && (label === "Guard" || label === "Integrations") && (
+            {realProject && label === "Integrations" && (
               <span className="nav-new">DEMO</span>
+            )}
+            {realProject && label === "Guard" && (
+              <span className="nav-new">LIVE · COVERAGE REQUIRED</span>
             )}
             {label === "Canvas" && <span className="nav-new">APP MAP</span>}
             {label === "Guard" && <span className="nav-count">3</span>}

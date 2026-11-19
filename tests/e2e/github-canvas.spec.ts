@@ -104,9 +104,10 @@ test("existing onboarding selection opens source-backed Canvas with isolated len
   );
   await page.goto("/app/projects/github-101/canvas");
   await page.getByRole("link", { name: "Guard", exact: false }).first().click();
-  await page
-    .locator('.sidebar a[href="/app/projects/orderly-demo/canvas"]')
-    .click();
+  // G02: Guard now has a live view, so a real project's Guard link opens the real Guard page, never the synthetic demo
+  // (same rule S10 applies to Sentinel). The demo Canvas is reached directly.
+  await expect(page).toHaveURL(/\/app\/projects\/github-101\/guard$/);
+  await page.goto("/app/projects/orderly-demo/canvas");
   await expect(
     page.getByLabel("Canvas data source", { exact: true }),
   ).toHaveCount(0); // Production has no fixture picker.

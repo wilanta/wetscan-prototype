@@ -8,3 +8,6 @@ scripts/Invoke-S04ProvisionPackage.ps1 text eol=crlf
 # Pinned by LF hash inside scripts/Invoke-S04OwnerSessionArchiveAudit.ps1 and private manifests, but not covered by *.ps1.
 scripts/sentinel-owner-session-audit.ts text eol=lf
 scripts/sentinel-owner-auth-snapshot.ts text eol=lf
+# G02: historical Guard acceptance evidence is verified over its exact bytes (tests/guard/evidence-retention.test.ts).
+# -text disables any EOL conversion, so Windows (autocrlf) and Linux checkouts hold identical bytes.
+docs/acceptance/** -text

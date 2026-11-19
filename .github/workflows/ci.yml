@@ -163,6 +163,15 @@ jobs:
           for c in telemetry detection incident response notification ghost intelligence external; do
             npx playwright test -c tests/sentinel/$c.playwright.config.ts --timeout=300000
           done
+      - name: Guard Live UI (mocked API transport) + Guard Demo regression
+        # G02: Live tabs, Retry, filters and Live/Demo separation render from API fixtures only (NOT evidence of a live
+        # scan). Physical scanner/Docker/PostgreSQL acceptance is a separately labeled local campaign (docs/G02_HANDOFF.md).
+        timeout-minutes: 20
+        env:
+          PW_BROWSER_CHANNEL: chromium
+        run: |
+          node scripts/guard-live-check.mjs browser
+          node tests/mvp/run-integrated-e2e.mjs tests/mvp/playwright.config.ts
       - name: Production-build E2E (next build + next start, provider-substituted GitHub fixtures, no real credentials)
         # Builds the application, starts three isolated production servers on 3107-3109 with generated test-only
         # configuration and a stubbed GitHub, then runs the Auth/Onboarding/Dashboard/Canvas specs against them.

@@ -1,0 +1,288 @@
+{
+  "requestSha256": "5b67e6ddeb0354447e199288bb028e4029c5241c7532d0034eb6e1c6f05f4960",
+  "packet": {
+    "schemaVersion": 1,
+    "status": "REVIEW_REQUIRED_NOT_APPROVED",
+    "scope": "One real GitHub source-only acceptance plus one approved exact-job prepare-only worker; no container/scanner execution or G02",
+    "sourceDraft": {
+      "path": "C:\\laragon\\www\\wetscan-2\\guard-preparation-request (2).json",
+      "sha256": "1bcd7847fc69ef7b58f1f1a3c3ee8fa85ead019708e6f4f4f7844780525fc918"
+    },
+    "repositoryName": "inkAja/wdu",
+    "request": {
+      "branch": "main",
+      "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+      "profile": "quick",
+      "engines": [
+        "sast"
+      ],
+      "idempotencyKey": "19015d9d-9513-4307-9f85-3fb2f421ae6b"
+    },
+    "binding": {
+      "mode": "live",
+      "workspaceId": "github-user-145520313:testing",
+      "projectId": "github-839286157",
+      "jobId": "904d08f2a392f1f9d75b48309f9e270bfbf9e2e6e3ebcb7c322d415aa18f96ba",
+      "actorId": "github-user-145520313",
+      "repository": {
+        "provider": "github",
+        "repositoryId": "839286157",
+        "branch": "main",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+      },
+      "profile": "quick",
+      "engines": [
+        "sast"
+      ],
+      "idempotencyKey": "19015d9d-9513-4307-9f85-3fb2f421ae6b"
+    },
+    "target": {
+      "host": "localhost",
+      "port": 5432,
+      "database": "wetscan_s01_test_guardg01",
+      "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f"
+    },
+    "migrationPlanSha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d",
+    "workerId": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+    "origin": "http://localhost:3000",
+    "operatorFolder": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate\\.local\\sentinel\\guard-g01-unblock\\worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+    "proposedMaxMinutes": 55,
+    "templates": {
+      "db-app-approval.json": {
+        "schemaVersion": 1,
+        "module": "guard",
+        "purpose": "app",
+        "role": "wetscan_guard_app",
+        "status": "WAITING_USER",
+        "approvedBy": "",
+        "approvedAt": "",
+        "expiresAt": "",
+        "target": {
+          "host": "localhost",
+          "port": 5432,
+          "database": "wetscan_s01_test_guardg01",
+          "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f"
+        },
+        "actions": [
+          "runtime"
+        ],
+        "migrationPlanSha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d"
+      },
+      "db-worker-approval.json": {
+        "schemaVersion": 1,
+        "module": "guard",
+        "purpose": "worker",
+        "role": "wetscan_guard_worker",
+        "status": "WAITING_USER",
+        "approvedBy": "",
+        "approvedAt": "",
+        "expiresAt": "",
+        "target": {
+          "host": "localhost",
+          "port": 5432,
+          "database": "wetscan_s01_test_guardg01",
+          "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f"
+        },
+        "actions": [
+          "runtime"
+        ],
+        "migrationPlanSha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d"
+      },
+      "preparation-approval.json": {
+        "schemaVersion": 1,
+        "status": "WAITING_USER",
+        "approvedBy": "",
+        "approvedAt": "",
+        "expiresAt": "",
+        "workerId": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+        "target": {
+          "host": "localhost",
+          "port": 5432,
+          "database": "wetscan_s01_test_guardg01",
+          "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f"
+        },
+        "migrationPlanSha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d",
+        "binding": {
+          "mode": "live",
+          "workspaceId": "github-user-145520313:testing",
+          "projectId": "github-839286157",
+          "jobId": "904d08f2a392f1f9d75b48309f9e270bfbf9e2e6e3ebcb7c322d415aa18f96ba",
+          "actorId": "github-user-145520313",
+          "repository": {
+            "provider": "github",
+            "repositoryId": "839286157",
+            "branch": "main",
+            "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+          },
+          "profile": "quick",
+          "engines": [
+            "sast"
+          ],
+          "idempotencyKey": "19015d9d-9513-4307-9f85-3fb2f421ae6b"
+        },
+        "execution": "prepare_only",
+        "repositoryName": "inkAja/wdu",
+        "module": "guard-preparation",
+        "actions": [
+          "queue_enqueue",
+          "snapshot_read",
+          "scan_metadata_write",
+          "cleanup"
+        ]
+      },
+      "worker-approval.json": {
+        "schemaVersion": 1,
+        "status": "WAITING_USER",
+        "approvedBy": "",
+        "approvedAt": "",
+        "expiresAt": "",
+        "workerId": "g01-acceptance-49f2240c-10eb-47c8-9d08-2d8d06cc81a7",
+        "target": {
+          "host": "localhost",
+          "port": 5432,
+          "database": "wetscan_s01_test_guardg01",
+          "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f"
+        },
+        "migrationPlanSha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d",
+        "binding": {
+          "mode": "live",
+          "workspaceId": "github-user-145520313:testing",
+          "projectId": "github-839286157",
+          "jobId": "904d08f2a392f1f9d75b48309f9e270bfbf9e2e6e3ebcb7c322d415aa18f96ba",
+          "actorId": "github-user-145520313",
+          "repository": {
+            "provider": "github",
+            "repositoryId": "839286157",
+            "branch": "main",
+            "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+          },
+          "profile": "quick",
+          "engines": [
+            "sast"
+          ],
+          "idempotencyKey": "19015d9d-9513-4307-9f85-3fb2f421ae6b"
+        },
+        "execution": "prepare_only",
+        "repositoryName": "inkAja/wdu",
+        "module": "guard-worker",
+        "actions": [
+          "worker_start",
+          "queue_claim",
+          "heartbeat",
+          "snapshot_read",
+          "scan_metadata_write",
+          "cleanup"
+        ]
+      },
+      "source-approval.json": {
+        "schemaVersion": 1,
+        "module": "guard-source-acceptance",
+        "status": "WAITING_USER",
+        "approvedBy": "",
+        "approvedAt": "",
+        "expiresAt": "",
+        "origin": "http://localhost:3000",
+        "workspaceId": "github-user-145520313:testing",
+        "projectId": "github-839286157",
+        "actorId": "github-user-145520313",
+        "repositoryId": "839286157",
+        "branch": "main",
+        "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b",
+        "operations": [
+          "snapshot_read",
+          "temporary_artifact_write",
+          "cleanup"
+        ],
+        "maxFiles": 1000,
+        "maxFileBytes": 65536,
+        "maxTotalBytes": 20000000
+      }
+    },
+    "activation": "Owner confirms existing app is running with API-loadEnvFile plus existing npm dev startup; this draft exported after startup. Approval JSON read per operation; no app restart or draft regeneration needed for approval activation.",
+    "implementationFiles": [
+      {
+        "file": "src/features/guard/live/snapshot.ts",
+        "sha256": "4f0c51f60465e6702e89e1f2f894cfe844d28392905e9667a9868aea4c94ab27"
+      },
+      {
+        "file": "src/features/guard/live/snapshot-directory.ts",
+        "sha256": "2bea71684fba7dc9514c65b9d7178e1537ae3884adc23b7059bd4852d8eca8cf"
+      },
+      {
+        "file": "src/features/guard/live/github-source.ts",
+        "sha256": "a73e5f81061432b723304a927c8a198f5b4edddc3f3ed9e261cb0f8b536eff7a"
+      },
+      {
+        "file": "src/features/guard/live/worker-launcher.ts",
+        "sha256": "72d479214feb95370ad11330ed6d2e66c208b5024716fdf15be880810585091d"
+      },
+      {
+        "file": "src/features/guard/live/preparation-request.ts",
+        "sha256": "ad21cffcdc26fcd22b123491d71ffcf7deae9648f998f0e54294f50caa0d8d78"
+      },
+      {
+        "file": "src/features/guard/live/preparation.ts",
+        "sha256": "b0242223054d7d7853c02ac1fbff92b028b70c398da4f4cabbd15c2774dd6bb8"
+      },
+      {
+        "file": "src/features/guard/live/database-config.ts",
+        "sha256": "a407afe4c48a8708ee68741eeef8f088585991b7a46050ebfabb66b0940909d0"
+      },
+      {
+        "file": "worker/guard/approval.ts",
+        "sha256": "bebc12deeae4078df6f97349cd5c6a7296da28cd4b42b7775a3e84732755099c"
+      },
+      {
+        "file": "worker/guard/auth-broker.ts",
+        "sha256": "a5e29835d1cc957a22d7757348ed0a63ea9c1ac25ac7e4a5c910112ca53ea943"
+      },
+      {
+        "file": "worker/guard/ipc.ts",
+        "sha256": "190714e8e9cfa3f80f3b8b0211bc90c4a3d81d3ed8ae5a7a49795cc1f5925210"
+      },
+      {
+        "file": "worker/guard/prepare.ts",
+        "sha256": "8587f6261ca63316624f3280b3d56943bb0d6c61fbbd51ee6615073c25b2a12d"
+      },
+      {
+        "file": "worker/guard/main.ts",
+        "sha256": "bc778feb8c760dee68b39e6a78bf6f2004c8226b03d51abf3e69f912287a3655"
+      },
+      {
+        "file": "worker/guard/runtime.ts",
+        "sha256": "e43ec9f79c78219765e7dbe9d9ad184134d7f693cdc870c19e263ffe1aa49ab9"
+      },
+      {
+        "file": "tests/guard/g01/worker-observer.acceptance.ts",
+        "sha256": "e22cb31ac2a7c14d04648f21b13ba58993281ba397af872e3e7d31c5a851b469"
+      }
+    ],
+    "appReadiness": {
+      "source": "owner confirmed successful existing app startup and UI export of draft2",
+      "origin": "http://localhost:3000",
+      "browserControlUsedByAgent": false
+    },
+    "observer": {
+      "file": "tests/guard/g01/worker-observer.acceptance.ts",
+      "readOnly": true,
+      "leaseTokensSelected": false,
+      "doesNotCreateAuthGrant": true
+    },
+    "unauthenticatedReadOnlyCheck": {
+      "method": "GET",
+      "path": "/api/guard/projects/github-839286157/scans",
+      "cookies": "none",
+      "expectedStatus": 401
+    },
+    "expectedEffects": {
+      "sourceOnlyAttempts": 1,
+      "enqueueCalls": 2,
+      "durableJobs": 1,
+      "workerLaunches": 1,
+      "mode": "prepare_only",
+      "retainedEvidence": true,
+      "dockerOrScanner": false
+    },
+    "approvalMaxMinutes": 55
+  }
+}

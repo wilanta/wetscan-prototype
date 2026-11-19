@@ -1,0 +1,15 @@
+{
+  "classification": "OFFLINE_VALIDATION",
+  "kind": "build",
+  "startedAt": "2026-11-16T04:48:51.745Z",
+  "endedAt": "2026-11-16T04:49:11.577Z",
+  "exitCode": 0,
+  "command": [
+    "node",
+    "node_modules/next/dist/bin/next",
+    "build"
+  ],
+  "dotenvLoaded": false,
+  "runtimeMutation": "NOT_RUN",
+  "scannerExecution": "NOT_RUN"
+}

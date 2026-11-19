@@ -1,0 +1,54 @@
+{
+  "status": "WAITING_USER",
+  "bundleSha256": "fab43564e7c93293fa7d1149b7da980a33e7a526974e53e46772d98c695a3bfb",
+  "binding": {
+    "target": {
+      "host": "localhost",
+      "port": 5432,
+      "database": "wetscan_s01_test_guardg01",
+      "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f"
+    },
+    "expectedServerVersionNum": 180006,
+    "owner": "wetscan_guard_migrator",
+    "guardPlanSha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d",
+    "platformPlanSha256": "c3e39f6fd43ee6eb2fbf5b244778955aab4cabb8a11ed3c66d791cf99a252a94",
+    "priorApprovedBundleSha256": "e6f3b28cd49ac8c875a20b034338645dc4e14a8f81036e200f453f0337a05f01",
+    "reason": "Observed PostgreSQL FORCE RLS denied owner INSERT of Guard budget at original07:30; original07 transaction aborted; never repeat01-06",
+    "artifacts": [
+      {
+        "file": "11-resume-readonly-preflight.sql",
+        "sha256": "528a1a5f9c1498d95da975ffbbaede1adea6d1fa5e919e6c0433e5218088164b"
+      },
+      {
+        "file": "10-resume-guard-platform-access.sql",
+        "sha256": "c445704614b04967ad7f8484c814dadaca1395fe85c5fa4302517d7e9de16324"
+      },
+      {
+        "file": "08-guard-schema.sql",
+        "sha256": "b175b543b7c34d09c70b0d45830cba2aeb0957d2aef5267ba7bcd660155f7af2"
+      },
+      {
+        "file": "09-readonly-security-verification.sql",
+        "sha256": "1204b774908a22ea8372fb91c3415c4dcb7c830f011256c131a3b8c0bd1d15e4"
+      },
+      {
+        "file": "12-post-resume-readonly-verification.sql",
+        "sha256": "33933b6c478b0b33942604f9e41950c4e8716d24d50ab2401d5b34737435c8fc"
+      },
+      {
+        "file": "06-preservation-observer.sql",
+        "sha256": "f2980a8f2a7a8d84a2f58227ef7312fc4fdda994b85fe652079e094fe53c579d"
+      }
+    ]
+  },
+  "excluded": [
+    "01-new-roles.sql",
+    "02-create-database.sql",
+    "03-target-and-privileges.sql",
+    "04-fresh-platform-baseline.sql",
+    "05-preservation-fixture.sql",
+    "07-guard-platform-access.sql",
+    "90-empty-guard-rollback.REQUIRES-SEPARATE-APPROVAL.sql"
+  ],
+  "expiresAtLatest": "2026-11-15T12:59:00+00:00"
+}

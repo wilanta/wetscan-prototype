@@ -1,0 +1,47 @@
+{
+  "recordedAt": "2026-11-15T16:17:55.327Z",
+  "provenance": "Owner supplied actual Console JSON after one execution of OWNER_SECOND_ENQUEUE_2c18db66.js; HTTP exchange not captured by agent",
+  "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+  "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+  "authenticatedReadiness": {
+    "phase": "authenticated_readiness",
+    "httpStatus": 200,
+    "status": "BLOCKED",
+    "database": "approved",
+    "schema": "verified",
+    "execution": "G02_NOT_CONFIGURED",
+    "scanAccepted": false
+  },
+  "secondEnqueue": {
+    "phase": "second_enqueue",
+    "httpStatus": 200,
+    "scanId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+    "status": "queued",
+    "execution": "prepare_only",
+    "scannerExecution": "NOT_RUN",
+    "exactJobMatches": true
+  },
+  "ownerReported": {
+    "scriptExecutedOnce": true,
+    "extraEnqueue": false,
+    "workerExecuted": false
+  },
+  "databaseCorrelation": {
+    "artifact": "worker-auth-observer-after-second-enqueue.job-2c18db66.json",
+    "sha256": "9b51b986abfcdb2ac61cef6a06052117dae251e084851cbf175540568bdaac86",
+    "observedAt": "2026-11-15T16:16:47.578Z",
+    "bindingMatches": true,
+    "scanCount": 1,
+    "queueCount": 1,
+    "scanRevision": 1,
+    "attempts": 0,
+    "fence": "0",
+    "leaseOwner": null,
+    "leaseUntil": null,
+    "attemptRows": 0,
+    "heartbeatRows": 0,
+    "scanAndQueueUnchangedSinceFirstEnqueue": true,
+    "originalQueuedAuditAt": "2026-11-15T16:12:37.120Z"
+  },
+  "classification": "LIVE_VERIFIED_IDEMPOTENT_ENQUEUE"
+}

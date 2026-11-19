@@ -25,6 +25,18 @@ const tasks = {
     "--config",
     "tests/guard/g01/legacy-regression.config.ts",
   ],
+  detection: [
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "tests/sentinel/detection.playwright.config.ts",
+  ],
+  race: [
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "tests/guard/g01/s03-race.config.ts",
+  ],
   sentinel: [
     "node_modules/@playwright/test/cli.js",
     "test",
@@ -35,15 +47,21 @@ const tasks = {
 const kind = process.argv[2];
 if (!Object.hasOwn(tasks, kind))
   throw new Error(
-    "Choose an explicit safe regression group: auth/canvas/legacy/sentinel",
+    "Choose an explicit safe regression group: auth/canvas/legacy/sentinel/detection/race",
   );
 if (kind === "auth") env.AUTH_E2E_SKIP_BUILD = "1";
-const child = spawn(process.execPath, tasks[kind], {
-  cwd: process.cwd(),
-  env,
-  stdio: "inherit",
-  windowsHide: true,
-});
+if (kind === "auth" && process.argv.length > 3)
+  throw new Error("Auth runner accepts no extra arguments");
+const child = spawn(
+  process.execPath,
+  [...tasks[kind], ...process.argv.slice(3)],
+  {
+    cwd: process.cwd(),
+    env,
+    stdio: "inherit",
+    windowsHide: true,
+  },
+);
 child.once("error", () => {
   process.exitCode = 2;
 });

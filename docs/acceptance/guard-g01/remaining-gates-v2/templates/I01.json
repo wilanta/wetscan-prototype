@@ -1,0 +1,1005 @@
+{
+  "schemaVersion": 2,
+  "module": "guard-g01-acceptance",
+  "caseId": "I01",
+  "execution": "foundation_probe",
+  "runId": "95483672-90c8-43ae-b432-e235c81f719c",
+  "target": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "wetscan_s01_test_guardg01",
+    "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f"
+  },
+  "hostRuntime": {
+    "nodeVersion": "v24.17.0",
+    "platform": "win32",
+    "architecture": "x64",
+    "workingDirectory": "c:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate"
+  },
+  "binding": {
+    "mode": "live",
+    "workspaceId": "github-user-145520313:testing",
+    "projectId": "github-839286157",
+    "jobId": "9406942fce73ceb3ce91236ef25a4934c7f887bb4ebd87a297ac594789e75253",
+    "actorId": "github-user-145520313",
+    "repository": {
+      "provider": "github",
+      "repositoryId": "839286157",
+      "branch": "main",
+      "commit": "41861b14dbb3f329fe3b20aed59a008390ef0e2b"
+    },
+    "profile": "quick",
+    "engines": [
+      "sast"
+    ],
+    "idempotencyKey": "g01-remain-v1-i01"
+  },
+  "repositoryName": "inkAja/wdu",
+  "workerIds": [
+    "g01-rgv2-i01-0-95483672"
+  ],
+  "containerNames": [
+    "wetscan-guard-5afe5572-53db-4863-b604-9ebc3615f5e5"
+  ],
+  "limits": {
+    "enqueues": 1,
+    "launches": 1,
+    "snapshots": 1,
+    "containers": 1,
+    "cancels": 0,
+    "minutes": 55
+  },
+  "artifacts": [
+    {
+      "file": "docs/acceptance/guard-g01/18-readonly-initial-observer-comparison.sql",
+      "sha256": "db819c853292d53fbf77d0e754c08b7362ac57326fa84758345395fd0edc1522"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v1/operator/retained-data-down-refusal.READONLY.sql",
+      "sha256": "4abb705cf334a3e80f7a1ae27fafe5c2e85fe009a6414133e68a95ad646a7d82"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/operator/C01.preservation.READONLY.sql",
+      "sha256": "53d353315cd19c3b6dddc99441484603478f2a6bf810779a3d9ec6065276c20e"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/operator/C02A.preservation.READONLY.sql",
+      "sha256": "9325d3d751422a470bf89401dbed002464119271a0c4ec8c2aa6ffad26e5b6a0"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/operator/C02B.preservation.READONLY.sql",
+      "sha256": "e7d27084ba01c806b149722e3cd81c04fb568064485159c79fd7f3fcb2dec404"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/operator/I01.preservation.READONLY.sql",
+      "sha256": "a3407ebdce9743f1c1796791be3778bbe5072555340404a7844c884d2586fa37"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/operator/L01.preservation.READONLY.sql",
+      "sha256": "7a06cf6304d5314aa2754badf291b50b317a18f5160828ad630d8bb8a8585ff2"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/operator/L02.preservation.READONLY.sql",
+      "sha256": "310e9dcfab593173458c61faf6e0bdce425d792576ef05c946bb048dfd66e5dd"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/operator/N00.preservation.READONLY.sql",
+      "sha256": "78990d1bdc25a1ef83888763209b93a8f5928fb81dd85047810ba69901d2037a"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/operator/N01.preservation.READONLY.sql",
+      "sha256": "3fa3edbd3601542a6e432b62a0c36914c1b975aae4434e695858eddca446b3c5"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/operator/N02.preservation.READONLY.sql",
+      "sha256": "1d04368fcf989864d595d2e440795ac74b656f09fb9c9714b431b639590cca89"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/operator/N03.preservation.READONLY.sql",
+      "sha256": "6176e5ecb89713bf5f3a871a5435f58065c776fd38cbce7f47db1575564cf447"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/operator/N04.preservation.READONLY.sql",
+      "sha256": "1e006c8babb020ee49f8c1f7b4ce8db09b7aaf59449651d3de43529d39f438b9"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/operator/N05.preservation.READONLY.sql",
+      "sha256": "f5cb0158e1dedee465b6efe7f4ec38f7b869e9eba2256167fcf6ad7faa22e639"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/operator/N06.preservation.READONLY.sql",
+      "sha256": "1cc60475e7e5ff5b7f838fb470b8b5cdfb5737b8800c5f6ae790c065128004d2"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/operator/N07.preservation.READONLY.sql",
+      "sha256": "4b4b057fc4d292233d74b6b76077569dc98eee2590dcf91d184b77a43691f984"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/operator/N08.preservation.READONLY.sql",
+      "sha256": "176db5313b5457c91e8912636ae8190c1108784a6cbc683f3d8818d4fe6869f3"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/operator/Q00.preservation.READONLY.sql",
+      "sha256": "010ee81da3e5b294737277c93164c937ceef0c91940db604eb404d174de24ba6"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/operator/rollback-only.sql",
+      "sha256": "3c41bb5fdf19c0e14c34a58b7dd7ee6c6a1ee9fb70b77b5ce0fe2788a689c8a8"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/review/context.json",
+      "sha256": "ab13413e97bba6a3df0ff144af1d50e97b39fcee2fb2a0cf3bcc8a90a8f0538b"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/review/environment-observation.json",
+      "sha256": "54c9165866dd180a14160db3e6194b22ea9e79700fffd24c85bc41e6e3b11c98"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/specs/C01.json",
+      "sha256": "2ec02ab9a8b87e46775b8b7a5ff5701a72f333e4ec2d1f15cffa222003eb456a"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/specs/C02A.json",
+      "sha256": "1a17dabbafb3007eb2a5232df37aa43ece0dfe2e95afba50b42c8e5c0aa03bb7"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/specs/C02B.json",
+      "sha256": "9ffa763b7fd536473158c21c0471bc636bd0aa8245f0502e363e150035433710"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/specs/I01.json",
+      "sha256": "896bb974561956924cce31324d3099639db2d747512eba1fcb47e39a6ff68d8d"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/specs/L01.json",
+      "sha256": "d419f4d90575ef6cea26ab2bfb9f029d89fc819e1366080afc7130cbb03f8179"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/specs/L02.json",
+      "sha256": "57e4bd4aa5acfcc63e7b2ebd0060407e91030adc86db17c4b55bab87de573f92"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/specs/N00.json",
+      "sha256": "98e947c6978dc31cbe6675673c7e8d63401f74087b56a5743cb188e8f634630d"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/specs/N01.json",
+      "sha256": "1d257ce8e045d8cf65d3b2097698de9e227827415b32e21166ece205ad2080d8"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/specs/N02.json",
+      "sha256": "16b50a34348f8192b3fa7ea8894438e895fa13d6f62f46fc0168c0b7040735fa"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/specs/N03.json",
+      "sha256": "ab72d983b260d02c18aa3053b08606fcff7b6f16c0b559e1050cc75129b921bf"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/specs/N04.json",
+      "sha256": "88f22492c325861b9faa18aa8d5f73cff222e60604e8c757abe69926973cb7bc"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/specs/N05.json",
+      "sha256": "ac9b8119abcf662c3a627eced8b0fde40ce92dd541b7702e8e5a262d600218c2"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/specs/N06.json",
+      "sha256": "1802c0f0704a03d2d370fdf179acdf77a6aac8a6925c1fee0b31841e0f4b5cde"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/specs/N07.json",
+      "sha256": "67166451c1fa871271c6e807d52af106f793fdb4b5aa9a04a41e874f21a0fe65"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/specs/N08.json",
+      "sha256": "ed69e2db58d0940f88dda581532784b1c5b8ea0798eeafc04a366c63dc85b1b3"
+    },
+    {
+      "file": "docs/acceptance/guard-g01/remaining-gates-v2/specs/Q00.json",
+      "sha256": "e9dc3d78f74aeeafbbfeac9ff38d1d280b5eaeb7a5048ed402966c7102e47170"
+    },
+    {
+      "file": "next.config.ts",
+      "sha256": "edc63478bc2458e84ad755f16681ca3bf750f12fb1d47c9802f9bbe903a04f06"
+    },
+    {
+      "file": "package-lock.json",
+      "sha256": "d463f068943f4f729d4f17616527cb34398f3800a2a3e44b1cef8bafb64def3a"
+    },
+    {
+      "file": "package.json",
+      "sha256": "e1f6808dd444d2f8944700bc0080b5268fcab7de7010ff549e11eaba43b6e376"
+    },
+    {
+      "file": "src/app/api/guard/projects/[projectId]/acceptance/route.ts",
+      "sha256": "aa5e9fe32e4e59ec2bb6d069a86541841ae8a0ecff2ec9148f5e4c2d0622500a"
+    },
+    {
+      "file": "src/app/api/guard/projects/[projectId]/preparation/route.ts",
+      "sha256": "e04d0caaea1c9fbe17be1a481a32bb140fe80f7babd8e8ba8c16140d7c94edec"
+    },
+    {
+      "file": "src/app/api/guard/projects/[projectId]/readiness/route.ts",
+      "sha256": "23524f1cd08dee2a7d1a97684da5d3b20ee9a9d57f2679c16830eaef98d8c10c"
+    },
+    {
+      "file": "src/app/api/guard/projects/[projectId]/repository/route.ts",
+      "sha256": "a756d26ca9138b86110b08fb86bbf49741f6125da0cb02cc1962dcd9a76b9d9f"
+    },
+    {
+      "file": "src/app/api/guard/projects/[projectId]/scans/[jobId]/[resource]/route.ts",
+      "sha256": "0c702e77e3ef4fc7303daa81dc4117cf61653aac966c5cb1d145fe0858f4e7e9"
+    },
+    {
+      "file": "src/app/api/guard/projects/[projectId]/scans/[jobId]/cancel/route.ts",
+      "sha256": "17b7d3d72661b596a97601d911a036422b642d29b7179bdd646c9688047813e1"
+    },
+    {
+      "file": "src/app/api/guard/projects/[projectId]/scans/[jobId]/route.ts",
+      "sha256": "e7f5e6924dec2b46f5f8a5ea56062ac4a9151627d5a41f256ee11aa5ac84b442"
+    },
+    {
+      "file": "src/app/api/guard/projects/[projectId]/scans/route.ts",
+      "sha256": "53f723c82df64b1176a21ad7dc0df34bae4b7929674feedb5d5a8a8963a88d25"
+    },
+    {
+      "file": "src/app/api/guard/projects/[projectId]/source-acceptance/route.ts",
+      "sha256": "f20cf34b13cee8dd7af9037cf231744df3d4cf0bcecccb3ef0e530504cf02613"
+    },
+    {
+      "file": "src/features/canvas/server/github-api.ts",
+      "sha256": "bd36ff8964de982b79a5603395160b05f089272e10c3499315d47252a9a7c71c"
+    },
+    {
+      "file": "src/features/canvas/server/github-reader.ts",
+      "sha256": "ad1f73bf5b82f69814cc8210cfd1920315b0a9da8ab4db8f99ae0eaea67b20b3"
+    },
+    {
+      "file": "src/features/canvas/server/graph-cache.ts",
+      "sha256": "b3f485a57489cf7a6663e84dae2d8ddfa12ccde5fd40ef51777895b0d68ae897"
+    },
+    {
+      "file": "src/features/canvas/server/graph-service.ts",
+      "sha256": "7c0794a30156551620f97796609a606fc96fc2512de99fc89666c072c4d9106f"
+    },
+    {
+      "file": "src/features/canvas/server/project-canvas.tsx",
+      "sha256": "c2900d84c43c228518167b30dbb97a098acaed61699fa2b2973ed0d08646b35b"
+    },
+    {
+      "file": "src/features/canvas/server/project-service.ts",
+      "sha256": "a8caa920db5da9b2b0df7122a5b7842e4129cbeceaa4e0f8eeea1699bd7f3bfb"
+    },
+    {
+      "file": "src/features/guard/adapters.ts",
+      "sha256": "d9433ee58bf20bfa4a36d1820c40affb0830b1acdb733021b7478661426166ad"
+    },
+    {
+      "file": "src/features/guard/contracts.ts",
+      "sha256": "ba373b7066f4195bea195af8df70ae55bb4496faaa19507e511c17d03170804f"
+    },
+    {
+      "file": "src/features/guard/dast-scope-form.tsx",
+      "sha256": "fdf2c18407a43ce0b1157090d73da41ac6cd12ee1226b7d5410dfd0393e5fda2"
+    },
+    {
+      "file": "src/features/guard/demo-session.ts",
+      "sha256": "7ab8ca12ccb8bcbc2c16273863bdaa4a9dd0fc91c6b1786c00d97276a0332a1b"
+    },
+    {
+      "file": "src/features/guard/evidence.ts",
+      "sha256": "7598765b06df19bbbd92ab74e36cb7c8b7b525fe9946e3e89460e0c201644837"
+    },
+    {
+      "file": "src/features/guard/integrity.ts",
+      "sha256": "0aab70655de74c16913e0038048ed01aa7ae5ecfef18022552a3699343384f36"
+    },
+    {
+      "file": "src/features/guard/live/acceptance-http.ts",
+      "sha256": "81f3c59db9d620a1e8aa01513ff4373c16b889536914e402d637e62214cedc08"
+    },
+    {
+      "file": "src/features/guard/live/database-config.ts",
+      "sha256": "a407afe4c48a8708ee68741eeef8f088585991b7a46050ebfabb66b0940909d0"
+    },
+    {
+      "file": "src/features/guard/live/github-source.ts",
+      "sha256": "a73e5f81061432b723304a927c8a198f5b4edddc3f3ed9e261cb0f8b536eff7a"
+    },
+    {
+      "file": "src/features/guard/live/http.ts",
+      "sha256": "ec136b9a3ecaad3828b012e65137c820186d85e53e082953f508bc179b01914c"
+    },
+    {
+      "file": "src/features/guard/live/migrations.ts",
+      "sha256": "e2c4bc2a375e230ee82a81137148e023795c035fd06f1e244f9b5ab34843e71e"
+    },
+    {
+      "file": "src/features/guard/live/model.ts",
+      "sha256": "13d9524e9ed72e9bb233f8f641f838257b793aa29c76dd23beb5e46290df22ad"
+    },
+    {
+      "file": "src/features/guard/live/persistence.ts",
+      "sha256": "17e1111dad0804fa0b02cf8b78f4212961ce7f4e66e40031cef2615dad3b0b76"
+    },
+    {
+      "file": "src/features/guard/live/preparation-request.ts",
+      "sha256": "d8132ddc41a94b6b22156597c2bdbcd1866526180aed61f124322ff8c8d89a73"
+    },
+    {
+      "file": "src/features/guard/live/preparation.ts",
+      "sha256": "fc8479566451add4e7d1d91006111f3830c2f8020abfbdec6bc9192e3f15fe86"
+    },
+    {
+      "file": "src/features/guard/live/project.ts",
+      "sha256": "3f915a9ff65add656d1b6127f01756f6ccda51732bdf2ff436bd63a61c9ccda6"
+    },
+    {
+      "file": "src/features/guard/live/queue.ts",
+      "sha256": "af69a1ec109ccc011248751f9f03f7bfa1ef2bae0815f2d3caa410373ef4d9df"
+    },
+    {
+      "file": "src/features/guard/live/repository.ts",
+      "sha256": "39f9b3854c4144d186ea8563046e272c27960aa258a2b534214231f2cecfdba9"
+    },
+    {
+      "file": "src/features/guard/live/revision.ts",
+      "sha256": "5b64c5ad226f168c37a36a8d15f314a73413e63865cedfe4a1318a53d69233ec"
+    },
+    {
+      "file": "src/features/guard/live/runtime.ts",
+      "sha256": "503d9c5265765d1c92b0967aa797fae5ff46a66418f7c02f91686cfdf2a8836d"
+    },
+    {
+      "file": "src/features/guard/live/schema-readiness.ts",
+      "sha256": "57a99a176f8edbd4e4aaa0a02d8c5a2dde8e4b93b98928a3902957d7903220fc"
+    },
+    {
+      "file": "src/features/guard/live/schema-runner.ts",
+      "sha256": "eb76faf3a6a63d3a85a4375eb2300a0660c8b651e40c62d9b81fbebfe56e7162"
+    },
+    {
+      "file": "src/features/guard/live/service.ts",
+      "sha256": "3b7c5db162bd6a945d55b630dee8864931e47264d93ca8ea43d5d4d4c5e7d4fb"
+    },
+    {
+      "file": "src/features/guard/live/snapshot-directory.ts",
+      "sha256": "2bea71684fba7dc9514c65b9d7178e1537ae3884adc23b7059bd4852d8eca8cf"
+    },
+    {
+      "file": "src/features/guard/live/snapshot.ts",
+      "sha256": "dce89f018a47e9723a565b01918c4ae5d6398c262779afae6023bd22f3afa88a"
+    },
+    {
+      "file": "src/features/guard/live/source-acceptance.ts",
+      "sha256": "b0c3f8e31893ffc99ccdb30b15f45ad27cf188bdad10707ca6d5f5a117cb55a4"
+    },
+    {
+      "file": "src/features/guard/live/workbench.tsx",
+      "sha256": "08d1e22dc011508c9d248cf53cd8f6046e05f92b46c2165cd9f4dcc7a4151cff"
+    },
+    {
+      "file": "src/features/guard/live/worker-launcher.ts",
+      "sha256": "d054b43c11cb97e91403df6fe3ca9cbffd3f04f26f8672add54ce956b5359313"
+    },
+    {
+      "file": "src/features/guard/pipeline.ts",
+      "sha256": "0aa5cc5355bfcccd4afe4e47720dbd153212d40c5ea7167ec2007dcdfa164fda"
+    },
+    {
+      "file": "src/features/guard/release.ts",
+      "sha256": "b0da0fbb87a8594bd971be58de5cd6de39c72f6c85f6914082bbd9db3789d752"
+    },
+    {
+      "file": "src/features/guard/security.ts",
+      "sha256": "72794733c27fb97e08e51a38f85c133cc68f22d0855f95164188b21f2aa7ff9c"
+    },
+    {
+      "file": "src/features/guard/workbench.tsx",
+      "sha256": "6ab671e18b068836409cc7429e0f9351483914f5867048e57352c157911c9337"
+    },
+    {
+      "file": "src/features/sentinel/platform-contracts.ts",
+      "sha256": "46d2b93c93aff10deb787d2caaaacdb086b69136a1638635b4b7e8651d385368"
+    },
+    {
+      "file": "src/features/sentinel/scope.ts",
+      "sha256": "1f8e060965398213ffbe44073b797951139cfcbfb1a2fa044919b3db3ebe73a3"
+    },
+    {
+      "file": "src/features/sentinel/types.ts",
+      "sha256": "c9cbb29f593e7da614fe9dec5ccf43f93b9bb670b90e47927b4d267bf7cba4eb"
+    },
+    {
+      "file": "src/lib/auth/config.ts",
+      "sha256": "86d5366d70ca4583208df111f24361c3fca61463a7ba0c9f85a7df24083836a6"
+    },
+    {
+      "file": "src/lib/auth/diagnostics.ts",
+      "sha256": "ccf417ba8efc5ca128ec5caa904b0ca095d6f6c5b14c2c54aa68c36d45dbc94f"
+    },
+    {
+      "file": "src/lib/auth/github.ts",
+      "sha256": "941ee12e439923858fc202de9f8a5eed939b5a26cd4d99a8dce5b6474bbd1ca2"
+    },
+    {
+      "file": "src/lib/auth/http.ts",
+      "sha256": "ce7b85f022aa0aa19261ef7d2a870a1d34428db8e87d02e91527831e0f3912b2"
+    },
+    {
+      "file": "src/lib/auth/session.ts",
+      "sha256": "fe78db0a725e40f793856efdf7eae8d6731e086ad383c9c3a809e28c273e8a7b"
+    },
+    {
+      "file": "src/lib/auth/store.ts",
+      "sha256": "7ef38c9c320f4fe74b7906f621115b1d1a04c6e7b5bcbf4778b4dcea27af87a6"
+    },
+    {
+      "file": "src/lib/auth/types.ts",
+      "sha256": "a68f817c7015f1ed65e0da01bb05044bcdbe2dae3cf19d1f95d4991e1d8bce55"
+    },
+    {
+      "file": "src/platform/config.ts",
+      "sha256": "1ad4dd627851b8a302935360edd0c3de564c5c582e5384e922137169919101ac"
+    },
+    {
+      "file": "src/platform/database.ts",
+      "sha256": "9015082e6137a9eac4c2e7bdbf3475bdca601dae5dd510fcbe7bd57e3a9b0221"
+    },
+    {
+      "file": "src/platform/health.ts",
+      "sha256": "e3b7a974e811ffb1a4a1db482b68046eea22afd997f72f9aabc2e147e55936e8"
+    },
+    {
+      "file": "src/platform/identity.ts",
+      "sha256": "11a8aa5fd476a3c5ac0d28460cf0c24c7a3b065b4b59b178f68e1998dc733c34"
+    },
+    {
+      "file": "src/platform/job-admission.ts",
+      "sha256": "9d84c759cd3e787f2f1741b42818bb1a9417f3becd791f3edc74bfefd78b1273"
+    },
+    {
+      "file": "src/platform/migrations.ts",
+      "sha256": "29288bb7c0c5934f31b7e154cd11454638f37ddc5b0bc61c17059b29be774489"
+    },
+    {
+      "file": "src/platform/outbox.ts",
+      "sha256": "ff68499b043bd7c0478cceb11a6fe62de46ebde3784e3a7ffaa36cc74cd5da6a"
+    },
+    {
+      "file": "src/platform/queue.ts",
+      "sha256": "6e0e5fb5b576ea2bf7b0b39fd6d9460d9906399fe26ce34e1723c1ca8b55d014"
+    },
+    {
+      "file": "src/platform/retention.ts",
+      "sha256": "fac6e5d6fed1516cbf9b0207044fbdbb01c494e8642f666b24d62fb821056ac4"
+    },
+    {
+      "file": "tests/auth/skip-dotenv.cjs",
+      "sha256": "eab6f27039179ff1c4a23fe577e513c494db456eb2834d27fa20ad0bc0439680"
+    },
+    {
+      "file": "tests/guard/adapters.test.ts",
+      "sha256": "6248ba467edd7efe0b1ede0392b2b1f8c0d0b8dda4bea90e72f5cff472c974cd"
+    },
+    {
+      "file": "tests/guard/core.test.ts",
+      "sha256": "4d442e6465afe5ae31a8a88e83e581cec154f44fec808e924905358aa732a7d1"
+    },
+    {
+      "file": "tests/guard/e2e/guard.spec.ts",
+      "sha256": "397abd12d483991d69cb47043e3d150c63d48bc7358effd2f4a378a012200d4f"
+    },
+    {
+      "file": "tests/guard/evidence-retention.test.ts",
+      "sha256": "d6cfec045e54c9b54e57e61f863e18c0718326947ab2462fe19eb2d81db93e37"
+    },
+    {
+      "file": "tests/guard/g01/acceptance-approval.test.ts",
+      "sha256": "195488075602656332f4d0a63ffc16e86e2fa0950c38124f7ff0bc66ef0300c1"
+    },
+    {
+      "file": "tests/guard/g01/acceptance-boundaries.test.ts",
+      "sha256": "f132e90874e858a871e295fe2b39a8e57d8085213a5644c952023b0893dd6f35"
+    },
+    {
+      "file": "tests/guard/g01/acceptance-broker.test.ts",
+      "sha256": "d647cfed7b1c0051bf45dab60a955214ead1dc9f0ef37fe4589ccf8382ec4959"
+    },
+    {
+      "file": "tests/guard/g01/acceptance-cases.test.ts",
+      "sha256": "806bb765463c8d086b362ebdf1820a9f06d4b6557984f6418e082a02afcf58c3"
+    },
+    {
+      "file": "tests/guard/g01/acceptance-docker-fixture.ts",
+      "sha256": "2e4fc0300152a0cb4373ba141ca1ba9248b7db364e7757f94ffdbf6b1ae48274"
+    },
+    {
+      "file": "tests/guard/g01/acceptance-fixture.ts",
+      "sha256": "7353038b30d1055d7dd55372168225ffbfb3aefde233936c0c28c4d5971b458c"
+    },
+    {
+      "file": "tests/guard/g01/acceptance-http.test.ts",
+      "sha256": "b84a8f7ed66218aadf22f393695cadbcade5eec4352c698f81c21704c80d70f5"
+    },
+    {
+      "file": "tests/guard/g01/acceptance-journal.test.ts",
+      "sha256": "c2b6ae9008560a22b713b406921a7f5b627ceb29d67ae51631dab5bd518dcca7"
+    },
+    {
+      "file": "tests/guard/g01/acceptance-lock.test.ts",
+      "sha256": "61d6fa3a8843dae4177721ccfd1400a5b98b3d73feace2b271908f6b59d1b4e5"
+    },
+    {
+      "file": "tests/guard/g01/acceptance-native-source.test.ts",
+      "sha256": "925bc3459fd5ba1c1714b59cbe3e7f4f17b295f76209ae03bf1da02ddf2eabaa"
+    },
+    {
+      "file": "tests/guard/g01/acceptance-preservation.test.ts",
+      "sha256": "a39eac47baf271174087816792b9e594752cbcef0c070fce0dfa750969c8f058"
+    },
+    {
+      "file": "tests/guard/g01/acceptance-probe.test.ts",
+      "sha256": "9293a5098add54960ab7c85db1fcf3d29f7b90897b317eea91ed8c46804486f6"
+    },
+    {
+      "file": "tests/guard/g01/acceptance-qualification.test.ts",
+      "sha256": "fc1c24501f60e04c6e5565f9484680ae8ca94efd99febb3a684593eb0478aaf3"
+    },
+    {
+      "file": "tests/guard/g01/acceptance-registry.test.ts",
+      "sha256": "6d70da7df4b30984def2cb15f0563b7905294678c5f0bbc8d76fde5fba5d8eb8"
+    },
+    {
+      "file": "tests/guard/g01/acceptance-resolver-expiry.test.ts",
+      "sha256": "221e1da4be28d1e575a737573f4c337ddfba4de57fee04236bb7bf46bfcb332f"
+    },
+    {
+      "file": "tests/guard/g01/acceptance-schema.test.ts",
+      "sha256": "f24fb5e31a5029eb7c8bee6f8144dbb777ed3d37f13a961b026b277218a7ad8d"
+    },
+    {
+      "file": "tests/guard/g01/auth-broker.test.ts",
+      "sha256": "47071b8051b5890ed741405f7108a82ba34dce774bf03cfce9754e2914a495c9"
+    },
+    {
+      "file": "tests/guard/g01/broker-fixture.ts",
+      "sha256": "a62c6faed5b1ec9766eb1696957922a534e2bc3ecb22fef8cd38b3480620737b"
+    },
+    {
+      "file": "tests/guard/g01/broker-process.fixture.ts",
+      "sha256": "7c9f7a7b504da57dd51664eb9062d06a3d5081bb1d5ede2136e5fd24afea3a17"
+    },
+    {
+      "file": "tests/guard/g01/broker-process.test.ts",
+      "sha256": "1db96244b49a28d39b5b03ffa99da8ba34b4ce94d1a035e559522c96f6050124"
+    },
+    {
+      "file": "tests/guard/g01/canvas-regression.config.ts",
+      "sha256": "2a22c78728455889c6c4c89f772df44f1d092e85064f2ceddbcb01d1f0d6b5e4"
+    },
+    {
+      "file": "tests/guard/g01/coverage.test.ts",
+      "sha256": "f3a109776fab874870762ecfdb82305c9a3e4feaff74d0f0a2a4cbc66d1f4f30"
+    },
+    {
+      "file": "tests/guard/g01/database-target.test.ts",
+      "sha256": "a94869967425b8c369f8faf853a95bd524c9cf8781cc13687675e663e21716c4"
+    },
+    {
+      "file": "tests/guard/g01/docker.acceptance.ts",
+      "sha256": "54e3ae75f183fd897159fb1a3db92e0660ed183b4550b0117d9d8b5b4981653b"
+    },
+    {
+      "file": "tests/guard/g01/github-provider.test.ts",
+      "sha256": "168e7af3870f7ba3e5f1fe5d4609da6b0e5f4f66adba71b27d2ccf26a9fabb41"
+    },
+    {
+      "file": "tests/guard/g01/github-revision-fixture.mjs",
+      "sha256": "f167f334795078ae095b67409eb1df9c8d6525f61f0b13c32429ecbc6e612eda"
+    },
+    {
+      "file": "tests/guard/g01/http.test.ts",
+      "sha256": "a00595e0265c4892f57fd27f8e40817bd5b165a724ccbcd68007961b82608084"
+    },
+    {
+      "file": "tests/guard/g01/ipc.test.ts",
+      "sha256": "a88bffb445b25846d998104b2a66aad6a76fcb29391095f99bf952c62bc4a084"
+    },
+    {
+      "file": "tests/guard/g01/launcher.test.ts",
+      "sha256": "b54cd51b5cabf1de32bdc27794c1e46d52d08574ddff62a13ae17ad717fefe87"
+    },
+    {
+      "file": "tests/guard/g01/legacy-regression.config.ts",
+      "sha256": "5d40743472e617ef4a4e8c934bf552b330729d5c00079244ce25c0b7366a91b0"
+    },
+    {
+      "file": "tests/guard/g01/persistence.test.ts",
+      "sha256": "98b500036517c889ed284303dddbcec791bc209984fa10f38f8f603c76a56fcc"
+    },
+    {
+      "file": "tests/guard/g01/postgres-context.acceptance.ts",
+      "sha256": "3c64c9a876cf7865c1fe1e85fd1c9c8f367340c748a92e0d29e8eb275006602e"
+    },
+    {
+      "file": "tests/guard/g01/postgres-launcher.mjs",
+      "sha256": "fab84f8d71d7ae8f2f8f44164cf8e8eb24256963943c2914fb975fb5e7eb46db"
+    },
+    {
+      "file": "tests/guard/g01/postgres-resume-launcher.mjs",
+      "sha256": "458a22508be0a878847c285459027592ee603857480b2239c11213c261efd3f6"
+    },
+    {
+      "file": "tests/guard/g01/postgres-state-launcher.mjs",
+      "sha256": "9cc183854c4c9317243b00a08e5797109cafa436b5649c20855035d56ff14d36"
+    },
+    {
+      "file": "tests/guard/g01/postgres.acceptance.ts",
+      "sha256": "f7cd69ea1d1e75c07497a78143938a72fea9f3c62ceeada0efa5f0d99862ed0a"
+    },
+    {
+      "file": "tests/guard/g01/preparation-deadlines.test.ts",
+      "sha256": "27973239064973a6418100996e5d0ed1ff5437e34eead4f17d1bed657a5abdd6"
+    },
+    {
+      "file": "tests/guard/g01/preparation-request.test.ts",
+      "sha256": "d25a4023836fa88a8111e943799e2fbecdc0a57ca9f2de00eb7db723def85dcc"
+    },
+    {
+      "file": "tests/guard/g01/preparation.test.ts",
+      "sha256": "e78df6b08bcadf55875d2799a736f81c2277afc7e2646da999b098fe7f3e63e3"
+    },
+    {
+      "file": "tests/guard/g01/prepare-chain.test.ts",
+      "sha256": "efadc456334aec26cf895830712027f41df245275c467d730d17588cfa2d0c87"
+    },
+    {
+      "file": "tests/guard/g01/prepare-execution-packets.ts",
+      "sha256": "38c569f65f5748e5f87851344471e557067aa6d035809e5789b7306e9cbbad20"
+    },
+    {
+      "file": "tests/guard/g01/repository.test.ts",
+      "sha256": "90d13f0430527c24f56031ce805adb8f3dc02e0aad287dd219c55d23b3cd2ee5"
+    },
+    {
+      "file": "tests/guard/g01/revision.test.ts",
+      "sha256": "f9fe4b87cc7a7bcff5d59c066ad7bbffeace21ac996c8579784454e72f5fc638"
+    },
+    {
+      "file": "tests/guard/g01/run-regression.mjs",
+      "sha256": "fc6dc9371c3f408101fe6ecb3078c530e8a96a5cef3413c49e7a4f14335a6c62"
+    },
+    {
+      "file": "tests/guard/g01/s03-compatibility.test.ts",
+      "sha256": "38cd376b7fe4cd121a46c3dea02cb50f1d0f8b8e12ff20d27685001c35606672"
+    },
+    {
+      "file": "tests/guard/g01/s03-race.config.ts",
+      "sha256": "53bfe6d51ce524212b8351e0e603bb744d1a70c80410bf01edf0e1a327acc721"
+    },
+    {
+      "file": "tests/guard/g01/s03-validation-race.spec.ts",
+      "sha256": "f178c885b68d6fabb8e7435a5616775c63ad456288667abcdc5f4352672aa31e"
+    },
+    {
+      "file": "tests/guard/g01/sandbox-evidence.test.ts",
+      "sha256": "223384bb98ef895d368ead93b4bb6f527f71d9fd9dd761fccbe80c7e138f7f62"
+    },
+    {
+      "file": "tests/guard/g01/sandbox.test.ts",
+      "sha256": "051ee7c4b82398e516f1f846beb42a535fbde620f14203ae7ca3055e4a4b9102"
+    },
+    {
+      "file": "tests/guard/g01/schema-runner.test.ts",
+      "sha256": "81161eadd1f573c2f590b7fad8a17ed21bcc3e7a6609077d70bb1ce0f05cea61"
+    },
+    {
+      "file": "tests/guard/g01/security.test.ts",
+      "sha256": "4bf9724157abde17836d932c1cb88ebe0c957ecc4891ebb08dce6ad2dbaa717f"
+    },
+    {
+      "file": "tests/guard/g01/snapshot-directory.test.ts",
+      "sha256": "bcc69e6896060aee3bdf93953339135c9e10dddd1752a2afd32418e28069fb8c"
+    },
+    {
+      "file": "tests/guard/g01/snapshot.test.ts",
+      "sha256": "de45d2233e2fad8f6ebc422147814d8df7ec7d888048981017768cecf59998d3"
+    },
+    {
+      "file": "tests/guard/g01/source-acceptance.test.ts",
+      "sha256": "711eb3c6639eadcd07b95ec49dba9e1733a2dd3817c868ef931b3d35570409dd"
+    },
+    {
+      "file": "tests/guard/g01/store-local-passwords.mjs",
+      "sha256": "30b695eb9c9bc5558798d3519325304b53dfd08c4ffb4685f4e9fb7c5598b79d"
+    },
+    {
+      "file": "tests/guard/g01/worker-observer.acceptance.ts",
+      "sha256": "e22cb31ac2a7c14d04648f21b13ba58993281ba397af872e3e7d31c5a851b469"
+    },
+    {
+      "file": "tests/guard/g01/worker-process.fixture.ts",
+      "sha256": "9698e6e7d34934124af51d00eaf238d3c0effac4b03adf1210ead4a73e62372c"
+    },
+    {
+      "file": "tests/guard/g01/worker-process.test.ts",
+      "sha256": "41cbc17bc2894285dce33f8ba87e28faae36769bf7578a4acded08387a6633c1"
+    },
+    {
+      "file": "tests/guard/g01/worker.test.ts",
+      "sha256": "cc3fa2fca4e8559a540e00cdf1da5af8edc57b964f8a47d217b6a08ddfc738d5"
+    },
+    {
+      "file": "tests/guard/orchestrator-regression.test.ts",
+      "sha256": "80b42d9a1c434573e4050a264bff9965f482afc03d7ad81ed00d83abde41c3cc"
+    },
+    {
+      "file": "tests/guard/playwright.config.ts",
+      "sha256": "f2d87fce31e181d00f8c986cdbb313ee526393df788cf995c2b5d0d74264e99b"
+    },
+    {
+      "file": "tests/guard/run-e2e.mjs",
+      "sha256": "4d1d04fa3cd2e31dc3a0de6ccfbc0e54f9131d09691b1241f494df07ebc5ecd6"
+    },
+    {
+      "file": "tests/guard/run-validation.mjs",
+      "sha256": "72b313678e06f5cc0e5b329490bead508badf2a638185f86d23435dae6b4f53b"
+    },
+    {
+      "file": "tests/guard/scanner-adapter.test.ts",
+      "sha256": "d91990c3c9e924f35dd08706eac29a2068168857506a1021036d3d543456ff26"
+    },
+    {
+      "file": "tests/guard/scanner.config.ts",
+      "sha256": "1d2ecb7a95527508105ed7299a98f8fb99954fb7ab082480864e0d50803bcb7c"
+    },
+    {
+      "file": "tests/guard/scanner.integration.ts",
+      "sha256": "af31d464419768f56db7fd4e0d3cbae1edd0d7e724a59eb8ffc1b41d2acde512"
+    },
+    {
+      "file": "tests/guard/worker.test.ts",
+      "sha256": "aa7c047c4ac1362523fea5013e8a8e587e7d3379f55ae359d3e410988542af36"
+    },
+    {
+      "file": "worker/guard/acceptance/actions.ts",
+      "sha256": "7eee630f73de5124d595707d952728061a59479473888a66e8fd213af80e863d"
+    },
+    {
+      "file": "worker/guard/acceptance/admission.ts",
+      "sha256": "1db8ae9a08a95a214bcc822df687404357848b0985322f5277265001b09dd353"
+    },
+    {
+      "file": "worker/guard/acceptance/approval.ts",
+      "sha256": "8f6803df7d9815a29e1d9e607530fed9397edf57ae1491b99d7f998f2b7c0acc"
+    },
+    {
+      "file": "worker/guard/acceptance/bootstrap.ts",
+      "sha256": "ee01fbe466441ecf5f83f1d7fedf60a018a26165f319ea0d03c6cdd04f75a740"
+    },
+    {
+      "file": "worker/guard/acceptance/broker.ts",
+      "sha256": "801333efc1ba375a4fe2962685aa41887ed781d99347615ffd40927555077de6"
+    },
+    {
+      "file": "worker/guard/acceptance/case-runner.ts",
+      "sha256": "284fb5648b44c2c4ee420b84085c5cf3e9315f003f31d49309fdf75df2e69224"
+    },
+    {
+      "file": "worker/guard/acceptance/case-specs.ts",
+      "sha256": "f2a6f82c07cfa7458bcd45cd82aa3a140e8e1f00e054be6126344c063b5ea392"
+    },
+    {
+      "file": "worker/guard/acceptance/catalog.ts",
+      "sha256": "292f9db084f0ca672a7ddf12f285cfc4954c52f9bf4e1495dc324b6169275d3c"
+    },
+    {
+      "file": "worker/guard/acceptance/checkpoints.ts",
+      "sha256": "6c8aafe8234e4b0af9050d60279ea1d8c5978b1a560040999cf22911d15901fb"
+    },
+    {
+      "file": "worker/guard/acceptance/daemon.ts",
+      "sha256": "f13eda2d6a494d5be08d3d742bdf290f99a5e0b953d198fabfc876439ef27629"
+    },
+    {
+      "file": "worker/guard/acceptance/database.ts",
+      "sha256": "0fc62897675747aae918f4536a989def045223e28c9ab20c83d26d9bc9b7f9e5"
+    },
+    {
+      "file": "worker/guard/acceptance/deny-evidence.ts",
+      "sha256": "c79c2d69ddbdf96febf1f676920deb5e7c2f8e36071a26756f17eadf722e4943"
+    },
+    {
+      "file": "worker/guard/acceptance/fault-proof.ts",
+      "sha256": "379540303b552c5ca43dfb36f808355cbd7429a88a6623ce26aaee8bab3535cd"
+    },
+    {
+      "file": "worker/guard/acceptance/faults.ts",
+      "sha256": "7e9d9986c2188f96b817650b75952d59f0195bc58fbad886896626db9011b687"
+    },
+    {
+      "file": "worker/guard/acceptance/finalize-case.ts",
+      "sha256": "7a203330770877d39380a381b31d013bdba5eb1a43edac0e0a04496effea1bde"
+    },
+    {
+      "file": "worker/guard/acceptance/inspection.ts",
+      "sha256": "da7cb05b4fd74f42be950c15c74829c25b26117b0733c74622962220c6e803ac"
+    },
+    {
+      "file": "worker/guard/acceptance/integrity.ts",
+      "sha256": "e49ba700903345ce8d39912270cdbec7170451b4001925cb46e9d5b8c9cf69d0"
+    },
+    {
+      "file": "worker/guard/acceptance/journal.ts",
+      "sha256": "5c88925196a1e3fa9f74f009f55501fcc402207ba8ddab475f5f01e9caa7b011"
+    },
+    {
+      "file": "worker/guard/acceptance/launch.ts",
+      "sha256": "bd713c7c2d0b3c31f0632c9aaba7d776e054c8a2bc142a07bd2c474d62612b10"
+    },
+    {
+      "file": "worker/guard/acceptance/main.ts",
+      "sha256": "2daa5cd7eab06cdd5c2b8cba5dfce8c4e82295b2383ac0969841e77d1c01c4bc"
+    },
+    {
+      "file": "worker/guard/acceptance/observe.ts",
+      "sha256": "03afdce417f443ef33e831ce6d18fcdcdd87a9f9ee553668d341b5d785f6ac64"
+    },
+    {
+      "file": "worker/guard/acceptance/operator-cases.ts",
+      "sha256": "4832fdfdff365fc839c720374a5fe6df63742d37a28e56d197093d6643f74d79"
+    },
+    {
+      "file": "worker/guard/acceptance/operator.ts",
+      "sha256": "11eafad11853c93e649a88b5e971dc045d91ecb5adfd6372cffba9d9b44cca1f"
+    },
+    {
+      "file": "worker/guard/acceptance/owned-lock.ts",
+      "sha256": "1071c313d31f5649cc3334ec0624157b0f575935ae225d06cd2f1a342c2c36fe"
+    },
+    {
+      "file": "worker/guard/acceptance/package.ts",
+      "sha256": "b3d4a4f211f13ad91d647694f4bd41862ca0e562e170d7386e3be00f2d56155d"
+    },
+    {
+      "file": "worker/guard/acceptance/physical-observer.ts",
+      "sha256": "4a68aaa600202fe7b1ae2ca9192ad07adec901119bec1071fabb2b1c52e589d6"
+    },
+    {
+      "file": "worker/guard/acceptance/preservation.ts",
+      "sha256": "6fa03ef8c4e621e2f44d1648ce4b3a76ec7b43936329aa2d822b872c2ec735f1"
+    },
+    {
+      "file": "worker/guard/acceptance/private-root.ts",
+      "sha256": "abbb34eb8d0a732776cc6fbad5ad6deaaf49253cc6327bfb2561e25bb610a75a"
+    },
+    {
+      "file": "worker/guard/acceptance/probe-spec.ts",
+      "sha256": "a313aba020329f0b5fa7d4e87ef2336e69a0186b093148faf75e8647fdb4ed90"
+    },
+    {
+      "file": "worker/guard/acceptance/probe.py",
+      "sha256": "694867f57ec74effde5a04477fc6b1a6c01e0e9493be73b4240f351ab8fbf446"
+    },
+    {
+      "file": "worker/guard/acceptance/process-identity.ts",
+      "sha256": "1b5b11cf922048f2e8ddd3a8027da877f03ebb5749a54439c4343f8fb3579835"
+    },
+    {
+      "file": "worker/guard/acceptance/qualification.ts",
+      "sha256": "d311aa47752b5b0c242ee3e1d5742423db6328d8681adf629668c80a7fea2655"
+    },
+    {
+      "file": "worker/guard/acceptance/reaper.ts",
+      "sha256": "104df0230d808296f3a2dcd888d602662cf968c49d4c17d5ea4d8cd33b16d227"
+    },
+    {
+      "file": "worker/guard/acceptance/registry.ts",
+      "sha256": "a1c0d73e16f0415e0fcffffadff4ef2e18de66927d109a682a126ee91b2174e5"
+    },
+    {
+      "file": "worker/guard/acceptance/resolver.ts",
+      "sha256": "0c23664bc728dac5c6bea61e4eb5fc2f2a8817248a23ec4d2f4c55a7ab2dc261"
+    },
+    {
+      "file": "worker/guard/acceptance/schema.ts",
+      "sha256": "dd692515815838f06123b4f8a44f7571d7f781535a4c41826d7f6d8aee12eed2"
+    },
+    {
+      "file": "worker/guard/acceptance/scoped-sandbox.ts",
+      "sha256": "209c50714cd9ccc4ad9b5a44b015ac31a9bc785fda0e2441cea3d98552c481c4"
+    },
+    {
+      "file": "worker/guard/acceptance/subpermit.ts",
+      "sha256": "ae290656497e2806ce8bb03004a7b413ab08f3aa20d8016a606347c84d8dd653"
+    },
+    {
+      "file": "worker/guard/acceptance/window-b.ts",
+      "sha256": "722c60b83b1b2e0f71243c566e3648ec63be1c529bae19f1a018fbbc7ababeca"
+    },
+    {
+      "file": "worker/guard/additional-fixtures.ts",
+      "sha256": "4e52fb3141e676161c4ade781137ed27d395a493c79cca494fd240ce3c03a8d6"
+    },
+    {
+      "file": "worker/guard/approval.ts",
+      "sha256": "bebc12deeae4078df6f97349cd5c6a7296da28cd4b42b7775a3e84732755099c"
+    },
+    {
+      "file": "worker/guard/auth-broker.ts",
+      "sha256": "a5e29835d1cc957a22d7757348ed0a63ea9c1ac25ac7e4a5c910112ca53ea943"
+    },
+    {
+      "file": "worker/guard/bootstrap.ts",
+      "sha256": "1e067402b727763fd8a5b2212bb512bca0b1e19954ffa761a60c3c7b9ff8b48f"
+    },
+    {
+      "file": "worker/guard/fixture-runner.ts",
+      "sha256": "4fb4013fdef975e86878df199be6719322f99c63ca66b15de290cfd69b5eeb1f"
+    },
+    {
+      "file": "worker/guard/gitleaks-fixture.ts",
+      "sha256": "5ec1a097706622d1d8327a95f9dba0a94f54fb002d21f8f5069c1136514238e8"
+    },
+    {
+      "file": "worker/guard/ipc.ts",
+      "sha256": "fe98f3978ee864e0f9f8c5a888031478a4f4bf20af4c16249411b7594118d281"
+    },
+    {
+      "file": "worker/guard/main.ts",
+      "sha256": "bc778feb8c760dee68b39e6a78bf6f2004c8226b03d51abf3e69f912287a3655"
+    },
+    {
+      "file": "worker/guard/orchestrator.ts",
+      "sha256": "e2367f3d46fdae4bc5944da5ba38c56f1b62b82e9cccedf45ca258cdd371434c"
+    },
+    {
+      "file": "worker/guard/plan.ts",
+      "sha256": "096e583b8d957ec0cf820f32cf2ea3924cd67a05631ed7e01291efd01f87defc"
+    },
+    {
+      "file": "worker/guard/prepare.ts",
+      "sha256": "6d87a01eab55732cc9e6d9391f4a9ba06c114f7afdcc1c595aba4f0496e2bcbb"
+    },
+    {
+      "file": "worker/guard/runtime.ts",
+      "sha256": "55b800e68177e81c94b1ca96cbfd553862153c62fe10ff40eaa45ad26365f069"
+    },
+    {
+      "file": "worker/guard/sandbox-evidence.ts",
+      "sha256": "8031c85b514ee831472a3d68b36b9c38b3c24219e6c82496b931366d33724f20"
+    },
+    {
+      "file": "worker/guard/sandbox.ts",
+      "sha256": "2cbc39e1f2dccc1644e6643eb0d5b8dd0aa476caca8ae6192a101ca21fa6ba79"
+    },
+    {
+      "file": "worker/guard/scanner-adapter.ts",
+      "sha256": "d779e13cea6cce5beb27f3ed02398bdbd5f4d20bdc4e5a61749fec64aba0f2a5"
+    },
+    {
+      "file": "worker/guard/storage.ts",
+      "sha256": "1741b415ff88703e592922f57713490f0c2d546ab1bb53bcb48dc13c92f0be19"
+    },
+    {
+      "file": "worker/guard/timing.ts",
+      "sha256": "dc617252992f530ddeda64e58dd91bff5a2ea8f403d0f12a11c921b5f8cf47df"
+    },
+    {
+      "file": "worker/sentinel/executor.ts",
+      "sha256": "d60960deb432056359b53466f9f6c4b382ac516b694ed024e74d1dd2a57b4951"
+    },
+    {
+      "file": "worker/sentinel/lifecycle.ts",
+      "sha256": "0d4a73efb94db6c4ac85a90c777d29ce7799af81c572119b6a0e7d037a494223"
+    }
+  ],
+  "specDigests": [
+    "e78a1a97138fdf0fe81356667f6236e31b72a8b19c0c0dc1ca217c1fd738563b"
+  ],
+  "migrationPlanSha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d",
+  "programSha256": "694867f57ec74effde5a04477fc6b1a6c01e0e9493be73b4240f351ab8fbf446",
+  "daemon": null,
+  "cleanupReference": null
+}

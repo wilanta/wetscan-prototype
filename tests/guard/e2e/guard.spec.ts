@@ -312,3 +312,71 @@ test("G01 authenticated readiness is explicit and no scan is accepted before run
   expect(source.status()).toBe(503);
   expect(await source.json()).toEqual({ error: "approval_required" });
 });
+
+test("G01 shares onboarding/Canvas selection and verifies a chosen branch/SHA without accepting an unapproved job", async ({
+  page,
+}) => {
+  await enter(page, 751);
+  await page.goto("/app/projects/github-101/guard");
+  await expect(
+    page.getByRole("heading", { name: "Repository source preparation" }),
+  ).toBeVisible();
+  const panel = page.getByRole("region", { name: "Live Guard preparation" });
+  await expect(
+    panel.getByRole("heading", { name: "fixture/wetscan-web" }),
+  ).toBeVisible();
+  await panel.getByLabel("Branch", { exact: true }).fill("feature/security");
+  await panel
+    .getByLabel("Commit SHA (optional)", { exact: true })
+    .fill("c".repeat(40));
+  await panel
+    .getByRole("button", { name: "Verify repository revision", exact: true })
+    .click();
+  await expect(panel.getByRole("status")).toContainText(
+    "Repository revision verified",
+  );
+  await expect(panel.getByText("c".repeat(40), { exact: true })).toBeVisible();
+  await expect(
+    panel.getByRole("button", { name: "Download preparation request" }),
+  ).toBeVisible();
+  await panel
+    .getByRole("button", { name: "Queue approved preparation" })
+    .click();
+  await expect(panel.getByRole("alert")).toContainText(
+    "matching operator approval",
+  );
+  await expect(
+    panel.getByRole("button", { name: "Run approved preparation worker" }),
+  ).toHaveCount(0);
+  const denied = await page.request.post(
+    "/api/guard/projects/github-999/repository",
+    { headers: { origin: baseURL }, data: { branch: "main" } },
+  );
+  expect(denied.status()).toBe(404);
+});
+test("G01 rejects a non-branch commit and clears prior verified preparation when revision changes", async ({
+  page,
+}) => {
+  await enter(page, 752);
+  await page.goto("/app/projects/github-101/guard");
+  const panel = page.getByRole("region", { name: "Live Guard preparation" });
+  await panel
+    .getByRole("button", { name: "Verify repository revision", exact: true })
+    .click();
+  await expect(panel.getByRole("status")).toContainText(
+    "Repository revision verified",
+  );
+  await panel
+    .getByLabel("Commit SHA (optional)", { exact: true })
+    .fill("d".repeat(40));
+  await expect(
+    panel.getByRole("button", { name: "Queue approved preparation" }),
+  ).toHaveCount(0);
+  await panel
+    .getByRole("button", { name: "Verify repository revision", exact: true })
+    .click();
+  await expect(panel.getByRole("alert")).toContainText("revision_conflict");
+  await expect(
+    panel.getByRole("button", { name: "Queue approved preparation" }),
+  ).toHaveCount(0);
+});

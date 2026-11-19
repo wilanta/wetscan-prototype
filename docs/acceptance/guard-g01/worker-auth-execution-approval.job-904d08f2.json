@@ -1,0 +1,18 @@
+{
+  "requestSha256": "5b67e6ddeb0354447e199288bb028e4029c5241c7532d0034eb6e1c6f05f4960",
+  "jobId": "904d08f2a392f1f9d75b48309f9e270bfbf9e2e6e3ebcb7c322d415aa18f96ba",
+  "approvalSource": "Explicit owner reply: Setujui exact-job selama 55 menit",
+  "approvedBy": "WetScan owner/operator (explicit chat approval)",
+  "approvedAt": "2026-11-15T14:40:34.180Z",
+  "expiresAt": "2026-11-15T15:35:34.180Z",
+  "operations": {
+    "sourceOnlyAttempts": 1,
+    "enqueueCalls": 2,
+    "durableJobs": 1,
+    "workerLaunches": 1,
+    "mode": "prepare_only",
+    "retainedEvidence": true,
+    "dockerOrScanner": false
+  },
+  "scope": "One real GitHub source-only acceptance plus one approved exact-job prepare-only worker; no container/scanner execution or G02"
+}
