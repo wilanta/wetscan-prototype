@@ -2,7 +2,10 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve, join } from "node:path";
 import { randomUUID } from "node:crypto";
-import { guardMigrationPlan } from "../src/features/guard/live/migrations";
+import {
+  guardMigrationPlan,
+  GUARD_PLATFORM_BASELINE,
+} from "../src/features/guard/live/migrations";
 import { migrationPlan } from "../src/platform/migrations";
 export async function g02DatabasePlan(marker = "wetscan-s01:" + randomUUID()) {
   if (
@@ -12,7 +15,7 @@ export async function g02DatabasePlan(marker = "wetscan-s01:" + randomUUID()) {
   )
     throw Error("invalid_g02_marker");
   const guard = await guardMigrationPlan(),
-    platform = await migrationPlan();
+    platform = await migrationPlan(GUARD_PLATFORM_BASELINE);
   const header = `-- NOT AUTHORIZED / REVIEW ONLY. Do not run without separate owner database mutation approval.\n-- Exact target only: localhost:5432/wetscan_dev_guardg02; never the G01 fixture or external Sentinel DB.\n-- Reuse existing Guard roles. No CREATE ROLE, ALTER ROLE or passwords.\n`;
   const create =
     header +

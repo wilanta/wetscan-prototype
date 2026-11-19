@@ -7,7 +7,7 @@ import {join,resolve} from "node:path";
 import {randomUUID,randomBytes} from "node:crypto";
 import {secureSnapshotDirectory} from "../../../src/features/guard/live/snapshot-directory";
 import {migrationPlan} from "../../../src/platform/migrations";
-import {guardMigrationPlan} from "../../../src/features/guard/live/migrations";
+import {guardMigrationPlan,GUARD_PLATFORM_BASELINE} from "../../../src/features/guard/live/migrations";
 import {ApprovedPool,PlatformDatabase} from "../../../src/platform/database";
 import {installationDocker} from "./qualify";
 export async function createPostgresFixture() {
@@ -34,7 +34,7 @@ export async function createPostgresFixture() {
   await c.query(`COMMENT ON DATABASE wetscan_dev_guardg02 IS '${target.marker}'`);
   await c.query("REVOKE ALL ON DATABASE wetscan_dev_guardg02 FROM PUBLIC");await c.query("GRANT CONNECT ON DATABASE wetscan_dev_guardg02 TO wetscan_guard_app,wetscan_guard_worker,wetscan_guard_migrator");
   await c.query("SET LOCAL ROLE wetscan_guard_migrator; CREATE SCHEMA platform; CREATE TABLE platform.schema_migrations(version text PRIMARY KEY,checksum char(64) NOT NULL,applied_at timestamptz NOT NULL DEFAULT clock_timestamp()); REVOKE ALL ON SCHEMA platform FROM PUBLIC");
-  for(const m of (await migrationPlan()).migrations){await c.query(m.up);await c.query("INSERT INTO platform.schema_migrations(version,checksum) VALUES($1,$2)",[m.version,m.checksum]);}
+  for(const m of (await migrationPlan(GUARD_PLATFORM_BASELINE)).migrations){await c.query(m.up);await c.query("INSERT INTO platform.schema_migrations(version,checksum) VALUES($1,$2)",[m.version,m.checksum]);}
   const plan=await guardMigrationPlan();await c.query(plan.migration.up);await c.query("INSERT INTO guard.schema_migrations(version,checksum) VALUES($1,$2)",[plan.migration.version,plan.migration.checksum]);
   await c.query("RESET ROLE");await c.query(await readFile("migrations/guard/platform-access.proposed.sql","utf8"));await c.query("COMMIT");
  }catch(e){await c.query("ROLLBACK");throw e;}finally{c.release();}

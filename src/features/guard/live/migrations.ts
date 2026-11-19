@@ -2,6 +2,11 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 import { migrationPlan, type Migration } from "../../../platform/migrations";
+/**
+ * Guard depends only on the platform baseline it was provisioned and approved against (S01-S03). Later Sentinel
+ * migrations (0004+) are Sentinel-owned and must not change the Guard plan hash that existing approvals bind to.
+ */
+export const GUARD_PLATFORM_BASELINE = "0003_detection";
 /** Fixed Guard-owned artifacts and frozen platform baseline; hashing is not mutation approval. */
 export async function guardMigrationPlan() {
   const root = join(process.cwd(), "migrations", "guard"),
@@ -35,7 +40,7 @@ export async function guardMigrationPlan() {
       .update(up + "\0" + down)
       .digest("hex"),
   };
-  const platform = await migrationPlan();
+  const platform = await migrationPlan(GUARD_PLATFORM_BASELINE);
   return {
     migration,
     artifacts,
