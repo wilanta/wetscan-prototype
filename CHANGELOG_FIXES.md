@@ -1,5 +1,19 @@
 # CHANGELOG_FIXES
 
+### Fix #5 — S05 controlled response, independent verification and TTL rollback (DEV accepted on isolated PostgreSQL 2026-11-19; not deployed)
+
+| Field | Detail |
+|---|---|
+| Tanggal | 2026-11-19 |
+| File | `migrations/sentinel/0005_response.*`, `src/features/sentinel/response/**`, `worker/sentinel/{response-handlers,runtime,main}.ts`, `scripts/sentinel-response-fixture.ts`, `server/response-http.ts` + `/responses` route, `components/live-responses.tsx` (+1 mount in `views/sentinel.tsx`), `incidents/retention.ts` (pin), `platform/migrations.ts` (0005 down branch, `migrationPlan(through?)`), `contracts.ts` (optional `ResponsePort.inspect`), docs |
+| Masalah | S04 had only demo/contract responses; no consented, reversible, independently verified response existed. |
+| Akar | `0004` CHECKs/grants (timeline event types, `verification_status='not_requested'`) make the incident record unusable for response history; `queue.ts` isolation guard is telemetry-only. |
+| Fix | Separate additive tables (targets / actions / append-only audit), revision-fenced `ResponseStore`, worker jobs apply/verify/expire/reconcile, loopback adapter, credential-less verifier with pre-apply baseline, fixture-side self-expiry, fail-closed activation block, Responses API + UI, retention pin. |
+| Verifikasi | 1482/1482 unit (82 files); 23/23 PostgreSQL acceptance on a throwaway container (`postgres:17.12`, random DB dropped afterwards) incl. real `runSentinelWorker` loop, RLS isolation, append-only audit, 0005 down refusal/reversal; S05 browser 3/3 and S04 incident browser 3/3; typecheck, eslint, `next build` clean. `applied` and `verified` stay distinct (A2/A3); outage/collateral/unclean-baseline never `verified` (A4); TTL, manual rollback, crash adoption, orphan cleanup restore the fixture (A5); stale revision/duplicate/cross-project/demo-mode denied (A6); Orderly Demo makes 0 live calls (A7). |
+| Pelajaran | Two real defects were caught only by PostgreSQL tests and fixed before merge: (1) the `expire` job called the target DELETE *before* checking the TTL was due, so an early job would drop enforcement while the DB still said active; (2) reconcile job fingerprint included `now`, so the loop's `ensureReconcile` and the handler's next-bucket job collided (`idempotency_conflict`) and aborted the worker pass. Also: adding a migration changes the plan hash, so S04 review tests must pin the 0001-0004 prefix and worker approvals must be re-issued. |
+| Log Keyword | `sentinel.response.apply`, `response_audit`, `approval_invalid`, `not_due_yet`, `reconcile_cleanup`, `response_not_configured`, `H03-RESPONSE` |
+| Deploy | NOT deployed. `live tested` against a real application: NOT_RUN. Production/WAF/CDN/cloud: not integrated. Worker use needs a new owner DB approval (plan hash changed) with a `response` block. Retention: response records pin their incident (local-test policy; production archive policy documented in `docs/SENTINEL_S05_ARCHITECTURE.md`). |
+
 ### Fix #4 — S04 acceptance completed in one pass (✅ LIVE 2026-11-18 20:40Z; owner accepted)
 
 | Field | Detail |

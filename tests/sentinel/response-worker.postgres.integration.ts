@@ -347,6 +347,25 @@ describe.skipIf(!process.env.SENTINEL_S05_PG_ADMIN_URL)(
       }
     });
 
+    it("owner disabling a target blocks new applies but never strands an active limit (rollback still works)", async () => {
+      const { f, targetId } = await scenario();
+      const id = await proposeApprove(targetId);
+      await drain([responseJobKinds.apply]);
+      expect(f.state().active).toBe(true);
+      await h.admin.query(
+        "UPDATE sentinel.response_targets SET enabled=false WHERE target_id=$1",
+        [targetId],
+      );
+      await app.command(approver, {
+        action: "rollback",
+        actionId: id,
+        expectedRevision: (await row(id)).revision,
+      });
+      await drain([responseJobKinds.expire]);
+      expect((await row(id)).status).toBe("rolled_back");
+      expect(f.state().active).toBe(false);
+    });
+
     it("S05-A5: crash between target PUT and DB commit ⇒ reconcile adopts; lost target ⇒ reconcile closes; orphan limit is removed", async () => {
       const a = await scenario();
       const id = await proposeApprove(a.targetId);

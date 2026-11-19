@@ -141,10 +141,8 @@ export async function handleResponseJob(
     case responseJobKinds.expire: {
       const action = await d.store.actionById(scope, id);
       if (!action || !activeStatuses.includes(action.status)) return;
-      const view = (await d.store.reconcileView(scope)).find(
-        (x) => x.target.targetId === action.targetId,
-      );
-      if (!view) throw new Error("target_missing");
+      const target = await d.store.targetById(scope, action.targetId);
+      if (!target) throw new Error("target_missing");
       if (action.status === "applying") throw new Error("apply_in_progress"); // retry once apply settles
       // Never touch the target before the TTL is due (or a human asked for rollback).
       if (
@@ -152,7 +150,8 @@ export async function handleResponseJob(
         !(action.expiresAt && Date.parse(action.expiresAt) <= Date.now())
       )
         throw new Error("not_due_yet");
-      const adapter = d.adapter(view.target);
+      // Cleanup stays allowed after the owner disables the target (disable blocks new applies only).
+      const adapter = d.adapter({ ...target, enabled: true });
       try {
         const r = await adapter.rollback(ctx, id);
         if (r.status !== "available") throw new Error("not_configured");

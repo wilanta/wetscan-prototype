@@ -598,7 +598,17 @@ export class ResponseStore {
           [...sv(scope), actionId],
         )
       ).rows[0].ok;
-      if (!live || !t || !t.enabled) {
+      // Defense in depth against a forged/edited row: the approver must still be a listed approver (and not the proposer unless allowed).
+      const forged = Boolean(
+        t &&
+        (!a.approvedBy ||
+          approverDenial({
+            actor: a.approvedBy,
+            proposer: a.proposedBy,
+            target: t,
+          })),
+      );
+      if (!live || !t || !t.enabled || forged) {
         assertTransition(a.status, "expired");
         const n = await this.update(tx, a, a.revision, "status='expired'", []);
         await this.audit(
@@ -931,6 +941,12 @@ export class ResponseStore {
       }
       return out;
     });
+  }
+  /** Includes disabled targets: disabling a target must never strand an active limit. */
+  async targetById(scope: SentinelScope, targetId: string) {
+    return this.db.scoped(scope, async (tx) =>
+      this.target(tx, scope, targetId),
+    );
   }
   async actionById(scope: SentinelScope, actionId: string) {
     return this.db.scoped(scope, async (tx) => {
