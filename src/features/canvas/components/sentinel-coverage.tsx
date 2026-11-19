@@ -22,9 +22,11 @@ const reasons = {
 export function SentinelCoverage({
   security,
   choose,
+  nodeLabel,
 }: {
   security: SecurityOverlay;
   choose: (nodeId: string) => void;
+  nodeLabel: (nodeId: string) => string;
 }) {
   const detail = security.sentinelDetail;
   if (!detail) return null;
@@ -53,7 +55,7 @@ export function SentinelCoverage({
                 {i.provenance?.origin === "controlled_test"
                   ? "controlled test"
                   : "runtime"}{" "}
-                → {i.nodeId}
+                → {nodeLabel(i.nodeId)}
               </button>
             </li>
           ))}

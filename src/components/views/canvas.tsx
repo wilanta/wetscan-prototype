@@ -406,7 +406,13 @@ function CanvasWorkspace({
                   : security.guard}{" "}
                 · Sentinel: {coverageLabel(security.sentinel)}
               </p>
-              <SentinelCoverage security={security} choose={choose} />
+              <SentinelCoverage
+                security={security}
+                choose={choose}
+                nodeLabel={(id) =>
+                  graph.nodes.find((n) => n.id === id)?.label ?? id
+                }
+              />
               <div className="canvas-form-row">
                 {(
                   [

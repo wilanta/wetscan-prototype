@@ -22,7 +22,21 @@ export function sentinelOverlaySource(
           signal: AbortSignal.timeout(20000),
         },
       );
-      if (!response.ok) throw new Error("Security overlay unavailable");
+      if (!response.ok) {
+        // Storage that was never set up is "not monitored", not a transient failure.
+        const code = (await response.json().catch(() => null))?.error;
+        if (
+          response.status === 503 &&
+          (code === "telemetry_not_configured" ||
+            code === "migration_not_ready")
+        )
+          return {
+            ...(await UnavailableCanvasOverlaySource.getSecurity(projectRef)),
+            message:
+              "Monitoring not connected: Sentinel storage is not configured in this environment. No incident data is available.",
+          };
+        throw new Error("Security overlay unavailable");
+      }
       const overlay = validateSecurityOverlay(await response.json());
       if (
         overlay.mode !== "live" ||

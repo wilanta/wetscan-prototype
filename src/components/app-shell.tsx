@@ -72,16 +72,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           "Overview";
   function nav(items: typeof home) {
     return items.map(({ href, label, Icon }) => {
-      if (label === "Sentinel" && realProject) {
-        const projectId = pathname.split("/")[3];
-        href = `/app/projects/${projectId}/sentinel`;
+      if (realProject) {
+        const sentinel = `/app/projects/${pathname.split("/")[3]}/sentinel`;
+        // Real projects never link to the synthetic demo pages for modules that have a live view.
+        if (label === "Sentinel") href = sentinel;
+        if (label === "Notifications") href = `${sentinel}/notifications`;
+        if (label === "Reports") href = `${sentinel}/reports`;
       }
       const active =
         href === "/app"
           ? pathname === "/app"
           : pathname === href ||
-            ((href.includes("/guard") || href.includes("/sentinel")) &&
-              pathname.startsWith(href));
+            (label === "Sentinel" &&
+              (href.includes("/guard") || href.includes("/sentinel")) &&
+              pathname.startsWith(href)) ||
+            (label === "Guard" && pathname.startsWith(href));
       return (
         <div key={href}>
           <Link
@@ -92,7 +97,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             <Icon size={18} />
             <span>{label}</span>
-            {realProject && label === "Guard" && (
+            {realProject && (label === "Guard" || label === "Integrations") && (
               <span className="nav-new">DEMO</span>
             )}
             {label === "Canvas" && <span className="nav-new">APP MAP</span>}
@@ -105,10 +110,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 ? [
                     ["Incidents", "/incidents", Radar],
                     ["Responses", "/responses", ShieldCheck],
-                    ["Notifications", "/notifications", Bell],
                     ["Ghost", "/ghost", Ghost],
                     ["Intelligence", "/intelligence", BrainCircuit],
-                    ["Reports", "/reports", FileText],
                   ]
                 : [
                     ["Ghost", "/ghost", Ghost],
@@ -224,10 +227,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </>
               )}
             </p>
-            <Button variant="ghost" onClick={() => setReset(true)}>
-              <RotateCcw size={14} />
-              Reset demo
-            </Button>
+            {!realProject && (
+              <Button variant="ghost" onClick={() => setReset(true)}>
+                <RotateCcw size={14} />
+                Reset demo
+              </Button>
+            )}
           </div>
           <Modal
             trigger={
@@ -310,12 +315,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {dark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
             <Link
-              href="/app/notifications"
+              href={
+                realProject
+                  ? `/app/projects/${pathname.split("/")[3]}/sentinel/notifications`
+                  : "/app/notifications"
+              }
               className="icon-button notification-icon"
-              aria-label={`Notifications, ${state.notifications.length} previews`}
+              aria-label={
+                realProject
+                  ? "Notifications"
+                  : `Notifications, ${state.notifications.length} previews`
+              }
             >
               <Bell size={18} />
-              {state.notifications.length > 0 && <span />}
+              {!realProject && state.notifications.length > 0 && <span />}
             </Link>
             <button
               type="button"
