@@ -188,7 +188,7 @@ export function validateOperationalSandboxSpec(spec: SandboxSpec) {
   if (
     spec.memoryMb !== 256 &&
     !(
-      spec.memoryMb === 2048 && spec.executable === "/usr/local/bin/osv-scanner"
+      spec.memoryMb === 2048 && (spec.executable === "/usr/local/bin/osv-scanner" || (spec.executable === "/usr/local/bin/trivy" && spec.args[0] === "image"))
     )
   )
     throw new LiveGuardError("not_configured");

@@ -314,3 +314,19 @@ it.each(["unknown", "rejected"])(
     }
   },
 );
+
+it("lease loss after source handoff blocks scanner/results and disposes only the owned snapshot", async () => {
+  const f = await setup(),
+    acquire = f.snapshots.acquire.getMockImplementation()!;
+  f.snapshots.acquire.mockImplementation(async () => {
+    const s = await acquire();
+    f.verify.mockRejectedValue(new LiveGuardError("lease_lost", 409));
+    return s;
+  });
+  await expect(
+    f.handler(f.lease.job, new AbortController().signal, () => f.lease),
+  ).rejects.toMatchObject({ code: "lease_lost" });
+  expect(f.scanner.execute).not.toHaveBeenCalled();
+  expect(f.snapshots.dispose).toHaveBeenCalledOnce();
+  expect(f.current().status).not.toBe("completed");
+});

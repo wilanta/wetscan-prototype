@@ -1,5 +1,6 @@
 import type { ScanJob } from "../contracts";
 import { createJob } from "../pipeline";
+import { orderedRepositoryEngines } from "./scan-profiles";
 import { authorize } from "../security";
 import {
   LiveGuardError,
@@ -15,6 +16,8 @@ import {
 } from "./product-policy";
 
 export interface ProductAdmission {
+  readonly imageReference?: string;
+  readonly allowedEngines?: readonly import("../contracts").Engine[];
   resume?(
     authority: ProjectAuthority,
     id: string,
@@ -45,6 +48,8 @@ export function repositoryAdmission(input: {
   onQueued?(job: ScanJob): Promise<void>;
 }): ProductAdmission {
   return {
+    allowedEngines: [...input.policy.engines],
+    imageReference: input.policy.image?.reference,
     async resume(authority, id, signal) {
       await input.verifyReady();
       const stored = await input.storage.get(
@@ -101,6 +106,10 @@ export function repositoryAdmission(input: {
     },
     async create(authority, value, signal) {
       const v = scanInput(value);
+      // Reject unsupported engines before canonicalizing their order.
+      if (v.engines.some((e) => !input.policy.engines.includes(e as never)))
+        throw new LiveGuardError("execution_not_ready");
+      v.engines = orderedRepositoryEngines(v.engines);
       if (!v.commit || !v.branch || signal.aborted)
         throw new LiveGuardError("invalid_input", 400);
       const draft = {
@@ -150,6 +159,16 @@ export function repositoryAdmission(input: {
         engines: v.engines,
         profile: v.profile,
       });
+      job.runs = job.runs.map((r) =>
+        job.requestedEngines.includes(r.engine)
+          ? {
+              ...r,
+              status: "queued",
+              reason:
+                "Qualified operational engine queued; no execution result yet.",
+            }
+          : r,
+      );
       job.audit.push({
         actorId: fresh.grant.actorId,
         at: new Date().toISOString(),

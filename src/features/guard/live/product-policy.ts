@@ -1,3 +1,4 @@
+import { validateImageScope } from "../../../../worker/guard/image-artifact";
 import type { Grant, ScanJob } from "../contracts";
 import { authorize } from "../security";
 import { LiveGuardError } from "./model";
@@ -9,10 +10,18 @@ import {
 } from "../../../../worker/guard/sandbox";
 
 export const repositoryScanKind = "guard.scan.repository" as const;
-export const repositoryEngines = ["sast", "sca", "secrets", "iac"] as const;
+export const repositoryEngines = [
+  "sast",
+  "sca",
+  "secrets",
+  "iac",
+  "sbom",
+  "container",
+] as const;
 export type RepositoryScanEngine = (typeof repositoryEngines)[number];
 /** Server-owned operational configuration. Never deserialized from a browser request. */
 export interface RepositoryScanPolicy {
+  image?: import("../../../../worker/guard/image-artifact").ImageScope;
   version: 1;
   id: string;
   workspaceId: string;
@@ -74,6 +83,8 @@ export function validateProductPolicy(
     !policy.engines.length ||
     policy.engines.some((e) => !repositoryEngines.includes(e)) ||
     !job.requestedEngines.length ||
+    new Set(job.requestedEngines).size !== job.requestedEngines.length ||
+    new Set(policy.engines).size !== policy.engines.length ||
     job.requestedEngines.some(
       (e) => !policy.engines.includes(e as RepositoryScanEngine),
     ) ||
@@ -89,6 +100,7 @@ export function validateProductPolicy(
       45000 + job.requestedEngines.length * policy.scannerTimeoutMs + 10000
   )
     throw new LiveGuardError("execution_not_ready");
+  if (job.requestedEngines.includes("container")) validateImageScope(policy.image!);
   return policy;
 }
 export function validateQualification(

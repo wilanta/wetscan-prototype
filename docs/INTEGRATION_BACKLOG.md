@@ -1,4 +1,42 @@
+## Closure confirmed: deactivation and post-restart persistence
+
+Owner supplied actual terminal JSON productEnabled=0, confirmed server Ready, and authenticated GET HTTP200 after restart for e30251691f7c628804b1cdce99fe9afbc87c121ba6fa83131ec92ef13d366e5b. The stored result remains completed_partial/revision7, Opengrep completed/11 files,0 findings, release INCOMPLETE, matching pre-restart API and PostgreSQL. Deactivation and post-restart API persistence are now VERIFIED. Earlier pending reports are retained as historical checkpoints. Evidence: test-results/g02-live-sast-e3025169.CLOSURE.json. No replay or new runtime authority. No independent visual browser/DB observation by agent is claimed. G02 remains PARTIAL; zero finding rows do not establish positive finding persistence or repository safety. G01 remains2/16 PASS.
+
+## G02 actual repository SAST result ? 19 November19:00 WIB
+
+One approved real GitHub SAST run e3025169 reached Docker and PostgreSQL; authenticated Live API and owner SQL agree: completed_partial,82 retrieved files,11 SAST files,0 findings. Agent verified normal physical resource cleanup. Positive finding/evidence persistence is NOT_VERIFIED (zero rows); dedicated worker-heartbeat row absent; actual deactivation and post-restart UI confirmation remain pending. See [validation checklist](GUARD_G02_VALIDATION.md). This is scoped pipeline proof, not G02 COMPLETE. Other engine live runs remain unapproved; container image target absent; transient retry remains unfinished. Do not replay the failed historical job or begin G03 from fixture data.
+
+## G02 physical handoff and coverage checkpoint ? 19 November 2026
+
+Real Docker handoff tests now cover SAST, recursive npm SCA, Secrets, IaC and repository CycloneDX SBOM from OSV inventory, with explicit provider/lease doubles and memory storage. Live UI profiles, severity filters, inventory/SBOM download and durable JSONB metadata are implemented. See [complete requirement checklist](GUARD_G02_VALIDATION.md). Container Live remains blocked: owner has no authorized digest image, and image ingress/vulnerability DB are not qualified. Automatic transient retry remains unimplemented under the maxAttempts1 operational policy. Successful real GitHub?scanner?PostgreSQL?UI acceptance still requires a new approved run; historical scan4e1e38b5 remains failed/STOP. G01 remains2/16 PASS. Older checkpoints below are historical, not current runtime authority.
+
 # Scanner installation and remaining owner setup - 18 November 2026
+
+## First live SAST offline repair - 19 November 2026
+
+G02's first real repository trial failed before source handoff/scanner execution; database persistence and queue/attempt terminal metadata were observed, but live scanning remains NOT_VERIFIED. Keep its exact job and all evidence. The owner disabled scanning again. The proven observability gap is fixed; timeout is an offline-reproduced risk, not a proven historical root cause.
+
+Snapshot acquisition now uses a trusted3-wide limit only in the operational broker, with unchanged45-second budget/60-second grants and existing resource/hash/auth/cleanup controls. Safe source/broker/sandbox/scanner diagnostics are stored for NEW failed jobs; no historical reason is reconstructed. Fencing loss, revocation, output validation and unknown cleanup remain fail-closed.
+
+Current validation:390 Guard tests +516 shared contracts PASS, Live browser6/6, existing prototype/demo browser5/5, typecheck/lint/production build/smoke PASS. The integration source files are fixtures and the Docker/provider interfaces are doubles. Runtime baseline311 files: f80b6b9b9904139d61ec070a1ea5fb43534ae4db204b464dfa03087bd74d1520. [Operator checkpoint](GUARD_G02_LIVE_OPERATOR.md) records the affected files and remaining live prerequisites. No additional G01 case is closed; G01 remains2/16 PASS.
+
+Next integration dependency: fresh qualification of the existing image, current authorized repository/pin and app/worker readiness, then explicit approval for ONE NEW job. No new DB/password provisioning is needed. G03-G06 consumer/AI/provider features must wait for actual findings, not fixture-derived completion claims.
+
+
+## Guard Live implementation checkpoint â€” 19 November 2026
+
+Owner/Codex continues on feat/guard-g02-g06-integration (base3918f02). No commit/push is implied by this checkpoint. G01 remains PARTIALLY_COMPLETE,2/16 PASS; N01 historical STOP and unresolved recovery transaction are preserved.
+
+| Module | Actual implementation | Remaining live proof / dependency |
+|---|---|---|
+| G02 | Normal Auth-bound repository admission, pinned source, durable PostgreSQL queue, fenced worker, measured container adapters, persisted scanner results and Live UI. Owner provisioned the separate G02 database and actual app/worker READ ONLY authentication/schema/RLS passed. Controlled synthetic scanner isolation tests passed. | Full policy/sandbox/pin preflight and explicit approval for the first real repository scan. No real repository scanner success is claimed. |
+| G03 | Persisted finding-bound deterministic advice, optional consented server-only OpenAI rule-metadata adapter, durable provider-call reservation, advice review, actual recorded-scan comparison, JSON/escaped HTML reports. Fresh Auth is required after provider completion. | No AI credential/provider call verified. Source-bound patch proposal, syntax/test validation, approved GitHub write and verified behavioral retest remain incomplete. Recorded comparison never assigns verified_fixed. |
+| G04 | Actual findings drive persisted release evaluation and producer event with enforced=false. | Signed webhook ingress/scheduling, GitHub Checks permissions and writes, required-check enforcement and Vercel integration still unavailable; no enforcement claim. |
+| G05 | Existing authorization/target contracts and fail-closed unavailable states remain. | No authorized staging/egress-qualified DAST or HTTP Integrity run; no live proof. |
+| G06 | Persisted actual-result producer bundles, dependency inventory, exact-source Canvas mapping with explicit unmatched/ambiguous outcomes. | Delivery remains PENDING_CONSUMER_NOT_CONFIGURED/acknowledged=false. Consumer integration, GitLab and secure ZIP still require implementation/authorization. Sentinel implementation is unchanged. |
+
+The new remediation/report/producer paths are exercised with isolated test records, not presented as live repository evidence. Runtime SQL, password files, application sessions and scanner installation state stay outside Git. Normal operational policy/configuration is separate from historical G01 permits and their acceptance windows.
+
 
 On feat/guard-mvp-local-demo, the four pinned real CLIs now pass controlled-source installation tests and production normalizers: Opengrep2.0.0 (1 finding, six official JS/Python rules), OSV2.7.1 (5 findings, npm-only offline database), Gitleaks8.30.1 (1 finding, fake credential), Trivy0.76.2 (3 IaC findings). Official binaries/rules/data integrity was verified; local image content ID3608834fae5f966e6380af0c7b2acf71a46af2ac2bac8591be2b0851d501fa51. Physical Docker restrictions, timeout/output/cancellation/OOM and exact-owned cleanup/absence PASS. These are installation fixtures, NOT a real GitHub/DB/UI acceptance.
 
@@ -22,24 +60,24 @@ The owner now prioritizes authorized real GitHub scans over further Demo develop
 
 G02-G06 remain PARTIAL. G03 AI/patch/retest, G04 provider enforcement/webhooks, G05 actual HTTP tests and G06 cross-module delivery/GitLab/ZIP remain separate work; a DTO/contract is not a live integration. Current regression/build/browser results are in [MVP_VALIDATION.md](MVP_VALIDATION.md). No G01 packet was repaired; historical N01 STOP/UNKNOWN and G01 2/16 remain unchanged. No runtime approval or live effect is implied by ordinary offline development.
 
-## Active prototype integration — 18 November 2026
+## Active prototype integration â€” 18 November 2026
 
 The MVP now uses the existing authenticated /app/projects/orderly-demo/guard route family, AppShell, DemoProvider and Guard components. Inventory and remediation tools are integrated there; /local-demo/guard is a compatibility redirect only. Completed scans update the existing count once, and Reset demo clears Guard session controls/history. Real-project navigation stays on the selected Live project. Extra multi-engine fixtures retain their development/test production guard.
 
 The [current plan](GUARD_MVP_THREE_DAY_PLAN.md) supersedes earlier standalone-preview instructions below. G01 synchronization is pending explicit checkpoint approval: full regression has 3 failures from one drifted historical observer; 38 protected evidence hashes match, G01 remains 2/16 PASS, and N01 recovery transaction state remains UNKNOWN. No acceptance artifact was repaired or refrozen.
 
-## Active MVP scope — 18 November 2026
+## Active MVP scope â€” 18 November 2026
 
-The owner's latest instruction authorizes G02–G06 offline/local development in the separate branch feat/guard-mvp-local-demo. This supersedes older continuation-only branch assignments below for MVP work. No commit/push, provider writes, database operations, G01 acceptance or N01 recovery is authorized. G01 stays PARTIALLY_COMPLETE (2/16 PASS); N01 stays STOP with old transaction outcome unresolved.
+The owner's latest instruction authorizes G02â€“G06 offline/local development in the separate branch feat/guard-mvp-local-demo. This supersedes older continuation-only branch assignments below for MVP work. No commit/push, provider writes, database operations, G01 acceptance or N01 recovery is authorized. G01 stays PARTIALLY_COMPLETE (2/16 PASS); N01 stays STOP with old transaction outcome unresolved.
 
-The five official G02–G06 specifications are preserved byte-for-byte in docs/specs/guard. The dependency map, actual/fixture/blocked classification, next integration steps and full-scope completion requirements are in [the active three-day plan](GUARD_MVP_THREE_DAY_PLAN.md). Owner/Codex owns G02–G06; historical assignments do not authorize another developer or external writes.
+The five official G02â€“G06 specifications are preserved byte-for-byte in docs/specs/guard. The dependency map, actual/fixture/blocked classification, next integration steps and full-scope completion requirements are in [the active three-day plan](GUARD_MVP_THREE_DAY_PLAN.md). Owner/Codex owns G02â€“G06; historical assignments do not authorize another developer or external writes.
 
 | Work item | Current functionality / files | Missing integration and next step | Definition of Done |
 |---|---|---|---|
-| MVP-G02 (GRD-006–010) | local-artifacts.ts performs real bounded lockfile inventory; local-fixtures.ts drives four existing parsers with synthetic=true; demo-session.ts/workbench.tsx render coverage/review/history | Qualify existing scanner sandbox independently, wire actual scoped durable worker findings; container/SBOM not configured | Actual approved immutable repository scan with pinned provenance, normalized stored findings, redaction, failure/cleanup evidence and live UI. Inventory alone is not SCA findings. |
+| MVP-G02 (GRD-006â€“010) | local-artifacts.ts performs real bounded lockfile inventory; local-fixtures.ts drives four existing parsers with synthetic=true; demo-session.ts/workbench.tsx render coverage/review/history | Qualify existing scanner sandbox independently, wire actual scoped durable worker findings; container/SBOM not configured | Actual approved immutable repository scan with pinned provenance, normalized stored findings, redaction, failure/cleanup evidence and live UI. Inventory alone is not SCA findings. |
 | MVP-G03 (GRD-017/018/022) | Local exact-text proposal and deterministic guidance; existing escaped JSON/HTML reports; retest contract refuses insufficient proof | Real consented AI provider, source-bound patch/syntax/test validation, authorized PR write, targeted real retest, scoped durable report downloads | Real finding/proposal/retest evidence at exact revisions; no verified_fixed from local preview; actual provider actions separately approved |
 | MVP-G04 (GRD-019/023) | Existing release evaluation and truthful enforced=false reports | Signed/idempotent webhook ingress, durable events, current provider permissions, GitHub checks/required rules, verified Vercel enforcement capability, schedule | Exact-commit checks and actual proven enforcement, with stale/replay/failure handling; evaluation never labelled enforced |
-| MVP-G05 (GRD-011/012/014–016) | Existing fail-closed DAST scope validation and five confirmed synthetic invariant models | Approved staging, dummy roles, enforcing outbound controls, actual confirmed Canvas plans and cleanup | Actual controlled request/state evidence and before/after invariants; model expectations never presented as live observations |
+| MVP-G05 (GRD-011/012/014â€“016) | Existing fail-closed DAST scope validation and five confirmed synthetic invariant models | Approved staging, dummy roles, enforcing outbound controls, actual confirmed Canvas plans and cleanup | Actual controlled request/state evidence and before/after invariants; model expectations never presented as live observations |
 | MVP-G06 (GRD-002/013/020/021) | Shared workflow navigation; actual local inventory export; typed consumer ports return unavailable | Authorized GitLab/secure ZIP, exact graph-node mapping, Intelligence inventory delivery, versioned durable Sentinel producer and acknowledgement | Actual scoped consumer outcomes and two real repo/ZIP E2Es; unmatched/pending states truthful; no Sentinel implementation changes |
 
 # Canvas and Guard integration register

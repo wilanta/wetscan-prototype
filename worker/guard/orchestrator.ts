@@ -1,3 +1,4 @@
+import { pipelineFailureReason, type PipelinePhase } from "./source-failure";
 /** Process-independent orchestration. Not wired to a public API or production scheduler. */
 import type {
   AuthorizedSnapshot,
@@ -105,6 +106,7 @@ export async function executeScopedJob(
     job.audit.some((a) => a.action === "repository_scan_requested");
   let snapshot: AuthorizedSnapshot | undefined;
   let disposalAttempted = false;
+  let phase: PipelinePhase = "preparing";
   const save = async (next: ScanJob) => {
     await refresh();
     await ports.storage.save(grant, next);
@@ -112,6 +114,7 @@ export async function executeScopedJob(
   };
   try {
     await save(transition(job, "preparing", grant.actorId));
+    phase = "sandbox";
     const sandbox = ports.sandbox;
     if (
       !sandbox.ready ||
@@ -132,6 +135,7 @@ export async function executeScopedJob(
         "Enforcing scanner sandbox is not configured.",
       );
     if (signal.aborted) throw new Error("cancelled");
+    phase = "snapshot_acquire";
     snapshot = await ports.snapshots.acquire(
       grant,
       {
@@ -145,6 +149,7 @@ export async function executeScopedJob(
       },
       signal,
     );
+    phase = "snapshot_validate";
     await refresh();
     validateSnapshot(grant, job, snapshot);
     if (snapshot.coverage)
@@ -159,6 +164,7 @@ export async function executeScopedJob(
       };
     await save(transition(job, "running", grant.actorId));
     for (const engine of job.requestedEngines) {
+      phase = "scanner";
       await refresh();
       if (ports.snapshots.refresh) {
         snapshot = await ports.snapshots.refresh(snapshot, grant);
@@ -176,6 +182,21 @@ export async function executeScopedJob(
       let timer: ReturnType<typeof setTimeout> | undefined;
       let scannerWork: ReturnType<ScannerPort["execute"]> | undefined;
       try {
+        if (repositoryOperation)
+          await save({
+            ...job,
+            runs: job.runs.map((r) =>
+              r.engine === engine
+                ? {
+                    ...r,
+                    status: "running",
+                    startedAt,
+                    reason:
+                      "Qualified scanner requested; execution outcome pending.",
+                  }
+                : r,
+            ),
+          });
         scannerWork = scanner.execute(snapshot, controller.signal);
         const result = await Promise.race([
           scannerWork,
@@ -254,6 +275,7 @@ export async function executeScopedJob(
           runs: job.runs.map((r) => (r.engine === engine ? run : r)),
           findings: deduplicate([...job.findings, ...result.findings]),
           ...(result.inventory ? { inventory: result.inventory } : {}),
+          ...(result.sbom ? { sbom: result.sbom } : {}),
         });
       } catch (error) {
         if (
@@ -271,9 +293,11 @@ export async function executeScopedJob(
               ? {
                   ...r,
                   status: timedOut ? "timed_out" : "failed",
-                  reason: timedOut
-                    ? "Scanner time limit reached; coverage incomplete."
-                    : "Scanner failed validation or execution; coverage incomplete.",
+                  reason: repositoryOperation
+                    ? pipelineFailureReason(error, "scanner")
+                    : timedOut
+                      ? "Scanner time limit reached; coverage incomplete."
+                      : "Scanner failed validation or execution; coverage incomplete.",
                   startedAt,
                   finishedAt: new Date().toISOString(),
                   durationMs: Math.round(performance.now() - started),
@@ -311,16 +335,19 @@ export async function executeScopedJob(
       job!.requestedEngines.includes(r.engine),
     );
     // A terminal success must never precede physical source cleanup. A failed cleanup is not retried silently.
+    phase = "source_dispose";
     disposalAttempted = true;
     await ports.snapshots.dispose(snapshot);
     snapshot = undefined;
+    phase = "final_save";
     await save(
       transition(
         job,
         selected.every((r) =>
           ["completed", "not_applicable"].includes(r.status),
         )
-          ? job.sourceCoverage?.status === "partial"
+          ? job.sourceCoverage?.status === "partial" ||
+            selected.some((r) => r.coverage?.status === "partial")
             ? "completed_partial"
             : "completed"
           : selected.some((r) => r.status === "completed")
@@ -346,12 +373,29 @@ export async function executeScopedJob(
         signal.aborted ? "cancelled" : "failed",
         grant.actorId,
       );
+      const reason = repositoryOperation
+        ? pipelineFailureReason(error, phase)
+        : error instanceof GuardError
+          ? error.code
+          : "execution_stopped";
+      if (repositoryOperation)
+        next.runs = next.runs.map((r) =>
+          next.requestedEngines.includes(r.engine) &&
+          !r.startedAt &&
+          ["not_configured", "queued"].includes(r.status)
+            ? {
+                ...r,
+                status: "failed" as const,
+                reason: "Scanner not started; " + reason,
+              }
+            : r,
+        );
       next.audit.push({
         actorId: grant.actorId,
         at: new Date().toISOString(),
         action: "worker_stopped",
         subjectId: job.id,
-        reason: error instanceof GuardError ? error.code : "execution_stopped",
+        reason,
       });
       await save(next);
     }

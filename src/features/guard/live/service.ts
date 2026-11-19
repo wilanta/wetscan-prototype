@@ -76,6 +76,8 @@ export class GuardLiveService {
         ? null
         : "qualified_scanner_and_owner_session_broker_not_configured",
       operationalApprovalWindow: false,
+      allowedEngines:[...(this.product?.allowedEngines??[])],
+      imageReference:this.product?.imageReference??null,
     };
   }
   private store(
@@ -167,6 +169,129 @@ export class GuardLiveService {
     if (!this.artifacts) throw new LiveGuardError("not_configured");
     return this.artifacts.reports(authority.grant, authority.grant, id);
   }
+  async remediationState(authority: ProjectAuthority, id: string) {
+    this.store(authority, "read");
+    if (!this.artifacts) throw new LiveGuardError("not_configured");
+    const { providerMetadata } = await import("./remediation-provider");
+    return {
+      ...(await this.artifacts.extensions(
+        authority.grant,
+        authority.grant,
+        id,
+      )),
+      provider: providerMetadata(),
+    };
+  }
+  async proposeRemediation(
+    authority: ProjectAuthority,
+    id: string,
+    input: unknown,
+    signal: AbortSignal,
+    revalidate: () => Promise<ProjectAuthority>,
+  ) {
+    this.store(authority, "triage");
+    if (!this.artifacts) throw new LiveGuardError("not_configured");
+    const reservation = await this.artifacts.reserveAdvice(
+      authority.grant,
+      authority.grant,
+      id,
+      input,
+    );
+    if (reservation.reused)
+      return {
+        recordId: reservation.record.id,
+        state: reservation.record.state,
+        revision: reservation.revision,
+        reused: true,
+      };
+    const { adviceInput, deterministicAdvice } =
+      await import("./product-remediation");
+    let result: {
+      advice: import("./product-remediation").RemediationAdvice;
+      provider?: NonNullable<
+        import("./product-remediation").RemediationRecord["provider"]
+      >;
+    } | null = null;
+    try {
+      if (reservation.record.aiConsent) {
+        const { remediationProvider } = await import("./remediation-provider");
+        result = await remediationProvider().explain(
+          adviceInput(reservation.finding),
+          signal,
+        );
+      } else result = { advice: deterministicAdvice(reservation.finding) };
+    } catch {
+      /* An attempted/unknown provider request stays consumed. Never retry. */
+    }
+    const fresh = await revalidate();
+    if (
+      fresh.grant.actorId !== authority.grant.actorId ||
+      fresh.repositoryId !== authority.repositoryId ||
+      fresh.installationId !== authority.installationId
+    )
+      throw new LiveGuardError("not_found", 404);
+    return this.artifacts.finishAdvice(
+      fresh.grant,
+      fresh.grant,
+      id,
+      reservation.revision,
+      reservation.record.id,
+      result,
+    );
+  }
+  async reviewRemediation(
+    authority: ProjectAuthority,
+    id: string,
+    input: unknown,
+  ) {
+    this.store(authority, "triage");
+    if (!this.artifacts) throw new LiveGuardError("not_configured");
+    return this.artifacts.reviewAdvice(
+      authority.grant,
+      authority.grant,
+      id,
+      input,
+    );
+  }
+  async compareRetest(authority: ProjectAuthority, id: string, input: unknown) {
+    this.store(authority, "triage");
+    if (!this.artifacts) throw new LiveGuardError("not_configured");
+    const v = input as {
+      revision: number;
+      afterScanId: string;
+      findingId: string;
+    };
+    if (
+      !v ||
+      Object.keys(v).sort().join() !== "afterScanId,findingId,revision" ||
+      typeof v.findingId !== "string"
+    )
+      throw new LiveGuardError("invalid_input", 400);
+    const after = await this.get(authority, v.afterScanId);
+    return this.artifacts.recordRetest(
+      authority.grant,
+      authority.grant,
+      id,
+      v.revision,
+      after.job,
+      v.findingId,
+    );
+  }
+  async prepareIntegrations(
+    authority: ProjectAuthority,
+    id: string,
+    input: unknown,
+  ) {
+    this.store(authority, "report");
+    if (!this.artifacts) throw new LiveGuardError("not_configured");
+    return this.artifacts.prepareIntegration(
+      authority.grant,
+      authority.grant,
+      id,
+      input,
+    );
+  }
+
   async cancelProduct(authority: ProjectAuthority, id: string) {
     const current = await this.get(authority, id);
     requireOperationalJob(authority.grant, current.job);

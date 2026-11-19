@@ -73,7 +73,10 @@ const digests = Object.fromEntries(
 it("derives installation records only, with bounded freshness and exact measured specs", () => {
   const r = fixture(),
     d = measuredDeployments(r, digests, "c".repeat(64));
-  expect(d).toHaveLength(4);
+  expect(d).toHaveLength(5);
+  expect(d.find((r) => r.engine === "sbom")?.spec).toEqual(
+    d.find((r) => r.engine === "sca")?.spec,
+  );
   expect(
     Date.parse(d[0].qualification.expiresAt) - Date.parse(r.completedAt),
   ).toBe(3600000);

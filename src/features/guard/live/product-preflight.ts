@@ -284,6 +284,16 @@ export async function verifyProductDatabase(
     if (failed) throw new LiveGuardError("source_unavailable");
   }
 }
+type ConfigurationPhase = "TARGET_CONFIGURATION" | "SCHEMA_PLAN" | "DATABASE_CHECK";
+function configurationFailure(error: unknown, phase: ConfigurationPhase) {
+  const code = error && typeof error === "object" && "code" in error ? error.code : undefined;
+  const reason = code === "EACCES" || code === "EPERM" ? "FILE_ACCESS_DENIED"
+    : code === "ENOENT" ? "FILE_NOT_FOUND"
+    : code === "EIO" || code === "ENOTDIR" || code === "EISDIR" ? "FILE_IO_ERROR"
+    : error instanceof SyntaxError ? "INVALID_JSON"
+    : error instanceof LiveGuardError ? "VALIDATION_FAILED" : "UNKNOWN";
+  return { phase, reason };
+}
 export async function probeProductReadiness(
   env: NodeJS.ProcessEnv,
   scope?: { workspaceId: string; projectId: string },
@@ -294,6 +304,7 @@ export async function probeProductReadiness(
       observedAt: new Date().toISOString(),
       references: refs,
       configuration: "NOT_CONFIGURED",
+      configurationDiagnostic: null as ReturnType<typeof configurationFailure> | null,
       policyBinding: "NOT_VERIFIED",
       sandbox: "NOT_VERIFIED",
       appDatabase: "NOT_CONNECTED",
@@ -303,6 +314,7 @@ export async function probeProductReadiness(
       pinnedCommitVerified: false,
     };
   if (!env.GUARD_PRODUCT_CONFIG_FILE) return result;
+  let phase: ConfigurationPhase = "TARGET_CONFIGURATION";
   try {
     const target = await loadProductTarget(env.GUARD_PRODUCT_CONFIG_FILE);
     result.configuration = "TARGET_VERIFIED";
@@ -318,7 +330,9 @@ export async function probeProductReadiness(
     } catch {
       result.sandbox = "CONFIGURATION_QUALIFICATION_OR_IMAGE_NOT_READY";
     }
+    phase = "SCHEMA_PLAN";
     const plan = await guardMigrationPlan();
+    phase = "DATABASE_CHECK";
     for (const purpose of ["app", "worker"] as const) {
       const key = purpose === "app" ? "appDatabase" : "workerDatabase";
       if (
@@ -345,8 +359,13 @@ export async function probeProductReadiness(
         await pool?.end();
       }
     }
-  } catch {
-    result.configuration = "INVALID_TARGET_CONFIGURATION";
+  } catch (error) {
+    if (phase === "TARGET_CONFIGURATION") result.configuration = "INVALID_TARGET_CONFIGURATION";
+    if (phase === "DATABASE_CHECK") {
+      result.appDatabase = "DATABASE_PREFLIGHT_INCOMPLETE";
+      result.workerDatabase = "DATABASE_PREFLIGHT_INCOMPLETE";
+    }
+    result.configurationDiagnostic = configurationFailure(error, phase);
   }
   return result;
 }

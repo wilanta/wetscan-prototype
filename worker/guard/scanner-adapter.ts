@@ -1,3 +1,6 @@
+import { ImageArtifactOwner } from "./image-artifact";
+import { repositorySbom } from "../../src/features/guard/sbom";
+import { tagFailure } from "./source-failure";
 import { open, readFile, lstat } from "node:fs/promises";
 import { join } from "node:path";
 import { createHash, randomUUID } from "node:crypto";
@@ -45,18 +48,22 @@ import {
 } from "./acceptance/registry";
 import { scopedOwnedSandbox } from "./acceptance/scoped-sandbox";
 import { fixtureTarget, spentJob } from "./acceptance/catalog";
-export type RepositoryEngine = "sast" | "sca" | "secrets" | "iac";
+export type RepositoryEngine = "sast" | "sca" | "secrets" | "iac" | "sbom" | "container";
 const executables = {
   sast: "/usr/local/bin/opengrep",
   sca: "/usr/local/bin/osv-scanner",
+  sbom: "/usr/local/bin/osv-scanner",
   secrets: "/usr/local/bin/gitleaks",
   iac: "/usr/local/bin/trivy",
+  container: "/usr/local/bin/trivy",
 } as const;
 const scanners = {
   sast: "opengrep",
   sca: "osv-scanner",
+  sbom: "osv-scanner",
   secrets: "gitleaks",
   iac: "trivy",
+  container: "trivy",
 } as const;
 const digest = (data: string | Buffer) =>
   createHash("sha256").update(data).digest("hex");
@@ -238,7 +245,12 @@ export function canonicalOutput(
   snapshot: AuthorizedSnapshot,
 ) {
   const data = structuredClone(input);
-  if (engine === "secrets")
+  if (engine === "container") {
+    const image = snapshot.image;
+    if (!image || record(record(data).Metadata).ImageID !== image.configDigest) throw new LiveGuardError("source_integrity");
+    for (const value of array(record(data).Results)) { const row=record(value); row.Target=safePath(String(row.Target).replace(/^\//,"")); }
+  }
+  else if (engine === "secrets")
     for (const value of array(data)) {
       const r = record(value);
       r.File = relativeSourcePath(r.File, snapshot);
@@ -250,7 +262,7 @@ export function canonicalOutput(
       record(r.extra).message =
         "Static analysis rule match; inspect the recorded rule and authorized location.";
     }
-  else if (engine === "sca")
+  else if (engine === "sca" || engine === "sbom")
     for (const value of array(record(data).results)) {
       const r = record(record(value).source);
       r.path = relativeSourcePath(r.path, snapshot);
@@ -275,6 +287,47 @@ export function canonicalOutput(
     });
   }
   return data;
+}
+/** Successful CLI exit alone never proves SAST coverage. */
+export function operationalSastCoverage(
+  data: unknown,
+  snapshot: AuthorizedSnapshot,
+) {
+  const output = record(data),
+    scanned = record(output.paths).scanned;
+  if (!Array.isArray(scanned) || scanned.length > snapshot.files.length)
+    throw new LiveGuardError("source_integrity");
+  const paths = new Set(
+    scanned.map((path) => relativeSourcePath(path, snapshot)),
+  );
+  if (paths.size !== scanned.length)
+    throw new LiveGuardError("source_integrity");
+  for (const value of array(output.results))
+    if (!paths.has(relativeSourcePath(record(value).path, snapshot)))
+      throw new LiveGuardError("source_integrity");
+  const eligible = snapshot.files.filter((f) =>
+    /\.(?:[cm]?[jt]sx?|py)$/.test(f.path),
+  ).length;
+  const partial =
+    paths.size < eligible || array(output.errors ?? []).length > 0;
+  return {
+    coverage: {
+      status: !paths.size
+        ? ("not_applicable" as const)
+        : partial
+          ? ("partial" as const)
+          : ("complete" as const),
+      scannedFiles: paths.size,
+      eligibleFiles: eligible,
+      scope: "Configured Opengrep JS/TS/Python rule subset only",
+    },
+    status: paths.size ? ("completed" as const) : ("not_applicable" as const),
+    reason: paths.size
+      ? "Opengrep scanned " +
+        paths.size +
+        " authorized manifest file(s); source was not executed."
+      : "Opengrep scanned zero files; no supported-file coverage or clean result is claimed.",
+  };
 }
 /** Real Docker execution in the source-owning parent only. No default image, host runner or Demo-to-live fallback. */
 export function isolatedRepositoryScanner(input: {
@@ -412,7 +465,9 @@ function executeQualifiedScanner(
           },
         },
       );
-      const raw = await sandbox.execute(source, bounded);
+      const raw = await sandbox.execute(source, bounded).catch((error) => {
+        throw tagFailure(error, "sandbox");
+      });
       check();
       await verifyScannerInstallation(permit, input.privateRoot);
       if (signal.aborted || snapshot.expiresAt <= Date.now())
@@ -438,19 +493,87 @@ function executeQualifiedScanner(
       const data = canonicalOutput(JSON.parse(raw), input.engine, snapshot),
         findings = await (input.engine === "sast"
           ? normalizeOpengrep(data, ctx)
-          : input.engine === "sca"
+          : input.engine === "sca" || input.engine === "sbom"
             ? normalizeOSV(data, ctx)
             : input.engine === "secrets"
               ? normalizeGitleaks(data, ctx)
-              : normalizeTrivy(data, ctx, "iac"));
+              : normalizeTrivy(data, ctx, input.engine === "container" ? "container" : "iac"));
       if (exitCode === undefined || (exitCode === 1 && !findings.length))
         throw new LiveGuardError("source_integrity");
+      const coverage =
+        input.engine === "sast" && validate === validateOperationalSandboxSpec
+          ? operationalSastCoverage(data, snapshot)
+          : undefined;
+      const dependencyEngine =
+        input.engine === "sca" || input.engine === "sbom";
+      const inventory = dependencyEngine
+        ? normalizeOSVInventory(data)
+        : undefined;
+      const dependencyFiles = dependencyEngine
+        ? new Set(
+            array(record(data).results).map((r) =>
+              String(record(record(r).source).path),
+            ),
+          )
+        : new Set<string>();
+      const manifests = snapshot.files.filter((f) =>
+        /(?:^|\/)(?:package-lock\.json|npm-shrinkwrap\.json|yarn\.lock|pnpm-lock\.yaml|poetry\.lock|Pipfile\.lock|requirements[^/]*\.txt|Cargo\.lock|go\.mod|pom\.xml|Gemfile\.lock|composer\.lock)$/.test(
+          f.path,
+        ),
+      );
+      const dependencyCoverage = dependencyEngine
+        ? {
+            status: !inventory?.length
+              ? ("not_applicable" as const)
+              : manifests.some((f) => !dependencyFiles.has(f.path))
+                ? ("partial" as const)
+                : ("complete" as const),
+            scannedFiles: dependencyFiles.size,
+            eligibleFiles: manifests.length,
+            scope:
+              "npm lockfiles in the authorized snapshot; unsupported or unreported manifests remain partial; no reachability analysis",
+          }
+        : undefined;
+      const iacFiles =
+        input.engine === "iac"
+          ? new Set(
+              array(record(data).Results).map((r) => String(record(r).Target)),
+            )
+          : undefined;
+      const iacEligible = snapshot.files.filter((f) =>
+        /(?:\.(?:tf|tfvars|ya?ml)|(?:^|\/)Dockerfile)$/.test(f.path),
+      ).length;
+      const iacCoverage = iacFiles
+        ? {
+            status: !iacFiles.size
+              ? ("not_applicable" as const)
+              : iacFiles.size < iacEligible
+                ? ("partial" as const)
+                : ("complete" as const),
+            scannedFiles: iacFiles.size,
+            eligibleFiles: iacEligible,
+            scope:
+              "Trivy reported manifest-bound IaC targets only; unreported/unsupported files are not clean coverage",
+          }
+        : undefined;
       return {
-        ...(input.engine === "sca"
-          ? { inventory: normalizeOSVInventory(data) }
+        ...(input.engine === "sca" || input.engine === "sbom"
+          ? {
+              inventory: normalizeOSVInventory(data),
+              ...(input.engine === "sbom"
+                ? {
+                    sbom: repositorySbom(
+                      normalizeOSVInventory(data),
+                      snapshot.repository,
+                      ctx.artifactDigest,
+                    ),
+                  }
+                : {}),
+            }
           : {}),
         run: {
           engine: input.engine,
+          ...(snapshot.image ? { image: snapshot.image } : {}),
           artifactDigest: ctx.artifactDigest,
           executionEvidence: {
             version: 1,
@@ -460,14 +583,21 @@ function executeQualifiedScanner(
             installationArtifactSha256: permit.installationArtifactSha256,
             cleanup: "VERIFIED",
           },
-          status: "completed",
+          coverage: coverage?.coverage ?? dependencyCoverage ?? iacCoverage,
+          status:
+            coverage?.status ??
+            ((dependencyCoverage ?? iacCoverage)?.status === "not_applicable"
+              ? "not_applicable"
+              : "completed"),
           scanner: scanners[input.engine],
           version: permit.scannerVersion,
           rulePack: permit.rulePack,
           reason:
-            "Exact approved scanner ran in its attested, inspected container; source was not executed.",
+            coverage?.reason ??
+            (dependencyCoverage ? dependencyCoverage.scope + "; " : "") +
+              "Exact approved scanner ran in its attested, inspected container; source was not executed.",
         },
-        findings,
+        findings: input.engine === "sbom" ? [] : snapshot.image ? findings.map(f=>({...f,location:{...f.location,artifactKind:"image",imageDigest:snapshot.image!.digest},evidence:f.evidence.map(e=>({...e,imageDigest:snapshot.image!.digest}))})) : findings,
       };
     },
   };
@@ -521,10 +651,24 @@ export function operationalRepositoryScanner(
       return measured;
     },
   };
-  return executeQualifiedScanner(
-    { ...input, evidence: attestation },
+  const imageOwner = new ImageArtifactOwner();
+  const port = executeQualifiedScanner(
+    { ...input, evidence: attestation, sourceOwner: input.engine === "container" ? imageOwner : input.sourceOwner },
     authority,
     check,
     validateOperationalSandboxSpec,
   );
+  return {
+    engine: port.engine,
+    execute: async (snapshot, signal) => {
+      let image: AuthorizedSnapshot | undefined, cleanupUnknown=false;
+      try {
+        if(input.engine === "container") { await input.verifyLease(); image=await imageOwner.acquire(snapshot,await input.freshGrant(),policy.image!,signal); }
+        return await port.execute(image ?? snapshot, signal);
+      } catch (error) {
+        cleanupUnknown=(error as {code?:string})?.code==="cleanup_failed";
+        throw tagFailure(error, "scanner");
+      } finally { if(image&&!cleanupUnknown) await imageOwner.dispose(image); }
+    },
+  };
 }

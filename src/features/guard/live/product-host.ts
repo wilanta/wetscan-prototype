@@ -1,3 +1,4 @@
+import { pipelineFailureReason } from "../../../../worker/guard/source-failure";
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -261,6 +262,14 @@ async function runSession(
       timeoutMs: policy.jobTimeoutMs,
     });
   } catch (error) {
+    console.warn(
+      "[WetScan Guard]",
+      JSON.stringify({
+        event: "repository_worker_failed",
+        jobId: job.id,
+        diagnostic: JSON.parse(pipelineFailureReason(error, "broker")),
+      }),
+    );
     unknownCleanup =
       error instanceof LiveGuardError && error.code === "cleanup_failed";
     throw error;

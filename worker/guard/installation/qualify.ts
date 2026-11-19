@@ -1,6 +1,6 @@
 /** Explicit installation qualification only: never Auth, PostgreSQL, queue or owner source. */
 import { spawn } from "node:child_process";
-import { mkdtemp, readFile, writeFile, rm, realpath } from "node:fs/promises";
+import { mkdtemp, readFile, writeFile, rm, realpath, mkdir } from "node:fs/promises";
 import { join, resolve, dirname, basename, isAbsolute } from "node:path";
 import { tmpdir } from "node:os";
 import { createHash, randomUUID } from "node:crypto";
@@ -13,6 +13,8 @@ import {
 } from "../sandbox";
 import { inspectedBoundary } from "../acceptance/inspection";
 import { eligibleContainer, type ResourceRecord } from "../acceptance/registry";
+import { controlledOciFixture } from "./oci-fixture";
+import { inspectOciArchive, ociArchiveFiles } from "../image-artifact";
 import { scannerCommands, installedScope } from "./commands";
 import { canonicalOutput } from "../scanner-adapter";
 import {
@@ -139,7 +141,7 @@ export async function removeInstallationContainer(
 }
 async function main() {
   const root = resolve(process.argv[2] ?? "");
-  if (!root.endsWith(join(".local", "g02-install")))
+  if (!["g02-install", "g02-completion-install"].some(name=>root.endsWith(join(".local",name))))
     throw Error("installation_root_required");
   const image = JSON.parse(
       await readFile(join(root, "built-image.json"), "utf8"),
@@ -167,7 +169,10 @@ async function main() {
     join(tmpdir(), "wetscan-g01-snapshot-g02-install-"),
   );
   await secureSnapshotDirectory(source);
-  const contents: Record<string, string> = {
+  const imageFixture = controlledOciFixture();
+  const contents: Record<string, string|Buffer> = {
+    ...Object.fromEntries([...ociArchiveFiles(imageFixture.archive,imageFixture.scope)].map(([p,b])=>["image.oci/"+p,b])),
+    "test.tsx": "export default function View(p: {value:string}) { return <div dangerouslySetInnerHTML={{__html:p.value}}/>; }",
     "probe-control.txt": "CONTROLLED_G02_INSTALLATION_ONLY",
     "test.js": "const userInput = process.env.UNTRUSTED; eval(userInput);\n",
     "sample-token.txt":
@@ -197,8 +202,10 @@ async function main() {
       },
     }),
   };
-  for (const [name, bytes] of Object.entries(contents))
+  for (const [name, bytes] of Object.entries(contents)) {
+    await mkdir(dirname(join(source,name)),{recursive:true});
     await writeFile(join(source, name), bytes, { flag: "wx" });
+  }
   const report: {
     completedAt?: string;
     classification: string;
@@ -246,10 +253,10 @@ async function main() {
       docker: process.env.G02_INSTALL_DOCKER!,
       endpoint: "npipe:////./pipe/docker_engine",
       image: image.imageId,
-      executable: "/usr/local/bin/" + engine,
+      executable: "/usr/local/bin/" + (engine === "trivy-image" ? "trivy" : engine),
       args,
       cpu: 1,
-      memoryMb: engine === "osv-scanner" ? 2048 : 256,
+      memoryMb: engine === "osv-scanner" || (engine === "trivy-image" && args[0] === "image") ? 2048 : 256,
       pids: 64,
       timeoutMs: ms,
       outputBytes: 2000000,
@@ -287,6 +294,7 @@ async function main() {
         }),
         { flag: "wx" },
       );
+      validateOperationalSandboxSpec(spec);
       try {
         id = (
           await docker.call(
@@ -427,7 +435,8 @@ async function main() {
           throw Error("OOM_not_observed");
         report.tests[mode] = { status: "PASS", ...r, output: undefined };
       }
-      for (const engine of ["opengrep", "osv-scanner", "gitleaks", "trivy"]) {
+      for (const engine of ["opengrep", "osv-scanner", "gitleaks", "trivy", "trivy-image"]) {
+        phase = "version_" + engine;
         try {
           const v = await execute(engine, ["--version"]);
           report.scanners[engine] = {
@@ -493,6 +502,7 @@ async function main() {
         "osv-scanner",
         "gitleaks",
         "trivy",
+        "trivy-image",
       ] as const) {
         phase = "scan_" + engine;
         try {
@@ -508,6 +518,7 @@ async function main() {
               "osv-scanner": "sca",
               gitleaks: "secrets",
               trivy: "iac",
+              "trivy-image": "container",
             } as const
           )[engine];
           await writeFile(
@@ -515,7 +526,7 @@ async function main() {
             r.output,
             { flag: "wx" },
           );
-          const raw = canonicalOutput(JSON.parse(r.output), kind, snapshot),
+          const raw = canonicalOutput(JSON.parse(r.output), kind, kind === "container" ? {...snapshot,image:inspectOciArchive(imageFixture.archive,imageFixture.scope)} : snapshot),
             context = {
               ...ctx,
               artifactDigest: hash(r.output),
@@ -527,7 +538,7 @@ async function main() {
               ? normalizeOSV(raw, context)
               : engine === "gitleaks"
                 ? normalizeGitleaks(raw, context)
-                : normalizeTrivy(raw, context, "iac"));
+                : normalizeTrivy(raw, context, kind === "container" ? "container" : "iac"));
           if (!findings.length)
             throw Error("known_fixture_finding_not_observed");
           await writeFile(

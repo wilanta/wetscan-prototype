@@ -1,8 +1,56 @@
 # G02 operational Live startup and first real scan
 
+Latest code/physical scanner validation: [G02 requirement checklist](GUARD_G02_VALIDATION.md). Historical qualification references below are not valid launch authority. Current enable flag remains0; no new owner scan is authorized. Quick/Standard/Full and SBOM support do not broaden the existing SAST-only runtime policy.
+
+## Offline first-live SAST repair checkpoint - 19 November 2026
+
+**OFFLINE_VERIFIED / NEW_LIVE_APPROVAL_REQUIRED.** The first real trial, scan4e1e38b570eda742d3ca03d34a764229d5d454f4949a99f9154ee5e1605b76d3, remains failed/STOP. Owner SQL and stored view agree:1 scan,1 durable job,1 finished attempt, empty lease fields, zero findings/evidence, source coverage null, scanner NOT_RUN. The queue's completed status is handler lifecycle, not successful security coverage. No recovery or replay is required for this terminal job, and none is authorized.
+
+The proven implementation defect was loss of typed source/provider errors into execution_stopped. The historical failure took50.643 seconds after preparing; source deadline exhaustion is consistent with that timing, but the original cause is NOT_PROVEN because the detailed error was not retained. The old not_configured engine value was initial job metadata, not proof that the qualified deployment was absent.
+
+Current fixes:
+- Operational ProductSessionBroker uses at most3 blob reads in flight. The shared source adapter defaults to1 for legacy callers.45-second source budget,60-second grant TTL,1000 files,64KiB/file and20MB aggregate remain unchanged.
+- In-flight capacity/byte reservations, deterministic ordered processing, SHA1/SHA256 checks, sensitive-path exclusions, abort-and-drain on revocation/integrity failure, final fresh authorization and owned cleanup remain enforced.
+- New job failure diagnostics distinguish source/broker/sandbox/scanner, safe phase/code/provider category, deadline/counts and NOT_CREATED/VERIFIED/UNKNOWN source cleanup. No raw exceptions, source, paths or credentials are serialized. Cleanup uncertainty still propagates cleanup_failed for quarantine, including immutable errors.
+- A scanner not started by a failed new job is reported as failed/not-started rather than left with a misleading initial not_configured reason. Historical stored job records are not rewritten.
+
+Validation:390/390 Guard unit/integration;516/516 Auth/Canvas/platform/Sentinel/demo contracts;6/6 Live browser;5/5 prototype/demo browser; typecheck, lint, production Webpack build and production boundary smoke PASS. The source-to-broker-to-operational-sandbox/parser test uses real fixture filesystem files and Docker/provider doubles; it is not live acceptance. Virtual timing reproduces80 serial700ms reads exceeding45 seconds and three-wide retrieval succeeding within the SAME budget.
+
+Runtime source baseline:311 files, SHA256 f80b6b9b9904139d61ec070a1ea5fb43534ae4db204b464dfa03087bd74d1520. Local verification manifest: test-results/g02-source-fix-20261119.f80b6b9b9904.json (ignored by Git, not a permit). The original trial evidence, SQL observer and preflight/approval records retain their hashes.399 G01 preservation hashes match; this does not close any additional G01 acceptance case.
+
+Owner confirmed GUARD_PRODUCT_ENABLED=0 and server ready. The previous approval/qualification expired and cannot authorize another run. Before one NEW trial: refresh the existing controlled scanner measurement, obtain current Auth/pin/role-schema-RLS readiness, and get a new owner approval for one new job/idempotency identity. Do not reprovision the operational DB or repeat password setup. Do not Resume/retry the historical job, reset data or perform manual/orphan cleanup. Physical historical source absence was not independently observed and is not retroactively asserted. No commit/push/PR7/master/Sentinel/N01 changes occurred.
+
+
+## Current verified checkpoint â€” 19 November 2026
+
+G02 provisioning is complete. The owner confirmed actual CREATE DATABASE, schema COMMIT, READ ONLY verification and ROLLBACK on the new operational target. **Do not rerun the provisioning files.** Database: localhost:5432/wetscan_dev_guardg02; owner wetscan_guard_migrator; marker wetscan-s01:f0927e49-0e70-4b90-913f-6cd6984df9d8. Owner metadata at 12:24:41 WIB showed zero scans/jobs, budget1, forced RLS3 and app/worker privileges.
+
+Existing app/worker passwords were installed by the owner through [the secure reference setup](GUARD_G02_REFERENCE_SETUP.md). The agent did not inspect those values or private references. Actual authenticated application preflight at 2026-11-19T05:47:58.739Z verified provider authorization, the selected inkAja/wdu repository839286157/main, target configuration and both direct app/worker target-role-schema-RLS connections. This is owner-provided runtime evidence, not an agent DB observation.
+
+The first target-only configuration intentionally has no policy/scanner deployments. The separately prepared measured SAST configuration must pass application preflight (policyBinding VERIFIED; sandbox METADATA_AND_QUALIFICATION_VERIFIED) and resolve the actual current40-character commit before any scan proposal. Keep GUARD_PRODUCT_ENABLED=0. Neither HTTP200 nor metadata readiness authorizes scanning.
+
+Controlled synthetic container qualification has exercised actual Opengrep, OSV, Gitleaks and Trivy CLIs with resource/timeout/cancellation/cleanup controls. This does not prove any owner repository scan. Operational Opengrep output must include manifest-bound scanned paths: zero files is not_applicable, absent/inconsistent coverage fails closed. The limited JavaScript/Python rule set is not comprehensive language coverage.
+
+The provisioning proposal and catalog narrative below describe earlier preparation. Their "not executed", "awaiting approval" and "missing references" statements are superseded by this dated checkpoint. Historical G01/N01 state remains untouched; G01 is PARTIALLY_COMPLETE,2/16 PASS, and the old N01 transaction remains unresolved.
+
+
 Integration branch: `feat/guard-g02-g06-integration`. The existing worktree directory retains its original name; there is one prototype application. Use `npm run guard:dev` for the normal full website, with the owner's legitimate configuration. The sanitized `scripts/mvp-check.mjs` remains a test/demo harness and must not be used as Live startup.
 
 Status: code wired, actual repository scan NOT_RUN. This is an operational setup note, not a G01 acceptance packet or runtime approval. G01 remains 2/16 PASS; N01 historical STOP / window-2 transaction UNKNOWN.
+
+## Current scanner measurement and next owner action - 19 November 2026
+
+The expired configuration bytes are preserved as product.runtime.json.expired.8f1dd3794145168f4496713212d97c506c786d8b60732b301daf0d9d4426657d.json beside the same active product.runtime.json. The active file reference is unchanged. Its SHA256 is now **46c57ca785e7dcca9c67286b30ed1c4c3b2f471609d50f008fb169749981a327**. Only the measured scanner root/qualification changed; database target, repository policy, SAST-only engine selection, image and scanner spec are identical.
+
+Fresh controlled measurement d8e9a6e6-2273-431d-8b53-5b4bb5a4c764 completed at 2026-11-19T07:25:17.334Z and expires at **19 November 2026,15:25:17 WIB**. Opengrep/OSV/Gitleaks/Trivy produced1/5/1/3 findings on synthetic files. Isolation, output, timeout, cancellation, OOM and exact-owned test cleanup passed. Measurement export and physical metadata recheck passed. This is not owner repository scanning or G01 orphan acceptance.
+
+Keep GUARD_PRODUCT_ENABLED=0. Do not repeat provisioning, password setup or startup merely for this measurement update: preflight reads the active non-secret file per request. If the configured reference still cannot be found, report the safe diagnostic; do not copy credential files, invent another target or relax ACL.
+
+The owner reported restored website access after an internet interruption, but the requested diagnostic JSON was not retained. Current Auth/configuration/DB/policy therefore require one new actual preflight observation, not a claim based on the earlier successful process.
+
+Use the supplied combined Console metadata request once: preflight first, then resolve main only if Auth/provider, target, policy, qualified sandbox and both role/schema/RLS database checks pass. Alternatively use the existing read-only preflight button and then Resolve pinned commit after validation. Both operations are metadata-only, with no source snapshot, scan or job. Send actual safe outputs immediately, without a placeholder. On any error/unknown, stop without retry, login changes or scan activation.
+
+The first-scan proposal must bind the actual returned40-character commit. No owner repository scan, AI request, GitHub write, DAST, deployment or manual/orphan cleanup is authorized by readiness or this measurement.
 
 ## What is connected
 

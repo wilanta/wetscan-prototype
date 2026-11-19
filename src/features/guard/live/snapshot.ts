@@ -1,3 +1,7 @@
+import {
+  tagFailure,
+  type SourcePhase,
+} from "../../../../worker/guard/source-failure";
 import { createHash, randomUUID } from "node:crypto";
 import {
   mkdtemp,
@@ -34,6 +38,8 @@ import {
   type ProjectAuthority,
   type SourceAccess,
   type SourceCoverage,
+  type SourceEntry,
+  type SourceLease,
 } from "./model";
 export const snapshotPolicy = {
   maxFiles: 1000,
@@ -42,6 +48,10 @@ export const snapshotPolicy = {
   maxDepth: 16,
   maxMs: 45000,
 } as const;
+/** Only operational dependency manifests get a reviewed larger bound; source/config defaults stay64KiB. */
+export function operationalManifestBytes(path: string) {
+ return /(?:^|\/)(?:package-lock\.json|npm-shrinkwrap\.json|yarn\.lock|pnpm-lock\.yaml|poetry\.lock|Pipfile\.lock|Cargo\.lock|Gemfile\.lock|composer\.lock|go\.sum)$/.test(path) ? 2097152 : snapshotPolicy.maxFileBytes;
+}
 const sha256 = (data: string | Buffer) =>
   createHash("sha256").update(data).digest("hex");
 export class GuardSnapshotAdapter implements SnapshotPort {
@@ -59,6 +69,7 @@ export class GuardSnapshotAdapter implements SnapshotPort {
       ): Promise<void>;
       beforeCleanup(root: string): Promise<void>;
     },
+    private readonly acquisition: { blobConcurrency?: number; largeDependencyManifests?: boolean } = {},
   ) {}
   private bind(
     authority: ProjectAuthority,
@@ -83,30 +94,90 @@ export class GuardSnapshotAdapter implements SnapshotPort {
     request: ScanRequest,
     parentSignal?: AbortSignal,
   ): Promise<GuardSnapshot> {
-    if (parentSignal?.aborted) throw new LiveGuardError("source_unavailable");
-    const authority = await this.source.authorize();
-    this.bind(authority, grant, request);
-    const signal = parentSignal
-        ? AbortSignal.any([
-            parentSignal,
-            AbortSignal.timeout(snapshotPolicy.maxMs),
-          ])
-        : AbortSignal.timeout(snapshotPolicy.maxMs),
-      lease = await this.source.open(authority, signal);
-    let root: string | undefined;
-    let result: GuardSnapshot | undefined;
+    const started = performance.now(),
+      concurrency = this.acquisition.blobConcurrency ?? 1;
+    if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 3)
+      throw new LiveGuardError("invalid_input", 400);
+    let phase: SourcePhase = "authorize",
+      root: string | undefined,
+      result: GuardSnapshot | undefined;
+    let lease: SourceLease | undefined,
+      coverage: SourceCoverage | undefined,
+      deadline: AbortSignal | undefined;
+    let cleanupState: "NOT_CREATED" | "VERIFIED" | "UNKNOWN" = "NOT_CREATED";
+    const stop = new AbortController();
+    const buffers: {
+      path: string;
+      content: Buffer;
+      sha256: string;
+      size: number;
+    }[] = [];
+    type BlobResult = {
+      file?: (typeof buffers)[number];
+      excluded?: "retrieval_failed" | "binary";
+    };
+    let pending: { path: string; size: number; work: Promise<BlobResult> }[] =
+      [];
+    let fatal: { error: unknown } | undefined;
+    const decorate = (error: unknown) => {
+      const e = tagFailure(error, "source");
+      return Object.assign(e, {
+        guardSourceDiagnostic: {
+          version: 1,
+          phase,
+          elapsedMs: Math.round(Math.min(600000, performance.now() - started)),
+          retrievedFiles: buffers.length,
+          eligibleFiles: coverage?.eligibleFiles ?? 0,
+          timedOut: deadline?.aborted === true,
+          parentCancelled: parentSignal?.aborted === true,
+          cleanup: cleanupState,
+          concurrency,
+        },
+      });
+    };
+    const flush = async () => {
+      const batch = pending;
+      pending = [];
+      const values = await Promise.all(batch.map((x) => x.work));
+      if (fatal) throw fatal.error;
+      for (let i = 0; i < batch.length; i++) {
+        const value = values[i];
+        if (value.excluded)
+          coverage!.exclusions.push({
+            pathDigest: sha256(batch[i].path),
+            reason: value.excluded,
+          });
+        else if (value.file) {
+          coverage!.bytes += value.file.size;
+          buffers.push(value.file);
+        }
+      }
+    };
     try {
+      if (parentSignal?.aborted) throw new LiveGuardError("source_unavailable");
+      const authority = await this.source.authorize();
+      this.bind(authority, grant, request);
+      deadline = AbortSignal.timeout(snapshotPolicy.maxMs);
+      const signal = AbortSignal.any([
+        deadline,
+        stop.signal,
+        ...(parentSignal ? [parentSignal] : []),
+      ]);
+      phase = "open";
+      lease = await this.source.open(authority, signal);
       if (signal.aborted) throw new LiveGuardError("source_unavailable");
+      phase = "head";
       const head = await lease.head(signal);
       if (
         head.commit !== request.repository.commit ||
         !/^[a-f0-9]{40}$/.test(head.tree)
       )
         throw new LiveGuardError("revision_conflict", 409);
+      phase = "tree";
       const tree = await lease.tree(head.tree, signal);
       if (tree.sha !== head.tree || tree.entries.length > 10000)
         throw new LiveGuardError("source_integrity", 502);
-      const coverage: SourceCoverage = {
+      coverage = {
         status: "complete",
         treeTruncated: tree.truncated,
         eligibleFiles: 0,
@@ -117,18 +188,67 @@ export class GuardSnapshotAdapter implements SnapshotPort {
       const excluded = (
         path: string,
         reason: SourceCoverage["exclusions"][number]["reason"],
-      ) => coverage.exclusions.push({ pathDigest: sha256(path), reason });
+      ) => coverage!.exclusions.push({ pathDigest: sha256(path), reason });
+      const readBlob = async (item: SourceEntry): Promise<BlobResult> => {
+        try {
+          let blob: Awaited<ReturnType<SourceLease["blob"]>>;
+          try {
+            blob = await lease!.blob(item.sha, signal, item.size! > snapshotPolicy.maxFileBytes ? 3000000 : undefined);
+          } catch (error) {
+            const code = (error as { code?: unknown })?.code;
+            if (
+              [
+                "repository_denied",
+                "installation_denied",
+                "unauthenticated",
+                "github_rate_limited",
+              ].includes(String(code))
+            )
+              throw error;
+            if (signal.aborted)
+              throw fatal?.error ?? new LiveGuardError("source_unavailable");
+            return { excluded: "retrieval_failed" };
+          }
+          const encoded = blob.content.replace(/\n/g, ""),
+            content = Buffer.from(encoded, "base64");
+          if (
+            blob.sha !== item.sha ||
+            blob.encoding !== "base64" ||
+            content.toString("base64") !== encoded ||
+            content.length !== item.size ||
+            blob.size !== item.size ||
+            createHash("sha1")
+              .update(`blob ${content.length}\0`)
+              .update(content)
+              .digest("hex") !== item.sha
+          )
+            throw new LiveGuardError("source_integrity", 502);
+          try {
+            if (content.includes(0)) throw Error();
+            new TextDecoder("utf-8", { fatal: true }).decode(content);
+          } catch {
+            return { excluded: "binary" };
+          }
+          return {
+            file: {
+              path: item.path,
+              content,
+              size: content.length,
+              sha256: sha256(content),
+            },
+          };
+        } catch (error) {
+          fatal ??= { error };
+          stop.abort();
+          return {};
+        }
+      };
       const seen = new Set<string>();
-      const buffers: {
-        path: string;
-        content: Buffer;
-        sha256: string;
-        size: number;
-      }[] = [];
       for (const item of [...tree.entries].sort((a, b) =>
         a.path.localeCompare(b.path),
       )) {
-        if (signal.aborted) throw new LiveGuardError("source_unavailable");
+        if (signal.aborted)
+          throw fatal?.error ?? new LiveGuardError("source_unavailable");
         if (seen.has(item.path))
           throw new LiveGuardError("source_integrity", 502);
         seen.add(item.path);
@@ -148,8 +268,7 @@ export class GuardSnapshotAdapter implements SnapshotPort {
         )
           throw new LiveGuardError("source_integrity", 502);
         try {
-          if (safePath(item.path) !== item.path)
-            throw new Error("noncanonical path");
+          if (safePath(item.path) !== item.path) throw Error();
         } catch {
           excluded(
             item.path,
@@ -168,10 +287,19 @@ export class GuardSnapshotAdapter implements SnapshotPort {
         if (!Number.isSafeInteger(item.size) || item.size! < 0)
           throw new LiveGuardError("source_integrity", 502);
         coverage.eligibleFiles++;
-        if (item.size! > snapshotPolicy.maxFileBytes) {
+        if (item.size! > (this.acquisition.largeDependencyManifests ? operationalManifestBytes(item.path) : snapshotPolicy.maxFileBytes)) {
           excluded(item.path, "file_size");
           continue;
         }
+        if (
+          pending.length &&
+          (buffers.length + pending.length >= snapshotPolicy.maxFiles ||
+            coverage.bytes +
+              pending.reduce((n, x) => n + x.size, 0) +
+              item.size! >
+              snapshotPolicy.maxTotalBytes)
+        )
+          await flush();
         if (buffers.length >= snapshotPolicy.maxFiles) {
           excluded(item.path, "file_limit");
           continue;
@@ -180,54 +308,18 @@ export class GuardSnapshotAdapter implements SnapshotPort {
           excluded(item.path, "total_size");
           continue;
         }
-        let blob: Awaited<ReturnType<typeof lease.blob>>;
-        try {
-          blob = await lease.blob(item.sha, signal);
-        } catch (error) {
-          if (
-            error &&
-            typeof error === "object" &&
-            "code" in error &&
-            [
-              "repository_denied",
-              "installation_denied",
-              "unauthenticated",
-            ].includes(String(error.code))
-          )
-            throw error;
-          if (signal.aborted) throw new LiveGuardError("source_unavailable");
-          excluded(item.path, "retrieval_failed");
-          continue;
-        }
-        const encoded = blob.content.replace(/\n/g, ""),
-          content = Buffer.from(encoded, "base64");
-        if (
-          blob.sha !== item.sha ||
-          blob.encoding !== "base64" ||
-          content.toString("base64") !== encoded ||
-          content.length !== item.size ||
-          blob.size !== item.size ||
-          createHash("sha1")
-            .update(`blob ${content.length}\0`)
-            .update(content)
-            .digest("hex") !== item.sha
-        )
-          throw new LiveGuardError("source_integrity", 502);
-        try {
-          if (content.includes(0)) throw new Error();
-          new TextDecoder("utf-8", { fatal: true }).decode(content);
-        } catch {
-          excluded(item.path, "binary");
-          continue;
-        }
-        coverage.bytes += content.length;
-        buffers.push({
+        phase = "blob";
+        pending.push({
           path: item.path,
-          content,
-          size: content.length,
-          sha256: sha256(content),
+          size: item.size!,
+          work: readBlob(item),
         });
+        if (pending.length >= concurrency) await flush();
       }
+      await flush();
+      if (signal.aborted)
+        throw fatal?.error ?? new LiveGuardError("source_unavailable");
+      phase = "final_authorize";
       const finalAuthority = await this.source.authorize();
       this.bind(finalAuthority, grant, request);
       if (
@@ -241,6 +333,7 @@ export class GuardSnapshotAdapter implements SnapshotPort {
         tree.truncated || coverage.exclusions.length ? "partial" : "complete";
       if (!buffers.length && coverage.eligibleFiles)
         throw new LiveGuardError("source_unavailable");
+      phase = "write";
       root = await mkdtemp(join(tmpdir(), "wetscan-g01-snapshot-"));
       await secureSnapshotDirectory(root);
       let writtenFiles = 0;
@@ -292,14 +385,34 @@ export class GuardSnapshotAdapter implements SnapshotPort {
       this.owned.set(result, root);
       return result;
     } catch (error) {
-      if (root) await this.cleanup(root);
-      throw error;
+      stop.abort();
+      await Promise.all(pending.map((x) => x.work));
+      pending = [];
+      let failure = error;
+      if (root) {
+        try {
+          await this.cleanup(root);
+          cleanupState = "VERIFIED";
+        } catch (cleanupError) {
+          cleanupState = "UNKNOWN";
+          failure = cleanupError;
+        }
+      }
+      throw decorate(failure);
     } finally {
       try {
-        await lease.close();
+        await lease?.close();
       } catch {
-        if (result) await this.dispose(result);
-        throw new LiveGuardError("cleanup_failed");
+        phase = "lease_close";
+        if (result) {
+          try {
+            await this.dispose(result);
+            cleanupState = "VERIFIED";
+          } catch {
+            cleanupState = "UNKNOWN";
+          }
+        }
+        throw decorate(new LiveGuardError("cleanup_failed"));
       }
     }
   }

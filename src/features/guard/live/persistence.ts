@@ -3,6 +3,7 @@ import { PlatformDatabase } from "../../../platform/database";
 import { fingerprint } from "../../../platform/identity";
 import type { Grant, PersistencePort, ScanJob, Scope } from "../contracts";
 import { authorize, redact, safePath } from "../security";
+import { repositorySbom } from "../sbom";
 import { transition } from "../pipeline";
 import { GuardPostgresQueue } from "./queue";
 import { operationalJob, repositoryScanKind } from "./product-policy";
@@ -67,6 +68,7 @@ function bounded(job: ScanJob): ScanJob {
     createdAt: job.createdAt,
     ...(job.finishedAt ? { finishedAt: job.finishedAt } : {}),
     ...(job.sourceCoverage ? { sourceCoverage: job.sourceCoverage } : {}),
+    ...(job.sbom ? { sbom: job.sbom } : {}),
     ...(job.inventory
       ? {
           inventory: job.inventory.map((item) => {
@@ -92,6 +94,23 @@ function bounded(job: ScanJob): ScanJob {
     findings: job.findings,
     audit: job.audit,
   });
+  if (copy.sbom) {
+    const run = copy.runs.find(
+      (r) =>
+        r.engine === "sbom" &&
+        r.status === "completed" &&
+        r.executionEvidence?.cleanup === "VERIFIED",
+    );
+    if (
+      !run?.artifactDigest ||
+      !copy.inventory ||
+      fingerprint(copy.sbom) !==
+        fingerprint(
+          repositorySbom(copy.inventory, copy.repository, run.artifactDigest),
+        )
+    )
+      throw new LiveGuardError("source_integrity");
+  }
   copy.audit = copy.audit.map((a) => ({ ...a, reason: redact(a.reason) }));
   copy.runs = copy.runs.map((r) => ({ ...r, reason: redact(r.reason) }));
   copy.findings = copy.findings.map((f) => {
@@ -105,6 +124,24 @@ function bounded(job: ScanJob): ScanJob {
       throw new LiveGuardError("invalid_input", 400);
     return {
       ...f,
+      ...(f.advisory
+        ? {
+            advisory: {
+              id: redact(f.advisory.id),
+              ecosystem: redact(f.advisory.ecosystem),
+              aliases: f.advisory.aliases.slice(0, 50).map((v) => redact(v)),
+              fixedVersions: f.advisory.fixedVersions
+                .slice(0, 50)
+                .map((v) => redact(v)),
+              cvss: f.advisory.cvss
+                .slice(0, 10)
+                .map((v) => ({
+                  type: redact(v.type),
+                  vector: redact(v.vector),
+                })),
+            },
+          }
+        : {}),
       title: redact(f.title),
       evidence: f.evidence.map((e) => ({ ...e, summary: redact(e.summary) })),
     };
