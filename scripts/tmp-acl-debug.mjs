@@ -29,10 +29,6 @@ await t("icacls inheritance+grant", () => icacls(["/inheritance:r", "/grant:r", 
 await t("icacls setowner user", () => icacls(["/setowner", `*${sid}`]));
 await t("icacls remove Administrators", () => icacls(["/remove:g", "*S-1-5-32-544"]));
 const fmt = `[pscustomobject]@{owner=$a.GetOwner([System.Security.Principal.SecurityIdentifier]).Value;protected=$a.AreAccessRulesProtected;rules=@($a.GetAccessRules($true,$true,[System.Security.Principal.SecurityIdentifier]) | ForEach-Object {[pscustomobject]@{sid=$_.IdentityReference.Value;inherited=$_.IsInherited;type=[string]$_.AccessControlType;rights=[int]$_.FileSystemRights;inheritance=[int]$_.InheritanceFlags;propagation=[int]$_.PropagationFlags}})} | ConvertTo-Json -Depth 4 -Compress`;
+const pure = (dir) => `$a=[System.IO.DirectoryInfo]::new('${dir}').GetAccessControl();$j='{"owner":"'+$a.GetOwner([System.Security.Principal.SecurityIdentifier]).Value+'","protected":'+$a.AreAccessRulesProtected.ToString().ToLower()+',"rules":[';$f=$true;foreach($r in $a.GetAccessRules($true,$true,[System.Security.Principal.SecurityIdentifier])){if(-not $f){$j+=','};$f=$false;$j+='{"sid":"'+$r.IdentityReference.Value+'","inherited":'+$r.IsInherited.ToString().ToLower()+',"type":"'+[string]$r.AccessControlType+'","rights":'+[int]$r.FileSystemRights+',"inheritance":'+[int]$r.InheritanceFlags+',"propagation":'+[int]$r.PropagationFlags+'}'};$j+=']}';[Console]::Out.Write($j)`;
 await t("baseline powershell startup (minimal env)", () => run("1"));
-await t("A get-acl, PSModulePath pinned", () =>
-  run(`$a=Get-Acl -LiteralPath '${dir}'; ${fmt}`, { ...env, PSModulePath: join(sys, "WindowsPowerShell/v1.0/Modules") }));
-await t("B .NET GetAccessControl, minimal env", () =>
-  run(`$a=(New-Object System.IO.DirectoryInfo -ArgumentList '${dir}').GetAccessControl(); ${fmt}`));
-await t("B2 .NET GetAccessControl run 2", () =>
-  run(`$a=(New-Object System.IO.DirectoryInfo -ArgumentList '${dir}').GetAccessControl(); ${fmt}`));
+for (const n of [1, 2, 3]) await t("C pure-language .NET run " + n, () => run(pure(dir)));
