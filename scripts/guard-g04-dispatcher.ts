@@ -19,7 +19,7 @@ const dockerRun = (docker: string) => (args: string[]) =>
     c.once("close", (code) => resolve({ code: code ?? 1, stdout: out }));
   });
 async function repairHost() {
-  const cfg = await loadDeployment(process.env.GUARD_PRODUCT_CONFIG_FILE).catch(() => null);
+  const cfg = await loadDeployment(process.env.GUARD_PRODUCT_CONFIG_FILE).catch((e) => { console.warn(JSON.stringify({ event: "g04_host_repair_config_error", code: e?.code })); return null; });
   if (!cfg) return { action: "skipped" as const };
   return reapOrphanLock({ root: cfg.value.privateRoot, docker: dockerRun(cfg.value.deployments[0].spec.docker) });
 }

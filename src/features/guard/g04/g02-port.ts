@@ -13,10 +13,15 @@ import type { AccessReport, ScanPort } from "./service";
 import type { PolicyRecord, TriggerRecord } from "./store";
 
 /** The stored owner identity, never a browser session. Re-verified against GitHub on every use (see verifyAccess). */
+/**
+ * The grant bounds how long a snapshot may be used. G02 re-issues one per engine, and OSV needs up to 90 s (53 s measured for SCA on this host):
+ * a 60 s grant made the engine that FOLLOWS a slow one fail with source_unavailable. Still short-lived and re-verified against GitHub on every issue.
+ */
+const GRANT_MS = 180_000;
 export function automationAuthority(rec: PolicyRecord, branch: string): ProjectAuthority {
   const issuedAt = Date.now();
   return {
-    grant: { mode: "live", workspaceId: rec.workspaceId, projectId: rec.projectId, actorId: rec.ownerActor, operations: ["read", "scan"], issuedAt, expiresAt: issuedAt + 60_000 },
+    grant: { mode: "live", workspaceId: rec.workspaceId, projectId: rec.projectId, actorId: rec.ownerActor, operations: ["read", "scan"], issuedAt, expiresAt: issuedAt + GRANT_MS },
     repositoryId: rec.repositoryId,
     repositoryName: rec.repositoryName,
     branch,
