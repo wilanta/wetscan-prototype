@@ -1,0 +1,44 @@
+{
+  "classification": "OWNER_APP_PROOF_NOT_LIVE_ACCEPTANCE",
+  "documentationCheckpoint": ".local/g03-app-proof-success-checkpoint-Z306aS",
+  "implementationFilesUnchanged": 46,
+  "files": [
+    {
+      "file": "docs/GUARD_G03_EXISTING_TARGET_PROOF.md",
+      "sha256": "b8949e413ddf99a5212834aa7ca867d266299e0901cccaa939a746fa77d5fe35"
+    },
+    {
+      "file": "docs/GUARD_G03_ENVIRONMENT_RECOVERY_PLAN.md",
+      "sha256": "0960e4f62ba427c9cada09eb2874677ee8dcc0109f3ed432dc381cbc87cdf55c"
+    },
+    {
+      "file": "docs/GUARD_G03_READER_RUNTIME_SETUP.md",
+      "sha256": "3767b657757e86ff27313bd40a1e960d110135f9278f7253821aced1c977a37b"
+    },
+    {
+      "file": "docs/GUARD_G03_OWNER_TARGET_DESIGN.md",
+      "sha256": "04b628e98397b43281144e0aadd87a09e0f7b7c3648495bd1dd9de7ec32d6d70"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "sha256": "d457a2a3b0f3c77eab4a1a54a1d484352fca02f75fa0f3d1d8cc66d1ab192c29"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "sha256": "9bd183b3ef3cda1ac1c5e83ca88628aaf824ec56ce4d49407dfb23698a4a24fc"
+    },
+    {
+      "file": "docs/GUARD_G03_PROVEN_READER_ATTACH.md",
+      "sha256": "e07849546786cd323a495019799384ac8ce539b61e6e6584c1f6ddf75d001057"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-app-proof-verified/received-app-proof.json",
+      "sha256": "7281050733ebfcfeba7eea3f3866fbb58166ece07b5d959e14ec92239d4e3204"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-app-proof-verified/reader-attachment-proposal.json",
+      "sha256": "8d096bce466a4524c1e58295d14f29b5519d8d4d9a124bf1122c200732f52334"
+    }
+  ],
+  "selfExcluded": true
+}

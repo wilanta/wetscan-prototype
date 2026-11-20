@@ -1,0 +1,36 @@
+{
+  "classification": "OWNER_METADATA_POST_RECEIPT_RECORDED_NOT_LIVE_G03_ACCEPTANCE",
+  "receiptSource": "OWNER_MESSAGE",
+  "approvedRequests": 1,
+  "ownerReportedAttempts": 1,
+  "agentRequests": 0,
+  "executionStatus": "OWNER_REPORTED_HTTP_200_METADATA_ONLY",
+  "implementationFilesUnchanged": 46,
+  "baselineZipUnchanged": true,
+  "priorCollectorUnchanged": true,
+  "checkpoint": ".local/g03-metadata-received-checkpoint-CtYp5c",
+  "documentationBackups": [
+    {
+      "file": "docs/GUARD_G03_READER_VERIFIED_NEXT_METADATA.md",
+      "priorSha256": "95165689d40d92f72f66ac894c2fb7a7743b683a74b60f86aa573259323dd4f1",
+      "backup": ".local\\g03-metadata-received-checkpoint-CtYp5c\\GUARD_G03_READER_VERIFIED_NEXT_METADATA.md"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "priorSha256": "56e541c852ebde8f12a619e9e1065579ee89fd52be4a28dabd497192b203e415",
+      "backup": ".local\\g03-metadata-received-checkpoint-CtYp5c\\GUARD_G03_LIVE_ACCEPTANCE.md"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "priorSha256": "0296046b16af2a2bc6c5bf018bb42566941efddfe05ab2a72a6fade68e2c2d76",
+      "backup": ".local\\g03-metadata-received-checkpoint-CtYp5c\\HANDOFF_GUARD_G03.md"
+    }
+  ],
+  "scannerInventoryApproved": false,
+  "scannerInventoryExecuted": false,
+  "sourceAcquired": false,
+  "scannerStarted": false,
+  "providerCalled": false,
+  "githubWritten": false,
+  "commitPushMerge": false
+}

@@ -1,0 +1,38 @@
+{
+  "classification": "OWNER_RUNTIME_METADATA_RECEIPT_AND_OFFLINE_PROPOSAL_INDEX",
+  "selfExcluded": true,
+  "files": [
+    {
+      "file": "docs/GUARD_G03_READER_VERIFIED_NEXT_METADATA.md",
+      "sha256": "1b8101d3c2f6ba9f0ad544bbf4c1dd8217ee2f53437f93a829177137957dc34d"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "sha256": "2d7de7406728ef5e6466b2b737f3cd46870c70dc8b45d8ae30cf54f81e0ee28e"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "sha256": "fc512c405ae41691a10584aee51f8709505ce9a447ddf0f8e6be3b64724938bf"
+    },
+    {
+      "file": "docs/GUARD_G03_SCANNER_SETUP_NEXT.md",
+      "sha256": "505a3567645a20551190c80a269579b4c33d420f12743cb16a665a3c176ba805"
+    },
+    {
+      "file": ".local/g03-owner-selection/inventory-scanner-metadata.ps1",
+      "sha256": "d704d18ec122dedebfcb89c6459fb65d32cf508414379ec3aa55c61ed905830c"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-runtime-metadata-verified/receipt-assessment.json",
+      "sha256": "6edc84b79009d04d82119d336dcd375bea0784554679272146544e9e7be15969"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-runtime-metadata-verified/received-owner-preflight.json",
+      "sha256": "12efad0f103cf08bed424bedbe0f48dad3516eb5da367ce9fcb1dd234f4b97e1"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-runtime-metadata-verified/scanner-inventory-proposal.json",
+      "sha256": "894d0f81d0f5dd345fe39e18f1ad333dc6af6fa1f339c3bd028745d7f482c6cc"
+    }
+  ]
+}

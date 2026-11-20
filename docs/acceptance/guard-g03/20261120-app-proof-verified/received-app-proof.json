@@ -1,0 +1,31 @@
+{
+  "schema": "guard-g03-existing-app-proof-v1",
+  "classification": "OWNER_EXISTING_APP_ROLE_READONLY_PROOF_NOT_LIVE_ACCEPTANCE",
+  "target": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "wetscan_dev_guardg02",
+    "marker": "wetscan-s01:f0927e49-0e70-4b90-913f-6cd6984df9d8"
+  },
+  "role": "wetscan_guard_app",
+  "phase": "COMPLETE",
+  "status": "READONLY_PROOF_VERIFIED",
+  "verified": true,
+  "reason": null,
+  "connectAttempts": 1,
+  "transactionReadOnlyVerified": true,
+  "schemaVerified": true,
+  "rlsVerified": true,
+  "rolledBack": true,
+  "poolClosed": true,
+  "legacyHelperExecuted": false,
+  "bootstrapUsed": false,
+  "filesWritten": 0,
+  "environmentChanged": false,
+  "websiteRestarted": false,
+  "scannerStarted": false,
+  "sourceAcquired": false,
+  "nativeExitCode": 0,
+  "stderrPresent": false,
+  "ownerEnvironmentChanged": false
+}

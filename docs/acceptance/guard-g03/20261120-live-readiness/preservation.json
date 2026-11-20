@@ -1,0 +1,38 @@
+{
+  "initialFileCount": 75,
+  "initialIndexDigestsVerified": 74,
+  "checkpointLocation": ".local/g03-live-checkpoint-loJ0Bs",
+  "allBackupsSha256Verified": true,
+  "allInitialFilesPresent": true,
+  "intentionallyUpdatedFiles": [
+    "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+    "docs/GUARD_G03_VALIDATION.md",
+    "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+    "src/features/guard/g03/patch.ts",
+    "src/features/guard/g03/provider.ts",
+    "src/features/guard/g03/safety.ts",
+    "src/features/guard/g03/service.ts",
+    "src/features/guard/live/live-workspace.tsx",
+    "tests/guard/g03/provider.test.ts",
+    "tests/guard/g03/security-scan.test.ts",
+    "tests/guard/live/g03-ui.spec.ts"
+  ],
+  "frozenEvidenceJsonUnchanged": true,
+  "protectedScopesUnchanged": [
+    "src/platform",
+    "src/lib/auth",
+    "src/app/api/onboarding/route.ts",
+    "src/features/sentinel",
+    "worker",
+    "tests/sentinel",
+    "tests/guard/g01",
+    "src/features/guard/live/snapshot.ts",
+    "src/features/guard/contracts.ts",
+    "src/features/guard/live/product-*.ts",
+    "src/features/guard/live/runtime.ts",
+    "docs/acceptance/guard-g01",
+    "docs/acceptance/guard-g02"
+  ],
+  "noStaging": true,
+  "noCommitPushMerge": true
+}

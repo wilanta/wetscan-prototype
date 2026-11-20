@@ -10,7 +10,7 @@ export default async function Page({
   searchParams,
 }: {
   params: Promise<{ projectId: string; section?: string[] }>;
-  searchParams: Promise<{ scan?: string }>;
+  searchParams: Promise<{ scan?: string; finding?: string }>;
 }) {
   const { projectId, section = [] } = await params;
   if (projectId === "orderly-demo") {
@@ -60,6 +60,7 @@ export default async function Page({
       branch={authority.branch}
       section={section.join("/")}
       initialScanId={(await searchParams).scan}
+      initialFindingId={(await searchParams).finding}
     />
   );
 }

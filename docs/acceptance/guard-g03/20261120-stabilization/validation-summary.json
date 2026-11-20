@@ -1,0 +1,198 @@
+{
+  "generatedAt": "2026-11-20T06:57:29.567Z",
+  "status": "PARTIAL_NOT_COMPLETE",
+  "branch": "feat/guard-g03-ai-remediation",
+  "baseMaster": "5e52ac2d9df641eebef5cb4818c4efb7887c0c5c",
+  "requirements": {
+    "GRD017": "PARTIAL_REAL_PROVIDER_ACCEPTANCE_NOT_RUN",
+    "GRD018_PATCH": "PARTIAL_ORIGINAL_SOURCE_PROPOSAL_AND_BEHAVIORAL_TESTS_NOT_RUN",
+    "GITHUB_PR": "PARTIAL_REAL_AUTHORIZED_PR_NOT_RUN",
+    "GRD018_RETEST": "PARTIAL_ORIGINAL_REPOSITORY_RETEST_NOT_RUN",
+    "GRD022": "PARTIAL_OPERATIONAL_G03_UI_REPORT_ACCEPTANCE_NOT_RUN"
+  },
+  "unit": {
+    "total": 2836,
+    "passed": 2700,
+    "failed": 136,
+    "counts": {
+      "g03": 0,
+      "integrationRegression": 0,
+      "existingWindowsSentinel": 135,
+      "historicalG01": 1,
+      "unclassified": 0
+    }
+  },
+  "g03": {
+    "total": 144,
+    "passed": 144,
+    "failed": 0,
+    "files": 9
+  },
+  "postgres": {
+    "passed": 2,
+    "failed": 0,
+    "isolated": true,
+    "ownerDatabaseAccessed": false
+  },
+  "realScanner": {
+    "passed": 1,
+    "failed": 0,
+    "scanner": "G02 Opengrep 2.0.0",
+    "fixtureFindingsBefore": 1,
+    "fixtureFindingsAfter": 0,
+    "originalRepositoryAcceptance": false
+  },
+  "browser": {
+    "passed": 11,
+    "failed": 0,
+    "scope": "Existing Auth fixture and mocked Guard transport",
+    "nodeExitCode": 0,
+    "powershellCaptureExitCode": 1,
+    "captureNote": "Playwright NO_COLOR/FORCE_COLOR stderr warning became PowerShell NativeCommandError; Node runner exit 0 and all 11 assertions passed"
+  },
+  "typecheck": "PASS",
+  "lint": {
+    "status": "PASS",
+    "errors": 0,
+    "preexistingWarnings": 2
+  },
+  "productionBuild": "PASS",
+  "productionSmoke": "PASS",
+  "checks": {
+    "unit": {
+      "kind": "unit",
+      "startedAt": "2026-11-20T04:30:29.686Z",
+      "finishedAt": "2026-11-20T04:32:31.246Z",
+      "exitCode": 1,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "typecheck": {
+      "kind": "typecheck",
+      "startedAt": "2026-11-20T04:32:00.725Z",
+      "finishedAt": "2026-11-20T04:32:05.252Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "lint": {
+      "kind": "lint",
+      "startedAt": "2026-11-20T04:32:01.192Z",
+      "finishedAt": "2026-11-20T04:32:25.756Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "build": {
+      "kind": "build",
+      "startedAt": "2026-11-20T04:30:30.888Z",
+      "finishedAt": "2026-11-20T04:31:06.234Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "browser": {
+      "kind": "browser",
+      "startedAt": "2026-11-20T04:25:06.538Z",
+      "finishedAt": "2026-11-20T04:26:54.904Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "postgres": {
+      "kind": "postgres",
+      "startedAt": "2026-11-20T04:15:37.402Z",
+      "finishedAt": "2026-11-20T04:16:09.559Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "scanner": {
+      "kind": "scanner",
+      "startedAt": "2026-11-20T04:27:19.712Z",
+      "finishedAt": "2026-11-20T04:27:43.977Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "smoke": {
+      "kind": "smoke",
+      "startedAt": "2026-11-20T04:32:00.292Z",
+      "finishedAt": "2026-11-20T04:32:02.620Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    }
+  },
+  "live": {
+    "originalRepositoryFindingSelected": false,
+    "sourcePreviewRead": false,
+    "ownerDatabaseAccessed": false,
+    "paidAiCalled": false,
+    "githubWritten": false,
+    "realPullRequestCreated": false,
+    "liveRetestRun": false,
+    "liveUiInspection": "STOPPED_CURRENT_URL_NOT_VERIFIABLE"
+  },
+  "g02": {
+    "pr17Merged": true,
+    "pr19Merged": true,
+    "latestRemoteMaster": "5e52ac2d9df641eebef5cb4818c4efb7887c0c5c",
+    "contractDelta": "NONE_ENGINE_EVIDENCE_QUEUE_RLS_ADMISSION",
+    "reportedUpstreamAcceptance": "G02_DEV_ACCEPTED_NEW_LOCAL_ENVIRONMENT_ONLY"
+  },
+  "preservation": {
+    "initialUncommittedFiles": 52,
+    "all52BackedUpAndHashVerified": true,
+    "original16G03EvidenceFilesUnchanged": true,
+    "g01G02ArchivesUnchanged": true,
+    "willChangesPreserved": true,
+    "assertionsWeakened": false,
+    "executionPolicyChanged": false
+  },
+  "publication": {
+    "commit": false,
+    "push": false,
+    "merge": false,
+    "deploy": false
+  },
+  "limits": [
+    "Static patch filters and syntax checks do not prove arbitrary code safe; human review/repository behavioral tests remain necessary",
+    "One allowlisted regular JS/TS/JSX/TSX/JSON file <=24KB; SCA dependency findings are guidance-only and lockfile patches are rejected",
+    "Controlled scanner fixture revision IDs are content-derived test identities, not GitHub commits",
+    "Source/provider/PR/enqueue ports are doubles in controlled scanner acceptance",
+    "No original repository provider/PR/retest acceptance"
+  ],
+  "ownerMinimum": [
+    "Existing authenticated approved local runtime and a real persisted G02 SAST finding at its current authorized branch HEAD (or separately approved one baseline scan)",
+    "Private server-side key reference, exact model/current prices and approved account data policy; no credential in chat",
+    "Approve one previewed/redacted AI request <=$0.10",
+    "Review actual patch and authorize one draft PR; establish G02 admission for its branch before writing",
+    "Approve one relevant actual G02 retest at exact after-commit; inspect persistent UI/report and restart evidence",
+    "Separate inherited Sentinel environment and G01 raw-byte artifact disposition for green full regression"
+  ]
+}

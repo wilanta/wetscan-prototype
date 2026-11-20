@@ -1,0 +1,18 @@
+{
+  "branch": "feat/guard-g03-ai-remediation",
+  "head": "5e52ac2d9df641eebef5cb4818c4efb7887c0c5c",
+  "verifiedRemoteMaster": "5e52ac2d9df641eebef5cb4818c4efb7887c0c5c",
+  "pr17Head": "4bc4d92eab10735c2ff3ee0b25cf9def1d13843c",
+  "pr17MergedVia": "f4a54f80d47b43e4296e0427a4ce95285f26595b",
+  "pr19Merged": true,
+  "g02EngineEvidenceQueueRlsAdmissionContractsChangedSincePr17": false,
+  "g03RuntimeContractTestsPassed": 6,
+  "willChangesPreserved": true,
+  "remoteOperation": "ls-remote read-only; no fetch or Git mutation during stabilization",
+  "browserLiveInspection": "STOPPED_URL_NOT_VERIFIABLE",
+  "realFindingSelected": false,
+  "paidAiCalled": false,
+  "githubWritten": false,
+  "liveRetestRun": false,
+  "complete": false
+}

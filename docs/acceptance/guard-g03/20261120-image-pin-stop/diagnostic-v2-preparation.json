@@ -1,0 +1,69 @@
+{
+  "schema": "guard-g03-image-pin-diagnostic-and-v2-preparation-v1",
+  "classification": "READONLY_SAME_IMAGE_DIAGNOSTIC_AND_UNAPPROVED_V2_RECOVERY",
+  "ownerDiagnosticExecutionStatus": "PENDING_OWNER_RECEIPT",
+  "diagnosticMaxImageInspections": 2,
+  "diagnosticNewFilesOrContainersAllowed": false,
+  "diagnosticRecoveryInvocationAllowed": false,
+  "diagnosticPrivateContentsReadAllowed": false,
+  "diagnosticUsesPreviouslyCreatedEmptyDockerConfigOnly": true,
+  "originalRecoveryAttemptConsumed": 1,
+  "recoveryV2Approved": false,
+  "recoveryV2Executed": false,
+  "artifacts": [
+    {
+      "file": ".local/g03-owner-selection/image-inspection-contract.mjs",
+      "sha256": "48cbb5d83c3c8d501fba259c92bd225e18ff91fcb54de0b11c4034547fd6a3ac"
+    },
+    {
+      "file": ".local/g03-owner-selection/bounded-docker-binary.mjs",
+      "sha256": "522b4b755d2e157bf7ffa1cca766f4857daa30a7631e8ebca6c6c7dc86a10cb7"
+    },
+    {
+      "file": ".local/g03-owner-selection/diagnose-image-pin.mjs",
+      "sha256": "7e25a80e6aadd6ae58894a72e4046d5c7290a9b99ca2fc4b5e3157c496012112"
+    },
+    {
+      "file": ".local/g03-owner-selection/diagnose-image-pin.bundle.mjs",
+      "sha256": "031e1ea2128f4a89b3cdccc749ee5386942b65458caf8ccea3bdeaaf30fbea56"
+    },
+    {
+      "file": ".local/g03-owner-selection/diagnose-image-pin.ps1",
+      "sha256": "71c3cfd9337b82310958eda0af38a5aeb82b52c267095531dc9fe070a430a48b"
+    },
+    {
+      "file": ".local/g03-owner-selection/image-inspection.offline.cjs",
+      "sha256": "49a336c2f640e091495912df7b028b71ca76b756b6fea341fa3ebe4345a4dd87"
+    },
+    {
+      "file": ".local/g03-owner-selection/recover-trivy-manifest-v2.mjs",
+      "sha256": "149bc3a7c0d7295073397f91bf9490d9e9342417473456833b0d6c6538070a35"
+    },
+    {
+      "file": ".local/g03-owner-selection/recover-trivy-manifest-v2.bundle.mjs",
+      "sha256": "7c2d93cca622fce5ff145548bbc4cd33cf38e20c8c6e2424b57880adc47f893c"
+    },
+    {
+      "file": ".local/g03-owner-selection/recover-trivy-manifest-v2.ps1",
+      "sha256": "92a9dfe393b990ed4a4329d8a380bcc6696bdc281ec59aac2a6200e24976d08d"
+    },
+    {
+      "file": ".local/g03-owner-selection/trivy-recovery-v2.offline.cjs",
+      "sha256": "baead78627d30b832c5862c1898426749bb71f50f3effd8df8baf444592878ba"
+    },
+    {
+      "file": ".local/g03-owner-selection/image-pin-v2-build.json",
+      "sha256": "8cc70b36b4d0166cb588781d4a0c5481cdb3ffd2225e1d091070a05696a22a62"
+    }
+  ],
+  "offlineVerification": {
+    "projectionTransportDiagnosticCasesPassed": 31,
+    "recoveryV2CasesPassed": 45,
+    "failed": 0,
+    "diagnosticAstParseErrors": 0,
+    "recoveryV2AstParseErrors": 0,
+    "goTemplateExecuted": false,
+    "realDockerInvoked": false,
+    "ownerFilesRead": false
+  }
+}

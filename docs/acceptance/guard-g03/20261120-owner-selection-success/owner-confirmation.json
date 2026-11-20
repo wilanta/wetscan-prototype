@@ -1,0 +1,36 @@
+{
+  "schema": "guard-g03-owner-selection-confirmation-v1",
+  "classification": "OWNER_REPORTED_SELECTION_SUCCESS_NOT_LIVE_ACCEPTANCE",
+  "ownerStatement": "repository wetscan-g03-acceptance berhasil ditambahkan dan repository wdu berhasil dipertahankan",
+  "repositoryIdsConfirmed": [
+    839286157,
+    1465216209
+  ],
+  "projectId": "github-1465216209",
+  "repositoryName": "inkAja/wetscan-g03-acceptance",
+  "expectedBranch": "g03/acceptance-base",
+  "ownerReportedCommit": "6eb920a5573c39105fa0390d464d271fb1c7b5bf",
+  "selectionUpdate": {
+    "authorized": true,
+    "operator": "owner",
+    "ownerReportedSuccess": true,
+    "agentPostAttempts": 0,
+    "ownerPostAttemptCount": null,
+    "rawApiReceiptProvided": false,
+    "independentAgentVerification": false
+  },
+  "readOnlyPreflight": {
+    "status": "PENDING_OWNER_GET_RECEIPT",
+    "script": ".local/g03-owner-selection/read-only-preflight.js",
+    "maxGetRequests": 3,
+    "postAllowed": false
+  },
+  "currentHeadVerified": false,
+  "treeVerified": false,
+  "blobIdsVerified": false,
+  "sourceAcquired": false,
+  "scannerStarted": false,
+  "providerCalled": false,
+  "githubWritten": false,
+  "documentationCheckpoint": ".local/g03-selection-success-checkpoint-u6TsYQ"
+}

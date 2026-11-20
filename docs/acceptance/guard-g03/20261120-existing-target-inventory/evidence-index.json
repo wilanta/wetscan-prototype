@@ -1,0 +1,48 @@
+{
+  "classification": "OWNER_INVENTORY_NOT_RUNTIME_AUTHORITY",
+  "documentationCheckpoint": ".local/g03-existing-target-checkpoint-fNfYik",
+  "implementationFilesUnchanged": 46,
+  "files": [
+    {
+      "file": "docs/GUARD_G03_ENVIRONMENT_RECOVERY_PLAN.md",
+      "sha256": "b879e00611e8ff8cda364be2b52cd6118a842cb07d97aba5a33517971e981d5b"
+    },
+    {
+      "file": "docs/GUARD_G03_VERIFY_STOP_DIAGNOSIS.md",
+      "sha256": "c310fae3fd57bd7a23ec739dc947ff825c3930cdc2162cf7b7bfeb950e4374df"
+    },
+    {
+      "file": "docs/GUARD_G03_READER_RUNTIME_SETUP.md",
+      "sha256": "3d24add8c2efd459803da081dde4b54d20d1d70803a997f29a3f42db93af8a51"
+    },
+    {
+      "file": "docs/GUARD_G03_OWNER_TARGET_DESIGN.md",
+      "sha256": "7f496b2ce09f2a26f230eca820d3073acc924654e7c8293317b6aef417ee57d2"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "sha256": "68deb07bf61a7ad02eb1c63320fec39878b1e0532caed820ff2ed533ad8577eb"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "sha256": "7e894f13ed161c410a171da3be88c3f167395d13cd72fbb7e80b73709be3a9ac"
+    },
+    {
+      "file": "docs/GUARD_G03_EXISTING_TARGET_PROOF.md",
+      "sha256": "95bfac81fc6dfbaf36c8f07e71b646157e6a52ab3278adf54bd39912375ad96d"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-existing-target-inventory/received-inventory.json",
+      "sha256": "85ed6deca3258cc96ab3f08bb84d098b3ad655f8381bfcd80571003ee2e3e912"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-existing-target-inventory/proof-proposal.json",
+      "sha256": "15da2d5c58f85893a9121d3e96303e23b08f3cf3f34b041a4c2e21903b23df90"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-existing-target-inventory/offline-validation.json",
+      "sha256": "82fecce79272005c70f9752a2f2ca43a608f84e29b2712e74ee405f911c669f7"
+    }
+  ],
+  "selfExcluded": true
+}

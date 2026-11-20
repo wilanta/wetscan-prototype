@@ -1,0 +1,119 @@
+{
+  "status": "PARTIAL_TARGET_NOT_PROVISIONED",
+  "generatedAt": "2026-11-20T08:31:44.247Z",
+  "currentChecks": {
+    "g03Unit": {
+      "passed": 184,
+      "failed": 0,
+      "files": 14
+    },
+    "browser": {
+      "passed": 12,
+      "failed": 0,
+      "scope": "Auth fixtures and mocked Guard transport; no live repository"
+    },
+    "typecheck": "PASS_AFTER_BUILD",
+    "lint": {
+      "errors": 0,
+      "existingWarnings": 2
+    },
+    "build": "PASS",
+    "smoke": "PASS"
+  },
+  "checks": {
+    "typecheck": {
+      "kind": "typecheck",
+      "startedAt": "2026-11-20T08:23:14.526Z",
+      "finishedAt": "2026-11-20T08:23:24.069Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "lint": {
+      "kind": "lint",
+      "startedAt": "2026-11-20T08:15:50.971Z",
+      "finishedAt": "2026-11-20T08:16:50.363Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "build": {
+      "kind": "build",
+      "startedAt": "2026-11-20T08:15:50.037Z",
+      "finishedAt": "2026-11-20T08:17:02.637Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "browser": {
+      "kind": "browser",
+      "startedAt": "2026-11-20T08:15:51.213Z",
+      "finishedAt": "2026-11-20T08:18:49.361Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "smoke": {
+      "kind": "smoke",
+      "startedAt": "2026-11-20T08:23:15.639Z",
+      "finishedAt": "2026-11-20T08:23:17.922Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    }
+  },
+  "earlierTypecheckAttempt": {
+    "result": "TS6053_GENERATED_NEXT_TYPES_CHANGED_DURING_CONCURRENT_BUILD",
+    "finalSequentialRerun": "PASS",
+    "assertionsOrConfigWeakened": false
+  },
+  "lastFullRegression": {
+    "source": "../20261120-live-readiness/validation-summary.json",
+    "passed": 2733,
+    "failed": 136,
+    "rerunThisDesignStep": false,
+    "classification": "135 existing Windows/Sentinel + 1 retained G01 bytes; no G03 failure in that run"
+  },
+  "priorIsolatedChecks": {
+    "postgres": 2,
+    "realControlledScanner": 1,
+    "rerunThisDesignStep": false
+  },
+  "localBundleBehavior": {
+    "baseline": {
+      "passed": 3,
+      "failed": 2,
+      "expectedFailure": true
+    },
+    "manualReference": {
+      "passed": 5,
+      "failed": 0,
+      "notAnAiResult": true
+    }
+  },
+  "live": {
+    "repositoryCreated": false,
+    "sourceAcquired": false,
+    "targetScanRun": false,
+    "aiCalled": false,
+    "githubWritten": false,
+    "pullRequestCreated": false,
+    "liveRetestRun": false
+  },
+  "scope": "Owner-selected separate private GitHub test repository; URL/ID/HEAD not yet provided"
+}

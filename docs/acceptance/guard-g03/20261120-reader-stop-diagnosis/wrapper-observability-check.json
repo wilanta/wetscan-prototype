@@ -1,0 +1,28 @@
+{
+  "classification": "SYNTHETIC_NATIVE_PROCESS_NOT_G02_HELPER",
+  "powershell": "5.1.26100.7705",
+  "cases": [
+    {
+      "name": "success_json_exit_0",
+      "stage": "JSON_PARSE",
+      "surface": "SUCCESS"
+    },
+    {
+      "name": "json_error_exit_1",
+      "stage": "NONZERO_EXIT_BEFORE_JSON_PARSE",
+      "surface": "SAME_GENERIC_OUTER_STOP"
+    },
+    {
+      "name": "stderr_only_exit_0",
+      "stage": "NATIVE_STDERR_OR_LAUNCH_EXCEPTION",
+      "surface": "SAME_GENERIC_OUTER_STOP"
+    },
+    {
+      "name": "invalid_json_exit_0",
+      "stage": "JSON_PARSE",
+      "surface": "SAME_GENERIC_OUTER_STOP"
+    }
+  ],
+  "helperExecuted": false,
+  "databaseConnected": false
+}

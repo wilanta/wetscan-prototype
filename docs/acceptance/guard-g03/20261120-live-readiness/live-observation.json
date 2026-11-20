@@ -1,0 +1,27 @@
+{
+  "ownerSuppliedProjectUrl": "http://localhost:3000/app/projects/github-839286157/guard",
+  "projectIdFromOwnerRoute": "github-839286157",
+  "serverAuthorizationObserved": false,
+  "listenerRequestedWorktreeVerified": true,
+  "anonymousReadOnlyStatus": {
+    "page": 307,
+    "scanApi": 401,
+    "responseBodyRead": false,
+    "cookieUsed": false
+  },
+  "browserHost": "UNAVAILABLE",
+  "authenticatedOwnerDatabaseRead": false,
+  "realFindingSelected": false,
+  "oldG02Evidence": {
+    "repository": "wilanta/wetscan-g02-acceptance",
+    "sastFindings": 3,
+    "before": "c1330c63ef9bbe7fc0dcf435c6653488f269b827",
+    "fixed": "3c6a99ec42b8259ab659a24c2f0d94822b389872",
+    "selectedForCurrentAcceptance": false
+  },
+  "ownerNextStep": "Existing logged-in Findings tab: Export G03 selection metadata and attach local JSON; no scan or source read",
+  "allLiveOperations": "NOT_RUN",
+  "paidAiApproved": false,
+  "githubWriteApproved": false,
+  "newScanApproved": false
+}

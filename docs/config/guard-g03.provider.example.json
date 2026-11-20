@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "enabled": false,
+  "provider": "openai_responses",
+  "model": "gpt-5.4-mini-2026-03-17",
+  "inputMicroUsdPerMillion": 750000,
+  "outputMicroUsdPerMillion": 4500000,
+  "dataPolicyApproved": false,
+  "dataPolicyVersion": "owner-review-pending-20261120",
+  "keyFile": null
+}

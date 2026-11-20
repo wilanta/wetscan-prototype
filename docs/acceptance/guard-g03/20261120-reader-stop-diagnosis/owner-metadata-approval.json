@@ -1,0 +1,22 @@
+{
+  "schema": "guard-g03-stop-metadata-approval-v1",
+  "classification": "OWNER_APPROVAL_NOT_EXECUTION_EVIDENCE",
+  "clientDate": "2026-11-20",
+  "timezone": "Asia/Jakarta",
+  "ownerAnswer": "Setujui diagnostik metadata saja",
+  "operator": "owner",
+  "script": ".local/g03-owner-selection/diagnose-stop-readonly.ps1",
+  "scriptSha256": "aefc291ff6c617384938bec89ea5fb078e05716a162bc2eef55bc286e0a4ec64",
+  "approved": true,
+  "executionStatus": "PENDING_OWNER_EXECUTION",
+  "scope": "Metadata/Error-signals only in the original owner console",
+  "helperExecutionAllowed": false,
+  "nodeExecutionAllowed": false,
+  "pointerContentsReadAllowed": false,
+  "credentialReadAllowed": false,
+  "environmentChangesAllowed": false,
+  "databaseConnectionAllowed": false,
+  "dependencyInstallationAllowed": false,
+  "restartAllowed": false,
+  "oldReaderRetryAllowed": false
+}

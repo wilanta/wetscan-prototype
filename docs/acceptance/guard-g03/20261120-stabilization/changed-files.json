@@ -1,0 +1,464 @@
+{
+  "branch": "feat/guard-g03-ai-remediation",
+  "head": "5e52ac2d9df641eebef5cb4818c4efb7887c0c5c",
+  "initialFiles": 52,
+  "totalFiles": 75,
+  "trackedModified": 4,
+  "uncommitted": true,
+  "files": [
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "bytes": 7765,
+      "sha256": "0a7626e216e2129c0300a24620b3a9a8145ecf6464d0d968590d7041f24f2a60",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/GUARD_G03_STABILIZATION.md",
+      "bytes": 10379,
+      "sha256": "b419d6b08d0e0d9c69cf673cb0a7757e65abf3dc7076e87e2d9191ae5ef4aa09",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/GUARD_G03_VALIDATION.md",
+      "bytes": 23013,
+      "sha256": "5c764b68eda5954545efb4904b71fc571f33b38c2c10213941aae2089a09cef5",
+      "disposition": "INITIAL_G03_FILE_STABILIZED"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/browser-shell-note.json",
+      "bytes": 289,
+      "sha256": "6a8d2947d3d2c9bd27d6a43a5bda3fa19f34ac294391437263d55ea4eb18fb77",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/browser.result.json",
+      "bytes": 319,
+      "sha256": "5214fdc25d139c95062770defc05efcbbab7f4e27b5bf86a67ce39f9f39e5432",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/build.result.json",
+      "bytes": 317,
+      "sha256": "0398942e63b0b74a25200016dddcd657d9ce9b8a69a731d167edcb2d61b87363",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/changed-files.json",
+      "bytes": null,
+      "sha256": null,
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/evidence-index.json",
+      "bytes": null,
+      "sha256": null,
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/g03-tests.json",
+      "bytes": 962,
+      "sha256": "33df84e8cf9e20b4e9c95dfeb05810d3c32d45dc3b17791a57060f2e7380e6b5",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/integration.json",
+      "bytes": 735,
+      "sha256": "0ce264338a1b2d3cd0bfd862048cbf099bdbf51a4d06f06bad989657f33fa23f",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/lint.result.json",
+      "bytes": 316,
+      "sha256": "69de8affe325245108b4edd5c7df7ad5b7e67856f725050f4279935d2a3e4c97",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/postgres-budget-evidence.json",
+      "bytes": 337,
+      "sha256": "23beae93c26a65698f79e827192a0678456b40b934c11a22cae2198c409820fd",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/postgres-evidence.json",
+      "bytes": 551,
+      "sha256": "890cceb2a83abd3dc8184f098195744f1148c672aef0ba94c5c16341f61349d1",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/postgres.result.json",
+      "bytes": 320,
+      "sha256": "11df9f3f30e8578cdbe593287bb534fa2fd6a060d09ff471a48c031c4970b284",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/preservation.json",
+      "bytes": 1114,
+      "sha256": "05733e1d0f06a687ab04cacb60c5d54479c4f40d97c9c699f653fa25128247d0",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/real-scanner-evidence.json",
+      "bytes": 4471,
+      "sha256": "9d5e2f184aa39e9e10b12883d6cbba162cc4e44a72047067792d7e87832a6bbf",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/regression-classification.json",
+      "bytes": 25251,
+      "sha256": "acdd6942524522c5d0a262077c64ae2bba7d09f27bcc1ae5f5a321cd09d9e5e3",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/scanner.result.json",
+      "bytes": 319,
+      "sha256": "c317152715b1a07487e1ddd5197a06027ce39909441ece43c59e1546bfeb2e41",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/smoke-evidence.json",
+      "bytes": 433,
+      "sha256": "cc1df4f5a4f62581762d65aa1e00a4f14502cc2a5c976931dd0440cd660f03c6",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/smoke.result.json",
+      "bytes": 317,
+      "sha256": "2fba547195191c922d33cd80a56bbee391a677fcbfdd68131379372d28005e92",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/typecheck.result.json",
+      "bytes": 321,
+      "sha256": "f723de9d213982f5709f8fa9521d233f81d5605ef106a722ec35d34a0943be65",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/unit.result.json",
+      "bytes": 316,
+      "sha256": "fa095deb0f9ce9bc459e8e37d1c07ece63f52e1ab4b6486e4a93aae145e69a44",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-stabilization/validation-summary.json",
+      "bytes": 6931,
+      "sha256": "ab54b5e07d081283d65b50c04599718c0ec3cdb965a908f1bb30222e749417a2",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120/browser.result.json",
+      "bytes": 319,
+      "sha256": "6373a1ae2e7f693129ad162a9427b3d288de36d154452518f1554d943539042a",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120/build.result.json",
+      "bytes": 317,
+      "sha256": "4031df75b061d4678302392c997318d93efe9fe32a0e9791bfbfef18c51fc84b",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120/changed-files.json",
+      "bytes": 3643,
+      "sha256": "8a474c6bd0c75e442f8ac0e545e52e10def405e66c034adfcdd307e0c3d00101",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120/evidence-index.json",
+      "bytes": 3688,
+      "sha256": "b5896d758495ed1e253cd8bc5be65ec22eb8ffcf0c37586c19a24a2d9738b644",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120/inherited-evidence-mismatch.json",
+      "bytes": 620,
+      "sha256": "9295e857e379504cf3a061a3044bb01708f95beef0bfc90629e8c89d7cc2a53f",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120/lint.result.json",
+      "bytes": 316,
+      "sha256": "d689f29cf1b968efcc95badbd6fde9ec4833603c346cb0286d5635dde862be9e",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120/postgres-evidence.json",
+      "bytes": 551,
+      "sha256": "f4bb0906811dad3c531d78c5a93116e3a3e5ad093b7bd97560afee60132dd9af",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120/postgres.result.json",
+      "bytes": 320,
+      "sha256": "4a7aad4c751c82706811b2433060c3623d3b15523d4f886ea3f7059b27ddcf91",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120/real-scanner-evidence.json",
+      "bytes": 4471,
+      "sha256": "c916ce38f632be07dbc73adafb56df95aa9e489fc3a45b6f962201441f03bde4",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120/scanner.result.json",
+      "bytes": 319,
+      "sha256": "c566b3b2a8ee940ff00f5b56265cea1b05ed912021fdc34e2d242707bfc57ee5",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120/smoke-evidence.json",
+      "bytes": 433,
+      "sha256": "cc1df4f5a4f62581762d65aa1e00a4f14502cc2a5c976931dd0440cd660f03c6",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120/smoke.result.json",
+      "bytes": 317,
+      "sha256": "466dbedd29029f54a9be5f65b1255633a822d887308e022d986e32fc27e10dd9",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120/typecheck.result.json",
+      "bytes": 321,
+      "sha256": "5836226a666e518547b40c09128da3213e2e27a065a9b54c9693294744f136fc",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120/unit.result.json",
+      "bytes": 316,
+      "sha256": "46494b30948f04b0997a5cc20442cb2d8ba47b99cb7a63fb5e0d710e36ea820c",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120/upstream-sync.json",
+      "bytes": 500,
+      "sha256": "a5fa0a3084313ef8b8973364c4afab8469fbba658a62d247039ff268fd7dbaf9",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120/validation-summary.json",
+      "bytes": 7635,
+      "sha256": "e8503b07eee5988306d7126cd805ce86d809c4cb53187d337791fd822ada9b78",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "bytes": 11393,
+      "sha256": "17e93e4e315fe21902f547f50a2f82d7298d8d6c363bc8851b8c569e1fab91a7",
+      "disposition": "INITIAL_G03_FILE_STABILIZED"
+    },
+    {
+      "file": "next.config.ts",
+      "bytes": 1954,
+      "sha256": "213855c620927b7b9260f7a1d5925056bde9299a31581795901cc94e4c27ba39",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "scripts/guard-g03-check.mjs",
+      "bytes": 3278,
+      "sha256": "21c3a10ce361e2ae18b7a441be78d000cb2157b466401d7765e3f373e7b9bdf5",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "src/app/api/guard/projects/[projectId]/scans/[jobId]/g03/[action]/route.ts",
+      "bytes": 629,
+      "sha256": "74fd53dc13d4791342a8052a7fabad0d611643a00cf748aa7d8a989bcc6ff58c",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "src/app/app/projects/[projectId]/guard/[[...section]]/page.tsx",
+      "bytes": 2214,
+      "sha256": "d01656cef80b85e338058df23f91ce3ef2c03c899a097ad4028af8e69c97ae6e",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "src/features/guard/g03/contracts.ts",
+      "bytes": 3473,
+      "sha256": "a762540a4770eea4896570cec11a43438e83d51a8016f41d5aeffc5692245783",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "src/features/guard/g03/github.ts",
+      "bytes": 9847,
+      "sha256": "2af7fc0c824665df0e46dee16413e033bfdea8c0ce36f87aefe73ebbf20b98ff",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "src/features/guard/g03/http.ts",
+      "bytes": 4064,
+      "sha256": "a70bdacc5be584d0432e69287d36adad90ecd54ce11963aaa886194768edcf83",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "src/features/guard/g03/panel.tsx",
+      "bytes": 19886,
+      "sha256": "3470161f2a9d2a413b23c17929b346842db66b638d8655ffddb856e66aba7f3d",
+      "disposition": "INITIAL_G03_FILE_STABILIZED"
+    },
+    {
+      "file": "src/features/guard/g03/patch.ts",
+      "bytes": 5124,
+      "sha256": "2c618e11219f41ffad99db30fc25af12cd1608134debbdf0c343f3081514f9f1",
+      "disposition": "INITIAL_G03_FILE_STABILIZED"
+    },
+    {
+      "file": "src/features/guard/g03/provider.ts",
+      "bytes": 9707,
+      "sha256": "81c9e8c70849bea2e14a7022e60e05ce3440a82c2d6e953d0a37f723705728d4",
+      "disposition": "INITIAL_G03_FILE_STABILIZED"
+    },
+    {
+      "file": "src/features/guard/g03/retest.ts",
+      "bytes": 6522,
+      "sha256": "93666aef0fdbea70c8709e42b3a9f44b2f3f8c83ae70e2784e739b3aa6d90e8a",
+      "disposition": "INITIAL_G03_FILE_STABILIZED"
+    },
+    {
+      "file": "src/features/guard/g03/runtime.ts",
+      "bytes": 2963,
+      "sha256": "eca29934f7d29c9075c3b81324fc57554f3e32b37aaf699557b948aecbd3c9a2",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "src/features/guard/g03/safety.ts",
+      "bytes": 3469,
+      "sha256": "9013a6b50c3eb0a22a7219825093e306b9fd3710ac053a6cee4aa3c66b3aba40",
+      "disposition": "INITIAL_G03_FILE_STABILIZED"
+    },
+    {
+      "file": "src/features/guard/g03/service.ts",
+      "bytes": 27586,
+      "sha256": "b8300a7ee9d785d0219cf236ec77558a56396479f022019ea3a536ee59cbf5a2",
+      "disposition": "INITIAL_G03_FILE_STABILIZED"
+    },
+    {
+      "file": "src/features/guard/g03/source.ts",
+      "bytes": 3212,
+      "sha256": "1753d93fad3ae5d85c6d074276b8e483e4e98b729f9b0ee1e2645fd62fbda6c3",
+      "disposition": "INITIAL_G03_FILE_STABILIZED"
+    },
+    {
+      "file": "src/features/guard/g03/store.ts",
+      "bytes": 10252,
+      "sha256": "860ca7306db39943f2fdedb26c0b1fcfd74a61d793d62846cdf3a362958bc7a6",
+      "disposition": "INITIAL_G03_FILE_STABILIZED"
+    },
+    {
+      "file": "src/features/guard/live/live-workspace.tsx",
+      "bytes": 31262,
+      "sha256": "492cc1870778726de2010b85ed05039e41d66995140a3d78a8ff221c4c2c1fc9",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "tests/guard/g03/fixture.ts",
+      "bytes": 7234,
+      "sha256": "dd0ec55f90fd3568cc5230fdfe21587f620ffbd36c346e8d10aa335fdb14de31",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "tests/guard/g03/github.test.ts",
+      "bytes": 6219,
+      "sha256": "0cb44882fd3742df0562806976c97aee2d386739387dc0866259e13ce48f7ac3",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "tests/guard/g03/http.test.ts",
+      "bytes": 4779,
+      "sha256": "063a0f71510746c391ad55e78554271ae6734101b9b2882c5e9335547924c6e3",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "tests/guard/g03/native-postgres.ts",
+      "bytes": 7564,
+      "sha256": "9b1e1b0c1954c581f705a35e245216caffa67a23acdb068bb119612b552a8ec5",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "tests/guard/g03/patch.test.ts",
+      "bytes": 7205,
+      "sha256": "69d238190d3afa49d24317909853b80ce6dc98133ed7d4b9f5d1ae2e3cd93672",
+      "disposition": "INITIAL_G03_FILE_STABILIZED"
+    },
+    {
+      "file": "tests/guard/g03/persistence.postgres.ts",
+      "bytes": 11980,
+      "sha256": "d67e268f43437f49f37cb57d92d82f5e54dc8577514517127157ab4027402376",
+      "disposition": "INITIAL_G03_FILE_STABILIZED"
+    },
+    {
+      "file": "tests/guard/g03/postgres.config.ts",
+      "bytes": 347,
+      "sha256": "9fd0517546e1e0daf07045e6cc7a1516e97ff69a248a0759c03a4805d6c6fec5",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "tests/guard/g03/provider.test.ts",
+      "bytes": 8663,
+      "sha256": "b6ac9dff14c08deff01094fbbfea89091a6bc81a76c125bae237c5b62c56d0b9",
+      "disposition": "INITIAL_G03_FILE_STABILIZED"
+    },
+    {
+      "file": "tests/guard/g03/retest.scanner.ts",
+      "bytes": 17141,
+      "sha256": "56a321ade33100c330bc7854ccb7fe82584a01121588cf36ae4d55bd46375a34",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "tests/guard/g03/retest.test.ts",
+      "bytes": 4816,
+      "sha256": "a17adf1f01ae476f33c16ca27965670db6215051161d28aa6d017daeaea5e0e1",
+      "disposition": "INITIAL_G03_FILE_STABILIZED"
+    },
+    {
+      "file": "tests/guard/g03/runtime.test.ts",
+      "bytes": 5847,
+      "sha256": "2ae13e6ba3f68f36af35e620abdb32451322aebc7ea936fbc986de742a1232aa",
+      "disposition": "NEW_G03_STABILIZATION_FILE"
+    },
+    {
+      "file": "tests/guard/g03/scanner.config.ts",
+      "bytes": 347,
+      "sha256": "3b6dcd58400d970a3db1e8b14b6f5f512f3356166bca6726b0b0c990dad29049",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "tests/guard/g03/security-scan.test.ts",
+      "bytes": 937,
+      "sha256": "2737ff1ca56a76d1c14ce2b96a894302f6c612e0dbb9055e6539ce193a8ffc95",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "tests/guard/g03/service.test.ts",
+      "bytes": 13995,
+      "sha256": "136f6d082fa1f13661bde403a4738de6ee0d3d5ff45056863e6699f435e09f31",
+      "disposition": "INITIAL_G03_FILE_STABILIZED"
+    },
+    {
+      "file": "tests/guard/g03/smoke.mjs",
+      "bytes": 3272,
+      "sha256": "082658eed6deba17a8124bfea75878c4e9f2d131de1c56c54b6c36b78a8ebce4",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "tests/guard/g03/source.test.ts",
+      "bytes": 3245,
+      "sha256": "f1e0294beafd33abade8084c9237ab5870eba385d5a1e9c25574ad3f55ade2c5",
+      "disposition": "INITIAL_G03_FILE_STABILIZED"
+    },
+    {
+      "file": "tests/guard/live/browser.config.ts",
+      "bytes": 437,
+      "sha256": "edacdd43f4639a750ceefbe69642289256e884f884e8b39b748b4eddfe3b1e50",
+      "disposition": "INITIAL_FILE_UNCHANGED"
+    },
+    {
+      "file": "tests/guard/live/g03-ui.spec.ts",
+      "bytes": 14930,
+      "sha256": "66f0df4f4132906dc208e686e11bf376aea5492f6b337acba5731ea5e83a8a5e",
+      "disposition": "INITIAL_G03_FILE_STABILIZED"
+    }
+  ],
+  "recursiveHashExclusions": [
+    "docs/acceptance/guard-g03/20261120-stabilization/changed-files.json",
+    "docs/acceptance/guard-g03/20261120-stabilization/evidence-index.json"
+  ]
+}

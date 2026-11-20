@@ -1,0 +1,84 @@
+{
+  "schema": "guard-g03-controlled-qualification-setup-proposal-v1",
+  "classification": "PROPOSED_CONTROLLED_MULTI_CLI_QUALIFICATION_AND_NEW_SAST_CONFIG_NOT_OWNER_SCAN_AUTHORITY",
+  "approved": false,
+  "executed": false,
+  "executionMode": "OWNER_OPERATED_ONLY",
+  "maxSetupAttempts": 1,
+  "imageId": "sha256:3608834fae5f966e6380af0c7b2acf71a46af2ac2bac8591be2b0851d501fa51",
+  "qualificationClis": [
+    "opengrep",
+    "osv-scanner",
+    "gitleaks",
+    "trivy",
+    "trivy-image"
+  ],
+  "maxNewControlledContainers": 20,
+  "containerCpu": 1,
+  "normalMemoryMiB": 256,
+  "osvAndOciMemoryMiB": 2048,
+  "pids": 64,
+  "scannerTimeoutMs": 45000,
+  "ownerWrapperTimeoutMs": 900000,
+  "localScopeExportAndNewOwnedTempArtifactsRequireApproval": true,
+  "existingNonsecretRoleApprovalsReadRequiresApproval": true,
+  "credentialReadAllowed": false,
+  "databaseConnectionAllowed": false,
+  "originalFilesOverwriteAllowed": false,
+  "websiteAttachmentOrRestartAllowed": false,
+  "ownerSourceAcquisitionOrScanAllowed": false,
+  "aiOrGithubWriteOrRetestAllowed": false,
+  "exportedEngines": [
+    "sast"
+  ],
+  "baselineCommitNotIndependentlyVerified": true,
+  "sourceIntegrityFiles": 47,
+  "artifacts": [
+    {
+      "file": ".local/g03-owner-selection/export-owner-scope.js",
+      "sha256": "c4b6b920da4e1f1d77c29072791797a4d82592ad152fe4c42f8a7a5e4094cafc"
+    },
+    {
+      "file": ".local/g03-owner-selection/setup-qualified-sast.ps1",
+      "sha256": "4d62e10a359bbaad717eb9bb8238112571a70882d20c7527a0bb75f0d9dbaae1"
+    },
+    {
+      "file": ".local/g03-owner-selection/setup-qualified-sast.mjs",
+      "sha256": "5d5f38673b719ccbc4919dbb773b775c36ac0dc96e901e88cca4a64142de186e"
+    },
+    {
+      "file": ".local/g03-owner-selection/setup-qualified-sast.bundle.mjs",
+      "sha256": "32c4a5fd92c6cb56147149e9b3f00760188c4a98b26da351c1c8dd5481284567"
+    },
+    {
+      "file": ".local/g03-owner-selection/qualification-model.mjs",
+      "sha256": "1e2942a128378573c0b8aa7b4a74dfa6d369d40747a41006c7e7fa1e6ce92510"
+    },
+    {
+      "file": ".local/g03-owner-selection/qualification-original.bundle.mjs",
+      "sha256": "3c8e4e50c22b8ee3c4997456f68e13db40a56fa5c19822a76694671ce8b0a843"
+    },
+    {
+      "file": ".local/g03-owner-selection/run-original-qualification.mjs",
+      "sha256": "3caf6d1c9cbdab93350a701bdb6befc64f24b557b236f8ed3f520ea9c280dc77"
+    },
+    {
+      "file": ".local/g03-owner-selection/qualification-build-manifest.json",
+      "sha256": "f9e381d7959162e23ca5348c495aa201939075a1d300bd424a148fa9b29f33a3"
+    },
+    {
+      "file": ".local/g03-owner-selection/qualification-setup.offline.cjs",
+      "sha256": "181d0f7bc477f8544bf4f10602d726ef5d1b8cea01fd5537f28b9fe5cfb1d9b1"
+    }
+  ],
+  "offlineVerification": {
+    "passed": 31,
+    "failed": 0,
+    "powershellAstErrors": 0,
+    "setupFunctionCalled": false,
+    "databaseConnected": false,
+    "dockerInvoked": false,
+    "qualificationExecuted": false,
+    "ownerFunctionalTestPerformed": false
+  }
+}

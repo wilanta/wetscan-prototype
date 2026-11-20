@@ -1,0 +1,28 @@
+{
+  "schema": "guard-g03-runtime-binding-preflight-v1",
+  "classification": "OWNER_METADATA_PREFLIGHT_NOT_SCAN_AUTHORITY",
+  "projectId": "github-1465216209",
+  "method": "POST",
+  "endpoint": "/api/guard/projects/github-1465216209/preflight",
+  "postAttempts": 1,
+  "httpStatus": 200,
+  "status": "METADATA_PREFLIGHT_OBSERVED_NOT_SCAN_AUTHORITY",
+  "bindingStoredInOwnerMemory": true,
+  "databaseTargetExportedByEndpoint": false,
+  "sourceAcquired": false,
+  "scannerStarted": false,
+  "providerCalled": false,
+  "githubWritten": false,
+  "configuration": "TARGET_VERIFIED",
+  "policyBinding": "NOT_VERIFIED",
+  "sandbox": "CONFIGURATION_QUALIFICATION_OR_IMAGE_NOT_READY",
+  "appDatabase": "READONLY_TARGET_ROLE_SCHEMA_RLS_VERIFIED",
+  "workerDatabase": "REFERENCE_MISSING_IN_THIS_PROCESS",
+  "references": {
+    "app": { "approvalReferencePresent": true, "passwordReferencePresent": true },
+    "worker": { "approvalReferencePresent": false, "passwordReferencePresent": false }
+  },
+  "configurationDiagnostic": null,
+  "runtimeOperations": 0,
+  "currentHeadVerified": false
+}

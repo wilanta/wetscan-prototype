@@ -1,0 +1,46 @@
+{
+  "classification": "READONLY_STOP_DIAGNOSIS_NOT_LIVE_ACCEPTANCE",
+  "files": [
+    {
+      "file": "docs/GUARD_G03_READER_RUNTIME_SETUP.md",
+      "sha256": "6b88c7eb09e051df6eabbfa51376ccd4d8ecdc3c8f4ab9ab96736b110d292b7d"
+    },
+    {
+      "file": "docs/GUARD_G03_BASELINE_PREFLIGHT.md",
+      "sha256": "2a25df8f5787816a3ceb83af555177aa5ab516a007e7452e2e74e0cd287b20d1"
+    },
+    {
+      "file": "docs/GUARD_G03_OWNER_TARGET_DESIGN.md",
+      "sha256": "c22e80c2d11b137305b2aa93bc801371fe912ec8614a36f16ed4852834b14c38"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "sha256": "83ea9c2ded15d02905dbc28ad0a9e7521ba0416d5e145dea71673c7272d0e604"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "sha256": "942963eb7d5970a617f54f9600e0fe677ee4499f4687d6373433a3d486fef55e"
+    },
+    {
+      "file": "docs/GUARD_G03_VERIFY_STOP_DIAGNOSIS.md",
+      "sha256": "2b73f8243f94dc023ccc973d303e8dc38e94bea305bcb5fc26392ca1f82c28a8"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-reader-stop-diagnosis/owner-stop-report.json",
+      "sha256": "fcc407b25a839142fb6c6cce38ba4413894c664e256d21d436704919f485f40e"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-reader-stop-diagnosis/static-findings.json",
+      "sha256": "0053bb948b49a56f5770d6ea98553b200e56c35128230b93bd8908783983207b"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-reader-stop-diagnosis/wrapper-observability-check.json",
+      "sha256": "08ca13ee7910a98fbb3ff7208dbea65d705cd2ca7814ff6a75a87ab75c776771"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-reader-stop-diagnosis/recovery-proposal.json",
+      "sha256": "d3e829dac3309516f66b0e723631db97f385e582be563fc7a5b04ab5da4baf42"
+    }
+  ],
+  "selfExcluded": true
+}

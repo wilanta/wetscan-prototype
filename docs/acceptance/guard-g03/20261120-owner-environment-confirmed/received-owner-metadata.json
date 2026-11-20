@@ -1,0 +1,56 @@
+{
+  "classification": "G03_STOP_OWNER_PROCESS_METADATA_ONLY_NOT_RECOVERY",
+  "powershellVersion": "5.1.26100.7705",
+  "nodeCommandFound": true,
+  "nodeCommandType": "Application",
+  "nodeVersionFromExecutableMetadata": "24.17.0",
+  "environmentReferencePresence": {
+    "NODE_PATH": false,
+    "SystemRoot": true,
+    "GUARD_PRODUCT_CONFIG_FILE": false,
+    "NODE_OPTIONS": false,
+    "GUARD_DB_APP_APPROVAL_FILE": false,
+    "GUARD_DB_WORKER_PASSWORD_FILE": false,
+    "GUARD_DB_APP_PASSWORD_FILE": false,
+    "GUARD_DB_WORKER_APPROVAL_FILE": false,
+    "LOCALAPPDATA": true
+  },
+  "dependencies": [
+    {
+      "name": "tsx",
+      "rootPackagePresent": true,
+      "version": "4.23.15"
+    },
+    {
+      "name": "pg",
+      "rootPackagePresent": true,
+      "version": "8.23.1"
+    },
+    {
+      "name": "@next/env",
+      "rootPackagePresent": true,
+      "version": "16.4.6"
+    },
+    {
+      "name": "next",
+      "rootPackagePresent": true,
+      "version": "16.4.6"
+    },
+    {
+      "name": "server-only",
+      "rootPackagePresent": false,
+      "version": null
+    }
+  ],
+  "recentErrorSignals": [],
+  "errorSignalsAreUncorrelatedHints": true,
+  "pointerStatus": "NOT_FOUND",
+  "guardPort55434": "UNAVAILABLE",
+  "pointerContentsRead": false,
+  "credentialFilesRead": false,
+  "helperExecuted": false,
+  "databaseConnected": false,
+  "filesWritten": 0,
+  "environmentChanged": false,
+  "websiteRestarted": false
+}

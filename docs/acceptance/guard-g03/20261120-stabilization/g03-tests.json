@@ -1,0 +1,52 @@
+{
+  "total": 144,
+  "passed": 144,
+  "failed": 0,
+  "files": [
+    {
+      "file": "tests/guard/g03/github.test.ts",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "file": "tests/guard/g03/http.test.ts",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "file": "tests/guard/g03/patch.test.ts",
+      "passed": 43,
+      "failed": 0
+    },
+    {
+      "file": "tests/guard/g03/provider.test.ts",
+      "passed": 21,
+      "failed": 0
+    },
+    {
+      "file": "tests/guard/g03/retest.test.ts",
+      "passed": 24,
+      "failed": 0
+    },
+    {
+      "file": "tests/guard/g03/runtime.test.ts",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "file": "tests/guard/g03/security-scan.test.ts",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "file": "tests/guard/g03/service.test.ts",
+      "passed": 27,
+      "failed": 0
+    },
+    {
+      "file": "tests/guard/g03/source.test.ts",
+      "passed": 9,
+      "failed": 0
+    }
+  ]
+}

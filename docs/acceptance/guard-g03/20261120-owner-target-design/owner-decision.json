@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-20",
+  "timezone": "Asia/Jakarta",
+  "strategy": "SEPARATE_OWNER_OWNED_GITHUB_TEST_REPOSITORY",
+  "strategySelected": true,
+  "exactTargetUrl": null,
+  "repositoryId": null,
+  "baselineCommit": null,
+  "excludedPatchPrTargets": [
+    "inkAja/wdu",
+    "wilanta/wetscan-prototype"
+  ],
+  "approvals": {
+    "createRepository": false,
+    "githubWrite": false,
+    "githubSourceAcquisition": false,
+    "targetScan": false,
+    "aiRequest": false,
+    "commitPushMerge": false,
+    "deployment": false
+  },
+  "previousReceipt": {
+    "repository": "inkAja/wdu",
+    "scanId": null,
+    "storage": "UNAVAILABLE",
+    "cause": "NOT_OBSERVABLE_FROM_V1_EXPORT",
+    "evidenceOfNoFindings": false,
+    "eligibleForNewCampaign": false
+  },
+  "nextOwnerAction": "Review baseline package; owner prepares private personal repo/non-default baseline branch, selects existing App, then returns URL/full HEAD and optional metadata-only permission"
+}

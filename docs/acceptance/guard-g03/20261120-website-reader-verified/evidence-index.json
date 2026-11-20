@@ -1,0 +1,52 @@
+{
+  "classification": "OWNER_WEBSITE_READER_PROOF_NOT_LIVE_REMEDIATION",
+  "documentationCheckpoint": ".local/g03-reader-verified-checkpoint-Du5iL7",
+  "implementationFilesUnchanged": 46,
+  "files": [
+    {
+      "file": "docs/GUARD_G03_PROVEN_READER_ATTACH.md",
+      "sha256": "2cb6711bf4d72eff285e6053edc0a4fdb54db5df70582578b032278551b41273"
+    },
+    {
+      "file": "docs/GUARD_G03_EXISTING_TARGET_PROOF.md",
+      "sha256": "a25eea839f6db32253de7b685981acac87f5da50b95063b2dccf4a24e8268e7e"
+    },
+    {
+      "file": "docs/GUARD_G03_BASELINE_PREFLIGHT.md",
+      "sha256": "fc78b4fe0bf0442c7fa88edb83b57589442ed7d04e2a1b52137ec4dc96aede6e"
+    },
+    {
+      "file": "docs/GUARD_G03_OWNER_TARGET_DESIGN.md",
+      "sha256": "cc982732deb59218d46e04a80db83ec75c2098c01411d1d2f007a1ceb9526c21"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "sha256": "56e541c852ebde8f12a619e9e1065579ee89fd52be4a28dabd497192b203e415"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "sha256": "0296046b16af2a2bc6c5bf018bb42566941efddfe05ab2a72a6fade68e2c2d76"
+    },
+    {
+      "file": "docs/GUARD_G03_READER_VERIFIED_NEXT_METADATA.md",
+      "sha256": "95165689d40d92f72f66ac894c2fb7a7743b683a74b60f86aa573259323dd4f1"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-website-reader-verified/received-attachment.json",
+      "sha256": "bfbec4f3107f7959d3f3a31eaf9b444927e9a95843cd0d8cc253ec867bcde8df"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-website-reader-verified/received-website-preflight.json",
+      "sha256": "ce244a102ded546cf9a78c85b62f90af8169f1a92c746450c5855328aead21f5"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-website-reader-verified/owner-branch-confirmation.json",
+      "sha256": "41ea1c2f32d552b350a1b43c85c9f43c4d3162c3e4464d72fb440d95cad2e9c2"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-website-reader-verified/metadata-post-proposal.json",
+      "sha256": "5337cf839d4bd0d462af40b459c8662970e69da131d2fca03b46c80effd72b0c"
+    }
+  ],
+  "selfExcluded": true
+}

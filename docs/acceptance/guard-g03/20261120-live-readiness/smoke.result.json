@@ -1,0 +1,11 @@
+{
+  "kind": "smoke",
+  "startedAt": "2026-11-20T07:43:00.564Z",
+  "finishedAt": "2026-11-20T07:43:03.321Z",
+  "exitCode": 0,
+  "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+  "ownerRepositoryAccessed": false,
+  "ownerDatabaseAccessed": false,
+  "paidAiCalled": false,
+  "githubWritten": false
+}

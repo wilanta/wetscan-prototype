@@ -1,0 +1,11 @@
+{
+  "classification": "ISOLATED_POSTGRESQL_SYNTHETIC_RESERVATIONS_NOT_LIVE",
+  "concurrentCrossScanAttempts": 2,
+  "successfulReservations": 1,
+  "rejectedReservations": 1,
+  "persistedProjectCostMicroUsd": 500000,
+  "requestCap": 20,
+  "requestCapDeniedBeforeCallback": true,
+  "ownerDatabaseAccessed": false,
+  "paidAiCalled": false
+}

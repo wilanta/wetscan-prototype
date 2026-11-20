@@ -1,0 +1,34 @@
+{
+  "classification": "PROPOSED_OWNER_PROVEN_READER_ATTACH_NEW_APPROVAL_REQUIRED",
+  "target": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "wetscan_dev_guardg02",
+    "marker": "wetscan-s01:f0927e49-0e70-4b90-913f-6cd6984df9d8"
+  },
+  "role": "wetscan_guard_app",
+  "script": ".local/g03-owner-selection/attach-proven-reader.ps1",
+  "scriptSha256": "2b312400d8f03aea0aba9e6e174d465daf4805c77e188b2f2dd3910c5c222239",
+  "referenceNames": [
+    "GUARD_DB_APP_APPROVAL_FILE",
+    "GUARD_DB_APP_PASSWORD_FILE",
+    "GUARD_PRODUCT_CONFIG_FILE"
+  ],
+  "processFlags": {
+    "GUARD_PRODUCT_ENABLED": "0",
+    "GUARD_G03_ENABLED": "0",
+    "GUARD_G03_AI_ENABLED": "0",
+    "GUARD_G03_GITHUB_WRITES_ENABLED": "0"
+  },
+  "localWebsiteStartupProposed": true,
+  "existingAppCredentialInternalUseProposed": true,
+  "getOnlyWebsiteVerificationProposed": true,
+  "workerReferenceAttachmentAllowed": false,
+  "legacyHelperAllowed": false,
+  "credentialOrConfigFileWriteAllowed": false,
+  "databaseMutationAllowed": false,
+  "sourceScannerAiGithubWriteAllowed": false,
+  "approved": false,
+  "executed": false,
+  "validation": "STATIC_AST_PARSE_ONLY"
+}

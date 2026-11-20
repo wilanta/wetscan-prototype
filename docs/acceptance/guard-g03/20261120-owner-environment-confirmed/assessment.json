@@ -1,0 +1,23 @@
+{
+  "classification": "OWNER_METADATA_CONFIRMED_PREREQUISITE_BLOCKERS_NOT_LIVE_ACCEPTANCE",
+  "confirmed": {
+    "nodeAvailable": true,
+    "nodeEngineMismatchProven": false,
+    "rootServerOnlyPackageMissing": true,
+    "localAppDataPointerMissing": true,
+    "allFiveGuardRuntimeReferencesAbsent": true,
+    "nodeOptionsAndNodePathAbsent": true,
+    "recentErrorSignalsAvailable": false
+  },
+  "originalOwnerNativeExitCode": null,
+  "originalOwnerNativeError": "UNKNOWN_NOT_RECONSTRUCTED",
+  "databaseAbsentProven": false,
+  "databaseBrokenProven": false,
+  "approvalExpiryProven": false,
+  "actualDatabaseIdentityVerified": false,
+  "portUnavailableMeans": "NO_CONCLUSION_ABOUT_LISTENER_OR_DATABASE",
+  "dependencyInstallAloneWouldResolveAllBlockers": false,
+  "oldAttachRetryAllowed": false,
+  "helperExecutedByAgent": false,
+  "databaseConnectedByAgent": false
+}

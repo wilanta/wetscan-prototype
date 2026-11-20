@@ -1,0 +1,22 @@
+{
+  "schema": "guard-g03-stopped-reference-metadata-v1",
+  "classification": "OWNER_EXISTING_REFERENCE_METADATA_ONLY_NOT_SETUP_RETRY",
+  "status": "REFERENCE_METADATA_ISSUES_OBSERVED",
+  "checked": 70,
+  "regularFilesPresent": 69,
+  "issues": [{ "reference": "INSTALL_TRIVY_MANIFEST", "status": "FILE_MISSING_AT_CHECK" }],
+  "publicPinnedBuildManifestRead": true,
+  "ownerScopeContentsRead": false,
+  "approvalContentsRead": false,
+  "installationContentsRead": false,
+  "credentialFilesRead": false,
+  "rawPathsPrinted": false,
+  "nodeOrHelperExecuted": false,
+  "dockerInvoked": false,
+  "databaseConnected": false,
+  "setupRetried": false,
+  "qualificationAttempted": false,
+  "filesWritten": 0,
+  "environmentChanged": false,
+  "websiteRestarted": false
+}

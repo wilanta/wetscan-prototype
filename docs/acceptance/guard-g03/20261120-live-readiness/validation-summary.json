@@ -1,0 +1,168 @@
+{
+  "status": "PARTIAL_NOT_COMPLETE",
+  "generatedAt": "2026-11-20T07:49:11.243Z",
+  "branch": "feat/guard-g03-ai-remediation",
+  "head": "5e52ac2d9df641eebef5cb4818c4efb7887c0c5c",
+  "baseMaster": "5e52ac2d9df641eebef5cb4818c4efb7887c0c5c",
+  "initialFiles": 75,
+  "unit": {
+    "total": 2869,
+    "passed": 2733,
+    "failed": 136,
+    "counts": {
+      "g03": 0,
+      "g03Integration": 0,
+      "windowsSentinel": 135,
+      "historicalG01": 1,
+      "existingG01NativeIo": 0,
+      "unclassified": 0
+    }
+  },
+  "g03": {
+    "passed": 177,
+    "failed": 0,
+    "files": 13
+  },
+  "postgres": {
+    "passed": 2,
+    "isolated": true,
+    "ownerDb": false
+  },
+  "realScanner": {
+    "passed": 1,
+    "controlledFixture": true,
+    "liveRepository": false
+  },
+  "browser": {
+    "passed": 12,
+    "failed": 0,
+    "scope": "Auth fixture and mocked Guard transport; includes selection metadata export and storage-unavailable behavior"
+  },
+  "typecheck": "PASS",
+  "lint": {
+    "errors": 0,
+    "preexistingWarnings": 2
+  },
+  "build": "PASS",
+  "smoke": "PASS",
+  "checks": {
+    "unit": {
+      "kind": "unit",
+      "startedAt": "2026-11-20T07:42:58.867Z",
+      "finishedAt": "2026-11-20T07:45:11.162Z",
+      "exitCode": 1,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "typecheck": {
+      "kind": "typecheck",
+      "startedAt": "2026-11-20T07:43:00.249Z",
+      "finishedAt": "2026-11-20T07:43:11.746Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "lint": {
+      "kind": "lint",
+      "startedAt": "2026-11-20T07:43:00.355Z",
+      "finishedAt": "2026-11-20T07:43:51.068Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "build": {
+      "kind": "build",
+      "startedAt": "2026-11-20T07:40:32.950Z",
+      "finishedAt": "2026-11-20T07:41:30.547Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "browser": {
+      "kind": "browser",
+      "startedAt": "2026-11-20T07:27:58.249Z",
+      "finishedAt": "2026-11-20T07:30:51.465Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "postgres": {
+      "kind": "postgres",
+      "startedAt": "2026-11-20T07:34:33.312Z",
+      "finishedAt": "2026-11-20T07:35:12.320Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "scanner": {
+      "kind": "scanner",
+      "startedAt": "2026-11-20T07:34:32.822Z",
+      "finishedAt": "2026-11-20T07:35:00.667Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "smoke": {
+      "kind": "smoke",
+      "startedAt": "2026-11-20T07:43:00.564Z",
+      "finishedAt": "2026-11-20T07:43:03.321Z",
+      "exitCode": 0,
+      "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+      "ownerRepositoryAccessed": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    }
+  },
+  "provider": {
+    "candidate": "gpt-5.4-mini-2026-03-17",
+    "reservedMicroUsd": 16500,
+    "templateEnabled": false,
+    "templatePolicyApproved": false,
+    "keyReferenceInTemplate": false,
+    "promptVersion": "guard-source-remediation-v2",
+    "realAccountConfiguration": "UNOBSERVED",
+    "providerCalled": false
+  },
+  "live": {
+    "findingSelected": false,
+    "sourcePreviewRead": false,
+    "authenticatedOwnerDbRead": false,
+    "paidAiCalled": false,
+    "githubWritten": false,
+    "prCreated": false,
+    "liveRetestRun": false,
+    "restartPerformed": false,
+    "complete": false
+  },
+  "checkpoint": {
+    "staged": false,
+    "committed": false,
+    "pushed": false,
+    "merged": false,
+    "approved": false,
+    "proposal": "docs/GUARD_G03_CHECKPOINT.md"
+  },
+  "nextOwnerAction": "Open owner-authenticated /app/projects/github-839286157/guard/findings, export G03 selection metadata and attach JSON; no credential or live operation approval requested yet"
+}

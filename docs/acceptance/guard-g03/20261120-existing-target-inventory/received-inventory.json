@@ -1,0 +1,77 @@
+{
+  "classification": "OWNER_G02_NONSECRET_REFERENCE_INVENTORY_NOT_RUNTIME_AUTHORITY",
+  "parents": [
+    {
+      "source": "WORKTREE_G02_ROOTS",
+      "status": "ENUMERATED_METADATA_ONLY",
+      "candidateCount": 1
+    },
+    {
+      "source": "LOCALAPPDATA_G02_ROOTS",
+      "status": "ABSENT_OR_UNREADABLE",
+      "candidateCount": null
+    }
+  ],
+  "roots": [
+    {
+      "rootOrdinal": 1,
+      "source": "WORKTREE_G02_ROOTS",
+      "documents": [
+        {
+          "file": "app.database.json",
+          "status": "NONSECRET_METADATA_PROJECTED",
+          "purpose": "app",
+          "role": "wetscan_guard_app",
+          "target": {
+            "host": "localhost",
+            "port": 5432,
+            "database": "wetscan_dev_guardg02",
+            "marker": "wetscan-s01:f0927e49-0e70-4b90-913f-6cd6984df9d8"
+          },
+          "expiresAt": "2026-11-21T17:00:00.0000000+00:00",
+          "expiryInFuture": true,
+          "migrationPlanSha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d",
+          "runtimeAuthorizationVerified": false
+        },
+        {
+          "file": "worker.database.json",
+          "status": "NONSECRET_METADATA_PROJECTED",
+          "purpose": "worker",
+          "role": "wetscan_guard_worker",
+          "target": {
+            "host": "localhost",
+            "port": 5432,
+            "database": "wetscan_dev_guardg02",
+            "marker": "wetscan-s01:f0927e49-0e70-4b90-913f-6cd6984df9d8"
+          },
+          "expiresAt": "2026-11-21T17:00:00.0000000+00:00",
+          "expiryInFuture": true,
+          "migrationPlanSha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d",
+          "runtimeAuthorizationVerified": false
+        },
+        {
+          "file": "target-only.json",
+          "status": "NONSECRET_METADATA_PROJECTED",
+          "target": {
+            "host": "localhost",
+            "port": 5432,
+            "database": "wetscan_dev_guardg02",
+            "marker": "wetscan-s01:f0927e49-0e70-4b90-913f-6cd6984df9d8"
+          },
+          "noScannerPolicy": true
+        }
+      ],
+      "selectedForUse": false
+    }
+  ],
+  "exactTargetNotAutomaticallySelected": true,
+  "roleAuthenticationVerified": false,
+  "passwordFilesRead": false,
+  "pointerContentsRead": false,
+  "rawPathsPrinted": false,
+  "helperExecuted": false,
+  "databaseConnected": false,
+  "filesWritten": 0,
+  "environmentChanged": false,
+  "websiteRestarted": false
+}

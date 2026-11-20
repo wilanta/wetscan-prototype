@@ -1,0 +1,60 @@
+{
+  "schema": "guard-g03-owner-preflight-v1",
+  "classification": "OWNER_SESSION_READONLY_PREFLIGHT_NOT_LIVE_ACCEPTANCE",
+  "projectId": "github-1465216209",
+  "repositoryName": "inkAja/wetscan-g03-acceptance",
+  "expectedBranch": "g03/acceptance-base",
+  "ownerReportedCommit": "6eb920a5573c39105fa0390d464d271fb1c7b5bf",
+  "currentHeadVerified": false,
+  "treeVerified": false,
+  "blobIdsVerified": false,
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/onboarding",
+      "httpStatus": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/guard/projects/github-1465216209/readiness",
+      "httpStatus": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/guard/projects/github-1465216209/scans?limit=50",
+      "httpStatus": 200,
+      "errorCode": null
+    }
+  ],
+  "sourceAcquired": false,
+  "scannerStarted": false,
+  "providerCalled": false,
+  "githubWritten": false,
+  "selectionWritten": false,
+  "selection": {
+    "verifiedByCurrentGet": true,
+    "step": "complete",
+    "repositoryIds": [
+      839286157,
+      1465216209
+    ],
+    "targetPrivate": true
+  },
+  "readiness": {
+    "status": "BLOCKED",
+    "database": "approved",
+    "schema": "verified",
+    "queue": "unverified",
+    "sandbox": "BLOCKED",
+    "workerAuthorization": "not_configured",
+    "execution": "G02_NOT_CONFIGURED",
+    "repositoryScanning": "BLOCKED",
+    "allowedEngines": [],
+    "scanAccepted": false
+  },
+  "scanHistory": [],
+  "historyMayBeTruncated": false,
+  "status": "READONLY_PREFLIGHT_OBSERVED"
+}

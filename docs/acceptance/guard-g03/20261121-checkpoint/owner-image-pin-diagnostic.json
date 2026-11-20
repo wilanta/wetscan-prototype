@@ -1,0 +1,48 @@
+{
+  "schema": "guard-g03-image-pin-diagnostic-v1",
+  "classification": "READONLY_IMAGE_TEMPLATE_DIAGNOSTIC_NOT_RECOVERY_RETRY",
+  "status": "COMPATIBLE_IMAGE_PIN_OBSERVED_NO_RECOVERY_AUTHORITY",
+  "reason": null,
+  "observations": [
+    {
+      "template": "legacy",
+      "cliExitCode": 1,
+      "stderrPresent": true,
+      "stderrCategory": "TEMPLATE_OPTIONAL_VOLUMES_FIELD",
+      "transportUnknown": false,
+      "jsonValid": false,
+      "idMatches": false,
+      "linux": false,
+      "userMatches": false,
+      "volumesState": "NOT_OBSERVED",
+      "pinVerified": false,
+      "reason": "IMAGE_INSPECT_CLI_FAILED_STOP"
+    },
+    {
+      "template": "compatible",
+      "cliExitCode": 0,
+      "stderrPresent": false,
+      "stderrCategory": "NONE",
+      "transportUnknown": false,
+      "jsonValid": true,
+      "idMatches": true,
+      "linux": true,
+      "userMatches": true,
+      "volumesState": "NORMALIZED_NONE",
+      "pinVerified": true,
+      "reason": null
+    }
+  ],
+  "optionalFieldCompatibilityObserved": true,
+  "recoveryRetried": false,
+  "containersCreated": 0,
+  "metadataCopied": false,
+  "qualificationAttempted": false,
+  "filesWritten": 0,
+  "credentialFilesRead": false,
+  "scopeOrApprovalContentsRead": false,
+  "environmentChanged": false,
+  "websiteRestarted": false,
+  "nativeExitCode": 0,
+  "nodeStderrPresent": false
+}

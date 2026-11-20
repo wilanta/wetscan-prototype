@@ -1,0 +1,186 @@
+{
+  "schema": "guard-g03-authorized-checkpoint-v1",
+  "classification": "OFFLINE_IMPLEMENTATION_CHECKPOINT_NOT_LIVE_ACCEPTANCE",
+  "date": "2026-11-21",
+  "timezone": "Asia/Jakarta",
+  "status": "PARTIAL",
+  "branch": "feat/guard-g03-ai-remediation",
+  "baseCommit": "5e52ac2d9df641eebef5cb4818c4efb7887c0c5c",
+  "remoteMasterObserved": "ad0f7c25b60be9016f5de7a3746820013d0eae2a",
+  "remoteFeatureExistedAtPreflight": false,
+  "g02Baseline": "Merged PR #17 and #19; no newer master synchronization in this checkpoint",
+  "publication": {
+    "authorization": "OWNER_APPROVED_CONDITIONAL_ON_PASSING_AUDIT_AND_CHECKS",
+    "commitMessage": "feat(guard): add consented G03 remediation and verified retest workflow",
+    "outcomeAtEvidenceCreation": "NOT_YET_EXECUTED",
+    "remoteBranchOnly": "feat/guard-g03-ai-remediation",
+    "prMergeDeploymentAuthorized": false
+  },
+  "checks": {
+    "unit": {
+      "classification": "OFFLINE_APPROVED_CHECK_NOT_LIVE_ACCEPTANCE",
+      "kind": "unit",
+      "startedAt": "2026-11-20T17:10:19.883Z",
+      "finishedAt": "2026-11-20T17:10:30.491Z",
+      "exitCode": 0,
+      "launchError": null,
+      "ownerSourceAcquired": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false,
+      "tests": {
+        "passed": 306,
+        "failed": 0,
+        "pending": 0,
+        "total": 306,
+        "success": true
+      }
+    },
+    "typecheck": {
+      "classification": "OFFLINE_APPROVED_CHECK_NOT_LIVE_ACCEPTANCE",
+      "kind": "typecheck",
+      "startedAt": "2026-11-20T17:10:43.609Z",
+      "finishedAt": "2026-11-20T17:11:02.037Z",
+      "exitCode": 0,
+      "launchError": null,
+      "ownerSourceAcquired": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "lint": {
+      "classification": "OFFLINE_APPROVED_CHECK_NOT_LIVE_ACCEPTANCE",
+      "kind": "lint",
+      "startedAt": "2026-11-20T17:11:08.927Z",
+      "finishedAt": "2026-11-20T17:11:44.549Z",
+      "exitCode": 0,
+      "launchError": null,
+      "ownerSourceAcquired": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "browser": {
+      "classification": "OFFLINE_APPROVED_CHECK_NOT_LIVE_ACCEPTANCE",
+      "kind": "browser",
+      "startedAt": "2026-11-20T17:12:40.621Z",
+      "finishedAt": "2026-11-20T17:14:25.322Z",
+      "exitCode": 0,
+      "launchError": null,
+      "ownerSourceAcquired": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "build": {
+      "classification": "OFFLINE_APPROVED_CHECK_NOT_LIVE_ACCEPTANCE",
+      "kind": "build",
+      "startedAt": "2026-11-20T17:14:33.920Z",
+      "finishedAt": "2026-11-20T17:15:24.809Z",
+      "exitCode": 0,
+      "launchError": null,
+      "ownerSourceAcquired": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    },
+    "smoke": {
+      "classification": "OFFLINE_APPROVED_CHECK_NOT_LIVE_ACCEPTANCE",
+      "kind": "smoke",
+      "startedAt": "2026-11-20T17:15:37.139Z",
+      "finishedAt": "2026-11-20T17:15:39.277Z",
+      "exitCode": 0,
+      "launchError": null,
+      "ownerSourceAcquired": false,
+      "ownerDatabaseAccessed": false,
+      "paidAiCalled": false,
+      "githubWritten": false
+    }
+  },
+  "unitBreakdown": {
+    "g03": {
+      "files": 15,
+      "passed": 194,
+      "failed": 0
+    },
+    "authAndG02Contracts": {
+      "files": 8,
+      "passed": 112,
+      "failed": 0
+    }
+  },
+  "browser": {
+    "passed": 12,
+    "failed": 0,
+    "classification": "MOCKED_API_FIXTURE_NOT_REAL_PROVIDER_PR_SCAN"
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 2,
+    "warningSource": "Unchanged worker/guard/installation/persistence-fixture.ts unused definitions"
+  },
+  "production": {
+    "isolatedOutput": true,
+    "ownerWebsiteOutputPreserved": true,
+    "smokeChecks": 5
+  },
+  "security": {
+    "initialFiles": 207,
+    "initialCredentialFindings": 0,
+    "initialIncomplete": 0,
+    "original46ImplementationHashesPreserved": true,
+    "fixtureActorFieldsReviewed": 3,
+    "finalAudit": "PASS",
+    "finalFiles": 210,
+    "finalCredentialFindings": 0,
+    "finalIncomplete": 0,
+    "finalForbiddenFiles": 0,
+    "unknownChanges": 0
+  },
+  "notRerun": {
+    "postgres": {
+      "historicalPassed": 2,
+      "reason": "No setup/database execution in this checkpoint scope",
+      "evidence": "../20261120-live-readiness/postgres.result.json"
+    },
+    "realScannerFixture": {
+      "historicalPassed": 1,
+      "reason": "Current instruction explicitly prohibits repeating scanner execution",
+      "evidence": "../20261120-live-readiness/scanner.result.json"
+    },
+    "fullRegression": {
+      "classification": "HISTORICAL_NOT_RERUN",
+      "total": 2869,
+      "passed": 2733,
+      "failed": 136,
+      "counts": {
+        "g03": 0,
+        "g03Integration": 0,
+        "windowsSentinel": 135,
+        "historicalG01": 1,
+        "existingG01NativeIo": 0,
+        "unclassified": 0
+      },
+      "evidence": "../20261120-live-readiness/regression-classification.json"
+    }
+  },
+  "liveAcceptance": {
+    "ownerSourceAcquired": false,
+    "scannerStarted": false,
+    "providerCalled": false,
+    "githubAcceptanceRepositoryWritten": false,
+    "retestPerformed": false,
+    "recoveryRetried": false,
+    "qualificationAttempted": false,
+    "setupRetried": false,
+    "realFindingAvailable": false,
+    "status": "PARTIAL"
+  },
+  "preservation": {
+    "historicalEvidenceRewritten": false,
+    "g01SentinelWillSourceChanged": false,
+    "privateLocalFilesIncluded": false,
+    "credentialsIncluded": false,
+    "assertionsWeakened": false
+  }
+}

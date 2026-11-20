@@ -1,0 +1,91 @@
+{
+  "classification": "REAL_G02_SCANNER_CONTROLLED_SOURCE_NOT_LIVE_REPOSITORY_OR_AI_ACCEPTANCE",
+  "runId": "a432cbc2-5e64-46d5-8159-7fb6b5d1f643",
+  "scannerVersion": "2.0.0",
+  "imageId": "sha256:5b9751ba8b8fe60ddd266b2b8e9caa9812255702ac84c547911d3822ec147080",
+  "records": [
+    {
+      "variant": "vulnerable",
+      "imageId": "sha256:5b9751ba8b8fe60ddd266b2b8e9caa9812255702ac84c547911d3822ec147080",
+      "specDigest": "8e7daa531ac8338fa0c33edd99ea7787ecde9c51f74d80891fcd432afcb8105c",
+      "artifactDigest": "8463d38bf93da42a9bd11199e76754495b99f65e14728fcb26afc42d292b1686",
+      "findings": 1,
+      "coverage": {
+        "status": "complete",
+        "scannedFiles": 1,
+        "eligibleFiles": 1,
+        "scope": "Configured Opengrep JS/TS/Python rule subset only"
+      },
+      "cleanup": true
+    },
+    {
+      "variant": "fixed",
+      "imageId": "sha256:5b9751ba8b8fe60ddd266b2b8e9caa9812255702ac84c547911d3822ec147080",
+      "specDigest": "8e7daa531ac8338fa0c33edd99ea7787ecde9c51f74d80891fcd432afcb8105c",
+      "artifactDigest": "78066ce13eed7b18fc92950f696bd89b6069867fab161bc7db8bc6447f519c0d",
+      "findings": 0,
+      "coverage": {
+        "status": "complete",
+        "scannedFiles": 1,
+        "eligibleFiles": 1,
+        "scope": "Configured Opengrep JS/TS/Python rule subset only"
+      },
+      "cleanup": true
+    }
+  ],
+  "patchDigest": "6831706982ab8aef47d1dcf501b16c199bdb42fcea3754c438b57ff83dd7bc5b",
+  "comparison": {
+    "beforeArtifact": "8463d38bf93da42a9bd11199e76754495b99f65e14728fcb26afc42d292b1686",
+    "afterArtifact": "78066ce13eed7b18fc92950f696bd89b6069867fab161bc7db8bc6447f519c0d",
+    "sourceSha256": "f78edd84879b4599a4eb26bb78be738f46f0e9de225dcbdd86df001b72b0fa76",
+    "outcome": "fixed",
+    "evidenceOutcome": "verified_fixed",
+    "verifiedFixed": true,
+    "reason": "The relevant real scanner no longer detects this rule at the same target. Exact reviewed patch bytes, before/after commits, scanner/rules, complete coverage and cleanup are bound. This proves this scanner finding only, not exploit absence or overall security."
+  },
+  "persistedFlow": {
+    "actualScannerFindingsPersisted": 1,
+    "proposalPersisted": true,
+    "reviewPersisted": true,
+    "prTestDoubleLinked": true,
+    "realScannerRetestPersisted": {
+      "id": "f493a7203ae1102c47f475af45757e5d7233fd1d597a94a87426e08544bf542d",
+      "state": "compared",
+      "engine": "sast",
+      "reason": "The relevant real scanner no longer detects this rule at the same target. Exact reviewed patch bytes, before/after commits, scanner/rules, complete coverage and cleanup are bound. This proves this scanner finding only, not exploit absence or overall security.",
+      "scanId": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "actorId": "github-user-7",
+      "outcome": "fixed",
+      "createdAt": "2026-11-20T07:34:56.220Z",
+      "findingId": "e4f4e18a83a5189c5b759b463a7d95e224737fdd70d166883d3ac9093996be9f",
+      "proposalId": "9d628f734d4e42c83ec33711a8e9f095717ac7b034a382b76e825ecca60b43c0",
+      "afterCommit": "f78edd84879b4599a4eb26bb78be738f46f0e9de",
+      "beforeCommit": "d2da57a861ae06c5bc11942525fa0b04a1b4cc5d",
+      "observations": [
+        {
+          "at": "2026-11-20T07:34:56.251Z",
+          "reason": "The relevant real scanner no longer detects this rule at the same target. Exact reviewed patch bytes, before/after commits, scanner/rules, complete coverage and cleanup are bound. This proves this scanner finding only, not exploit absence or overall security.",
+          "outcome": "fixed",
+          "afterCommit": "f78edd84879b4599a4eb26bb78be738f46f0e9de",
+          "verifiedFixed": true,
+          "evidenceOutcome": "verified_fixed"
+        }
+      ],
+      "sourceSha256": "f78edd84879b4599a4eb26bb78be738f46f0e9de225dcbdd86df001b72b0fa76",
+      "targetBranch": "main",
+      "afterArtifact": "78066ce13eed7b18fc92950f696bd89b6069867fab161bc7db8bc6447f519c0d",
+      "verifiedFixed": true,
+      "beforeArtifact": "8463d38bf93da42a9bd11199e76754495b99f65e14728fcb26afc42d292b1686",
+      "evidenceOutcome": "verified_fixed"
+    },
+    "reportPersisted": true,
+    "restartVerified": true,
+    "originalFindingHistoryPreserved": true,
+    "sourceAndProviderAndPrAndEnqueueAreTestDoubles": true
+  },
+  "ownerRepositoryAccessed": false,
+  "ownerDatabaseAccessed": false,
+  "aiProviderCalled": false,
+  "githubWritten": false,
+  "allOwnedContainersRemoved": true
+}

@@ -1,0 +1,10 @@
+{
+  "classification": "OFFLINE_TRANSPORT_DOUBLES_NOT_LIVE_ACCEPTANCE",
+  "passed": 11,
+  "failed": 0,
+  "ownerRequestsSent": 0,
+  "implementationFilesUnchanged": 46,
+  "implementationUnchanged": true,
+  "packageRegenerated": false,
+  "gitMutation": false
+}

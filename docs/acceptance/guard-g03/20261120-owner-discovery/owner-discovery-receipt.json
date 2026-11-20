@@ -1,0 +1,57 @@
+{
+  "schema": "guard-g03-owner-discovery-v1",
+  "classification": "OWNER_EXPORTED_EXISTING_DISCOVERY_METADATA_NOT_LIVE_ACCEPTANCE",
+  "repositoryUrl": "https://github.com/inkAja/wetscan-g03-acceptance",
+  "repository": {
+    "id": 1465216209,
+    "fullName": "inkAja/wetscan-g03-acceptance",
+    "private": true,
+    "defaultBranch": "main"
+  },
+  "projectId": "github-1465216209",
+  "baseline": {
+    "branch": "g03/acceptance-base",
+    "commit": "6eb920a5573c39105fa0390d464d271fb1c7b5bf",
+    "source": "OWNER_REPORTED",
+    "currentHeadVerified": false,
+    "treeVerified": false,
+    "blobIdsVerified": false
+  },
+  "discovery": {
+    "source": "Owner projection of existing GET /api/onboarding/repositories",
+    "targetReturned": true,
+    "logicalAppUserIntersectionPassed": true,
+    "independentAgentSessionObservation": false
+  },
+  "selection": {
+    "source": "Owner projection of existing GET /api/onboarding",
+    "step": "complete",
+    "repositoryIds": [
+      839286157
+    ],
+    "targetSelected": false
+  },
+  "sourceAcquired": false,
+  "scannerStarted": false,
+  "providerCalled": false,
+  "githubWritten": false,
+  "selectionWritten": false,
+  "limitations": [
+    "Discovery is not PR write/admin authorization",
+    "No source, scanner finding or current HEAD/tree proof",
+    "No credential or private session file read"
+  ],
+  "diagnosis": {
+    "confirmed": "Target available in existing discovery but absent from saved WetScan repository selection",
+    "uiGap": "Completed onboarding redirects to /app before repository picker",
+    "proposedLocalSelection": {
+      "action": "repositories",
+      "repositoryIds": [
+        839286157,
+        1465216209
+      ]
+    },
+    "proposalExecuted": false,
+    "reReadSelectionRequiredBeforeWrite": true
+  }
+}

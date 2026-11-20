@@ -1,0 +1,13 @@
+{
+  "classification": "OFFLINE_DOUBLES_AND_IMPORT_GRAPH_NOT_DATABASE_PROOF",
+  "tests": 12,
+  "passed": 12,
+  "failed": 0,
+  "bundledNativeImportGraph": "PASS_NO_PROBE_FUNCTION_CALL",
+  "sourceTsxImportCheck": "AGENT_SANDBOX_uv_os_get_passwd_ENOMEM_NO_PROBE_FUNCTION_CALL",
+  "operatorArtifactUsesTsx": false,
+  "powershell": "STATIC_AST_PARSE_ONLY",
+  "ownerDatabaseConnected": false,
+  "legacyHelperExecuted": false,
+  "dependencyInstalled": false
+}

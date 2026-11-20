@@ -1,0 +1,11 @@
+{
+  "kind": "lint",
+  "startedAt": "2026-11-20T04:32:01.192Z",
+  "finishedAt": "2026-11-20T04:32:25.756Z",
+  "exitCode": 0,
+  "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+  "ownerRepositoryAccessed": false,
+  "ownerDatabaseAccessed": false,
+  "paidAiCalled": false,
+  "githubWritten": false
+}

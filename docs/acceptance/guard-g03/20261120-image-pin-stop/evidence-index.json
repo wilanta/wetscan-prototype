@@ -1,0 +1,82 @@
+{
+  "classification": "OWNER_IMAGE_PIN_STOP_DIAGNOSTIC_AND_OFFLINE_V2_INDEX",
+  "selfExcluded": true,
+  "files": [
+    {
+      "file": "docs/GUARD_G03_TRIVY_MANIFEST_RECOVERY.md",
+      "sha256": "b65f738877ae862d87bc24a1377f60d71c67bea2beaee20a23e4f0ec3225ee5d"
+    },
+    {
+      "file": "docs/GUARD_G03_QUALIFICATION_REFERENCE_STOP.md",
+      "sha256": "91c99a767f40953892c20e901636985eed5664efef147e8743f6fe02b8109f6a"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "sha256": "c289cc619b7d8cef8f2e5bdb03ec0dc6324aa85146e1cc1068565f6fb59da786"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "sha256": "d5ccd2c89f69a6c5999e85dd9671fb2736619093cc57c59c8098eabdbcbd13f2"
+    },
+    {
+      "file": "docs/GUARD_G03_IMAGE_PIN_STOP.md",
+      "sha256": "193a2da01686a7013584aad11d1b039c3a9469b2240aa287ddb277e05f22a913"
+    },
+    {
+      "file": ".local/g03-owner-selection/image-inspection-contract.mjs",
+      "sha256": "48cbb5d83c3c8d501fba259c92bd225e18ff91fcb54de0b11c4034547fd6a3ac"
+    },
+    {
+      "file": ".local/g03-owner-selection/bounded-docker-binary.mjs",
+      "sha256": "522b4b755d2e157bf7ffa1cca766f4857daa30a7631e8ebca6c6c7dc86a10cb7"
+    },
+    {
+      "file": ".local/g03-owner-selection/diagnose-image-pin.mjs",
+      "sha256": "7e25a80e6aadd6ae58894a72e4046d5c7290a9b99ca2fc4b5e3157c496012112"
+    },
+    {
+      "file": ".local/g03-owner-selection/diagnose-image-pin.bundle.mjs",
+      "sha256": "031e1ea2128f4a89b3cdccc749ee5386942b65458caf8ccea3bdeaaf30fbea56"
+    },
+    {
+      "file": ".local/g03-owner-selection/diagnose-image-pin.ps1",
+      "sha256": "71c3cfd9337b82310958eda0af38a5aeb82b52c267095531dc9fe070a430a48b"
+    },
+    {
+      "file": ".local/g03-owner-selection/image-inspection.offline.cjs",
+      "sha256": "49a336c2f640e091495912df7b028b71ca76b756b6fea341fa3ebe4345a4dd87"
+    },
+    {
+      "file": ".local/g03-owner-selection/recover-trivy-manifest-v2.mjs",
+      "sha256": "149bc3a7c0d7295073397f91bf9490d9e9342417473456833b0d6c6538070a35"
+    },
+    {
+      "file": ".local/g03-owner-selection/recover-trivy-manifest-v2.bundle.mjs",
+      "sha256": "7c2d93cca622fce5ff145548bbc4cd33cf38e20c8c6e2424b57880adc47f893c"
+    },
+    {
+      "file": ".local/g03-owner-selection/recover-trivy-manifest-v2.ps1",
+      "sha256": "92a9dfe393b990ed4a4329d8a380bcc6696bdc281ec59aac2a6200e24976d08d"
+    },
+    {
+      "file": ".local/g03-owner-selection/trivy-recovery-v2.offline.cjs",
+      "sha256": "baead78627d30b832c5862c1898426749bb71f50f3effd8df8baf444592878ba"
+    },
+    {
+      "file": ".local/g03-owner-selection/image-pin-v2-build.json",
+      "sha256": "8cc70b36b4d0166cb588781d4a0c5481cdb3ffd2225e1d091070a05696a22a62"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-image-pin-stop/diagnostic-v2-preparation.json",
+      "sha256": "6dda652c40344e5df960040fc693de612e3d206067c7599926797bad2789e914"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-image-pin-stop/receipt-assessment.json",
+      "sha256": "60b3c1e2ef97c5f1a093f6fb5d5a1aff8ff5be0d02daa6137f15698cd49c6222"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-image-pin-stop/received-owner-recovery-stop.json",
+      "sha256": "b8f2522ce8301034ecfd87ff0464af3d51f7c29f68b6eefd9d9c275c5881593c"
+    }
+  ]
+}

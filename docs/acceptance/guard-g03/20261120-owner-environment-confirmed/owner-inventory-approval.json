@@ -1,0 +1,28 @@
+{
+  "schema": "guard-g03-nonsecret-inventory-approval-v1",
+  "classification": "OWNER_APPROVAL_NOT_EXECUTION_EVIDENCE",
+  "clientDate": "2026-11-20",
+  "timezone": "Asia/Jakarta",
+  "ownerAnswer": "Setujui inventory non-secret saja",
+  "operator": "owner",
+  "script": ".local/g03-owner-selection/inventory-g02-reference-metadata.ps1",
+  "scriptSha256": "ff3f4fd0beb9eed116e48c0ffc317d248a504b8e94e033e57cbaa44003faaf5c",
+  "readScope": [
+    "app.database.json",
+    "worker.database.json",
+    "target-only.json"
+  ],
+  "parentScope": [
+    "WORKTREE/.local immediate G02 db UUID directories",
+    "LOCALAPPDATA/WetScanGuardG02 immediate G02 db UUID directories"
+  ],
+  "approved": true,
+  "executionStatus": "PENDING_OWNER_EXECUTION",
+  "passwordReadAllowed": false,
+  "pointerContentsReadAllowed": false,
+  "nodeOrHelperExecutionAllowed": false,
+  "databaseConnectionAllowed": false,
+  "fileOrEnvironmentChangesAllowed": false,
+  "restartAllowed": false,
+  "targetAutomaticallySelected": false
+}

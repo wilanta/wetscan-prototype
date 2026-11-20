@@ -1,0 +1,47 @@
+{
+  "classification": "OWNER_SINGLE_MISSING_REFERENCE_RECORDED_NOT_LIVE_ACCEPTANCE",
+  "receiptSource": "OWNER_MESSAGE",
+  "checked": 70,
+  "regularFilesPresent": 69,
+  "confirmedCurrentMissingReference": "INSTALL_TRIVY_MANIFEST",
+  "mappedRelativePath": ".local/g02-install/context/trivy-db-manifest.json",
+  "originalExceptionPathRecovered": false,
+  "diagnosticRetryOfSetup": false,
+  "agentOwnerScopeOrApprovalOrInstallationContentsRead": false,
+  "implementationFilesUnchanged": 46,
+  "baselineZipUnchanged": true,
+  "originalV1ArtifactsUnchanged": true,
+  "oldSourceManifestMatching": 47,
+  "recoveryApproved": false,
+  "recoveryExecuted": false,
+  "qualificationRetried": false,
+  "documentationCheckpoint": ".local/g03-trivy-manifest-diagnosed-checkpoint-dU0QU1",
+  "documentationBackups": [
+    {
+      "file": "docs/GUARD_G03_QUALIFICATION_REFERENCE_STOP.md",
+      "backup": ".local\\g03-trivy-manifest-diagnosed-checkpoint-dU0QU1\\GUARD_G03_QUALIFICATION_REFERENCE_STOP.md",
+      "sha256": "cbad7b6a5fb3ccc1806f0002896bdbcd019ac519e2bf4b4d6febd4adfc0d74b8"
+    },
+    {
+      "file": "docs/GUARD_G03_CONTROLLED_QUALIFICATION_SETUP.md",
+      "backup": ".local\\g03-trivy-manifest-diagnosed-checkpoint-dU0QU1\\GUARD_G03_CONTROLLED_QUALIFICATION_SETUP.md",
+      "sha256": "e482f266171ae42b0e18ba8c5e17e033988b9ce5f9675a9809dabc6599ccf2f1"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "backup": ".local\\g03-trivy-manifest-diagnosed-checkpoint-dU0QU1\\GUARD_G03_LIVE_ACCEPTANCE.md",
+      "sha256": "52d83cb2746a1315ba7defd4dd2c648f2f43aaf33f6a4e367385429c53664e0d"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "backup": ".local\\g03-trivy-manifest-diagnosed-checkpoint-dU0QU1\\HANDOFF_GUARD_G03.md",
+      "sha256": "cc796bd4a608137cb46868e8af4524cea4901724f796041465c6c57854d1fa0c"
+    }
+  ],
+  "agentDockerInvoked": false,
+  "agentDatabaseConnected": false,
+  "sourceAcquired": false,
+  "providerCalled": false,
+  "githubWritten": false,
+  "commitPushMerge": false
+}

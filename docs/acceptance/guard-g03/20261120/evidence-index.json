@@ -1,0 +1,80 @@
+{
+    "classification":  "NONSECRET_OFFLINE_EVIDENCE_NOT_LIVE_ACCEPTANCE",
+    "files":  [
+                  {
+                      "file":  "browser.result.json",
+                      "bytes":  319,
+                      "sha256":  "6373a1ae2e7f693129ad162a9427b3d288de36d154452518f1554d943539042a"
+                  },
+                  {
+                      "file":  "build.result.json",
+                      "bytes":  317,
+                      "sha256":  "4031df75b061d4678302392c997318d93efe9fe32a0e9791bfbfef18c51fc84b"
+                  },
+                  {
+                      "file":  "changed-files.json",
+                      "bytes":  3643,
+                      "sha256":  "8a474c6bd0c75e442f8ac0e545e52e10def405e66c034adfcdd307e0c3d00101"
+                  },
+                  {
+                      "file":  "inherited-evidence-mismatch.json",
+                      "bytes":  620,
+                      "sha256":  "9295e857e379504cf3a061a3044bb01708f95beef0bfc90629e8c89d7cc2a53f"
+                  },
+                  {
+                      "file":  "lint.result.json",
+                      "bytes":  316,
+                      "sha256":  "d689f29cf1b968efcc95badbd6fde9ec4833603c346cb0286d5635dde862be9e"
+                  },
+                  {
+                      "file":  "postgres.result.json",
+                      "bytes":  320,
+                      "sha256":  "4a7aad4c751c82706811b2433060c3623d3b15523d4f886ea3f7059b27ddcf91"
+                  },
+                  {
+                      "file":  "postgres-evidence.json",
+                      "bytes":  551,
+                      "sha256":  "f4bb0906811dad3c531d78c5a93116e3a3e5ad093b7bd97560afee60132dd9af"
+                  },
+                  {
+                      "file":  "real-scanner-evidence.json",
+                      "bytes":  4471,
+                      "sha256":  "c916ce38f632be07dbc73adafb56df95aa9e489fc3a45b6f962201441f03bde4"
+                  },
+                  {
+                      "file":  "scanner.result.json",
+                      "bytes":  319,
+                      "sha256":  "c566b3b2a8ee940ff00f5b56265cea1b05ed912021fdc34e2d242707bfc57ee5"
+                  },
+                  {
+                      "file":  "smoke.result.json",
+                      "bytes":  317,
+                      "sha256":  "466dbedd29029f54a9be5f65b1255633a822d887308e022d986e32fc27e10dd9"
+                  },
+                  {
+                      "file":  "smoke-evidence.json",
+                      "bytes":  433,
+                      "sha256":  "cc1df4f5a4f62581762d65aa1e00a4f14502cc2a5c976931dd0440cd660f03c6"
+                  },
+                  {
+                      "file":  "typecheck.result.json",
+                      "bytes":  321,
+                      "sha256":  "5836226a666e518547b40c09128da3213e2e27a065a9b54c9693294744f136fc"
+                  },
+                  {
+                      "file":  "unit.result.json",
+                      "bytes":  316,
+                      "sha256":  "46494b30948f04b0997a5cc20442cb2d8ba47b99cb7a63fb5e0d710e36ea820c"
+                  },
+                  {
+                      "file":  "upstream-sync.json",
+                      "bytes":  500,
+                      "sha256":  "a5fa0a3084313ef8b8973364c4afab8469fbba658a62d247039ff268fd7dbaf9"
+                  },
+                  {
+                      "file":  "validation-summary.json",
+                      "bytes":  7635,
+                      "sha256":  "e8503b07eee5988306d7126cd805ce86d809c4cb53187d337791fd822ada9b78"
+                  }
+              ]
+}

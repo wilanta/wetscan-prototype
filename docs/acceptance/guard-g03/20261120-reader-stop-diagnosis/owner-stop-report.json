@@ -1,0 +1,21 @@
+{
+  "schema": "guard-g03-reader-stop-v1",
+  "classification": "OWNER_REPORTED_STOP_NOT_LIVE_ACCEPTANCE",
+  "clientDate": "2026-11-20",
+  "timezone": "Asia/Jakarta",
+  "code": "G03_EXISTING_TARGET_VERIFY_STOP_NO_RETRY",
+  "ownerAttempts": 1,
+  "reportedPhase": "outer catch around verify invocation/JSON parsing",
+  "reportedReferencesInstalled": false,
+  "reportedNpmStartupReached": false,
+  "rawStdoutAvailable": false,
+  "rawStderrAvailable": false,
+  "nativeExitCode": null,
+  "actualHelperInternalPhase": "UNKNOWN",
+  "ownerDatabaseConnectionOccurred": "UNKNOWN",
+  "agentHelperAttempts": 0,
+  "agentDatabaseConnected": false,
+  "agentRestartedWebsite": false,
+  "oldApprovedScriptSha256": "efc309993c39c938dc255a3d66cff607e4d3f8d6646d3869fa73425b0f2d77d2",
+  "status": "STOPPED_OWNER_EXECUTION_REAPPROVAL_REQUIRED"
+}

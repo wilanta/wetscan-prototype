@@ -1,0 +1,26 @@
+{
+  "branch": "feat/guard-g03-ai-remediation",
+  "head": "5e52ac2d9df641eebef5cb4818c4efb7887c0c5c",
+  "checkpoint": ".local/g03-owner-target-checkpoint-P6yPgk",
+  "checkpointFiles": 110,
+  "backupHashesVerified": true,
+  "original109FilesStillPresent": true,
+  "protectedScopesUnchanged": [
+    "src/platform",
+    "src/lib/auth",
+    "src/app/api/onboarding/route.ts",
+    "src/features/sentinel",
+    "worker",
+    "tests/sentinel",
+    "tests/guard/g01",
+    "src/features/guard/contracts.ts",
+    "src/features/guard/live/product-*.ts",
+    "src/features/guard/live/runtime.ts",
+    "docs/acceptance/guard-g01",
+    "docs/acceptance/guard-g02"
+  ],
+  "staged": false,
+  "committed": false,
+  "pushed": false,
+  "merged": false
+}

@@ -1,0 +1,37 @@
+{
+  "schema": "guard-g03-reference-stop-diagnostic-plan-v1",
+  "classification": "READONLY_OBSERVATION_OF_PREVIOUSLY_APPROVED_REFERENCES_NOT_SETUP_RETRY",
+  "scope": "FILE_METADATA_ONLY_EXCEPT_PINNED_PUBLIC_BUILD_MANIFEST",
+  "ownerExecutionStatus": "PENDING_OWNER_RECEIPT",
+  "expectedReferences": 70,
+  "privateScopeOrApprovalOrInstallationContentsReadAllowed": false,
+  "setupOrNodeOrDockerExecutionAllowed": false,
+  "mutationOrRestartAllowed": false,
+  "artifacts": [
+    {
+      "file": ".local/g03-owner-selection/diagnose-setup-references.ps1",
+      "sha256": "f7a47ddd8bc5589f772cda8042005b341a20656effb4aa51e2ab36a7c79dc43c"
+    },
+    {
+      "file": ".local/g03-owner-selection/observed-reference.mjs",
+      "sha256": "727a67ee24cf2bd5e4c466a3460e1154799e4d28744cb281a8a1f7351b145a99"
+    },
+    {
+      "file": ".local/g03-owner-selection/setup-qualified-sast-v2.mjs",
+      "sha256": "814ebe24d0b94e8b2e0ef1af7e9b7d29816866702b4dbb0780e894116704c3b9"
+    },
+    {
+      "file": ".local/g03-owner-selection/reference-observation.offline.cjs",
+      "sha256": "b23a3a07f13bf0ad54c98c6709494aee277c3d4466ca6400c43395ef6863f017"
+    }
+  ],
+  "offlineVerification": {
+    "referencePhaseTestsPassed": 29,
+    "failed": 0,
+    "diagnosticAstParseErrors": 0,
+    "v2CompiledInMemory": true,
+    "v2OperationalBundleOrManifestWritten": false,
+    "setupFunctionCalled": false,
+    "qualificationAttempted": false
+  }
+}
