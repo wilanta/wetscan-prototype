@@ -269,7 +269,7 @@ export function productConfig(
   measured: { deployments: ProductDeployment["deployments"] },
   scope: { workspaceId: string; repositoryId: string; branch: string; engines: ProductDeployment["policies"][0]["engines"] },
 ): ProductDeployment {
-  if (!/^[1-9]d*$/.test(scope.repositoryId) || scope.engines.includes("container")) throw Error("LOCAL_SCOPE_INVALID");
+  if (!/^[1-9][0-9]*$/.test(scope.repositoryId) || scope.engines.includes("container")) throw Error("LOCAL_SCOPE_INVALID");
   return validateDeployment({
     version: 1,
     module: "guard-product-runtime",

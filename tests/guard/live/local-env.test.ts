@@ -80,3 +80,8 @@ it("runtime configuration is single-repository and refuses container scope or ma
   expect(() => productConfig(t, "C:/x/wetscan-g02-runtime-meas-1", { deployments: [] }, { workspaceId: ws, repositoryId: "1464294716", branch: "main", engines: ["sast", "container"] })).toThrow("LOCAL_SCOPE_INVALID");
   expect(() => productConfig(t, "C:/x/wetscan-g02-runtime-meas-1", { deployments: [] }, { workspaceId: ws, repositoryId: "0", branch: "main", engines: ["sast"] })).toThrow("LOCAL_SCOPE_INVALID");
 });
+
+it("a valid repository id passes the scope check (fails later only on missing deployments)", async () => {
+  const { productConfig } = await import("../../../scripts/guard-g02-local-env");
+  expect(() => productConfig(localTarget(55434, NEW_MARKER), "C:/x/wetscan-g02-runtime-meas-1", { deployments: [] }, { workspaceId: "github-user-187839747:test", repositoryId: "1464294716", branch: "main", engines: ["sast"] })).toThrow(expect.objectContaining({ code: "not_configured" }));
+});
