@@ -25,6 +25,8 @@ Rotation: put the new secret in `GITHUB_APP_WEBHOOK_SECRET`, the old one in `GIT
 
 Verify after setup (all read-only): *Guard Live → CI/CD Gate → Re-verify GitHub App access* shows `checks:write true`; GitHub's App page → *Advanced* → *Recent deliveries* shows `200/202` for a `ping`.
 
+**Which server must answer.** The webhook route exists only in the `feat/guard-g04-cicd` worktree. Run `npm run guard:dev` **from that worktree** (with `GUARD_G04_ENABLED=1`, the G04 `GUARD_DB_*` references and `GITHUB_APP_WEBHOOK_SECRET` in its git-ignored `.env.local`) before pointing a tunnel at port 3000. A 404 from this URL means another worktree's server owns the port.
+
 ## 2. Required-check rule (merge enforcement) — owner decision
 
 Publishing a check blocks nothing. To make GitHub refuse merges until Guard passes, an owner must add a **ruleset** (or classic branch protection) on the protected branch requiring the status check **`WetScan Guard / Security gate`**. Do this first on a dedicated test branch/repository, never on production. Guard will *observe* the rule (CI/CD Gate tab → "Required-check rule on protected branch") and report `NOT required` until it exists. G04 never creates or edits rules.

@@ -1,5 +1,19 @@
 # CHANGELOG_FIXES
 
+### Fix #22 — Webhook URL returned the Next.js 404 page: the tunnel pointed at a dev server from the wrong worktree (2026-11-20)
+
+| Field | Detail |
+| --- | --- |
+| Tanggal | 2026-11-20 |
+| File | none (operational); docs `GUARD_G04_VALIDATION.md`, `GUARD_G04_PROVIDER_SETUP.md` |
+| Masalah | `POST /api/guard/webhooks/github` answered `404 That page isn't on this map` locally and through the Cloudflare tunnel; GitHub's two `ping` deliveries recorded `Invalid HTTP Response: 404`. |
+| Akar | Port 3000 was served by `next dev` started from the main worktree (`wetscan-prototype`, branch `master`), which does not contain the G04 route. The G04 code only exists in the `wetscan-guard-g04` worktree (`feat/guard-g04-cicd`). `cloudflared tunnel --url http://localhost:3000` forwarded to that server. |
+| Fix | Stopped that dev server; started `npm run guard:dev` from the G04 worktree on 3000 with `GUARD_G04_ENABLED=1` and the G04 database references. The tunnel needed no change. The webhook secret configured on the GitHub App was not stored anywhere readable, so (with the owner's approval) it was rotated through `PATCH /app/hook/config` and stored only in the git-ignored G04 `.env.local`. |
+| Verifikasi | Local and tunnel probes: unsigned 401, wrong signature 401, signed ping 200, unsupported event 400, form-encoded 415, malformed JSON 400, duplicate 200, same id different bytes 409. GitHub redelivery of its own ping: `200 OK`, row in `guard.g04_deliveries` (`ping`, ignored). |
+| Pelajaran | A 404 from the route with the right path means wrong process, not wrong code: check which worktree owns the listener (`Get-NetTCPConnection` + process command line) before touching code. GitHub delivery ids exceed 2^53: keep them as strings. |
+| Log Keyword | `That page isn't on this map`, `Invalid HTTP Response: 404`, `trycloudflare`, `hook/deliveries` |
+| Deploy | NOT deployed. |
+
 ### Fix #21 — G04 dispatcher defects found by the first real run against GitHub + the G02 scanner (2026-11-20)
 
 | Field | Detail |
