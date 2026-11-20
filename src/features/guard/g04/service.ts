@@ -35,6 +35,8 @@ export interface Deps {
   appId: number;
   /** Public base URL of the Guard UI for check links (optional). */
   baseUrl?: string;
+  /** The G02 host is wedged (quarantined scheduler / unresolved container lock). The dispatcher process reaps the lock and restarts. */
+  onHostUnhealthy?: (reason: string) => void;
   provider?: (rec: PolicyRecord) => Promise<{ provider: DeploymentProvider; repositoryId: string } | null>;
   now?: () => number;
 }
@@ -48,7 +50,10 @@ const scopeOf = (r: { workspaceId: string; projectId: string }) => ({ workspaceI
 export type IngestResult = { status: 200 | 202 | 409 | 429; outcome: string };
 
 export class G04Service {
-  constructor(private readonly d: Deps) {}
+  constructor(private d: Deps) {}
+  setUnhealthyHandler(f: (reason: string) => void) {
+    this.d = { ...this.d, onHostUnhealthy: f };
+  }
   private now = () => (this.d.now ?? Date.now)();
   private url = (projectId: string) => (this.d.baseUrl ? `${this.d.baseUrl}/app/projects/${encodeURIComponent(projectId)}/guard` : undefined);
 
@@ -308,6 +313,17 @@ export class G04Service {
         }
       }
       const terminal = isTerminal(scan.job.status);
+      // Infrastructure, not the commit: G02 refused to start the sandbox (`execution_not_ready`) or cleanup failed. One bounded retry after the host
+      // has been repaired; the trigger stays pending (durable) across the dispatcher restart. A second one is evaluated as INCOMPLETE.
+      const infra = terminal && scan.job.runs.some((r) => pol.policy.requiredEngines.includes(r.engine) && r.status === "failed" && /execution_not_ready|cleanup_failed/.test(r.reason));
+      if (infra) {
+        this.d.onHostUnhealthy?.("scan_infra_failure");
+        if (!recoveredBefore) {
+          await s.audit(scope, "g04-dispatcher", "infra_scan_failure_retry", scanId.slice(0, 12), { commit: t.commit });
+          await s.resetScanForRecovery(scope, t.id, "scan_retry_infra:1");
+          return true;
+        }
+      }
       // A REQUIRED engine that merely timed out is usually host load, not a property of the commit. One bounded, audited retry with a new
       // scan identity; a second timeout is evaluated as it is (INCOMPLETE). Never skipped, never turned into a pass.
       if (terminal && !recoveredBefore && scan.job.status !== "cancelled" && pol.policy.requiredEngines.some((e) => scan.job.runs.find((r) => r.engine === e)?.status === "timed_out")) {
@@ -339,6 +355,7 @@ export class G04Service {
       return true;
     } catch (e) {
       const code = e instanceof G04Error ? e.code : e instanceof GhError || e instanceof ProviderError ? e.kind : (e as { code?: string }).code ?? "dispatch_error";
+      if (code === "execution_not_ready" || code === "cleanup_failed") this.d.onHostUnhealthy?.(String(code));
       if (t.attempts >= LIMITS.maxAttempts) await incomplete("retries_exhausted:" + String(code).slice(0, 40), "retries_exhausted");
       else await settle("pending", { error: String(code).slice(0, 100), retryInMs: backoff(t.attempts) });
       return true;

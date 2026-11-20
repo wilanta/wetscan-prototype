@@ -35,6 +35,7 @@
     "test:guard:live": "node scripts/guard-live-check.mjs unit",
     "guard:g04:migrate": "node --conditions=react-server --import tsx scripts/guard-g04-env.ts migrate",
     "guard:g04:dispatcher": "node --conditions=react-server --env-file-if-exists=.env.local --import ./scripts/server-only-stub.mjs --import tsx scripts/guard-g04-dispatcher.ts",
+    "guard:g04:dispatcher:supervised": "node scripts/guard-g04-supervisor.mjs",
     "test:guard:g04:postgres": "vitest run -c tests/guard/g04/postgres.config.ts"
   },
   "dependencies": {

@@ -254,6 +254,25 @@ describe("G04 pipeline: webhook → trigger → scan → policy → GitHub check
     expect(await rt.appStore.getCheck(s, COMMIT)).toMatchObject({ decision: "INCOMPLETE", conclusion: "action_required" });
     expect((await rt.appStore.recentAudit(s)).filter((a) => a.action === "transient_engine_timeout_retry")).toHaveLength(1);
   });
+  it("G02 host wedged (every engine: sandbox execution_not_ready): signalled, ONE retry after repair, then INCOMPLETE - never PASS", async () => {
+    const { s, h } = await setup();
+    const signals: string[] = [];
+    h.service.setUnhealthyHandler((r) => signals.push(r));
+    await h.intake.ingest(push(s, COMMIT));
+    const t = (await rt.appStore.listTriggers(s))[0],
+      first = hex(COMMIT + ":0:main"),
+      second = hex(COMMIT + ":1000000:main");
+    const wedged = () => complete(COMMIT, { status: "failed", runs: engineSet.map((e) => ({ ...run(e, "failed"), reason: '{"version":1,"stage":"scanner","component":"sandbox","code":"execution_not_ready"}' })) });
+    h.scans.set(first, wedged());
+    await h.service.runTrigger(s, t.id);
+    expect(signals).toEqual(["scan_infra_failure"]);
+    expect(await rt.appStore.getTrigger(s, t.id)).toMatchObject({ status: "pending", scanId: null, note: "scan_retry_infra:1" });
+    h.scans.set(second, wedged());
+    await due(s, t.id);
+    await h.service.runTrigger(s, t.id);
+    expect(h.ensured).toEqual([first, second]);
+    expect(await rt.appStore.getCheck(s, COMMIT)).toMatchObject({ decision: "INCOMPLETE", conclusion: "action_required" });
+  });
   it("a timeout of a NON-required engine is not retried (policy decides what matters)", async () => {
     const { s, h } = await setup({ ...defaultPolicy, enabled: true, requiredEngines: ["sast", "secrets"] });
     await h.intake.ingest(push(s, COMMIT));
