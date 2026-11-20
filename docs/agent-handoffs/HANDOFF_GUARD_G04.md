@@ -65,6 +65,15 @@ node --conditions=react-server --env-file=.env.local --import ./scripts/server-o
 * A missing Checks permission does not stop scanning; it fails check publication visibly.
 * G02 seams: `githubSourceAccess(..., authorizer?)`, `productHostService(..., automationSource?)`, `branchAllowed` (trailing `/*`), `GUARD_LOCAL_ENV` in `scripts/guard-g02-local-env.ts`.
 
+## Emergency completion additions (20 November 2026, evening)
+
+* Demo: [GUARD_G04_DEMO_RUNBOOK.md](../GUARD_G04_DEMO_RUNBOOK.md). Helpers: `scripts/guard-g04-demo.mjs` (check / push vuln|clean|warn / status / try-merge / evidence), `scripts/guard-g04-policy.ts` (default|warn), `scripts/guard-g04-requalify.mjs` (renew the one-hour scanner qualification), `scripts/guard-g04-env.sh` (process references), `scripts/guard-g04-supervisor.mjs` (restart on exit 75), `scripts/guard-g04-hook-info.ts` (read-only GitHub App/webhook state). Recorded evidence: `docs/acceptance/guard-g04/demo-evidence.json` (refresh with `node scripts/guard-g04-demo.mjs evidence`).
+* Running now (until you stop them): production app on `127.0.0.1:3000` (`npx next start`), supervised dispatcher, Cloudflare quick tunnel (URL changes on restart: update the App webhook URL), PostgreSQL `wetscan-g04-local-pg`. The scanner qualification expires one hour after `requalify` (check with `node scripts/guard-g04-demo.mjs check`).
+* New behaviour (Fix #25): OSV engine budget 90 s (policy ceiling 90 s, measured/qualify accept it only for OSV), automation grant 180 s, trigger lease 3 min, one audited retry for required-engine timeouts and for infrastructure failures, orphan container-lock repair via G02's registry, supervised restart, coalesced check re-runs, policy option `onNotApplicable`.
+* A scanner qualification made before this change (45 s OSV spec) still validates; new measurements use 90 s for OSV.
+* Vercel: EXTERNALLY BLOCKED (no token/project). The adapter and the typed-confirmation registration endpoint exist and are tested with doubles only.
+* Do not: run the demo helper against anything but the sandbox; merge PR #2/#3/#4; edit the ruleset (`27707416`) or `main`; delete `.local/` (holds the private-root pointer and helper scripts).
+
 ## Sandbox objects created for the merge-gate acceptance (visible to the owner, in `wilanta/wetscan-g02-acceptance`)
 
 Ruleset `27707416` (active, only `refs/heads/g04/gate-test-target`); branches `g04/gate-test-target`, `g04/gate-vuln`, `g04/gate-clean`, `g04/gate-warn`, `g04/vulnerable`, `g04/webhook-probe`; open PRs #2 (BLOCK), #3 (clean), #4 (WARN), all unmerged and titled do-not-merge; PR #1 closed. To remove: `gh api -X DELETE repos/wilanta/wetscan-g02-acceptance/rulesets/27707416`, close the PRs, delete the branches (needs your approval; nothing here deletes them).

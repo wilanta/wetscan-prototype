@@ -69,6 +69,46 @@ Installation `181791848` now reports `checks: write, contents: read, metadata: r
 
 Not yet real: a required-check rule blocking a merge (owner decision, no rule exists), a PASS/WARN verdict, the GitHub "Re-run" button path (the API token available here may not rerequest an App's check run; the signed `check_run.rerequested` handling is tested with synthetic deliveries), Vercel.
 
+## Emergency completion run (20 November 2026, evening) - full five-engine verdicts, recovery, demo readiness
+
+Everything below ran on the real sandbox `wilanta/wetscan-g02-acceptance` through real GitHub webhooks (production build of the app behind the Cloudflare tunnel, supervised dispatcher, real G02 scanners, isolated PostgreSQL on 55435). Default policy = critical+high block, medium warns, **all five engines required** (policy revision 8 is the restored default).
+
+### Why the full-policy PASS was unreachable (measured)
+| Measurement | Result |
+| --- | --- |
+| OSV standalone, sandbox-like container (`--cpus 1`, 2 GB, no network), clean lockfile, three runs on a quiet host | **27 s, 24 s, 33 s** (the scan itself reports 46 ms: the time is loading the 212 MB offline database) |
+| SCA inside a real scan | **53 s** (limit was 45 s) |
+| Host | 4-8 GB machine with 100-900 MB free RAM, Docker VM 3.9 GB |
+| Consequence | with a 45 s budget SCA/SBOM timed out on most scans; with 60 s grants the engine after a slow one failed with `source_unavailable` |
+
+### Verdicts (all five engines `completed`, source coverage complete)
+| Case | Commit | Scan | Policy | Verdict | Check Run | GitHub merge state |
+| --- | --- | --- | --- | --- | --- | --- |
+| **PASS** | `34b084ee1bf59d97f2c06046bd71a661125c8bdd` (`g04/gate-clean`, clean Dockerfile as IaC target, one benign pinned dependency) | `0385045b13a1` (GitHub "Re-run"), `b12239751f10` (re-run after the chaos test) | default, revision 6 and 8 | **PASS**, 0 findings | id `136195282760` **success** | PR #3 `mergeable_state: clean` / `CLEAN` |
+| **BLOCK** | `8259661da59599df0fadac4961333562c1d808ff` and (rehearsal) `694c6be81ea4f9508031fca44f4e3f70225edea3` (`g04/gate-vuln`) | `5ceb34b774a8` | default | **BLOCK** (6 blocking, 34 active) | failure (rehearsal id `136217555981`) | PR #2 `BLOCKED`; merge API **HTTP 405 "Required status check "WetScan Guard / Security gate" is failing"**; while the check was still `in_progress`: 405 "is in progress"; `merged: false` |
+| **WARN** | `c904fb214796ae05ca6fc0b76825426dd9deb66e` (`g04/gate-warn`) | `e6d464f588b6` | revision 7: block=critical, warn=high+medium, unknown severity warns; all five engines required | **WARN** (0 blocking, 14 warnings) | id `136203152010` **neutral** | PR #4 `CLEAN` |
+
+The full-policy PASS needs a repository where every engine has a target: a lockfile for SCA/SBOM and an IaC file Trivy fully reports (a single clean Dockerfile; earlier trees with several IaC files were reported "partial" by Trivy and stay INCOMPLETE, which is G02's honest coverage rule). Nothing was relaxed for these runs. No pull request was merged.
+
+### GitHub check re-request (real)
+App-token `POST .../check-runs/{id}/rerequest` -> 201 -> `check_run.rerequested` delivery -> **202** -> `check_rerun` trigger -> scan -> the SAME check run id updated in place to its final conclusion (`success`). Self-originated check events stay ignored. Several re-run requests for one commit while one is open are coalesced into one trigger (PostgreSQL test); GitHub redeliveries of the same delivery id are deduplicated; a different payload under the same id is a 409.
+
+### Dispatcher recovery (chaos test, real)
+09:36:34Z dispatcher killed while SCA was running (container left running). Restart: lock repair correctly refused ("deadline not reached"). 09:46:34Z (old 10 min lease) the trigger was reclaimed, the stranded scan `1de8338145c2` was **cancelled by G02's own cancel with its completed SAST run kept**, one replacement scan started; the lock was still held, the replacement failed instantly (`execution_not_ready`), the dispatcher reported the host unhealthy, **released the expired lock through G02's registry (removing the exited, owned container)** and exited 75; the supervisor restarted it; a fresh GitHub re-run completed with PASS at 09:54:48Z. Lease reduced to 3 min and the lock repair now also runs every minute so the replacement scan no longer meets the wedge.
+
+### Tests (final run, quiet machine)
+| Suite | Result |
+| --- | --- |
+| Full unit suite (`npx vitest run`) | **2768/2768** in 190 files. On a loaded machine (dispatcher, app, Docker running) 1-6 timing-sensitive tests (Windows ACL/Docker latency) fail and pass in isolation: run the release suite on a quiet host |
+| G04 offline | 75 |
+| PostgreSQL (`npm run test:guard:g04:postgres`) | **44/44** (store 11, pipeline 29, recovery 5, migration 2 ... see files) |
+| G04 browser | **13/13** (production build) |
+| Existing Guard Live browser | **9/9** (one run had a single timing flake in "database unavailable ..." which passed on rerun) |
+| `tsc --noEmit`, `eslint .` | 0 errors (2 pre-existing warnings), build passes |
+
+### Not verified
+Vercel: **EXTERNALLY BLOCKED** (no token, project or CLI on this machine; nothing was changed in any Vercel project). Real-login browser acceptance of the CI/CD tab (an agent cannot complete a GitHub OAuth login).
+
 ## Merge-gate acceptance on a real GitHub ruleset (20 November 2026)
 
 Sandbox `wilanta/wetscan-g02-acceptance` only. Ruleset id `27707416` "g04-gate-test-target (G04 acceptance)": `enforcement: active`, `ref_name.include = [refs/heads/g04/gate-test-target]`, one rule `required_status_checks` with context `WetScan Guard / Security gate` and `integration_id` 5753484 (the `wetscan-local` App). `main` has no rules (`GET rules/branches/main` returns 0); no plan restriction blocked ruleset creation. No PR was merged.

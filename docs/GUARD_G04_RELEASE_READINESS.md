@@ -1,6 +1,6 @@
 # Guard G04 release readiness
 
-Written for: the owner. Decision as of 20 November 2026: **`G04 PARTIALLY_VERIFIED` — not production-ready, not "enforced"**. Guard stays disabled by default (`GUARD_G04_ENABLED` unset ⇒ webhook 503, UI "disabled", no scanning, no checks).
+Written for: the owner. Decision as of 20 November 2026 (evening): **`G04 DEMO_READY_WITH_LIMITATIONS` / `PARTIALLY_VERIFIED` — not production-ready**. GitHub merge enforcement, full five-engine PASS, BLOCK, WARN, check re-run and dispatcher self-recovery are verified against real GitHub; Vercel is EXTERNALLY BLOCKED. See [the demo runbook](GUARD_G04_DEMO_RUNBOOK.md). Guard stays disabled by default (`GUARD_G04_ENABLED` unset ⇒ webhook 503, UI "disabled", no scanning, no checks).
 
 ## What is safe to say
 
@@ -17,7 +17,7 @@ Written for: the owner. Decision as of 20 November 2026: **`G04 PARTIALLY_VERIFI
 | ~~Deliveries originating from GitHub~~ | **CLOSED 20 Nov** for ping, push, pull_request (and check_run/check_suite acknowledgements) via the Cloudflare quick tunnel. The tunnel URL is temporary: update the App webhook URL if it changes | none |
 | ~~Required-check enforcement on a test branch~~ | **CLOSED 20 Nov (BLOCK case):** ruleset `27707416` on `g04/gate-test-target`; PR #2 (BLOCK) was refused with HTTP 405 "Required status check ... is failing". PASS and WARN PRs were `CLEAN` (not merged). Default/production branches untouched | Decide whether to keep or delete the ruleset and sandbox branches/PRs |
 | Vercel verification, hold/release evidence | No Vercel token/team/project supplied; plan eligibility for Deployment Checks not confirmed from public docs | Provide a token for a **dedicated preview/staging project**, then run read-only verification; approve registration of the Deployment Check only if you want to test promotion holding |
-| Real PASS under the FULL five-engine policy (real BLOCK, real WARN and a reduced-policy PASS exist) | SCA (OSV) hung/timed out under this machine's load in G02's sandbox (documented 2 GB/45 s budget) | Re-run on a quiet machine inside the one-hour scanner qualification window; do nothing else on it meanwhile |
+| ~~Real PASS under the FULL five-engine policy~~ | **CLOSED 20 Nov (evening):** PR #3, check run `136195282760` success, scan `b12239751f10` (all five engines completed) after the OSV budget (90 s) and grant (180 s) fixes, Fix #25 | none |
 | Real-login browser acceptance | An agent cannot complete a GitHub OAuth login | Owner logs in at `http://localhost:3000` against the G04 environment and opens Guard → CI/CD Gate; optional |
 | Staging / production / Vercel-hosted acceptance | Out of scope; production not touched | Separate owner-approved window |
 

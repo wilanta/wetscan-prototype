@@ -1,5 +1,19 @@
 # CHANGELOG_FIXES
 
+### Fix #25 — Five-engine PASS was unreachable: OSV budget too tight, automation grant too short, dead dispatcher recovered only after 10 minutes, wedged scanner lock needed manual repair (2026-11-20, emergency completion)
+
+| Field | Detail |
+| --- | --- |
+| Tanggal | 2026-11-20 |
+| File | `worker/guard/installation/qualify.ts`, `worker/guard/installation/measured.ts`, `src/features/guard/live/product-policy.ts` (ceiling), `scripts/guard-g02-local-env.ts`, `src/features/guard/g04/{g02-port,service,store,orphan}.ts`, `scripts/guard-g04-{dispatcher,supervisor,demo,requalify,policy,env}.*`, tests `measured`, `orphan`, `recovery`, `service`, `policy` |
+| Masalah | (a) A clean commit could not obtain a PASS under the full five-engine policy: SCA/SBOM timed out on most runs. (b) After the SCA run had finished, the following engine failed with `source_unavailable`. (c) A dispatcher killed mid-scan left its trigger `running` for 10 minutes. (d) The replacement scan then failed instantly (`execution_not_ready`) and the host stayed wedged until a person removed a container and re-measured the private root. |
+| Akar | (a) The OSV scanner loads a 212 MB offline database on one CPU: 24-33 s measured standalone on a quiet host, 53 s inside a real scan; the fixed 45 s budget had no margin. (b) The automation grant lived 60 s and bounds snapshot use; a 53 s engine left the next one an expired snapshot. (c) Trigger lease was 10 min. (d) G02's single-flight `active-container.lock` stays after a killed session and nothing released it. |
+| Fix | (a) Only the OSV engine gets a 90 s budget (qualify, measured, ceiling check; others stay 45 s) plus ONE audited retry when a REQUIRED engine timed out (never skipped, a second timeout is INCOMPLETE). (b) Grant 180 s (still re-verified against GitHub on every issue). (c) Trigger lease 3 min. (d) `reapOrphanLock`: acts only on the exact expired lock record, only on a container that carries G02's ownership labels for that run, verifies absence and finishes through G02's own `ResourceRegistry.release`; run at dispatcher start, every minute, and when a scan reports `execution_not_ready`/`cleanup_failed`, after which the dispatcher exits 75 and `guard-g04-supervisor.mjs` restarts it (bounded 6 per 10 min). One bounded replacement scan after infra failure. Repeated check re-run requests for one commit are coalesced. |
+| Verifikasi | Real: five-engine PASS under the unchanged default policy (scans `0385045b13a1`, `b12239751f10`, commit `34b084ee`, check run `136195282760` success, PR #3 `CLEAN`); real BLOCK x2 with all five engines; real WARN under all five required engines; chaos test (dispatcher killed mid-scan): stranded scan cancelled with evidence kept, wedge detected, lock released, dispatcher restarted itself, GitHub re-run reached final `success`. Tests: offline 2768/2768 (quiet machine), PostgreSQL 44/44, browser 13/13, existing Live UI 9/9. |
+| Pelajaran | Measure the slow dependency before widening any budget; a grant/lease must be longer than the slowest step it covers; an operational latch (lock) needs an owner-verified reaper, not a human. Loaded machines make the unit suite flaky (Windows ACL/Docker latency); run the release suite on a quiet host. |
+| Log Keyword | `source_unavailable`, `execution_not_ready`, `g04_host_repair`, `g04_supervisor_restart`, `transient_engine_timeout_retry`, `rerun_coalesced`, `active-container.lock` |
+| Deploy | NOT deployed. |
+
 ### Fix #24 — Stranded G02 scans: no recovery, and a wedged scheduler/registry after a failed cleanup (found by the merge-gate acceptance, 2026-11-20)
 
 | Field | Detail |
