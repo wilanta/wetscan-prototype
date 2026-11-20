@@ -1,0 +1,36 @@
+{
+  "classification": "OWNER_SCANNER_METADATA_RECEIPT_RECORDED_NOT_LIVE_ACCEPTANCE",
+  "receiptSource": "OWNER_MESSAGE",
+  "inventoryScriptHashMatchesApproval": true,
+  "agentInventoryExecuted": false,
+  "implementationFilesUnchanged": 46,
+  "baselineZipUnchanged": true,
+  "documentationCheckpoint": ".local/g03-scanner-inventory-checkpoint-0EBT5h",
+  "documentationBackups": [
+    {
+      "file": "docs/GUARD_G03_SCANNER_SETUP_NEXT.md",
+      "backup": ".local\\g03-scanner-inventory-checkpoint-0EBT5h\\GUARD_G03_SCANNER_SETUP_NEXT.md",
+      "sha256": "505a3567645a20551190c80a269579b4c33d420f12743cb16a665a3c176ba805"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "backup": ".local\\g03-scanner-inventory-checkpoint-0EBT5h\\GUARD_G03_LIVE_ACCEPTANCE.md",
+      "sha256": "2d7de7406728ef5e6466b2b737f3cd46870c70dc8b45d8ae30cf54f81e0ee28e"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "backup": ".local\\g03-scanner-inventory-checkpoint-0EBT5h\\HANDOFF_GUARD_G03.md",
+      "sha256": "fc512c405ae41691a10584aee51f8709505ce9a447ddf0f8e6be3b64724938bf"
+    }
+  ],
+  "workerImageProofApproved": false,
+  "workerImageProofExecuted": false,
+  "qualificationExecuted": false,
+  "databaseConnectedByAgent": false,
+  "dockerInvokedByAgent": false,
+  "sourceAcquired": false,
+  "scannerStarted": false,
+  "providerCalled": false,
+  "githubWritten": false,
+  "commitPushMerge": false
+}

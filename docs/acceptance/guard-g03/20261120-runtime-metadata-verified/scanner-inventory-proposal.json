@@ -1,0 +1,19 @@
+{
+  "schema": "guard-g03-scanner-inventory-proposal-v1",
+  "classification": "PROPOSED_NONSECRET_SCANNER_FILE_INVENTORY_NOT_AUTHORITY",
+  "script": ".local/g03-owner-selection/inventory-scanner-metadata.ps1",
+  "approved": false,
+  "executed": false,
+  "nodeOrDockerAllowed": false,
+  "databaseConnectionAllowed": false,
+  "credentialReadAllowed": false,
+  "sourceOrQualificationOrScanAllowed": false,
+  "fileOrEnvironmentChangeAllowed": false,
+  "offlineVerification": {
+    "kind": "POWERSHELL_AST_AND_STATIC_COMMAND_REVIEW_ONLY",
+    "parseErrors": 0,
+    "functionalOwnerTestPerformed": false
+  },
+  "postMetadataRequestAlreadyCompleted": true,
+  "scriptSha256": "d704d18ec122dedebfcb89c6459fb65d32cf508414379ec3aa55c61ed905830c"
+}

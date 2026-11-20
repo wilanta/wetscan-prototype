@@ -1,0 +1,47 @@
+{
+  "classification": "OWNER_WORKER_AND_IMAGE_METADATA_PROOF_RECORDED_NOT_LIVE_G03",
+  "receiptSource": "OWNER_MESSAGE",
+  "workerProofVerified": true,
+  "connectAttempts": 1,
+  "rolledBack": true,
+  "poolClosed": true,
+  "imageMetadataVerified": true,
+  "dockerCommandsAttempted": 3,
+  "containersCreated": 0,
+  "qualificationExecuted": false,
+  "implementationFilesUnchanged": 46,
+  "baselineZipUnchanged": true,
+  "priorProofArtifactsUnchanged": true,
+  "documentationCheckpoint": ".local/g03-worker-image-verified-checkpoint-NyOVYY",
+  "documentationBackups": [
+    {
+      "file": "docs/GUARD_G03_WORKER_IMAGE_PREFLIGHT.md",
+      "backup": ".local\\g03-worker-image-verified-checkpoint-NyOVYY\\GUARD_G03_WORKER_IMAGE_PREFLIGHT.md",
+      "sha256": "2fc1d22d4f0d2eb181301434d49b4edf2ba5d1708e40e1d8fc278a8b871c7810"
+    },
+    {
+      "file": "docs/GUARD_G03_SCANNER_SETUP_NEXT.md",
+      "backup": ".local\\g03-worker-image-verified-checkpoint-NyOVYY\\GUARD_G03_SCANNER_SETUP_NEXT.md",
+      "sha256": "5e6da84b06914f2717d68da831be7012f28c6fa0c08abca356c23bf5a41270ed"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "backup": ".local\\g03-worker-image-verified-checkpoint-NyOVYY\\GUARD_G03_LIVE_ACCEPTANCE.md",
+      "sha256": "fed8b1624d044559faac133a004d5e4136df179b5da4de02fe66ebf862fdfd27"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "backup": ".local\\g03-worker-image-verified-checkpoint-NyOVYY\\HANDOFF_GUARD_G03.md",
+      "sha256": "dcb57bbb1a496035bc0b71300cc724ecd02dff1eadd665c2c5d9b60a1f0254ea"
+    }
+  ],
+  "newQualificationApproved": false,
+  "newQualificationExecuted": false,
+  "agentDatabaseConnected": false,
+  "agentDockerInvoked": false,
+  "sourceAcquired": false,
+  "scannerStarted": false,
+  "providerCalled": false,
+  "githubWritten": false,
+  "commitPushMerge": false
+}

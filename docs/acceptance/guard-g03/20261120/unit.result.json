@@ -1,0 +1,11 @@
+{
+  "kind": "unit",
+  "startedAt": "2026-11-20T03:35:30.883Z",
+  "finishedAt": "2026-11-20T03:37:26.617Z",
+  "exitCode": 1,
+  "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+  "ownerRepositoryAccessed": false,
+  "ownerDatabaseAccessed": false,
+  "paidAiCalled": false,
+  "githubWritten": false
+}

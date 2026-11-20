@@ -1,0 +1,8 @@
+{
+  "nodeRunnerExitCode": 0,
+  "outerPowerShellCaptureExitCode": 1,
+  "passedBrowserAssertions": 11,
+  "failedBrowserAssertions": 0,
+  "diagnostic": "NO_COLOR env is ignored due to FORCE_COLOR; PowerShell NativeCommandError from stderr capture",
+  "testAssertionOrProductFailure": false
+}

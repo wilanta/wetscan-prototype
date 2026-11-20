@@ -1,0 +1,19 @@
+{
+  "classification": "OWNER_PROVEN_G02_APP_READER_REFERENCES_ATTACHED",
+  "status": "REFERENCES_ATTACHED_WEBSITE_PROOF_PENDING",
+  "target": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "wetscan_dev_guardg02",
+    "marker": "wetscan-s01:f0927e49-0e70-4b90-913f-6cd6984df9d8"
+  },
+  "role": "wetscan_guard_app",
+  "referenceCount": 3,
+  "workerReferencesAttached": false,
+  "scanningEnabled": false,
+  "aiEnabled": false,
+  "githubWritesEnabled": false,
+  "passwordReadByPowerShell": false,
+  "filesWritten": 0,
+  "databaseMutated": false
+}

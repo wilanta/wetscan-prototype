@@ -1,0 +1,30 @@
+{
+  "schema": "guard-g03-owner-stage-approval-v1",
+  "classification": "OWNER_APPROVED_NONSECRET_SCANNER_INVENTORY_NOT_EXECUTION_EVIDENCE",
+  "recordedDate": "2026-11-20",
+  "timezone": "Asia/Jakarta",
+  "ownerAnswer": "Setujui inventory scanner non-secret",
+  "executionMode": "OWNER_POWERSHELL_REVIEW_AND_PASTE_ONLY",
+  "script": ".local/g03-owner-selection/inventory-scanner-metadata.ps1",
+  "scriptSha256": "d704d18ec122dedebfcb89c6459fb65d32cf508414379ec3aa55c61ed905830c",
+  "scope": {
+    "installationRoots": [".local/g02-install", ".local/g02-completion-install"],
+    "installationFiles": ["built-image.json", "context/rules-manifest.json"],
+    "worktreeDatabaseRootPattern": ".local/wetscan-g02-runtime-db-<UUID>",
+    "maxDatabaseRootCandidates": 8,
+    "runtimeFile": "product.runtime.json",
+    "referencedMeasuredFile": "deployments.measured.json",
+    "measuredRootRestriction": "ONE_VALIDATED_IMMEDIATE_TEMP_CHILD_PER_MATCHING_TARGET_CONFIGURATION",
+    "privatePathsOrWorkspaceExportAllowed": false
+  },
+  "credentialOrEnvOrAuthOrPointerReadAllowed": false,
+  "nodeOrHelperOrDockerExecutionAllowed": false,
+  "databaseConnectionAllowed": false,
+  "sourceAcquisitionOrQualificationOrScanAllowed": false,
+  "fileOrEnvironmentChangeAllowed": false,
+  "websiteRestartAllowed": false,
+  "aiOrGithubWriteOrRetestAllowed": false,
+  "agentInventoryExecutionAllowed": false,
+  "executionStatus": "OWNER_INVENTORY_RECEIPT_PENDING",
+  "liveAcceptanceProven": false
+}

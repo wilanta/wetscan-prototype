@@ -1,0 +1,48 @@
+{
+  "classification": "OWNER_SETUP_STOP_RECORDED_NOT_QUALIFICATION_OR_LIVE_ACCEPTANCE",
+  "receiptSource": "OWNER_MESSAGE",
+  "approvedSetupAttemptsConsumed": 1,
+  "ownerReportedOutcome": "STOP_BEFORE_QUALIFICATION",
+  "phase": "REFERENCES",
+  "reason": "ENOENT",
+  "failingReferenceProven": false,
+  "nonsecretReferenceReadsBeforeFailure": "POSSIBLE_NOT_LOCALIZED",
+  "ownerRuntimeMutationAttempted": false,
+  "ownerScopeExportMayAlreadyExist": true,
+  "agentOwnerScopeOrApprovalOrInstallationContentsRead": false,
+  "qualificationAttempted": false,
+  "setupRetried": false,
+  "originalArtifactsUnchanged": true,
+  "publicManifestFilesAvailableAndMatching": 47,
+  "implementationFilesUnchanged": 46,
+  "baselineZipUnchanged": true,
+  "documentationCheckpoint": ".local/g03-qualification-reference-stop-checkpoint-Czvees",
+  "documentationBackups": [
+    {
+      "file": "docs/GUARD_G03_CONTROLLED_QUALIFICATION_SETUP.md",
+      "backup": ".local\\g03-qualification-reference-stop-checkpoint-Czvees\\GUARD_G03_CONTROLLED_QUALIFICATION_SETUP.md",
+      "sha256": "03c368c1114dd76c087be109ed0e74358daeb29ca3830e4145a1130e955c004e"
+    },
+    {
+      "file": "docs/GUARD_G03_WORKER_IMAGE_PREFLIGHT.md",
+      "backup": ".local\\g03-qualification-reference-stop-checkpoint-Czvees\\GUARD_G03_WORKER_IMAGE_PREFLIGHT.md",
+      "sha256": "0697192fb961ac9a2fb854711782f8b01b334b314446f9a02ec9c6c017bc491e"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "backup": ".local\\g03-qualification-reference-stop-checkpoint-Czvees\\GUARD_G03_LIVE_ACCEPTANCE.md",
+      "sha256": "dd0feb3155b5690a0572f9276a317b0bb91223a7fbe6af0d7ad15aa14189b410"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "backup": ".local\\g03-qualification-reference-stop-checkpoint-Czvees\\HANDOFF_GUARD_G03.md",
+      "sha256": "3124c3bffc273965efc1deca1fc1ffc4de2ab483bd62cc44867994bba9465de9"
+    }
+  ],
+  "agentDatabaseConnected": false,
+  "agentDockerInvoked": false,
+  "sourceAcquired": false,
+  "providerCalled": false,
+  "githubWritten": false,
+  "commitPushMerge": false
+}

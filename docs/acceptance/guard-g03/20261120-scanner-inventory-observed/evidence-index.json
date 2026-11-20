@@ -1,0 +1,58 @@
+{
+  "classification": "SCANNER_INVENTORY_AND_OFFLINE_WORKER_IMAGE_PROPOSAL_INDEX",
+  "selfExcluded": true,
+  "files": [
+    {
+      "file": "docs/GUARD_G03_SCANNER_SETUP_NEXT.md",
+      "sha256": "5e6da84b06914f2717d68da831be7012f28c6fa0c08abca356c23bf5a41270ed"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "sha256": "fed8b1624d044559faac133a004d5e4136df179b5da4de02fe66ebf862fdfd27"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "sha256": "dcb57bbb1a496035bc0b71300cc724ecd02dff1eadd665c2c5d9b60a1f0254ea"
+    },
+    {
+      "file": "docs/GUARD_G03_WORKER_IMAGE_PREFLIGHT.md",
+      "sha256": "2fc1d22d4f0d2eb181301434d49b4edf2ba5d1708e40e1d8fc278a8b871c7810"
+    },
+    {
+      "file": ".local/g03-owner-selection/prove-existing-worker-image-readonly.ps1",
+      "sha256": "f15912b8e1b9b43bcb8f673847ede9eff628019db365a68fcbf5f89cfa6f0151"
+    },
+    {
+      "file": ".local/g03-owner-selection/prove-existing-worker-readonly.bundle.mjs",
+      "sha256": "bf917c5d8c266f6f03a5dbaac0c263129950642f879a87d51c9be04baaec5cda"
+    },
+    {
+      "file": ".local/g03-owner-selection/prove-existing-worker-readonly.mjs",
+      "sha256": "7d7f01950c3e7d93358030b5866a4d13c30361e7046fb2049b42112394a19a07"
+    },
+    {
+      "file": ".local/g03-owner-selection/image-metadata-readonly.mjs",
+      "sha256": "26ad33a72e5ae87adebda3509d10853306e28f95c39a2cd1be63d83d27ebe93d"
+    },
+    {
+      "file": ".local/g03-owner-selection/worker-image-proof.offline.cjs",
+      "sha256": "aed9b80a00a1c2badc5b243d638cc32b51eeaf059fe7c51c80ee5ecba2bc14a2"
+    },
+    {
+      "file": ".local/g03-owner-selection/worker-image-build-metadata.json",
+      "sha256": "4229ad2fc0e27071804e3045f53369bac4ed5a8c56b2626f06ef9699c30fe961"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-scanner-inventory-observed/receipt-assessment.json",
+      "sha256": "367384581f69336795bcf4eee8a7f9d70be861bab05081c22cfe9f2b3903baee"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-scanner-inventory-observed/received-owner-inventory.json",
+      "sha256": "a3b333af8ac9774fc4752b491c37e4d1c154c4acdcf811a8663435be671004fb"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-scanner-inventory-observed/worker-image-proof-proposal.json",
+      "sha256": "cac3a880265f0f32f44b5d1abe8c3ec05203cc178ad3d8561b2a2452af983752"
+    }
+  ]
+}

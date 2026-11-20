@@ -1,0 +1,56 @@
+{
+  "schema": "guard-g03-worker-image-readonly-proposal-v1",
+  "classification": "PROPOSED_OWNER_WORKER_CONNECTION_AND_DOCKER_METADATA_NOT_SCAN_AUTHORITY",
+  "approved": false,
+  "executed": false,
+  "expectedTarget": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "wetscan_dev_guardg02",
+    "marker": "wetscan-s01:f0927e49-0e70-4b90-913f-6cd6984df9d8"
+  },
+  "role": "wetscan_guard_worker",
+  "maxConnectAttempts": 1,
+  "existingWorkerCredentialLoaderUseRequiresNewApproval": true,
+  "maxDockerMetadataCommands": 3,
+  "expectedImageId": "sha256:3608834fae5f966e6380af0c7b2acf71a46af2ac2bac8591be2b0851d501fa51",
+  "databaseMutationAllowed": false,
+  "containerCreateOrExecutionAllowed": false,
+  "qualificationOrScanAllowed": false,
+  "sourceOrProviderOrGithubWriteAllowed": false,
+  "environmentAttachmentOrRestartAllowed": false,
+  "artifacts": [
+    {
+      "file": ".local/g03-owner-selection/prove-existing-worker-image-readonly.ps1",
+      "sha256": "f15912b8e1b9b43bcb8f673847ede9eff628019db365a68fcbf5f89cfa6f0151"
+    },
+    {
+      "file": ".local/g03-owner-selection/prove-existing-worker-readonly.bundle.mjs",
+      "sha256": "bf917c5d8c266f6f03a5dbaac0c263129950642f879a87d51c9be04baaec5cda"
+    },
+    {
+      "file": ".local/g03-owner-selection/prove-existing-worker-readonly.mjs",
+      "sha256": "7d7f01950c3e7d93358030b5866a4d13c30361e7046fb2049b42112394a19a07"
+    },
+    {
+      "file": ".local/g03-owner-selection/image-metadata-readonly.mjs",
+      "sha256": "26ad33a72e5ae87adebda3509d10853306e28f95c39a2cd1be63d83d27ebe93d"
+    },
+    {
+      "file": ".local/g03-owner-selection/worker-image-proof.offline.cjs",
+      "sha256": "aed9b80a00a1c2badc5b243d638cc32b51eeaf059fe7c51c80ee5ecba2bc14a2"
+    },
+    {
+      "file": ".local/g03-owner-selection/worker-image-build-metadata.json",
+      "sha256": "4229ad2fc0e27071804e3045f53369bac4ed5a8c56b2626f06ef9699c30fe961"
+    }
+  ],
+  "offlineVerification": {
+    "checksPassed": 21,
+    "checksFailed": 0,
+    "wrapperAstParseErrors": 0,
+    "databaseConnected": false,
+    "dockerInvoked": false,
+    "ownerFunctionalTestPerformed": false
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "classification": "OWNER_REFERENCE_STOP_AND_OFFLINE_DIAGNOSTIC_INDEX",
+  "selfExcluded": true,
+  "files": [
+    {
+      "file": "docs/GUARD_G03_CONTROLLED_QUALIFICATION_SETUP.md",
+      "sha256": "e482f266171ae42b0e18ba8c5e17e033988b9ce5f9675a9809dabc6599ccf2f1"
+    },
+    {
+      "file": "docs/GUARD_G03_WORKER_IMAGE_PREFLIGHT.md",
+      "sha256": "30d743be99ef52b05f273cbc823e08a7a735b8a3586a7343413e76bdbb815d5b"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "sha256": "52d83cb2746a1315ba7defd4dd2c648f2f43aaf33f6a4e367385429c53664e0d"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "sha256": "cc796bd4a608137cb46868e8af4524cea4901724f796041465c6c57854d1fa0c"
+    },
+    {
+      "file": "docs/GUARD_G03_QUALIFICATION_REFERENCE_STOP.md",
+      "sha256": "cbad7b6a5fb3ccc1806f0002896bdbcd019ac519e2bf4b4d6febd4adfc0d74b8"
+    },
+    {
+      "file": ".local/g03-owner-selection/diagnose-setup-references.ps1",
+      "sha256": "f7a47ddd8bc5589f772cda8042005b341a20656effb4aa51e2ab36a7c79dc43c"
+    },
+    {
+      "file": ".local/g03-owner-selection/observed-reference.mjs",
+      "sha256": "727a67ee24cf2bd5e4c466a3460e1154799e4d28744cb281a8a1f7351b145a99"
+    },
+    {
+      "file": ".local/g03-owner-selection/setup-qualified-sast-v2.mjs",
+      "sha256": "814ebe24d0b94e8b2e0ef1af7e9b7d29816866702b4dbb0780e894116704c3b9"
+    },
+    {
+      "file": ".local/g03-owner-selection/reference-observation.offline.cjs",
+      "sha256": "b23a3a07f13bf0ad54c98c6709494aee277c3d4466ca6400c43395ef6863f017"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-qualification-reference-stop/diagnostic-and-observability-preparation.json",
+      "sha256": "1aac5155f77a09bcc9b9fd799bb8953c503c2ffa69b32691be87376fb690283a"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-qualification-reference-stop/receipt-assessment.json",
+      "sha256": "248b6d9b60b6dfea547d4f8d58a3a01c9133a39fb18d028e04e6e32d1c4276c2"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-qualification-reference-stop/received-owner-stop.json",
+      "sha256": "dab018523131f500a27bf30ebb531c0fbca407ce69dbafdae52aa11233ef9189"
+    }
+  ]
+}

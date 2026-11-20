@@ -1,0 +1,21 @@
+{
+  "classification": "OFFLINE_EXISTING_TESTS_NOT_LIVE_ACCEPTANCE",
+  "tests": 24,
+  "passed": 24,
+  "failed": 0,
+  "success": true,
+  "files": [
+    "tests/guard/live/runtime-routing.test.ts",
+    "tests/guard/live/host-wiring.test.ts",
+    "tests/guard/live/preflight-diagnostics.test.ts",
+    "tests/guard/live/local-env.test.ts"
+  ],
+  "powershell": {
+    "validation": "STATIC_AST_PARSE_ONLY",
+    "parseErrors": 0,
+    "executed": false
+  },
+  "ownerRequestsSentByAgent": 0,
+  "operationalDatabaseConnectedByAgent": false,
+  "scannerStarted": false
+}

@@ -1,0 +1,132 @@
+{
+    "schemaVersion":  1,
+    "date":  "2026-11-20",
+    "timezone":  "Asia/Jakarta",
+    "status":  "PARTIAL_NOT_COMPLETE",
+    "branch":  "feat/guard-g03-ai-remediation",
+    "baseMaster":  "5e52ac2d9df641eebef5cb4818c4efb7887c0c5c",
+    "head":  "5e52ac2d9df641eebef5cb4818c4efb7887c0c5c",
+    "pr17":  {
+                 "merged":  true,
+                 "head":  "4bc4d92eab10735c2ff3ee0b25cf9def1d13843c",
+                 "remoteMasterVerifiedAtStart":  true
+             },
+    "g03Tests":  {
+                     "passed":  102,
+                     "failed":  0,
+                     "files":  8
+                 },
+    "fullRegression":  {
+                           "passed":  2658,
+                           "failed":  136,
+                           "total":  2794,
+                           "status":  "BLOCKED_EXISTING_WINDOWS_POLICY_BOUNDARY_AND_HISTORICAL_EOL",
+                           "failedFiles":  [
+                                               {
+                                                   "file":  "tests/guard/evidence-retention.test.ts",
+                                                   "failedTests":  1
+                                               },
+                                               {
+                                                   "file":  "tests/sentinel/approval-history.test.ts",
+                                                   "failedTests":  27
+                                               },
+                                               {
+                                                   "file":  "tests/sentinel/audit-deadline.test.ts",
+                                                   "failedTests":  3
+                                               },
+                                               {
+                                                   "file":  "tests/sentinel/audit-diagnostics.test.ts",
+                                                   "failedTests":  2
+                                               },
+                                               {
+                                                   "file":  "tests/sentinel/audit-exit-chain.test.ts",
+                                                   "failedTests":  18
+                                               },
+                                               {
+                                                   "file":  "tests/sentinel/owner-auth-snapshot.test.ts",
+                                                   "failedTests":  1
+                                               },
+                                               {
+                                                   "file":  "tests/sentinel/owner-reauth.test.ts",
+                                                   "failedTests":  2
+                                               },
+                                               {
+                                                   "file":  "tests/sentinel/provision-entrypoint-cli.test.ts",
+                                                   "failedTests":  1
+                                               },
+                                               {
+                                                   "file":  "tests/sentinel/provision-failure.test.ts",
+                                                   "failedTests":  12
+                                               },
+                                               {
+                                                   "file":  "tests/sentinel/provision-package-runner.test.ts",
+                                                   "failedTests":  1
+                                               },
+                                               {
+                                                   "file":  "tests/sentinel/provision-runner.test.ts",
+                                                   "failedTests":  19
+                                               },
+                                               {
+                                                   "file":  "tests/sentinel/readonly-audit-runner.test.ts",
+                                                   "failedTests":  29
+                                               },
+                                               {
+                                                   "file":  "tests/sentinel/session-powershell.test.ts",
+                                                   "failedTests":  20
+                                               }
+                                           ]
+                       },
+    "postgres":  "PASS_ISOLATED_POSTGRESQL_18",
+    "realScanner":  "PASS_REAL_G02_OPENGREP_2.0.0_CONTROLLED_SOURCE_AND_POSTGRES",
+    "browser":  {
+                    "passed":  11,
+                    "failed":  0,
+                    "classification":  "AUTH_FIXTURE_AND_MOCKED_GUARD_TRANSPORT_NOT_OPERATIONAL_ACCEPTANCE"
+                },
+    "typecheck":  "PASS",
+    "lint":  "PASS_0_ERRORS_2_PREEXISTING_WARNINGS",
+    "productionBuild":  "PASS",
+    "productionSmoke":  "PASS",
+    "live":  {
+                 "ownerRepositorySourceDownloaded":  false,
+                 "ownerRepositoryScanned":  false,
+                 "ownerDatabaseAccessed":  false,
+                 "paidProviderCalled":  false,
+                 "githubSourceWritten":  false,
+                 "realPullRequestCreated":  false,
+                 "liveRetestRun":  false
+             },
+    "publication":  {
+                        "committed":  false,
+                        "pushed":  false,
+                        "merged":  false
+                    },
+    "historicalFilesWrittenByTask":  false,
+    "sentinelAuthPlatformMigrationsChanged":  false,
+    "limitations":  [
+                        "Patch scope: JS/TS/JSX/TSX/JSON \u003c=24KB; one bounded replacement",
+                        "Repository behavioral tests NOT_RUN; PR is a draft",
+                        "Source/provider/PR/enqueue seams are doubles in controlled scanner acceptance",
+                        "Fixture revision IDs are content-derived test identities, not GitHub commits",
+                        "Operational product-path G02/G03 acceptance remains NOT_RUN",
+                        "No machine Execution Policy bypass or historical G01 byte rewrite"
+                    ],
+    "productionSourceFiles":  "G03 module + existing Guard Live integration only; Auth/Sentinel/platform/worker unchanged",
+    "initialVerifiedMaster":  "f4a54f80d47b43e4296e0427a4ce95285f26595b",
+    "upstreamPr19":  {
+                         "merged":  true,
+                         "commit":  "5e52ac2d9df641eebef5cb4818c4efb7887c0c5c",
+                         "g02Status":  "DEV_ACCEPTED_NEW_LOCAL_ENVIRONMENT_REPORTED_UPSTREAM",
+                         "engineEvidenceQueueRlsAdmissionContractsChanged":  false,
+                         "localG03FilesPreserved":  50,
+                         "sync":  "FAST_FORWARD_CURRENT_FEATURE_NO_NEW_COMMIT_NO_BRANCH_SWITCH",
+                         "finalBaseAuthTests":  {
+                                                    "passed":  16,
+                                                    "failed":  0
+                                                },
+                         "finalBaseLocalEnvironmentTests":  {
+                                                                "passed":  6,
+                                                                "failed":  0
+                                                            }
+                     }
+}

@@ -1,0 +1,35 @@
+{
+  "classification": "OWNER_SELECTION_CONFIRMATION_NOT_LIVE_ACCEPTANCE",
+  "generatedAt": "2026-11-20T09:51:05.844Z",
+  "files": [
+    {
+      "file": "docs/GUARD_G03_OWNER_TARGET_DESIGN.md",
+      "sha256": "6656bdeff5deed5be9bdf7ae1ec04b32484a455cdc780411bd4d6559105c9b1d"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "sha256": "22512655c5fa6de1adf6152a30444830dbce11edb4695bf1e3871260544f7ff7"
+    },
+    {
+      "file": "docs/GUARD_G03_REPOSITORY_DISCOVERY.md",
+      "sha256": "4ebe47b2b5324ae68da5f64f99d910bda98f4a5881caeb45f0ea5d6de7f8af3f"
+    },
+    {
+      "file": "docs/GUARD_G03_BASELINE_PREFLIGHT.md",
+      "sha256": "58343a65848f81b52f5682e77049d8f22389bffeeb08d442f55b3d29cab9db22"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "sha256": "245c5bf27cfb77685e7a203107c2f29b01dddc4dce75187014087f87f6bceee4"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-owner-selection-success/owner-confirmation.json",
+      "sha256": "9e4955306c6d2366d96937acf7fc2a5d59a2b2d803562d70c87a40f5c77cc6d0"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-owner-selection-success/offline-preflight-validation.json",
+      "sha256": "0a793d2c6b13253f1962a6e39789dfd40b6a9b8769789792b6836cead4af8a39"
+    }
+  ],
+  "selfExcluded": true
+}

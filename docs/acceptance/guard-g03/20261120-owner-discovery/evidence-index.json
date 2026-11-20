@@ -1,0 +1,33 @@
+{
+  "classification": "READONLY_DISCOVERY_DIAGNOSIS_NOT_LIVE_ACCEPTANCE",
+  "generatedAt": "2026-11-20T09:30:33.872Z",
+  "branch": "feat/guard-g03-ai-remediation",
+  "head": "5e52ac2d9df641eebef5cb4818c4efb7887c0c5c",
+  "files": [
+    {
+      "file": "docs/GUARD_G03_OWNER_TARGET_DESIGN.md",
+      "sha256": "1fb3cdbfd9b61dd3207e18cbcca716a44e59c69438b514e015f47b8c61fe2a78"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "sha256": "92d8471e68ffc6dd4038dd7400aa0e115d57d7d1ae96ee162344633fac0ab446"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "sha256": "c4b54b60ebc2b3e27cb6768ec1abc8f92faf2cbf223d4088110934811e871d81"
+    },
+    {
+      "file": "docs/GUARD_G03_REPOSITORY_DISCOVERY.md",
+      "sha256": "67509492308c039d87b4964d9fde06c83eee4b06f1d84b5c10f919e74d0b9b8c"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-owner-discovery/owner-discovery-receipt.json",
+      "sha256": "730cb5bd97813d7a24ac42a364512a5cdd920da8e572f3478a2fcf01ef037052"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-owner-discovery/validation-summary.json",
+      "sha256": "a455eba5072b2dd044b263e49fbf54fad25c121d8ae9cac8b89cdbedaa0fd911"
+    }
+  ],
+  "selfExcluded": true
+}

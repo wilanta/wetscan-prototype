@@ -1,0 +1,39 @@
+{
+  "classification": "READONLY_RUNTIME_DIAGNOSIS_NOT_LIVE_ACCEPTANCE",
+  "generatedAt": "2026-11-20T09:58:10.566Z",
+  "files": [
+    {
+      "file": "docs/GUARD_G03_READER_RUNTIME_SETUP.md",
+      "sha256": "b8d4ec5ff81357bc2b90227ba31f2b6455c30c9b8a932012b75c1da4254dfba5"
+    },
+    {
+      "file": "docs/GUARD_G03_BASELINE_PREFLIGHT.md",
+      "sha256": "be6e0a821072abd86238b542486a5e981b94308df71f3f2946e3d4835415b127"
+    },
+    {
+      "file": "docs/GUARD_G03_OWNER_TARGET_DESIGN.md",
+      "sha256": "b35ea3d00ab287fc55533c1004390058d68a3814782fa7c1e3aab40a1548533a"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "sha256": "ee2f5d49b445f9fe3e3827931ec03273c15cf145b1b3232817b5130c15500076"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "sha256": "732a88934a1bb37285f058e8b89a71e6471b7783da006f778d46374563a935c2"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-reader-runtime-blocker/received-preflight.json",
+      "sha256": "7b35ff4b88a949d9f44c8edf6fd07eb17e3c93acbc87fc2158f2c0268b3ee6d8"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-reader-runtime-blocker/diagnosis.json",
+      "sha256": "266e0d8d86f3623da47233f76940c1951188c1f58c2b01735a9c32a51ceee9a0"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-reader-runtime-blocker/validation-summary.json",
+      "sha256": "ffcd9d29019ea840cf4f67fa0a298e96a0e2a84c13cb3c610124efa9547cccba"
+    }
+  ],
+  "selfExcluded": true
+}

@@ -1,0 +1,68 @@
+{
+  "schema": "guard-g03-owner-target-design-v1",
+  "classification": "LOCAL_DESIGN_ONLY_NO_LIVE_FINDING",
+  "ownerDecision": "Separate owner-owned GitHub test repository; neither inkAja/wdu nor wilanta/wetscan-prototype is approved for patch/PR",
+  "repositoryUrl": null,
+  "repositoryId": null,
+  "proposedName": "<personal-owner>/wetscan-g03-acceptance",
+  "proposedBaselineBranch": "g03/acceptance-base",
+  "proposedPrHead": "wetscan/g03-<actual-proposal-id-prefix>",
+  "defaultBranchWritesByAgent": false,
+  "root": ".local/g03-owner-design-FpPMaO",
+  "baselineDirectory": ".local\\g03-owner-design-FpPMaO\\baseline",
+  "zipFile": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-mvp-local-demo\\.local\\g03-owner-design-FpPMaO\\g03-owner-baseline-portable.zip",
+  "zipSha256": "07ef0cbec101f545597ef11f26789836f11b84f891f0cb4be36603bfa3c97896",
+  "files": [
+    {
+      "path": "package.json",
+      "bytes": 160,
+      "sha256": "7a82bc5b910dfe1ad7475cf4dce67b2f05ce4fac5e4a9d07707ce61fcd35f21f",
+      "gitBlobSha1": "86b2f181e418b2720b88ece5c15816ca443bc721"
+    },
+    {
+      "path": "src/parse-json.js",
+      "bytes": 55,
+      "sha256": "71f9f7a2ab4bcc58cb860bcfb9b28b2c240beff15e7f03c4f4569d7c450708b1",
+      "gitBlobSha1": "02f6ec554f56d4ce27d8a747c85430fd4d49da71"
+    },
+    {
+      "path": "test/parse-json.test.js",
+      "bytes": 499,
+      "sha256": "d15357afde3df90857b9cafc01a534c64c81049e8ae6d4f4eaa1691f43d3a0a8",
+      "gitBlobSha1": "9778fa1afe9a39d0d9aabc3185379b78cc842f33"
+    },
+    {
+      "path": "README.md",
+      "bytes": 660,
+      "sha256": "12f5c5d688afe12f85dd83c465788b81011cf70ab77139942cff68e30c502a88",
+      "gitBlobSha1": "52dd79a934dfdd3df08666aec584fa48d74e9d0d"
+    }
+  ],
+  "behavioralTests": {
+    "baseline": {
+      "passed": 3,
+      "failed": 2,
+      "expectedFailure": true
+    },
+    "manualReference": {
+      "passed": 5,
+      "failed": 0,
+      "notAnAiResult": true
+    }
+  },
+  "sastFindingId": null,
+  "beforeCommit": null,
+  "afterCommit": null,
+  "githubRepositoryCreated": false,
+  "githubWritePerformed": false,
+  "githubSourceAcquired": false,
+  "scannerRun": false,
+  "providerRequestPerformed": false,
+  "commitCreated": false,
+  "warning": "Unzip locally; upload the four source files/folders, not the zip. No pre-fixed file is included.",
+  "zipVerification": {
+    "entries": 4,
+    "allEntrySha256MatchManifest": true,
+    "entrySeparators": "forward-slash"
+  }
+}

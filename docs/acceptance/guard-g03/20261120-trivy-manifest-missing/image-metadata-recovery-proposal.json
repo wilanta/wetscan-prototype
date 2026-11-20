@@ -1,0 +1,61 @@
+{
+  "schema": "guard-g03-image-cache-metadata-recovery-proposal-v1",
+  "classification": "PROPOSED_NEVER_STARTED_CONTAINER_METADATA_RECOVERY_NOT_QUALIFICATION",
+  "approved": false,
+  "executed": false,
+  "executionMode": "OWNER_OPERATED_ONLY",
+  "maxAttempts": 1,
+  "imageId": "sha256:3608834fae5f966e6380af0c7b2acf71a46af2ac2bac8591be2b0851d501fa51",
+  "maxNewContainers": 1,
+  "containerStartOrExecutionAllowed": false,
+  "sourcePath": "/opt/g02/trivy-cache/db/metadata.json",
+  "maxCopies": 1,
+  "tarBytesCap": 131072,
+  "jsonBytesCap": 65536,
+  "emptyWritableLayerRequiredBeforeAndAfterCopy": true,
+  "ownedCreatedContainerCleanupRequiresKnownOutcomeAndIdentity": true,
+  "forceRemovalAllowed": false,
+  "newAclProtectedTempArtifactsRequireApproval": true,
+  "originalHostInstallationWriteAllowed": false,
+  "credentialOrScopeOrApprovalContentsReadAllowed": false,
+  "databaseConnectionAllowed": false,
+  "qualificationOrSetupRetryAllowed": false,
+  "websiteAttachmentOrRestartAllowed": false,
+  "ownerSourceAcquisitionOrScanAllowed": false,
+  "aiOrGithubWriteOrRetestAllowed": false,
+  "artifacts": [
+    {
+      "file": ".local/g03-owner-selection/recover-trivy-manifest.ps1",
+      "sha256": "d7124bbccb2e57c4fedfa6ddbb79592e6c9c76feb47f57219ffee29ca538369c"
+    },
+    {
+      "file": ".local/g03-owner-selection/recover-trivy-manifest.bundle.mjs",
+      "sha256": "a994ec8370e8f7badfb4ed428ccd45675e7d21dd9c17c3f8eafe715ec3b4a012"
+    },
+    {
+      "file": ".local/g03-owner-selection/recover-trivy-manifest.mjs",
+      "sha256": "e0441e9588e6079791f30627b4ab4479dc246b21aa0b58f10376066f1797dd53"
+    },
+    {
+      "file": ".local/g03-owner-selection/trivy-manifest-recovery-model.mjs",
+      "sha256": "7c15e7159010f26b3b5854e34891fe3a388e3ace5f3737397191909083749747"
+    },
+    {
+      "file": ".local/g03-owner-selection/trivy-recovery.offline.cjs",
+      "sha256": "724fe2c0ac5a0d93e04eb32e71fe56ec01fa70154e001fa21ac1d867a34e5638"
+    },
+    {
+      "file": ".local/g03-owner-selection/trivy-recovery-build.json",
+      "sha256": "e73385a9aea32e513b3c7259c647300dc867ef80eae86653a6e853d68b7757fe"
+    }
+  ],
+  "offlineVerification": {
+    "passed": 45,
+    "failed": 0,
+    "wrapperAstParseErrors": 0,
+    "dockerInvoked": false,
+    "realContainerCreated": false,
+    "ownerFilesRead": false,
+    "ownerFunctionalTestPerformed": false
+  }
+}

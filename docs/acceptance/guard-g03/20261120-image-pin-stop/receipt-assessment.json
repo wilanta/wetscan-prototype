@@ -1,0 +1,52 @@
+{
+  "classification": "OWNER_RECOVERY_IMAGE_PIN_STOP_NOT_QUALIFICATION_OR_LIVE_G03",
+  "receiptSource": "OWNER_MESSAGE",
+  "operationId": "93cfd652-307c-43dc-bb10-3cd45f0987d9",
+  "recoveryAttemptsConsumed": 1,
+  "knownOutcome": true,
+  "containerCreateAttempts": 0,
+  "containerCleanupApplicable": false,
+  "tempPreparationMayRemain": true,
+  "sourceMetadataCopyAttempted": false,
+  "sidecarWritten": false,
+  "compatibilityBugIdentifiedFromPrimarySources": true,
+  "exactOwnerFailureCauseConfirmed": false,
+  "dockerCliExitOrStderrRecovered": false,
+  "executedRecoveryArtifactsUnchanged": true,
+  "executedSetupArtifactsUnchanged": true,
+  "implementationFilesUnchanged": 46,
+  "baselineZipUnchanged": true,
+  "documentationCheckpoint": ".local/g03-image-pin-stop-checkpoint-2J2WsS",
+  "documentationBackups": [
+    {
+      "file": "docs/GUARD_G03_TRIVY_MANIFEST_RECOVERY.md",
+      "backup": ".local\\g03-image-pin-stop-checkpoint-2J2WsS\\GUARD_G03_TRIVY_MANIFEST_RECOVERY.md",
+      "sha256": "e4c1ed2ebb20d9bd3b84145a5d7dca6d7ef254e9ea54c00648866f612f4ac52a"
+    },
+    {
+      "file": "docs/GUARD_G03_QUALIFICATION_REFERENCE_STOP.md",
+      "backup": ".local\\g03-image-pin-stop-checkpoint-2J2WsS\\GUARD_G03_QUALIFICATION_REFERENCE_STOP.md",
+      "sha256": "d2434da9a7aac5e8b0ec718bbc7e7f074f1cae7474f52bc2b8385589f9d6c523"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "backup": ".local\\g03-image-pin-stop-checkpoint-2J2WsS\\GUARD_G03_LIVE_ACCEPTANCE.md",
+      "sha256": "2ecd5801a2c6d8e10a42a9164a49053b99f05bf5d73dfb6140fb1089fe48d325"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "backup": ".local\\g03-image-pin-stop-checkpoint-2J2WsS\\HANDOFF_GUARD_G03.md",
+      "sha256": "7d2ca94c5a395df6fa3dbfd2a86cc8398ddcd604892d1e0b7bb373acb5e0a8ad"
+    }
+  ],
+  "agentDockerInvoked": false,
+  "agentDatabaseConnected": false,
+  "ownerScopeContentsReadByAgent": false,
+  "recoveryV2Approved": false,
+  "recoveryV2Executed": false,
+  "qualificationRetried": false,
+  "sourceAcquired": false,
+  "providerCalled": false,
+  "githubWritten": false,
+  "commitPushMerge": false
+}

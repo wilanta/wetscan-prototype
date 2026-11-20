@@ -1,0 +1,20 @@
+{
+  "classification": "RECOVERY_PROPOSAL_NEW_APPROVAL_REQUIRED",
+  "nextStep": "OWNER_STATIC_METADATA_DIAGNOSTIC_ONLY",
+  "script": ".local/g03-owner-selection/diagnose-stop-readonly.ps1",
+  "scriptSha256": "aefc291ff6c617384938bec89ea5fb078e05716a162bc2eef55bc286e0a4ec64",
+  "validation": "STATIC_AST_PARSE_ONLY",
+  "parseErrors": 0,
+  "approved": false,
+  "executed": false,
+  "nodeOrHelperExecutionAllowed": false,
+  "pointerContentsReadAllowed": false,
+  "credentialReadAllowed": false,
+  "environmentChangeAllowed": false,
+  "databaseConnectionAllowed": false,
+  "restartAllowed": false,
+  "dependencyInstallAllowed": false,
+  "resetMigrationProvisionAllowed": false,
+  "implementationFilesUnchanged": 46,
+  "documentationCheckpoint": ".local/g03-reader-stop-checkpoint-bwXbAH"
+}

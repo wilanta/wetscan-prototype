@@ -20,6 +20,9 @@ import { analysisReportHtml } from "./analysis-report";
 import { LiveGuardWorkbench } from "./workbench";
 import styles from "../workbench.module.css";
 import { LiveAnalysisPanel, LivePreflightButton } from "./analysis-panel";
+import { G03Panel } from "../g03/panel";
+import { exportSastSelection, exportUnavailableSelection } from "../g03/selection-export";
+import { emptyReadDiagnostics, failedRead, GuardReadError, publicConfiguration, successfulRead } from "../g03/read-diagnostics";
 interface Readiness {
   database: string;
   schema: string;
@@ -52,12 +55,14 @@ export function LiveGuardWorkspace({
   branch: initialBranch,
   section = "",
   initialScanId,
+  initialFindingId,
 }: {
   projectId: string;
   repositoryName: string;
   branch: string;
   section?: string;
   initialScanId?: string;
+  initialFindingId?: string;
 }) {
   const router = useRouter();
   const base = "/app/projects/" + encodeURIComponent(projectId) + "/guard";
@@ -69,6 +74,7 @@ export function LiveGuardWorkspace({
     [view, setView] = useState<StoredScanView | null>(null),
     [ready, setReady] = useState<Readiness | null>(null),
     [reports, setReports] = useState<StoredGuardReport[]>([]);
+  const [readDiagnostics, setReadDiagnostics] = useState(emptyReadDiagnostics);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [branch, setBranch] = useState(initialBranch),
@@ -96,13 +102,15 @@ export function LiveGuardWorkspace({
             : { "Content-Type": "application/json" },
         body: body === undefined ? undefined : JSON.stringify(body),
       });
-      const b = await r.json();
-      if (!r.ok)
-        throw Error(
-          typeof b.error === "string" && /^[a-z_]{1,64}$/.test(b.error)
-            ? b.error
-            : "guard_unavailable",
-        );
+      let b;
+      try { b = await r.json(); } catch {
+        if (body === undefined) throw new GuardReadError("invalid_response", r.status);
+        throw Error("guard_unavailable");
+      }
+      if (!r.ok) {
+        const code = typeof b.error === "string" && /^[a-z_]{1,64}$/.test(b.error) ? b.error : "guard_unavailable";
+        throw body === undefined ? new GuardReadError(code, r.status) : Error(code);
+      }
       return b;
     },
     [api],
@@ -110,6 +118,7 @@ export function LiveGuardWorkspace({
   const refresh = useCallback(
     async (signal?: AbortSignal, keepView = false) => {
       const seq = ++epoch.current;
+      const diagnostics = emptyReadDiagnostics();
       setBusy(true);
       setError("");
       if (!keepView) {
@@ -122,6 +131,9 @@ export function LiveGuardWorkspace({
           request("scans?limit=20", undefined, signal),
         ]);
         if (seq !== epoch.current || signal?.aborted) return;
+        diagnostics.readiness = cap.status === "fulfilled" ? successfulRead() : failedRead(cap.reason);
+        diagnostics.scanHistory = history.status === "fulfilled" ? successfulRead() : failedRead(history.reason);
+        if (cap.status === "fulfilled") diagnostics.configuration = publicConfiguration(cap.value);
         if (cap.status === "fulfilled") setReady(cap.value);
         else setReady(null);
         if (history.status === "rejected") {
@@ -131,11 +143,14 @@ export function LiveGuardWorkspace({
         setScans(history.value.scans);
         const id = initial ?? history.value.scans[0]?.id;
         if (id) {
-          const detail = await request(
-            "scans/" + id + "/view",
-            undefined,
-            signal,
-          );
+          let detail;
+          try {
+            detail = await request("scans/" + id + "/view", undefined, signal);
+            diagnostics.scanView = successfulRead();
+          } catch (error) {
+            diagnostics.scanView = failedRead(error);
+            throw error;
+          }
           if (seq !== epoch.current || signal?.aborted) return;
           setView(detail);
           if (
@@ -158,7 +173,10 @@ export function LiveGuardWorkspace({
           setError(e instanceof Error ? e.message : "guard_unavailable");
         }
       } finally {
-        if (seq === epoch.current && !signal?.aborted) setBusy(false);
+        if (seq === epoch.current && !signal?.aborted) {
+          setReadDiagnostics(diagnostics);
+          setBusy(false);
+        }
       }
     },
     [initial, request],
@@ -507,6 +525,17 @@ export function LiveGuardWorkspace({
             {section === "findings" && (
               <>
                 <h2>Findings and evidence</h2>
+                <Button onClick={() => download(
+                  JSON.stringify(exportSastSelection(projectId, repositoryName, view, readDiagnostics), null, 2),
+                  "guard-g03-selection-" + view.scanId.slice(0, 12) + ".json", "application/json",
+                )}>
+                  Export G03 selection metadata
+                </Button>
+                <p>
+                  This exports the loaded SAST metadata locally. It starts no scan,
+                  source read, AI request or repository write. Current branch HEAD
+                  still requires verification.
+                </p>
                 <p>
                   Recorded inventory: {view.inventory.length} packages.
                   Inventory entries are not vulnerability findings.
@@ -582,6 +611,20 @@ export function LiveGuardWorkspace({
                   .map((f) => (
                     <article key={f.id} className={styles.item}>
                       <h3>{f.title}</h3>
+                      {mutate && (
+                        <Link
+                          aria-label={"Remediate " + f.title}
+                          href={
+                            base +
+                            "/remediation?scan=" +
+                            view.scanId +
+                            "&finding=" +
+                            encodeURIComponent(f.id)
+                          }
+                        >
+                          Remediate this finding
+                        </Link>
+                      )}
                       <p>
                         {f.severityKnown === false
                           ? "UNKNOWN severity"
@@ -670,14 +713,26 @@ export function LiveGuardWorkspace({
             {section === "remediation" && (
               <>
                 <h2>Remediation from recorded findings</h2>
-                <LiveAnalysisPanel
+                <G03Panel
+                  key={view.scanId + ":" + (initialFindingId ?? "")}
                   projectId={projectId}
                   scanId={view.scanId}
                   revision={view.revision}
                   findings={view.findings}
-                  enabled={mutate}
-                  onChanged={() => void refresh()}
+                  initialFindingId={initialFindingId}
+                  onChanged={() => void refresh(undefined, true)}
                 />
+                <details open>
+                  <summary>Historical rule advice and scan comparisons</summary>
+                  <LiveAnalysisPanel
+                    projectId={projectId}
+                    scanId={view.scanId}
+                    revision={view.revision}
+                    findings={view.findings}
+                    enabled={mutate}
+                    onChanged={() => void refresh()}
+                  />
+                </details>
                 {selectedFinding ? (
                   <>
                     <h3>{selectedFinding.title}</h3>
@@ -691,10 +746,9 @@ export function LiveGuardWorkspace({
                   <p>No finding is available for remediation.</p>
                 )}
                 <Notice>
-                  AI: {view.integrations.ai}. No source was sent to an LLM.
-                  Patch generation requires an authorized pinned-source reader;
-                  real targeted retest: {view.integrations.targetedRetest}. No
-                  verified fix is claimed.
+                  G03 history records provider outcomes and exact-revision
+                  retests. Advice and patch approval alone do not verify a fix.
+                  Deployment enforcement is not connected.
                 </Notice>
               </>
             )}
@@ -819,6 +873,14 @@ export function LiveGuardWorkspace({
               loaded in Live Mode.
             </Notice>
           )}
+        {!view && !busy && section === "findings" && (
+          <Button onClick={() => download(
+            JSON.stringify(exportUnavailableSelection(projectId, repositoryName, scans.map((s) => s.id), !!error, readDiagnostics), null, 2),
+            "guard-g03-selection-unavailable.json", "application/json",
+          )}>
+            Export G03 selection metadata
+          </Button>
+        )}
       </Card>
       {section === "" && (
         <>

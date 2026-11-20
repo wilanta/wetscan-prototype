@@ -1,0 +1,23 @@
+{
+  "classification": "PROPOSED_SINGLE_METADATA_POST_NOT_SCAN_AUTHORITY",
+  "script": ".local/g03-owner-selection/runtime-binding-preflight.js",
+  "scriptSha256": "c942f8da101287b10848ee00b53935c1d020c59cf34490173db10d37b995d3e4",
+  "method": "POST",
+  "endpoint": "/api/guard/projects/github-1465216209/preflight",
+  "body": {},
+  "maxRequests": 1,
+  "scopeBindingRetainedInOwnerBrowserMemoryOnly": true,
+  "appAndExistingWorkerReadOnlyDatabaseMetadataMayBeChecked": true,
+  "workerReferencesAttached": false,
+  "sourceAcquisitionAllowed": false,
+  "scannerQualificationOrScanAllowed": false,
+  "queueWriteAllowed": false,
+  "providerOrGithubWriteAllowed": false,
+  "approved": false,
+  "executed": false,
+  "offlineTests": {
+    "passed": 10,
+    "failed": 0,
+    "ownerRequestsSent": 0
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "classification": "NEW_EXACT_TARGET_APP_ROLE_READONLY_PROOF_PROPOSAL",
+  "target": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "wetscan_dev_guardg02",
+    "marker": "wetscan-s01:f0927e49-0e70-4b90-913f-6cd6984df9d8"
+  },
+  "role": "wetscan_guard_app",
+  "rootOrdinal": 1,
+  "maxLogicalConnectAttempts": 1,
+  "approval": "PENDING_NEW_OWNER_APPROVAL",
+  "ownerOperated": true,
+  "existingAppCredentialLoaderReadProposed": true,
+  "bootstrapAllowed": false,
+  "workerCredentialAllowed": false,
+  "parentEnvironmentChangeAllowed": false,
+  "restartAllowed": false,
+  "fileWriteAllowed": false,
+  "databaseMutationAllowed": false,
+  "sourceScannerAiGithubWriteAllowed": false,
+  "wrapper": ".local/g03-owner-selection/prove-existing-app-readonly.ps1",
+  "wrapperSha256": "fce0b8e1f5dfbe14ba999eb3fed06e9b9e14ec0fe841382df727529396d4d009",
+  "source": ".local/g03-owner-selection/prove-existing-app-readonly.mjs",
+  "sourceSha256": "880f2577ab78c89aa5cb15b4cd432db248d503183b412a4e83213b6aceee0628",
+  "artifact": ".local/g03-owner-selection/prove-existing-app-readonly.bundle.mjs",
+  "artifactSha256": "60b8b3b1014786af3c2224bd42c5a610a27d2da4780e0509fc64b21cfa310e32",
+  "executed": false
+}

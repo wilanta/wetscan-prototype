@@ -1,0 +1,62 @@
+{
+  "classification": "OWNER_MISSING_TRIVY_REFERENCE_AND_OFFLINE_RECOVERY_PROPOSAL_INDEX",
+  "selfExcluded": true,
+  "files": [
+    {
+      "file": "docs/GUARD_G03_QUALIFICATION_REFERENCE_STOP.md",
+      "sha256": "d2434da9a7aac5e8b0ec718bbc7e7f074f1cae7474f52bc2b8385589f9d6c523"
+    },
+    {
+      "file": "docs/GUARD_G03_CONTROLLED_QUALIFICATION_SETUP.md",
+      "sha256": "657458a3bbaa912afa6dfebb45ea89aee4899c5b976725178b8990b28cea7262"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "sha256": "2ecd5801a2c6d8e10a42a9164a49053b99f05bf5d73dfb6140fb1089fe48d325"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "sha256": "7d2ca94c5a395df6fa3dbfd2a86cc8398ddcd604892d1e0b7bb373acb5e0a8ad"
+    },
+    {
+      "file": "docs/GUARD_G03_TRIVY_MANIFEST_RECOVERY.md",
+      "sha256": "e4c1ed2ebb20d9bd3b84145a5d7dca6d7ef254e9ea54c00648866f612f4ac52a"
+    },
+    {
+      "file": ".local/g03-owner-selection/recover-trivy-manifest.ps1",
+      "sha256": "d7124bbccb2e57c4fedfa6ddbb79592e6c9c76feb47f57219ffee29ca538369c"
+    },
+    {
+      "file": ".local/g03-owner-selection/recover-trivy-manifest.bundle.mjs",
+      "sha256": "a994ec8370e8f7badfb4ed428ccd45675e7d21dd9c17c3f8eafe715ec3b4a012"
+    },
+    {
+      "file": ".local/g03-owner-selection/recover-trivy-manifest.mjs",
+      "sha256": "e0441e9588e6079791f30627b4ab4479dc246b21aa0b58f10376066f1797dd53"
+    },
+    {
+      "file": ".local/g03-owner-selection/trivy-manifest-recovery-model.mjs",
+      "sha256": "7c15e7159010f26b3b5854e34891fe3a388e3ace5f3737397191909083749747"
+    },
+    {
+      "file": ".local/g03-owner-selection/trivy-recovery.offline.cjs",
+      "sha256": "724fe2c0ac5a0d93e04eb32e71fe56ec01fa70154e001fa21ac1d867a34e5638"
+    },
+    {
+      "file": ".local/g03-owner-selection/trivy-recovery-build.json",
+      "sha256": "e73385a9aea32e513b3c7259c647300dc867ef80eae86653a6e853d68b7757fe"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-trivy-manifest-missing/image-metadata-recovery-proposal.json",
+      "sha256": "4d60565c74a9e456835d57bb93326b22e17ab5c0371722ed093704f2c0bbd736"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-trivy-manifest-missing/receipt-assessment.json",
+      "sha256": "058567ec5f9c3ea9d0d19ea16040c39da2adae4109afffac752f0ca56b98def7"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-trivy-manifest-missing/received-owner-reference-diagnosis.json",
+      "sha256": "dd01098d3471a877e723ddff5497304ab60bf387e1278036e6bcd8943808bf2c"
+    }
+  ]
+}

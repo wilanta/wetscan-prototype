@@ -1,0 +1,11 @@
+{
+    "file":  "docs/acceptance/guard-g01/worker-auth-request.job-2c18db66.json",
+    "workingSha256":  "4d34ff620fc783e76fc5d5b3a7cdffc1558210660b7efc67ced4f54a05092cfe",
+    "historicalManifestSha256":  "7dbce306308728a6e573ba27431cfcd3491f7de86fe658522169b70c72d54303",
+    "workingGitBlob":  "bbd915a2e7018e79fb0117ab6ff4894c0fffa46e",
+    "masterGitBlob":  "39e394dc610d9ef671b750a9a7cdb8e154e94010",
+    "workingMatchesMaster":  false,
+    "historicalFilesModified":  false,
+    "lfSha256":  "7dbce306308728a6e573ba27431cfcd3491f7de86fe658522169b70c72d54303",
+    "lfMatchesHistoricalManifest":  true
+}

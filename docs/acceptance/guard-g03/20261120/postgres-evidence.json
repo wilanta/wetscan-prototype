@@ -1,0 +1,18 @@
+{
+  "classification": "ISOLATED_POSTGRESQL_SQL_PROVIDER_AND_SCANNER_DOUBLES_NOT_LIVE_ACCEPTANCE",
+  "postgresVersion": 18,
+  "randomLoopbackPort": 60033,
+  "ownerDatabaseAccessed": false,
+  "persistence": true,
+  "restart": true,
+  "forcedRls": true,
+  "crossWorkspaceDenied": true,
+  "costRateBudget": true,
+  "optimisticConflict": true,
+  "concurrentReviewSingleWinner": true,
+  "retention": true,
+  "originalG02DataUnchanged": true,
+  "platformMigrationLedgerUnchanged": true,
+  "providerCallsAreTestDoubles": true,
+  "realScannerExecuted": false
+}

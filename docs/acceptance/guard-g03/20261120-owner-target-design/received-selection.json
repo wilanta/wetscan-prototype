@@ -1,0 +1,18 @@
+{
+  "schema": "guard-g03-selection-metadata-v1",
+  "classification": "OWNER_EXPORTED_STORED_G02_METADATA_NOT_LIVE_ACCEPTANCE",
+  "projectId": "github-839286157",
+  "repositoryName": "inkAja/wdu",
+  "scanId": null,
+  "candidates": [],
+  "recordedScanIds": [],
+  "storageStatus": "UNAVAILABLE",
+  "currentHeadVerified": false,
+  "sourceRead": false,
+  "providerCalled": false,
+  "githubWritten": false,
+  "scannerStarted": false,
+  "limitations": [
+    "No scan detail was loaded. This is not evidence of no vulnerabilities or an authorization/readiness proof."
+  ]
+}

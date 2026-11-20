@@ -1,0 +1,321 @@
+{
+  "classification": "OFFLINE_FULL_REGRESSION_NOT_LIVE_ACCEPTANCE",
+  "total": 2836,
+  "passed": 2700,
+  "failed": 136,
+  "counts": {
+    "g03": 0,
+    "integrationRegression": 0,
+    "existingWindowsSentinel": 135,
+    "historicalG01": 1,
+    "unclassified": 0
+  },
+  "files": [
+    {
+      "file": "tests/guard/evidence-retention.test.ts",
+      "failed": 1,
+      "category": "historicalG01",
+      "cause": "RAW_CRLF_VS_RETAINED_LF_DIGEST",
+      "directPolicyDiagnostics": 0,
+      "testNames": [
+        "preserves all 33 accepted artifacts after obsolete recipient handoff relocation, including identical raw bytes"
+      ]
+    },
+    {
+      "file": "tests/sentinel/approval-history.test.ts",
+      "failed": 27,
+      "category": "existingWindowsSentinel",
+      "cause": "ASYNC_REALPATH_EXPANDS_SHORT_TEMP_ALIAS",
+      "directPolicyDiagnostics": 0,
+      "testNames": [
+        "offline historical H04C-B2 approval discovery (no DB or runtime) discovers audit-only metadata under unexpected names and blocks unresolved audit approvals",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) discovers historical filename app-approval.json",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) discovers historical filename diag-w-approval.json",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) discovers historical filename dup-approval.json",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) discovers historical filename preflight-approval.json",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) discovers historical filename provision-approval.json",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) discovers historical filename seal1-approval.json",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) discovers historical filename seal2-approval.json",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) discovers historical filename worker1-approval.json",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) discovers historical filename worker2-approval.json",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) preserves reviewed terminal status CLOSED",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) preserves reviewed terminal status CLOSED_H04C_B2_READONLY_PREFLIGHT",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) preserves reviewed terminal status CLOSED_AFTER_H04C_B2",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) discovers both runtime approvals before and after closure without treating verified receipts/backups/journals as new approvals",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) discovers metadata in unexpected-name.json without a filename allowlist",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) discovers metadata in unexpected.data without a filename allowlist",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) discovers metadata in no-extension without a filename allowlist",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) blocks APPROVED with actions []",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) blocks APPROVED with actions [\"runtime\"]",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) blocks CLOSED with actions [\"runtime\"]",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) one unresolved approval blocks the other eight closed approvals",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) finds H04C-B2 metadata under an unexpected directory name within the verified private root",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) rejects duplicate JSON approval keys rather than accepting the last status",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) requires all nine known files instead of ignoring a missing approval",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) fails closed on an inaccessible file, without leaking an OS message",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) rejects duplicate required references",
+        "offline historical H04C-B2 approval discovery (no DB or runtime) rejects hardlinked duplicate approval identities"
+      ]
+    },
+    {
+      "file": "tests/sentinel/audit-deadline.test.ts",
+      "failed": 3,
+      "category": "existingWindowsSentinel",
+      "cause": "POWERSHELL_EXECUTION_POLICY_BLOCKS_SCRIPT_ENTRY",
+      "directPolicyDiagnostics": 0,
+      "testNames": [
+        "actual PowerShell deadline rejection, mocked offline dependencies rejects absent/insufficient/excessive runner deadline 0 before output or approval creation",
+        "actual PowerShell deadline rejection, mocked offline dependencies rejects absent/insufficient/excessive runner deadline 1000 before output or approval creation",
+        "actual PowerShell deadline rejection, mocked offline dependencies rejects absent/insufficient/excessive runner deadline 211000 before output or approval creation"
+      ]
+    },
+    {
+      "file": "tests/sentinel/audit-diagnostics.test.ts",
+      "failed": 2,
+      "category": "existingWindowsSentinel",
+      "cause": "POWERSHELL_EXECUTION_POLICY_BLOCKS_SCRIPT_ENTRY",
+      "directPolicyDiagnostics": 0,
+      "testNames": [
+        "native stream collection (synthetic processes only) PowerShell bootstrap preserves missing manifest failure without starting the coordinator",
+        "native stream collection (synthetic processes only) PowerShell bootstrap preserves modified manifest failure without starting the coordinator"
+      ]
+    },
+    {
+      "file": "tests/sentinel/audit-exit-chain.test.ts",
+      "failed": 18,
+      "category": "existingWindowsSentinel",
+      "cause": "POWERSHELL_EXECUTION_POLICY_BLOCKS_SCRIPT_ENTRY",
+      "directPolicyDiagnostics": 0,
+      "testNames": [
+        "complete synthetic PowerShell owner exit chain propagates correct through a real outer PowerShell process",
+        "complete synthetic PowerShell owner exit chain propagates inspect_stderr through a real outer PowerShell process",
+        "complete synthetic PowerShell owner exit chain propagates inspect_empty_stderr through a real outer PowerShell process",
+        "complete synthetic PowerShell owner exit chain propagates engine_unavailable through a real outer PowerShell process",
+        "complete synthetic PowerShell owner exit chain propagates wrong_identity through a real outer PowerShell process",
+        "complete synthetic PowerShell owner exit chain propagates wrong_mount through a real outer PowerShell process",
+        "complete synthetic PowerShell owner exit chain propagates wrong_volume through a real outer PowerShell process",
+        "complete synthetic PowerShell owner exit chain propagates wrong_port through a real outer PowerShell process",
+        "complete synthetic PowerShell owner exit chain propagates checker_timeout through a real outer PowerShell process",
+        "complete synthetic PowerShell owner exit chain propagates coordinator_failure through a real outer PowerShell process",
+        "complete synthetic PowerShell owner exit chain propagates receipt_failure through a real outer PowerShell process",
+        "complete synthetic PowerShell owner exit chain propagates cleanup_failure through a real outer PowerShell process",
+        "complete synthetic PowerShell owner exit chain propagates outer_returns_zero through a real outer PowerShell process",
+        "complete synthetic PowerShell owner exit chain the hash-guarded outer command rejects empty evidence",
+        "complete synthetic PowerShell owner exit chain the hash-guarded outer command rejects invalid evidence",
+        "complete synthetic PowerShell owner exit chain the hash-guarded outer command rejects pass_nonzero evidence",
+        "complete synthetic PowerShell owner exit chain the hash-guarded outer command rejects not_verified_zero evidence",
+        "complete synthetic PowerShell owner exit chain the hash-guarded outer command rejects cleanup_zero evidence"
+      ]
+    },
+    {
+      "file": "tests/sentinel/owner-auth-snapshot.test.ts",
+      "failed": 1,
+      "category": "existingWindowsSentinel",
+      "cause": "POWERSHELL_EXECUTION_POLICY_BLOCKS_SCRIPT_ENTRY",
+      "directPolicyDiagnostics": 0,
+      "testNames": [
+        "owner auth snapshot (synthetic opaque files, no OAuth or database) PowerShell 5.1 propagates the real snapshot child failure before application startup"
+      ]
+    },
+    {
+      "file": "tests/sentinel/owner-reauth.test.ts",
+      "failed": 2,
+      "category": "existingWindowsSentinel",
+      "cause": "POWERSHELL_EXECUTION_POLICY_BLOCKS_SCRIPT_ENTRY",
+      "directPolicyDiagnostics": 0,
+      "testNames": [
+        "actual PS5.1 default-off exit propagation with mock native checker preflight success=true never starts app and preserves exit status",
+        "actual PS5.1 default-off exit propagation with mock native checker preflight success=false never starts app and preserves exit status"
+      ]
+    },
+    {
+      "file": "tests/sentinel/provision-entrypoint-cli.test.ts",
+      "failed": 1,
+      "category": "existingWindowsSentinel",
+      "cause": "POWERSHELL_EXECUTION_POLICY_BLOCKS_SCRIPT_ENTRY",
+      "directPolicyDiagnostics": 0,
+      "testNames": [
+        "executable aliases cannot omit shared enforcement retired PowerShell live mode stops before any fresh output is created"
+      ]
+    },
+    {
+      "file": "tests/sentinel/provision-failure.test.ts",
+      "failed": 12,
+      "category": "existingWindowsSentinel",
+      "cause": "POWERSHELL_EXECUTION_POLICY_BLOCKS_SCRIPT_ENTRY",
+      "directPolicyDiagnostics": 12,
+      "testNames": [
+        "offline provisioning failure lifecycle (no phase runner, services or database) waits for owned synthetic processes to exit before permitting a failure audit",
+        "offline provisioning failure lifecycle (no phase runner, services or database) failure audit runs before closure; genuine audit failure=false stays unverified",
+        "offline provisioning failure lifecycle (no phase runner, services or database) failure audit runs before closure; genuine audit failure=true stays unverified",
+        "offline provisioning failure lifecycle (no phase runner, services or database) a stop failure cannot skip the independent audit or masquerade as PASS",
+        "offline provisioning failure lifecycle (no phase runner, services or database) phase-start PASS followed by unauthenticated records one GET and no provisioning",
+        "offline provisioning failure lifecycle (no phase runner, services or database) phase-start PASS followed by forbidden records one GET and no provisioning",
+        "offline provisioning failure lifecycle (no phase runner, services or database) phase-start PASS followed by timeout records one GET and no provisioning",
+        "offline provisioning failure lifecycle (no phase runner, services or database) phase-start PASS followed by response_parse_failed records one GET and no provisioning",
+        "offline provisioning failure lifecycle (no phase runner, services or database) only pre-response connection refusal is polled; success still requires exact identity and revision",
+        "offline provisioning failure lifecycle (no phase runner, services or database) HTTP 200 with wrong_revision stays fail-closed before provisioning",
+        "offline provisioning failure lifecycle (no phase runner, services or database) HTTP 200 with wrong_project stays fail-closed before provisioning",
+        "offline provisioning failure lifecycle (no phase runner, services or database) HTTP 200 with missing_rule stays fail-closed before provisioning"
+      ]
+    },
+    {
+      "file": "tests/sentinel/provision-package-runner.test.ts",
+      "failed": 1,
+      "category": "existingWindowsSentinel",
+      "cause": "POWERSHELL_EXECUTION_POLICY_BLOCKS_SCRIPT_ENTRY",
+      "directPolicyDiagnostics": 1,
+      "testNames": [
+        "package runner default-off and STOP boundaries default PowerShell invocation creates no runtime work"
+      ]
+    },
+    {
+      "file": "tests/sentinel/provision-runner.test.ts",
+      "failed": 19,
+      "category": "existingWindowsSentinel",
+      "cause": "POWERSHELL_EXECUTION_POLICY_BLOCKS_SCRIPT_ENTRY",
+      "directPolicyDiagnostics": 19,
+      "testNames": [
+        "owner runner private-file and cleanup primitives (temporary fixtures only) creates a protected ACL containing only owner and SYSTEM",
+        "owner runner private-file and cleanup primitives (temporary fixtures only) PowerShell approval timestamps round-trip through the exact phase validator",
+        "owner runner private-file and cleanup primitives (temporary fixtures only) exclusive-create preserves an existing artifact byte-for-byte",
+        "owner runner private-file and cleanup primitives (temporary fixtures only) keeps a synthetic credential in its sole secret file and never overwrites it",
+        "owner runner private-file and cleanup primitives (temporary fixtures only) closes the second approval even if the first closure fails",
+        "owner runner private-file and cleanup primitives (temporary fixtures only) approval closure still executes when owned-process cleanup throws",
+        "owner runner private-file and cleanup primitives (temporary fixtures only) deadline sidecar independently revokes fixture approvals with no process to kill",
+        "owner runner private-file and cleanup primitives (temporary fixtures only) refuses PID reuse: a mismatched start time never authorizes process termination",
+        "owner runner private-file and cleanup primitives (temporary fixtures only) normal watchdog independently closes both unusable fixture approvals before reporting completion",
+        "owner runner private-file and cleanup primitives (temporary fixtures only) retains native handles and propagates zero/nonzero child exits",
+        "owner runner private-file and cleanup primitives (temporary fixtures only) normal second closure preserves both closedAt values and receipt bytes",
+        "owner runner private-file and cleanup primitives (temporary fixtures only) watchdog exit $null cannot satisfy final cleanup",
+        "owner runner private-file and cleanup primitives (temporary fixtures only) watchdog exit 7 cannot satisfy final cleanup",
+        "owner runner private-file and cleanup primitives (temporary fixtures only) watchdog exit '0' cannot satisfy final cleanup",
+        "owner runner private-file and cleanup primitives (temporary fixtures only) missing, failed and stale watchdog receipts cannot satisfy final cleanup",
+        "owner runner private-file and cleanup primitives (temporary fixtures only) incorrect closure hash prevents handoff acceptance",
+        "owner runner private-file and cleanup primitives (temporary fixtures only) concurrent normal closures serialize without replacing historical closure evidence",
+        "owner runner private-file and cleanup primitives (temporary fixtures only) default runner returns before all live operations (mocked offline diagnostic only)",
+        "owner runner private-file and cleanup primitives (temporary fixtures only) an unresolved history check stops even an opted-in runner before offline/live creation"
+      ]
+    },
+    {
+      "file": "tests/sentinel/readonly-audit-runner.test.ts",
+      "failed": 29,
+      "category": "existingWindowsSentinel",
+      "cause": "POWERSHELL_EXECUTION_POLICY_BLOCKS_SCRIPT_ENTRY",
+      "directPolicyDiagnostics": 29,
+      "testNames": [
+        "read-only owner runner, expired unusable fixtures only default-off returns without a directory, approval, process or connection",
+        "read-only owner runner, expired unusable fixtures only refuses ExecuteLive without exact separate owner scope before creating anything",
+        "read-only owner runner, expired unusable fixtures only closes only its bound expired fixture, preserving metadata and immutable before evidence",
+        "read-only owner runner, expired unusable fixtures only approval closure proceeds even if owned-process cleanup fails",
+        "read-only owner runner, expired unusable fixtures only process cleanup still runs when approval closure fails; failure is reported",
+        "read-only owner runner, expired unusable fixtures only deadline watchdog closes an expired fixture independently",
+        "read-only owner runner, expired unusable fixtures only a controller completion marker never bypasses independent approval closure",
+        "read-only owner runner, expired unusable fixtures only database PASS plus independently complete cleanup yields PASS",
+        "read-only owner runner, expired unusable fixtures only a bound watchdog receipt published before the controller handshake is also valid",
+        "read-only owner runner, expired unusable fixtures only a surviving owned process cannot be hidden by success receipts",
+        "read-only owner runner, expired unusable fixtures only database PASS cannot suppress a genuine cleanup failure",
+        "read-only owner runner, expired unusable fixtures only unknown, nonzero or nonnumeric exit $null cannot become PASS",
+        "read-only owner runner, expired unusable fixtures only unknown, nonzero or nonnumeric exit 7 cannot become PASS",
+        "read-only owner runner, expired unusable fixtures only unknown, nonzero or nonnumeric exit '0' cannot become PASS",
+        "read-only owner runner, expired unusable fixtures only retains actual child exit codes in both audit and watchdog wait flows",
+        "read-only owner runner, expired unusable fixtures only rejects a null exit code explicitly instead of coercing it",
+        "read-only owner runner, expired unusable fixtures only missing or delayed receipts never revise an already published failure",
+        "read-only owner runner, expired unusable fixtures only waits for a delayed watchdog's atomic receipt before final classification",
+        "read-only owner runner, expired unusable fixtures only incorrect closure beforeSha256 fails closed",
+        "read-only owner runner, expired unusable fixtures only incorrect closure afterSha256 fails closed",
+        "read-only owner runner, expired unusable fixtures only stale run ID in audit-result.sanitized.json fails closed",
+        "read-only owner runner, expired unusable fixtures only stale run ID in authorization-closure.sanitized.json fails closed",
+        "read-only owner runner, expired unusable fixtures only stale run ID in audit-controller-cleanup-complete.json fails closed",
+        "read-only owner runner, expired unusable fixtures only stale run ID in audit-watchdog-cleanup.sanitized.json fails closed",
+        "read-only owner runner, expired unusable fixtures only missing, malformed and mismatched-directory receipts fail closed",
+        "read-only owner runner, expired unusable fixtures only publishes only after flush and close, and never overwrites a receipt",
+        "read-only owner runner, expired unusable fixtures only failed receipt flushing leaves no final receipt and cannot produce PASS",
+        "read-only owner runner, expired unusable fixtures only deadline evidence always prevents PASS, even when every success receipt exists",
+        "read-only owner runner, expired unusable fixtures only concurrent controller/watchdog closure preserves one consistent before/after receipt"
+      ]
+    },
+    {
+      "file": "tests/sentinel/session-powershell.test.ts",
+      "failed": 20,
+      "category": "existingWindowsSentinel",
+      "cause": "POWERSHELL_EXECUTION_POLICY_BLOCKS_SCRIPT_ENTRY",
+      "directPolicyDiagnostics": 3,
+      "testNames": [
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) authenticates the same persisted fixture session using CookieContainer on 127.0.0.1",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) authenticates the same persisted fixture session using CookieContainer on localhost",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) refuses redirects without sending credentials to the redirect target",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) returns sanitized success metadata without changing CookieContainer transport",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) retains sanitized /401 diagnostics without retry or body leakage",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) retains sanitized /403 diagnostics without retry or body leakage",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) retains sanitized /malformed diagnostics without retry or body leakage",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) retains sanitized /slow diagnostics without retry or body leakage",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) retains sanitized /redirect diagnostics without retry or body leakage",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) retains only an allowlisted error code for /400-oauth without body leakage or retry",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) retains only an allowlisted error code for /400-query without body leakage or retry",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) retains only an allowlisted error code for /401-code without body leakage or retry",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) retains only an allowlisted error code for /403-code without body leakage or retry",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) retains only an allowlisted error code for /400-unlisted without body leakage or retry",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) retains only an allowlisted error code for /400-html without body leakage or retry",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) retains only an allowlisted error code for /400-empty without body leakage or retry",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) retains only an allowlisted error code for /400-large without body leakage or retry",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) retains only an allowlisted error code for /400-nonstring without body leakage or retry",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) never reports an error code for transport, redirect or parse failures",
+        "Windows PowerShell session transport (synthetic loopback, no GitHub or PostgreSQL) distinguishes pre-response connection refusal without retrying"
+      ]
+    }
+  ],
+  "protectedScopesUnchanged": [
+    "src/platform",
+    "src/features/sentinel",
+    "tests/sentinel",
+    "scripts/sentinel-*",
+    "worker",
+    "docs/acceptance/guard-g01",
+    "docs/acceptance/guard-g02",
+    "src/features/guard/contracts.ts",
+    "src/features/guard/live/product-*.ts",
+    "src/features/guard/live/runtime.ts",
+    "src/features/guard/live/service.ts",
+    "src/lib/auth",
+    "src/app/api/onboarding/route.ts",
+    "tests/auth-onboarding.test.ts"
+  ],
+  "policyProof": {
+    "effectivePolicy": "Restricted",
+    "probeExit": 1,
+    "scriptBlocked": true,
+    "scriptBodyDidNotExecute": true,
+    "policyChanged": false
+  },
+  "tempPathProof": {
+    "asyncRealpathMatches": false,
+    "shortAliasInInput": true,
+    "shortAliasInReal": false
+  },
+  "canonicalTempDiagnostic": {
+    "file": "tests/sentinel/approval-history.test.ts",
+    "passed": 69,
+    "failed": 0,
+    "assertionsChanged": false
+  },
+  "g01": {
+    "rawSha256": "4d34ff620fc783e76fc5d5b3a7cdffc1558210660b7efc67ced4f54a05092cfe",
+    "historicalExpectedSha256": "7dbce306308728a6e573ba27431cfcd3491f7de86fe658522169b70c72d54303",
+    "inMemoryLfSha256": "7dbce306308728a6e573ba27431cfcd3491f7de86fe658522169b70c72d54303",
+    "workingFileWritten": false
+  },
+  "additionalInitialObservation": {
+    "file": "tests/canvas/graph-cache.test.ts",
+    "failed": 1,
+    "testNames": [
+      "reports a new commit while keeping old graph, then swaps only after a successful refresh"
+    ],
+    "finalRunFailed": false,
+    "sourceAndTestsUnchanged": true,
+    "classification": "EXISTING_INTERMITTENT_CANVAS_CACHE_FAILURE_OUTSIDE_ORIGINAL_136",
+    "timingCause": "INFERENCE: latest disk entry uses mtime ordering; no G03 import or source change"
+  },
+  "noAssertionsWeakened": true,
+  "historicalArchivesWritten": false
+}

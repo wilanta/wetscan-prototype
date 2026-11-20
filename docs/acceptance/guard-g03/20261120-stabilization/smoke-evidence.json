@@ -1,0 +1,26 @@
+{
+  "classification": "LOCAL_PRODUCTION_BUILD_SMOKE_NO_OWNER_PROVIDER_DB",
+  "checks": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/login",
+      "status": 200
+    },
+    {
+      "path": "/onboarding",
+      "status": 200
+    },
+    {
+      "path": "g03/state anonymous",
+      "status": 401,
+      "noStore": true
+    },
+    {
+      "path": "g03/generate cross-origin",
+      "status": 403
+    }
+  ]
+}

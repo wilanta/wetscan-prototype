@@ -1,0 +1,30 @@
+{
+  "classification": "LOCAL_OWNER_REPOSITORY_OPTION_NOT_GITHUB_OR_SCANNER_ACCEPTANCE",
+  "path": ".local/g03-owner-option-B22JY3",
+  "files": {
+    "vulnerable/package.json": "7a82bc5b910dfe1ad7475cf4dce67b2f05ce4fac5e4a9d07707ce61fcd35f21f",
+    "vulnerable/src/parse-json.js": "71f9f7a2ab4bcc58cb860bcfb9b28b2c240beff15e7f03c4f4569d7c450708b1",
+    "vulnerable/test/parse-json.test.js": "d15357afde3df90857b9cafc01a534c64c81049e8ae6d4f4eaa1691f43d3a0a8",
+    "fixed/package.json": "7a82bc5b910dfe1ad7475cf4dce67b2f05ce4fac5e4a9d07707ce61fcd35f21f",
+    "fixed/src/parse-json.js": "6888b67cc3df3ccc3236d0f8b4a1889d4a970d0e6b312b84c99f8633abe3adc8",
+    "fixed/test/parse-json.test.js": "d15357afde3df90857b9cafc01a534c64c81049e8ae6d4f4eaa1691f43d3a0a8"
+  },
+  "behavioralTests": {
+    "vulnerable": {
+      "passed": 3,
+      "failed": 2,
+      "expectedFailure": true
+    },
+    "fixed": {
+      "passed": 5,
+      "failed": 0
+    }
+  },
+  "inputs": "Five hard-coded literals only; no routes, network, credentials or arbitrary input execution",
+  "githubSourceWritten": false,
+  "gitInitialized": false,
+  "gitCommitsCreated": false,
+  "realScanRun": false,
+  "paidAiCalled": false,
+  "proposedTarget": "OWNER_APPROVAL_REQUIRED: private wilanta/wetscan-g03-acceptance; non-default g03/acceptance-base and dedicated remediation head"
+}

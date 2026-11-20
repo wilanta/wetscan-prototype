@@ -1,0 +1,27 @@
+{
+  "classification": "PROPOSED_OWNER_NONSECRET_REFERENCE_INVENTORY_NEW_APPROVAL_REQUIRED",
+  "script": ".local/g03-owner-selection/inventory-g02-reference-metadata.ps1",
+  "scriptSha256": "ff3f4fd0beb9eed116e48c0ffc317d248a504b8e94e033e57cbaa44003faaf5c",
+  "readScope": [
+    "app.database.json",
+    "worker.database.json",
+    "target-only.json"
+  ],
+  "parentScope": [
+    "WORKTREE/.local immediate G02 db UUID directories",
+    "LOCALAPPDATA/WetScanGuardG02 immediate G02 db UUID directories"
+  ],
+  "passwordReadAllowed": false,
+  "pointerContentsReadAllowed": false,
+  "nodeOrHelperExecutionAllowed": false,
+  "databaseConnectionAllowed": false,
+  "fileOrEnvironmentChangesAllowed": false,
+  "restartAllowed": false,
+  "targetAutomaticallySelected": false,
+  "approved": false,
+  "executed": false,
+  "validation": {
+    "kind": "STATIC_AST_PARSE_ONLY",
+    "parseErrors": 0
+  }
+}

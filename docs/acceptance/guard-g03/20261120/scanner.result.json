@@ -1,0 +1,11 @@
+{
+  "kind": "scanner",
+  "startedAt": "2026-11-20T03:06:01.650Z",
+  "finishedAt": "2026-11-20T03:06:27.266Z",
+  "exitCode": 0,
+  "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+  "ownerRepositoryAccessed": false,
+  "ownerDatabaseAccessed": false,
+  "paidAiCalled": false,
+  "githubWritten": false
+}

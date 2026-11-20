@@ -1,0 +1,14 @@
+{
+  "classification": "OWNER_OBSERVED_BRANCH_METADATA_MATCH_NOT_SOURCE_ACQUISITION",
+  "repositoryName": "inkAja/wetscan-g03-acceptance",
+  "branch": "g03/acceptance-base",
+  "expectedCommit": "6eb920a5573c39105fa0390d464d271fb1c7b5bf",
+  "ownerReportedLatestCommit": "6eb920a5573c39105fa0390d464d271fb1c7b5bf",
+  "exactShaMatch": true,
+  "observationSource": "Owner confirmation after request to inspect GitHub Branches metadata",
+  "independentAgentProviderVerification": false,
+  "treeVerified": false,
+  "blobIdsVerified": false,
+  "commitDiffOpenedByAgent": false,
+  "sourceAcquired": false
+}

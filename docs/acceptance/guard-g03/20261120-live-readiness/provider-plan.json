@@ -1,0 +1,36 @@
+{
+  "classification": "NON_SECRET_PLAN_NO_PROVIDER_CALL_NO_ACTIVATION",
+  "plan": {
+    "provider": "openai_responses",
+    "model": "gpt-5.4-mini-2026-03-17",
+    "maxInputTokens": 10000,
+    "maxOutputTokens": 2000,
+    "timeoutMs": 20000,
+    "retries": 0,
+    "reservedMicroUsd": 16500,
+    "maxProjectMicroUsdPer24Hours": 500000,
+    "maxProjectRequestsPer24Hours": 20,
+    "maxActorRequestsPerMinute": 1
+  },
+  "aiEnabledInSettings": false,
+  "policyApproved": false,
+  "keyReferencePresent": false,
+  "reference": {
+    "status": "NOT_INSPECTED",
+    "keyContentsRead": false
+  },
+  "environmentVariableNames": [
+    "GUARD_G03_AI_ENABLED",
+    "GUARD_G03_PROVIDER",
+    "GUARD_G03_MODEL",
+    "GUARD_G03_INPUT_MICRO_USD_PER_MILLION",
+    "GUARD_G03_OUTPUT_MICRO_USD_PER_MILLION",
+    "GUARD_G03_DATA_POLICY_APPROVED",
+    "GUARD_G03_DATA_POLICY_VERSION"
+  ],
+  "providerRequestPerformed": false,
+  "githubWritePerformed": false,
+  "scannerRun": false,
+  "providerAcceptance": "NOT_RUN",
+  "environmentApplied": false
+}

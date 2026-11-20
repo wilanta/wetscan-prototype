@@ -1,0 +1,13 @@
+{
+    "operation":  "FAST_FORWARD_CURRENT_FEATURE_ONLY",
+    "previousBase":  "f4a54f80d47b43e4296e0427a4ce95285f26595b",
+    "newBase":  "5e52ac2d9df641eebef5cb4818c4efb7887c0c5c",
+    "newRemoteMaster":  "5e52ac2d9df641eebef5cb4818c4efb7887c0c5c",
+    "incomingFiles":  10,
+    "overlappingLocalFiles":  0,
+    "preservedLocalFiles":  50,
+    "preservedBytes":  true,
+    "newCommitCreated":  false,
+    "branchChanged":  false,
+    "stashResetCleanPushMasterMergePerformed":  false
+}

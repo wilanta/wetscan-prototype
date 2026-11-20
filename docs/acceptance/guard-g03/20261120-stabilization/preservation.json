@@ -1,0 +1,29 @@
+{
+  "initialFileCount": 52,
+  "initialBranch": "feat/guard-g03-ai-remediation",
+  "initialHead": "5e52ac2d9df641eebef5cb4818c4efb7887c0c5c",
+  "backupSha256Verified": true,
+  "backupLocation": ".local/g03-stabilization-ffc91caa-d7fb-46c1-8cb6-8e9b20c3a66c",
+  "originalFilesStillPresent": 52,
+  "filesDeliberatelyEditedSinceSnapshot": [
+    "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+    "docs/GUARD_G03_VALIDATION.md",
+    "src/features/guard/g03/panel.tsx",
+    "src/features/guard/g03/patch.ts",
+    "src/features/guard/g03/provider.ts",
+    "src/features/guard/g03/retest.ts",
+    "src/features/guard/g03/safety.ts",
+    "src/features/guard/g03/service.ts",
+    "src/features/guard/g03/source.ts",
+    "src/features/guard/g03/store.ts",
+    "tests/guard/g03/patch.test.ts",
+    "tests/guard/g03/persistence.postgres.ts",
+    "tests/guard/g03/provider.test.ts",
+    "tests/guard/g03/retest.test.ts",
+    "tests/guard/g03/service.test.ts",
+    "tests/guard/g03/source.test.ts",
+    "tests/guard/live/g03-ui.spec.ts"
+  ],
+  "priorG03EvidenceUnchanged": true,
+  "noStashResetCleanCheckoutCommitPushMerge": true
+}

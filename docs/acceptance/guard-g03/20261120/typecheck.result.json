@@ -1,0 +1,11 @@
+{
+  "kind": "typecheck",
+  "startedAt": "2026-11-20T03:35:27.343Z",
+  "finishedAt": "2026-11-20T03:35:32.262Z",
+  "exitCode": 0,
+  "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+  "ownerRepositoryAccessed": false,
+  "ownerDatabaseAccessed": false,
+  "paidAiCalled": false,
+  "githubWritten": false
+}

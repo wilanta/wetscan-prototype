@@ -1,0 +1,11 @@
+{
+  "kind": "browser",
+  "startedAt": "2026-11-20T03:37:30.450Z",
+  "finishedAt": "2026-11-20T03:39:25.842Z",
+  "exitCode": 0,
+  "classification": "OFFLINE_CONTROLLED_FIXTURE_NOT_LIVE_ACCEPTANCE",
+  "ownerRepositoryAccessed": false,
+  "ownerDatabaseAccessed": false,
+  "paidAiCalled": false,
+  "githubWritten": false
+}

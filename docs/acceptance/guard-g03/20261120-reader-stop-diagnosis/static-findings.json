@@ -1,0 +1,55 @@
+{
+  "classification": "STATIC_AND_OS_METADATA_AGENT_CONTEXT_NOT_OWNER_RUN_ROOT_CAUSE",
+  "node": "v24.17.0",
+  "powershell": "5.1.26100.7705",
+  "serverOnly": {
+    "resolverOrigin": "src/features/guard/live/product-preflight.ts",
+    "rootPackagePresent": false,
+    "directDependencyDeclared": false,
+    "devDependencyDeclared": false,
+    "rootLockEntryPresent": false,
+    "condition": "react-server",
+    "resolution": "MODULE_NOT_FOUND",
+    "nextInternalAliasArtifactsPresent": true,
+    "helperImported": false
+  },
+  "pointer": {
+    "pathTemplate": "%LOCALAPPDATA%/WetScanGuardG02/current.json",
+    "metadata": "ObjectNotFound",
+    "exceptionType": "System.Management.Automation.ItemNotFoundException",
+    "contentsRead": false,
+    "ownerProcessContextEquivalenceProven": false
+  },
+  "port55434": {
+    "listenerObserved": false,
+    "observationProvesDatabaseAbsent": false
+  },
+  "docker": {
+    "metadataInspectionAvailable": false,
+    "containerAbsenceProven": false
+  },
+  "dependenciesPresent": [
+    {
+      "name": "tsx",
+      "version": "4.23.15"
+    },
+    {
+      "name": "pg",
+      "version": "8.23.1"
+    },
+    {
+      "name": "next",
+      "version": "16.4.6"
+    },
+    {
+      "name": "@next/env",
+      "version": "16.4.6"
+    }
+  ],
+  "nodeEngineMismatchProven": false,
+  "databaseMarkerVerified": false,
+  "credentialFilesRead": false,
+  "dotenvRead": false,
+  "databaseConnected": false,
+  "helperExecuted": false
+}

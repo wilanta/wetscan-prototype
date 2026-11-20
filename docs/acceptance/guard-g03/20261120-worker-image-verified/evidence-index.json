@@ -1,0 +1,74 @@
+{
+  "classification": "OWNER_WORKER_IMAGE_PROOF_AND_OFFLINE_QUALIFICATION_PROPOSAL_INDEX",
+  "selfExcluded": true,
+  "files": [
+    {
+      "file": "docs/GUARD_G03_WORKER_IMAGE_PREFLIGHT.md",
+      "sha256": "0697192fb961ac9a2fb854711782f8b01b334b314446f9a02ec9c6c017bc491e"
+    },
+    {
+      "file": "docs/GUARD_G03_SCANNER_SETUP_NEXT.md",
+      "sha256": "af83aad4a6688f897cf6b9631c902b2ad342e31e6a1fb388a0b5f422a7d89e1e"
+    },
+    {
+      "file": "docs/GUARD_G03_LIVE_ACCEPTANCE.md",
+      "sha256": "dd0feb3155b5690a0572f9276a317b0bb91223a7fbe6af0d7ad15aa14189b410"
+    },
+    {
+      "file": "docs/agent-handoffs/HANDOFF_GUARD_G03.md",
+      "sha256": "3124c3bffc273965efc1deca1fc1ffc4de2ab483bd62cc44867994bba9465de9"
+    },
+    {
+      "file": "docs/GUARD_G03_CONTROLLED_QUALIFICATION_SETUP.md",
+      "sha256": "03c368c1114dd76c087be109ed0e74358daeb29ca3830e4145a1130e955c004e"
+    },
+    {
+      "file": ".local/g03-owner-selection/export-owner-scope.js",
+      "sha256": "c4b6b920da4e1f1d77c29072791797a4d82592ad152fe4c42f8a7a5e4094cafc"
+    },
+    {
+      "file": ".local/g03-owner-selection/setup-qualified-sast.ps1",
+      "sha256": "4d62e10a359bbaad717eb9bb8238112571a70882d20c7527a0bb75f0d9dbaae1"
+    },
+    {
+      "file": ".local/g03-owner-selection/setup-qualified-sast.mjs",
+      "sha256": "5d5f38673b719ccbc4919dbb773b775c36ac0dc96e901e88cca4a64142de186e"
+    },
+    {
+      "file": ".local/g03-owner-selection/setup-qualified-sast.bundle.mjs",
+      "sha256": "32c4a5fd92c6cb56147149e9b3f00760188c4a98b26da351c1c8dd5481284567"
+    },
+    {
+      "file": ".local/g03-owner-selection/qualification-model.mjs",
+      "sha256": "1e2942a128378573c0b8aa7b4a74dfa6d369d40747a41006c7e7fa1e6ce92510"
+    },
+    {
+      "file": ".local/g03-owner-selection/qualification-original.bundle.mjs",
+      "sha256": "3c8e4e50c22b8ee3c4997456f68e13db40a56fa5c19822a76694671ce8b0a843"
+    },
+    {
+      "file": ".local/g03-owner-selection/run-original-qualification.mjs",
+      "sha256": "3caf6d1c9cbdab93350a701bdb6befc64f24b557b236f8ed3f520ea9c280dc77"
+    },
+    {
+      "file": ".local/g03-owner-selection/qualification-build-manifest.json",
+      "sha256": "f9e381d7959162e23ca5348c495aa201939075a1d300bd424a148fa9b29f33a3"
+    },
+    {
+      "file": ".local/g03-owner-selection/qualification-setup.offline.cjs",
+      "sha256": "181d0f7bc477f8544bf4f10602d726ef5d1b8cea01fd5537f28b9fe5cfb1d9b1"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-worker-image-verified/controlled-qualification-proposal.json",
+      "sha256": "05e77260361c909d63818edeacc5bb7907078b1cfabe30f02a08c31e047e74cc"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-worker-image-verified/receipt-assessment.json",
+      "sha256": "89b66bf3da49bc6b27246213b66604e25a2f28e8fe7341289d4248cefa2825cf"
+    },
+    {
+      "file": "docs/acceptance/guard-g03/20261120-worker-image-verified/received-owner-proof.json",
+      "sha256": "cd74ec732c97eaa953c1b9ca13a663dc190e31115f7ebf844a2b7696423aa46e"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "guard-g03-owner-reader-approval-v1",
+  "classification": "OWNER_APPROVAL_NOT_EXECUTION_EVIDENCE",
+  "approvedOnClientDate": "2026-11-20",
+  "timezone": "Asia/Jakarta",
+  "ownerAnswer": "Setujui tahap reader-only owner-operated",
+  "operator": "owner",
+  "script": ".local/g03-owner-selection/attach-readonly-runtime.ps1",
+  "scriptSha256": "efc309993c39c938dc255a3d66cff607e4d3f8d6646d3869fa73425b0f2d77d2",
+  "scope": {
+    "existingDatabase": "wetscan_dev_guardg02",
+    "port": 55434,
+    "marker": "wetscan-s01:d9058dd4-2823-4582-9721-4a1a56557664",
+    "verifyReadOnly": true,
+    "attachExistingReferences": true,
+    "createTargetOnlyConfigIfAbsent": true,
+    "localWebsiteRestart": true,
+    "scanningEnabled": false,
+    "aiEnabled": false,
+    "githubWritesEnabled": false
+  },
+  "notAuthorized": [
+    "database reset/provision/migration/write",
+    "new credentials",
+    "repository source acquisition",
+    "scanner qualification/scanning",
+    "paid AI",
+    "GitHub repository write/PR",
+    "retest",
+    "deployment"
+  ],
+  "executionStatus": "PENDING_OWNER_EXECUTION",
+  "agentDatabaseConnected": false,
+  "agentRestartedWebsite": false
+}
