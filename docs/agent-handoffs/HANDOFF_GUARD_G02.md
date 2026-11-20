@@ -14,6 +14,8 @@ Closure update: owner actual flag0 + Ready + authenticated GET after restart ver
 
 Branch `feat/guard-g02-completion` (from master `8aa17b1`) replaces the old integration branch for publication. G02 remains **PARTIAL**: engines REAL_SCANNER_VERIFIED on a real private GitHub repository (vulnerable `c1330c63` -> 34 findings, fixed `3c6a99ec` -> 0), isolated PostgreSQL 18, restart-persistent; Container FIXTURE_VERIFIED; Retry implemented; **NOT_RUN**: scan through the product Auth session and operational database, Live UI over real data. Full detail: `docs/G02_HANDOFF.md`, `docs/GUARD_G02_RELEASE_READINESS.md`, evidence `docs/acceptance/guard-g02/20261119/`. Historical job `e3025169...`, G01/N01 records and failed attempts are preserved and were not replayed.
 
+Historical 20 November update: the product-path procedure is preserved in `docs/GUARD_G02_FINAL_ACCEPTANCE_RUNBOOK.md`, with the Vercel owner action. **Superseded in the new isolated local environment:** G02 completed owner-authenticated product-path acceptance (34 / 0 findings, API/PG/UI agreement, restart, deactivation) and is `COMPLETE / DEV_ACCEPTED` for that environment; see `docs/GUARD_G02_NEW_LOCAL_ENV_SETUP.md`. Older machine operational DB and Vercel deployment verification remain outstanding.
+
 ### Copy-ready continuation prompt
 
 Do not start G03 until the product-path acceptance below is done and recorded.

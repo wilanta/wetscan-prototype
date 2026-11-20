@@ -171,9 +171,9 @@ No external issues created. Dependencies require owner handoffs. G01 adds Guard-
 
 ## GRD-002 - GitLab repository reader
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
-- Owner/dependency: owner/Codex (Guard implementation). External integration dependency: Auth/integrations owner.
-- Contract: SnapshotPort; gitlab, immutable commit, repository ID.
+- State: `OUT_OF_SCOPE_BY_OWNER_DECISION` (20 November 2026). WetScan Guard is scoped exclusively to authorized GitHub repository connections. Historical `RepositoryRef` TypeScript union typing is preserved solely for contract stability; no operational GitLab reader, OAuth, worker, or UI will be built.
+- Owner/dependency: owner decision (excluded from Guard scope).
+- Contract: Historical `SnapshotPort` (`RepositoryRef` carries legacy `"gitlab"` union member only).
 - Source (relative to src/features/guard unless explicitly prefixed): contracts.ts (SnapshotPort/RepositoryRef).
 - Safety/storage/environment: Existing integration/explicit handoff only; no second Auth system.
 - Tests / acceptance / definition of done: Unauthorized repository denied; commit snapshot disposed.
@@ -271,63 +271,62 @@ No external issues created. Dependencies require owner handoffs. G01 adds Guard-
 
 ## GRD-011 - Scoped staging DAST
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
-- Owner/dependency: owner/Codex (Guard implementation). External integration dependency: Platform/security owner.
-- Contract: DastScope, EgressPort, ScannerPort dast.
-- Source (relative to src/features/guard unless explicitly prefixed): security.ts (allowDast), dast-scope-form.tsx, contracts.ts (DastScope/EgressPort).
-- Safety/storage/environment: Disabled; origin/path/method/consent/window/rate restrictions; DNS/IP/rebind/redirect enforcement at socket layer.
-- Tests / acceptance / definition of done: Private/metadata/rebind/redirect denied; authorized synthetic baseline executed.
-- Issue reference: not created.
+- State: REAL_LOCAL_SYNTHETIC_VERIFIED (`feat/guard-g05-dast-integrity`). Disabled by default (`GUARD_G05_ENABLED !== "1"`); external staging awaits target-specific HTTPS approval.
+- Owner/dependency: Guard G05 implementation (`src/features/guard/g05/egress.ts`, `dast-engine.ts`, `service.ts`, `worker.ts`, `migrations/guard/g05/0002_g05.up.sql`).
+- Contract: `G05TargetRecord`, `G05ExecutionGrant`, `EnforcedHttpClient`, `G05PostgresQueue`.
+- Source (relative to src/features/guard unless explicitly prefixed): `g05/{contracts,egress,dast-engine,service,store,worker,http,panel}.ts*`, `security.ts (allowDast)`, `dast-scope-form.tsx`.
+- Safety/storage/environment: Disabled by default; revisioned target + consent grant; DNS/IP/rebinding/metadata/private CIDR blocking at socket layer; method/route/cap/timeout bounds; local loopback strictly requires pin + synthetic health identity header.
+- Tests / acceptance / definition of done: `tests/guard/g05/egress.test.ts`, `worker.postgres.integration.ts`, `tests/guard/g05/browser/g05.spec.ts` PASS against isolated PG 18 (`55436`) and Docker synthetic staging (`4115`).
+- Issue reference: PR on `feat/guard-g05-dast-integrity`.
 
 ## GRD-012 - Authenticated DAST accounts
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
-- Owner/dependency: owner/Codex (Guard implementation). External integration dependency: Security/test owner.
-- Contract: DastScope syntheticAccounts; encrypted expiring handles.
-- Source (relative to src/features/guard unless explicitly prefixed): contracts.ts (DastScope/TestPlan), dast-scope-form.tsx.
-- Safety/storage/environment: No real users/payment/production mutations; no account secrets in reports.
-- Tests / acceptance / definition of done: Dummy account rotation/cleanup, approved scope and safe stop verified.
-- Issue reference: not created.
+- State: REAL_LOCAL_SYNTHETIC_VERIFIED (`feat/guard-g05-dast-integrity`). Disabled by default.
+- Owner/dependency: Guard G05 implementation (`src/features/guard/g05/vault.ts`, `dast-engine.ts`, `store.ts`).
+- Contract: `G05TestAccountView`, `sealCredential` / `unsealCredential`, `G05SessionManager`.
+- Source (relative to src/features/guard unless explicitly prefixed): `g05/{vault,dast-engine,store,panel}.ts*`.
+- Safety/storage/environment: Synthetic non-production accounts only; AES-256-GCM AAD sealing; worker-only unsealing (`loadSealedAccountsForWorker`); session expiration/revocation verification & logout cleanup; zero secret leakage across reports/API/DOM.
+- Tests / acceptance / definition of done: `tests/guard/g05/vault.test.ts`, `store.postgres.integration.ts`, `worker.postgres.integration.ts`, `g05.spec.ts` PASS.
+- Issue reference: PR on `feat/guard-g05-dast-integrity`.
 
 ## GRD-013 - Canvas risk overlays
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
-- Owner/dependency: owner/Codex (Guard implementation). External integration dependency: Canvas owner.
-- Contract: CanvasPort.publish; nodeId/findingIds/scope/commit.
-- Source (relative to src/features/guard unless explicitly prefixed): contracts.ts (CanvasPort/CanvasOverlay), adapters.ts (unavailableCanvas).
-- Safety/storage/environment: No graph/discovery/shared routes edits; stable component mapping required.
-- Tests / acceptance / definition of done: Correct commit/node mapping; scoped authorization.
-- Issue reference: not created.
+- State: `COMPLETE` (`feat/guard-g06-full-integration`, 20 November 2026). Guard disabled by default (`GUARD_G06_ENABLED=1` enables).
+- Owner/dependency: Guard G06 implementation (`src/features/guard/g06/canvas-overlay.ts`, `src/features/canvas/adapters/sentinel-overlay.ts`, `src/features/canvas/components/guard-coverage.tsx`, `src/components/views/canvas.tsx`).
+- Contract: `G06CanvasAdapter` (`CanvasPort`), deterministic file/manifest/endpoint attribution (`evidence_source_path`, `manifest_package_root`, `api_route_exact`), stale commit detection, explicit unmatched drawer (`no_location`, `no_matching_node`, `ambiguous_nodes`), and `guard.g06_canvas_overlays`.
+- Safety/storage/environment: Strict `authorizeGuardProject` + `FORCE RLS`; demo Canvas isolated with zero `/g06/` requests.
+- Tests / acceptance / definition of done: `tests/guard/g06/g06.test.ts` (7/7), `tests/guard/g06/g06.postgres.integration.ts` (3/3), `tests/guard/g06/browser/g06.spec.ts` (1/1), and `tests/sentinel/s10.spec.ts` (26/26) PASS.
+- Issue reference: `feat/guard-g06-full-integration` draft PR.
 
 ## GRD-014 - Canvas Trust plans
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
-- Owner/dependency: owner/Codex (Guard implementation). External integration dependency: Canvas owner.
-- Contract: CanvasPort.plans; InvariantPlan confirmedBy/kind/expectedStatus.
-- Source (relative to src/features/guard unless explicitly prefixed): contracts.ts (TestPlan/InvariantPlan/CanvasPort), adapters.ts.
-- Safety/storage/environment: User confirmation required; AI does not authorize execution.
-- Tests / acceptance / definition of done: Unconfirmed/mismatched plans denied; ownership tests.
-- Issue reference: not created.
+- State: REAL_LOCAL_SYNTHETIC_VERIFIED (`feat/guard-g05-dast-integrity`).
+- Owner/dependency: Guard G05 implementation (`src/features/guard/g05/canvas-bridge.ts`, `service.ts`, `store.ts`, `panel.tsx`).
+- Contract: `G05CanvasTrustPlan`, `evaluateCanvasTrustPlan`, `buildG05TestPlan`.
+- Source (relative to src/features/guard unless explicitly prefixed): `g05/canvas-bridge.ts`, `contracts.ts`, `../canvas/trust/model.ts`.
+- Safety/storage/environment: Cross-project/workspace reuse rejected 403 (`NOT_AUTHORIZED`), stale revision/expired rejected 409 (`STALE`), unconfirmed rules rejected (`UNCONFIRMED`/blocked).
+- Tests / acceptance / definition of done: `tests/guard/g05/engine.test.ts`, `worker.postgres.integration.ts`, `g05.spec.ts` PASS.
+- Issue reference: PR on `feat/guard-g05-dast-integrity`.
 
 ## GRD-015 - Canvas Workflow import
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
-- Owner/dependency: owner/Codex (Guard implementation). External integration dependency: Canvas owner.
-- Contract: InvariantPlan; workflow version/transitions.
-- Source (relative to src/features/guard unless explicitly prefixed): contracts.ts (TestPlan), integrity.ts (synthetic only).
-- Safety/storage/environment: No invented graph inference; explicit versioned handoff required.
-- Tests / acceptance / definition of done: Confirmed transitions trace to source workflow/version.
-- Issue reference: not created.
+- State: REAL_LOCAL_SYNTHETIC_VERIFIED (`feat/guard-g05-dast-integrity`).
+- Owner/dependency: Guard G05 implementation (`src/features/guard/g05/canvas-bridge.ts`, `service.ts`, `panel.tsx`).
+- Contract: `G05WorkflowImport`, `importCanvasWorkflow`, `buildG05TestPlan`.
+- Source (relative to src/features/guard unless explicitly prefixed): `g05/canvas-bridge.ts`, `../canvas/workflows/model.ts`.
+- Safety/storage/environment: Explicit state-graph integrity validation (acyclic progression, valid state refs, endpoint/method mapping check), Plan Preview generated before queueing execution.
+- Tests / acceptance / definition of done: `tests/guard/g05/engine.test.ts`, `worker.postgres.integration.ts`, `g05.spec.ts` PASS.
+- Issue reference: PR on `feat/guard-g05-dast-integrity`.
 
 ## GRD-016 - Live Integrity runner
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
-- Owner/dependency: owner/Codex (Guard implementation). External integration dependency: Guard/security owner.
-- Contract: InvariantPlan, IntegrityResult, RetestResult.
-- Source (relative to src/features/guard unless explicitly prefixed): integrity.ts, contracts.ts (TestPlan), tests/guard/core.test.ts.
-- Safety/storage/environment: Only in-memory fixtures now; GRD-005/011/012 required for live.
-- Tests / acceptance / definition of done: Five invariants on approved staging dummy resources; expected/observed evidence and cleanup.
-- Issue reference: not created.
+- State: REAL_LOCAL_SYNTHETIC_VERIFIED (`feat/guard-g05-dast-integrity`).
+- Owner/dependency: Guard G05 implementation (`src/features/guard/g05/integrity-engine.ts`, `worker.ts`, `service.ts`, `panel.tsx`).
+- Contract: `executeIntegrityCases` covering all 5 families (`ownership`, `workflow_bypass`, `state_transition`, `replay`, `unauthorized_modification`).
+- Source (relative to src/features/guard unless explicitly prefixed): `g05/{integrity-engine,worker,service,store,panel}.ts*`, `worker/guard/g05-staging/server.ts`.
+- Safety/storage/environment: Persisted pre/post state diffs catch false-error mutations; mandatory synthetic record deletion & verified cleanup before completion; targeted retest promotes resolved findings to `verified_fixed`.
+- Tests / acceptance / definition of done: `tests/guard/g05/engine.test.ts`, `worker.postgres.integration.ts`, `tests/guard/g05/browser/g05.spec.ts` PASS against hardened + all fault-injected modes on real Docker synthetic staging.
+- Issue reference: PR on `feat/guard-g05-dast-integrity`.
 
 ## GRD-017 - AI provider/privacy opt-in
 
@@ -351,6 +350,7 @@ No external issues created. Dependencies require owner handoffs. G01 adds Guard-
 
 ## GRD-019 - Actual CI release enforcement
 
+- G04 update (20 Nov 2026): IMPLEMENTED (webhook intake, durable triggers, deterministic policy, GitHub Check Runs, Vercel read-only verification, enforcement assessment) and VERIFIED against real PostgreSQL and the real G02 scanner pipeline; PARTIALLY_VERIFIED overall. Real Check Runs, real signed deliveries, required-check enforcement and Vercel hold/release are BLOCKED on owner actions (GitHub App `checks:write` + webhook; Vercel token/project). See docs/GUARD_G04_VALIDATION.md and docs/GUARD_G04_PROVIDER_SETUP.md. `enforced` stays false without provider evidence.
 - State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
 - Owner/dependency: owner/Codex (Guard implementation). External integration dependency: GitHub/GitLab integrations owner.
 - Contract: ReleaseEvaluation enforced=false; scan/commit/check-run provenance.
@@ -361,37 +361,34 @@ No external issues created. Dependencies require owner handoffs. G01 adds Guard-
 
 ## GRD-020 - Intelligence inventory publishing
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
-- Owner/dependency: owner/Codex (Guard implementation). External integration dependency: Intelligence owner.
-- Contract: IntelligencePort.publish; scoped commit InventoryItem[].
-- S09 consumer note (19 Nov 2026): Sentinel External Intelligence does NOT depend on this producer. It uses a repository-lockfile inventory (`repository_lockfile`, declared dependencies only) and keeps `guardInventoryPort.configured === false`; no Guard code was changed. A future GRD-020 producer needs a widened `source_kind` in a new migration and ecosystem mapping (see HANDOFF_S09).
-- Source (relative to src/features/guard unless explicitly prefixed): contracts.ts (IntelligencePort), evidence.ts (normalizeOSVInventory), adapters.ts.
-- Safety/storage/environment: No fictional advisories; unknown licenses explicit.
-- Tests / acceptance / definition of done: Idempotent validated ingestion and tenant isolation.
-- Issue reference: not created.
+- State: `COMPLETE` (`feat/guard-g06-full-integration`, 20 November 2026). Guard disabled by default (`GUARD_G06_ENABLED=1` + `SENTINEL_DB_*` + `sentinel.project_bindings`).
+- Owner/dependency: Guard G06 implementation (`src/features/guard/g06/intelligence-bridge.ts`, `worker.ts`, `src/features/sentinel/components/live-external.tsx`).
+- Contract: `G06IntelligenceAdapter` (`IntelligencePort`) enqueues `GuardInventoryV1` (`intelligence_inventory` outbox) -> `G06OutboxWorker` delivers to Sentinel S09 `InventoryStore.save` + `assessExposure` -> updates `guard.g06_intelligence_sync`. Unmodified S09 `"not integrated"` fallback preserved when G06 disabled.
+- Safety/storage/environment: Unknown licenses kept `null` (`unknownLicenseCount`); non-`npm` preserved in `unsupportedCount`; unbound projects stay explicit `project_not_registered`.
+- Tests / acceptance / definition of done: Dual-DB `tests/guard/g06/g06.postgres.integration.ts` (3/3), `tests/guard/g06/browser/g06.spec.ts` (1/1), and `tests/sentinel/external.spec.ts` (10/10) PASS.
+- Issue reference: `feat/guard-g06-full-integration` draft PR.
 
 ## GRD-021 - Sentinel remediation/release events
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
-- Owner/dependency: owner/Codex (Guard implementation). External integration dependency: Sentinel owner.
-- Contract: SentinelPort.publish; type/scanId/decision/scope.
-- Source (relative to src/features/guard unless explicitly prefixed): contracts.ts (SentinelPort), adapters.ts (unavailableSentinel).
-- Safety/storage/environment: No Sentinel implementation or mitigation claims; dedupe/scoped audit.
-- Tests / acceptance / definition of done: Owner consumes authorized versioned events with retries/no secrets.
-- Issue reference: not created.
+- State: `PARTIALLY_VERIFIED` (`feat/guard-g06-full-integration`, 20 November 2026). Local durable outbox & signed HTTP consumer verified; production Sentinel core `guard_pipeline_audit` consumer URL remains an external prerequisite.
+- Owner/dependency: Guard G06 implementation (`src/features/guard/g06/sentinel-bridge.ts`, `worker.ts`, `redaction.ts`); Sentinel core consumer endpoint (`GUARD_G06_SENTINEL_CONSUMER_URL`).
+- Contract: `G06SentinelAdapter` (`SentinelPort`) validates `GuardPipelineEventV1` (never fabricates `remediation_retested` or runtime `sentinel.incidents`), strips tokens before persistence, delivers via `HttpSentinelPipelineConsumer` (`https://`, HMAC-SHA256), handles retries/crash lease recovery/409 conflicts.
+- Safety/storage/environment: Defaults to honest `consumer_unavailable` (`retry_scheduled`) when URL unset; frozen `0001..0009` Sentinel schemas untouched.
+- Tests / acceptance / definition of done: `tests/guard/g06/g06.test.ts` (7/7), `tests/guard/g06/g06.postgres.integration.ts` (3/3) PASS.
+- Issue reference: `feat/guard-g06-full-integration` draft PR.
 
 ## GRD-022 - Durable reports and retention
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
-- Owner/dependency: owner/Codex (Guard implementation). External integration dependency: Backend/storage owner.
-- Contract: report/reportHtml; version/coverage/evidence/audit/exclusions.
-- Source (relative to src/features/guard unless explicitly prefixed): release.ts (report/reportHtml), contracts.ts (PersistencePort).
-- Safety/storage/environment: Local download only; server authorization/retention/deletion/access audit required.
-- Tests / acceptance / definition of done: Tenant download denial, XSS/redaction, expiry/deletion and restart tests.
-- Issue reference: not created.
+- State: `COMPLETE` (`feat/guard-g06-full-integration`, 20 November 2026).
+- Owner/dependency: Guard G06 implementation (`src/features/guard/g06/unified-report.ts`, `service.ts`, `http.ts`, `panel.tsx`, `migrations/guard/g06/0002_g06.up.sql`).
+- Contract: `buildUnifiedGuardReport`, `renderUnifiedReportHtml`, `guard.g06_reports` (90-day retention, `FORCE RLS`, zero `DELETE` grants), `guard.g06_audit` download logging, `/api/guard/projects/[projectId]/g06/reports` (`json` / `html` with strict CSP `default-src 'none'`).
+- Safety/storage/environment: `escapeHtml` applied across all dynamic strings; G03 stays explicitly `NOT_CONNECTED`; G04 keeps `enforced: false` truthfully.
+- Tests / acceptance / definition of done: `tests/guard/g06/g06.test.ts`, `tests/guard/g06/g06.postgres.integration.ts`, `tests/guard/g06/browser/g06.spec.ts` PASS.
+- Issue reference: `feat/guard-g06-full-integration` draft PR.
 
 ## GRD-023 - Schedules and webhooks
 
+- G04 update (20 Nov 2026): IMPLEMENTED (raw-byte HMAC, size/event allowlist, delivery-id dedupe and replay-conflict detection, durable audit, bounded durable schedules with atomic slot claim). Signed deliveries from GitHub itself are BLOCKED: the App has no webhook configured. Local deliveries were self-signed. See docs/GUARD_G04_VALIDATION.md.
 - State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
 - Owner/dependency: owner/Codex (Guard implementation). External integration dependency: Platform/integrations owner.
 - Contract: QueuePort + verified delivery/commit/idempotency.

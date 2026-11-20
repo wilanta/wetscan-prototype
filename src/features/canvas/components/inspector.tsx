@@ -112,7 +112,11 @@ export function Inspector({
                       </LinkButton>
                     )}
                     <small>
-                      {f.id} · {f.simulated ? "Synthetic / Demo" : f.source}
+                      {f.id}
+                      {f.engine ? ` · ${f.engine}` : ""}
+                      {f.confidence ? ` (${f.confidence} confidence)` : ""}
+                      {f.commitSha ? ` · ${f.commitSha.slice(0, 12)}` : ""} ·{" "}
+                      {f.simulated ? "Synthetic / Demo" : f.source}
                     </small>
                   </div>
                 ))}
@@ -120,7 +124,10 @@ export function Inspector({
                 <p>
                   {graph.mode === "demo"
                     ? "No linked findings in this fixture. This does not establish security coverage."
-                    : "Not yet scanned. Guard findings are not connected."}
+                    : security.guard === "not_scanned" ||
+                        security.guard === "unavailable"
+                      ? "Not yet scanned. Guard findings are not connected."
+                      : "No mapped Guard findings on this component for this revision."}
                 </p>
               )}
               <h3>Related activity</h3>

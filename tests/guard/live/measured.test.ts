@@ -103,3 +103,19 @@ it.each(["cleanup", "expiry", "test", "scanner", "command", "timeout"])(
     expect(() => measuredDeployments(r, digests, "c".repeat(64))).toThrow();
   },
 );
+it("only OSV may be measured with the 90 s budget, and it must finish inside its own budget", () => {
+  const ok = fixture();
+  ok.scanners["osv-scanner"].spec = { ...ok.scanners["osv-scanner"].spec, timeoutMs: 90000 };
+  ok.scanners["osv-scanner"].elapsedMs = 60000; // would have timed out under the old 45 s budget
+  const d = measuredDeployments(ok, digests, "c".repeat(64));
+  expect(d.find((x) => x.engine === "sca")?.spec.timeoutMs).toBe(90000);
+  expect(d.find((x) => x.engine === "sbom")?.spec.timeoutMs).toBe(90000);
+  expect(d.find((x) => x.engine === "sast")?.spec.timeoutMs).toBe(45000);
+  const late = fixture();
+  late.scanners["osv-scanner"].spec = { ...late.scanners["osv-scanner"].spec, timeoutMs: 90000 };
+  late.scanners["osv-scanner"].elapsedMs = 90000;
+  expect(() => measuredDeployments(late, digests, "c".repeat(64))).toThrow();
+  const other = fixture();
+  other.scanners.trivy.spec = { ...other.scanners.trivy.spec, timeoutMs: 90000 };
+  expect(() => measuredDeployments(other, digests, "c".repeat(64))).toThrow(); // the longer budget is not a general loophole
+});

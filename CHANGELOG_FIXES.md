@@ -1,5 +1,75 @@
 # CHANGELOG_FIXES
 
+### Fix #25 — Five-engine PASS was unreachable: OSV budget too tight, automation grant too short, dead dispatcher recovered only after 10 minutes, wedged scanner lock needed manual repair (2026-11-20, emergency completion)
+
+| Field | Detail |
+| --- | --- |
+| Tanggal | 2026-11-20 |
+| File | `worker/guard/installation/qualify.ts`, `worker/guard/installation/measured.ts`, `src/features/guard/live/product-policy.ts` (ceiling), `scripts/guard-g02-local-env.ts`, `src/features/guard/g04/{g02-port,service,store,orphan}.ts`, `scripts/guard-g04-{dispatcher,supervisor,demo,requalify,policy,env}.*`, tests `measured`, `orphan`, `recovery`, `service`, `policy` |
+| Masalah | (a) A clean commit could not obtain a PASS under the full five-engine policy: SCA/SBOM timed out on most runs. (b) After the SCA run had finished, the following engine failed with `source_unavailable`. (c) A dispatcher killed mid-scan left its trigger `running` for 10 minutes. (d) The replacement scan then failed instantly (`execution_not_ready`) and the host stayed wedged until a person removed a container and re-measured the private root. |
+| Akar | (a) The OSV scanner loads a 212 MB offline database on one CPU: 24-33 s measured standalone on a quiet host, 53 s inside a real scan; the fixed 45 s budget had no margin. (b) The automation grant lived 60 s and bounds snapshot use; a 53 s engine left the next one an expired snapshot. (c) Trigger lease was 10 min. (d) G02's single-flight `active-container.lock` stays after a killed session and nothing released it. |
+| Fix | (a) Only the OSV engine gets a 90 s budget (qualify, measured, ceiling check; others stay 45 s) plus ONE audited retry when a REQUIRED engine timed out (never skipped, a second timeout is INCOMPLETE). (b) Grant 180 s (still re-verified against GitHub on every issue). (c) Trigger lease 3 min. (d) `reapOrphanLock`: acts only on the exact expired lock record, only on a container that carries G02's ownership labels for that run, verifies absence and finishes through G02's own `ResourceRegistry.release`; run at dispatcher start, every minute, and when a scan reports `execution_not_ready`/`cleanup_failed`, after which the dispatcher exits 75 and `guard-g04-supervisor.mjs` restarts it (bounded 6 per 10 min). One bounded replacement scan after infra failure. Repeated check re-run requests for one commit are coalesced. |
+| Verifikasi | Real: five-engine PASS under the unchanged default policy (scans `0385045b13a1`, `b12239751f10`, commit `34b084ee`, check run `136195282760` success, PR #3 `CLEAN`); real BLOCK x2 with all five engines; real WARN under all five required engines; chaos test (dispatcher killed mid-scan): stranded scan cancelled with evidence kept, wedge detected, lock released, dispatcher restarted itself, GitHub re-run reached final `success`. Tests: offline 2768/2768 (quiet machine), PostgreSQL 44/44, browser 13/13, existing Live UI 9/9. |
+| Pelajaran | Measure the slow dependency before widening any budget; a grant/lease must be longer than the slowest step it covers; an operational latch (lock) needs an owner-verified reaper, not a human. Loaded machines make the unit suite flaky (Windows ACL/Docker latency); run the release suite on a quiet host. |
+| Log Keyword | `source_unavailable`, `execution_not_ready`, `g04_host_repair`, `g04_supervisor_restart`, `transient_engine_timeout_retry`, `rerun_coalesced`, `active-container.lock` |
+| Deploy | NOT deployed. |
+
+### Fix #24 — Stranded G02 scans: no recovery, and a wedged scheduler/registry after a failed cleanup (found by the merge-gate acceptance, 2026-11-20)
+
+| Field | Detail |
+| --- | --- |
+| Tanggal | 2026-11-20 |
+| File | `src/features/guard/g04/recovery.ts` (new), `service.ts`, `store.ts`, `g02-port.ts`, `policy.ts` (`onNotApplicable`); tests `recovery.postgres.integration.ts`, `service.postgres.integration.ts`, `policy.test.ts` |
+| Masalah | Scans `ddb0daf0`, `955da2fd`, `78e4af1d`, `876b630f` stayed `running`/`leased` with no worker (dispatcher restarted, or a session hung after an OSV timeout). The G04 trigger then waited 45 minutes and failed closed; afterwards no replacement scan could be admitted (`execution_not_ready`). |
+| Akar | G02 has no reaper: the platform job is `leased` with an expired lease (or `failed`) while `guard.scans` stays non-terminal (`max_attempts` is 1). After a `cleanup_failed`, G02 latches `ProductScheduler.quarantined` in-process and keeps an unresolved owned-resource record in the private runtime root, so later sessions answer `execution_not_ready` until the process restarts AND the record is resolved. |
+| Fix | G04 recovery uses only G02's own evidence-preserving `cancel` (one transaction: job cancelled, attempt closed, scan cancelled with an audit entry), and only when the durable rows prove the worker is gone (lease expired by more than 90 s, or job failed/cancelled while the scan row is open). A trigger gets ONE automatic replacement scan (new idempotency identity), then fails closed. A scan that stayed `queued` for 2 minutes is re-admitted idempotently. The quarantine/registry latch is deliberately NOT bypassed. |
+| Verifikasi | 5 recovery tests on real PostgreSQL (live lease untouched, dead lease recovered, failed job recovered, evidence and audit preserved, idempotent, other project cannot see it) plus 3 dispatcher tests (replacement succeeds, second strand fails closed, queued re-admission). Real: scan `876b630f` recovered with its runs intact. |
+| Pelajaran | A recovery that does not need the dead worker must reuse the owner's own state transition, never write job JSON. Host memory pressure (100-800 MB free, 2 GB OSV budget) caused the OSV timeouts and hung container calls behind most stranded scans. |
+| Log Keyword | `stranded_scan_recovered`, `execution_not_ready`, `cleanup_failed`, `scan_recovery:1`, `lease_expired` |
+| Deploy | NOT deployed. |
+
+### Fix #23 — Real GitHub run: a stale trigger's INCOMPLETE overwrote an evaluated BLOCK check; `check_suite` deliveries were answered 400 (2026-11-20)
+
+| Field | Detail |
+| --- | --- |
+| Tanggal | 2026-11-20 |
+| File | `src/features/guard/g04/store.ts`, `src/features/guard/g04/webhook.ts`, `tests/guard/g04/store.postgres.integration.ts`, `tests/guard/g04/webhook.test.ts` |
+| Masalah | After the installation accepted the new permissions, GitHub showed `INCOMPLETE: no verdict` on commit `c1330c63` although Guard held a real BLOCK evaluation for it; GitHub's delivery log showed `check_suite requested -> 400`. |
+| Akar | (a) An older trigger for the same commit hit its 45-minute scan bound and `planCheck(completed, INCOMPLETE)` replaced the completed, evaluation-backed row (only completed->non-completed was protected). (b) `check_suite` is sent to every App with Checks: write but was not in the event allowlist. |
+| Fix | (a) `planCheck` refuses to replace a completed row that has an `evaluation_id` with one that has none. (b) `check_suite` is signature-verified and acknowledged as ignored. |
+| Verifikasi | New PostgreSQL assertion; offline webhook tests 19/19; PG suite 32/32; GitHub now shows BLOCK/failure for `c1330c63`; no further 400 deliveries expected. |
+| Pelajaran | Idempotent "latest write wins" state needs a rule for which write class may replace which; allow-listing must include events a granted permission makes GitHub send. |
+| Log Keyword | `INCOMPLETE: no verdict`, `check_suite`, `scan_did_not_finish`, `planCheck` |
+| Deploy | NOT deployed. |
+
+### Fix #22 — Webhook URL returned the Next.js 404 page: the tunnel pointed at a dev server from the wrong worktree (2026-11-20)
+
+| Field | Detail |
+| --- | --- |
+| Tanggal | 2026-11-20 |
+| File | none (operational); docs `GUARD_G04_VALIDATION.md`, `GUARD_G04_PROVIDER_SETUP.md` |
+| Masalah | `POST /api/guard/webhooks/github` answered `404 That page isn't on this map` locally and through the Cloudflare tunnel; GitHub's two `ping` deliveries recorded `Invalid HTTP Response: 404`. |
+| Akar | Port 3000 was served by `next dev` started from the main worktree (`wetscan-prototype`, branch `master`), which does not contain the G04 route. The G04 code only exists in the `wetscan-guard-g04` worktree (`feat/guard-g04-cicd`). `cloudflared tunnel --url http://localhost:3000` forwarded to that server. |
+| Fix | Stopped that dev server; started `npm run guard:dev` from the G04 worktree on 3000 with `GUARD_G04_ENABLED=1` and the G04 database references. The tunnel needed no change. The webhook secret configured on the GitHub App was not stored anywhere readable, so (with the owner's approval) it was rotated through `PATCH /app/hook/config` and stored only in the git-ignored G04 `.env.local`. |
+| Verifikasi | Local and tunnel probes: unsigned 401, wrong signature 401, signed ping 200, unsupported event 400, form-encoded 415, malformed JSON 400, duplicate 200, same id different bytes 409. GitHub redelivery of its own ping: `200 OK`, row in `guard.g04_deliveries` (`ping`, ignored). |
+| Pelajaran | A 404 from the route with the right path means wrong process, not wrong code: check which worktree owns the listener (`Get-NetTCPConnection` + process command line) before touching code. GitHub delivery ids exceed 2^53: keep them as strings. |
+| Log Keyword | `That page isn't on this map`, `Invalid HTTP Response: 404`, `trycloudflare`, `hook/deliveries` |
+| Deploy | NOT deployed. |
+
+### Fix #21 — G04 dispatcher defects found by the first real run against GitHub + the G02 scanner (2026-11-20)
+
+| Field | Detail |
+| --- | --- |
+| Tanggal | 2026-11-20 |
+| File | `src/features/guard/g04/g02-port.ts`, `src/features/guard/g04/service.ts`, `src/features/guard/g04/store.ts`, `tests/guard/g04/service.postgres.integration.ts` |
+| Masalah | Three defects, all invisible to doubled tests: (a) the first real trigger ended INCOMPLETE `access_permissions_missing` and never scanned; (b) a trigger waiting for a running scan became INCOMPLETE `retries_exhausted` after five 15 s polls; (c) a trigger left `pending` with attempts = max was never picked up or failed. |
+| Akar | (a) `verifyAccess` requested `checks:write` in the same installation token as `contents`/`metadata`; the real App has no Checks permission so GitHub answered 422 for the whole request. (b) every claim incremented `attempts`, including polls of an unfinished scan. (c) `claimTrigger` refuses attempts >= max and `failExhausted` only handled expired `running` leases. |
+| Fix | (a) scan access = contents+metadata token; `checks:write` probed with a second, separate token and reported as `permissions.checks`. (b) `finishTrigger(refundAttempt)` on the wait branch. (c) `failExhausted` also fails due `pending` rows with attempts >= max, closed as INCOMPLETE. |
+| Verifikasi | Real run: `/app/installations/{id}/access_tokens` with `checks:write` returns 422 (App permissions are contents/metadata read only); after (a) the scan was admitted. Regression test "waiting for a RUNNING scan does not consume retry attempts" (PostgreSQL). |
+| Pelajaran | Do not couple an optional capability to a mandatory one in a single provider request; test long waits against the retry budget. Restarting a worker mid-scan strands a G02 job (`leased`, max_attempts 1): the G04 trigger then waits until its 45 min bound and fails closed. |
+| Log Keyword | `access_permissions_missing`, `retries_exhausted`, `refundAttempt`, `checks_permission_missing` |
+| Deploy | NOT deployed. |
+
 ### Fix #20 — Completed onboarding profiles ignored every action, so a repository could never be added after onboarding (found by the G02 product-path acceptance 2026-11-20)
 
 | Field | Detail |

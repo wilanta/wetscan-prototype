@@ -93,10 +93,11 @@ export function measuredDeployments(
       !s.spec ||
       s.spec.image !== r.imageId ||
       s.spec.executable !== "/usr/local/bin/" + (cli === "trivy-image" ? "trivy" : cli) ||
-      s.spec.timeoutMs !== 45000 ||
+      // reports measured before the OSV budget change keep 45 s; only OSV may use the 90 s budget, and the run must finish inside its own budget
+      !(s.spec.timeoutMs === 45000 || (cli === "osv-scanner" && s.spec.timeoutMs === 90000)) ||
       !Number.isFinite(s.elapsedMs) ||
       s.elapsedMs <= 0 ||
-      s.elapsedMs >= 45000 ||
+      s.elapsedMs >= s.spec.timeoutMs ||
       s.findings < 1 ||
       fingerprint(s.spec.args) !== fingerprint(scannerCommands[cli]) ||
       !/^[a-f0-9]{64}$/.test(ruleDigests[cli] ?? "")

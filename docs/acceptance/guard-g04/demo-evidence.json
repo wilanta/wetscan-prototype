@@ -1,0 +1,57 @@
+{
+  "capturedAt": "2026-11-20T10:31:12.637Z",
+  "kind": "RECORDED_EVIDENCE_FROM_REAL_GITHUB (read from GitHub at capturedAt; not a currently executing scan)",
+  "repository": "wilanta/wetscan-g02-acceptance",
+  "rulesets": [
+    {
+      "id": 27707416,
+      "name": "g04-gate-test-target (G04 acceptance)",
+      "enforcement": "active"
+    }
+  ],
+  "rulesOnMain": 0,
+  "pullRequests": [
+    {
+      "pr": 2,
+      "role": "VULNERABLE",
+      "expected": "BLOCK / failure / merge BLOCKED",
+      "branch": "g04/gate-vuln",
+      "headSha": "694c6be81ea4f9508031fca44f4e3f70225edea3",
+      "merged": false,
+      "mergeStateStatus": "BLOCKED",
+      "checkRunId": 136217555981,
+      "checkStatus": "completed",
+      "checkConclusion": "failure",
+      "checkTitle": "BLOCK: 6 blocking, 8 warning",
+      "url": "https://github.com/wilanta/wetscan-g02-acceptance/pull/2"
+    },
+    {
+      "pr": 3,
+      "role": "CLEAN",
+      "expected": "PASS / success / merge CLEAN",
+      "branch": "g04/gate-clean",
+      "headSha": "34b084ee1bf59d97f2c06046bd71a661125c8bdd",
+      "merged": false,
+      "mergeStateStatus": "CLEAN",
+      "checkRunId": 136195282760,
+      "checkStatus": "completed",
+      "checkConclusion": "success",
+      "checkTitle": "PASS: 0 blocking, 0 warning",
+      "url": "https://github.com/wilanta/wetscan-g02-acceptance/pull/3"
+    },
+    {
+      "pr": 4,
+      "role": "WARN",
+      "expected": "WARN / neutral / merge CLEAN",
+      "branch": "g04/gate-warn",
+      "headSha": "c904fb214796ae05ca6fc0b76825426dd9deb66e",
+      "merged": false,
+      "mergeStateStatus": "CLEAN",
+      "checkRunId": 136203152010,
+      "checkStatus": "completed",
+      "checkConclusion": "neutral",
+      "checkTitle": "WARN: 0 blocking, 14 warning",
+      "url": "https://github.com/wilanta/wetscan-g02-acceptance/pull/4"
+    }
+  ]
+}

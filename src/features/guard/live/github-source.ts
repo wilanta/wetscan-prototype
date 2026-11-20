@@ -5,7 +5,7 @@ import {
   revokeSourceToken,
 } from "../../canvas/server/github-api";
 import { array, record, text, authorize } from "../security";
-import { LiveGuardError, type SourceAccess, type SourceEntry } from "./model";
+import { LiveGuardError, type ProjectAuthority, type SourceAccess, type SourceEntry } from "./model";
 import { authorizeGuardProject } from "./project";
 import { guardRevision, type GuardRevision } from "./revision";
 const sha = (value: unknown) => {
@@ -19,11 +19,13 @@ export function githubSourceAccess(
   token: string | undefined,
   projectId: string,
   revision?: GuardRevision,
+  /** G04 automation: a server-held authority (re-verified by the caller) instead of a browser session. Omitted = unchanged G02 behaviour. */
+  authorizer?: () => Promise<ProjectAuthority>,
 ): SourceAccess {
   const selection =
     revision === undefined ? undefined : guardRevision(revision);
   const currentAuthority = async () => {
-    const current = await authorizeGuardProject(token, projectId);
+    const current = authorizer ? await authorizer() : await authorizeGuardProject(token, projectId);
     return selection ? { ...current, branch: selection.branch } : current;
   };
   return {

@@ -34,8 +34,10 @@ export const HISTORICAL_MARKER = "wetscan-s01:f0927e49-0e70-4b90-913f-6cd6984df9
 /** Reviewed PostgreSQL 18 image (the same digest the repository's isolated fixtures use). */
 export const PG_IMAGE =
   "docker.io/library/postgres@sha256:12060a1464f232e4f8c721538b342687c6f17cead32a389586cd683262b1d848";
-export const CONTAINER = "wetscan-g02-local-pg";
-export const VOLUME = "wetscan-g02-local-pg-data";
+/** GUARD_LOCAL_ENV=g04 selects a second, fully separate environment (own container, volume, private directory); default stays g02. */
+const ENV_NAME = process.env.GUARD_LOCAL_ENV === "g04" ? "g04" : "g02";
+export const CONTAINER = `wetscan-${ENV_NAME}-local-pg`;
+export const VOLUME = `wetscan-${ENV_NAME}-local-pg-data`;
 const RESERVED_PORTS = [5432, 55432]; // host PostgreSQL and the Sentinel development server
 const markerPattern = /^wetscan-s01:[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/;
 
@@ -107,7 +109,7 @@ async function freePort(port: number) {
     s.listen(port, "127.0.0.1", () => s.close(() => ok()));
   });
 }
-const parentDir = () => join(process.env.LOCALAPPDATA ?? join(process.env.HOME ?? ".", ".local/share"), "WetScanGuardG02");
+const parentDir = () => join(process.env.LOCALAPPDATA ?? join(process.env.HOME ?? ".", ".local/share"), ENV_NAME === "g04" ? "WetScanGuardG04" : "WetScanGuardG02");
 const pointerFile = () => join(parentDir(), "current.json");
 
 /** New empty directory, owner + SYSTEM only (same invariant the runtime verifies), created by this run. */
@@ -168,9 +170,9 @@ export async function provision(port: number) {
   const expiresAt = new Date(Date.now() + 7 * 86400000).toISOString();
   for (const purpose of ["app", "worker", "migration"] as const)
     await writeFile(join(root, purpose + ".database.json"), JSON.stringify(localApproval(purpose, target, plan.sha256, expiresAt), null, 2) + "\n", { flag: "wx", mode: 0o600 });
-  await docker(["volume", "create", "--label", "wetscan.env=g02-local", "--label", "wetscan.env.id=" + id, VOLUME]);
+  await docker(["volume", "create", "--label", `wetscan.env=${ENV_NAME}-local`, "--label", "wetscan.env.id=" + id, VOLUME]);
   await docker([
-    "create", "--name", CONTAINER, "--label", "wetscan.env=g02-local", "--label", "wetscan.env.id=" + id,
+    "create", "--name", CONTAINER, "--label", `wetscan.env=${ENV_NAME}-local`, "--label", "wetscan.env.id=" + id,
     "--read-only", "--cap-drop", "ALL", "--user", "postgres",
     "--security-opt", "no-new-privileges", "--cpus", "2", "--memory", "1g", "--pids-limit", "256",
     "--tmpfs", "/tmp:rw,noexec,nosuid,size=64m", "--tmpfs", "/var/run/postgresql:rw,noexec,nosuid,size=8m",
@@ -285,8 +287,8 @@ export function productConfig(
         repositoryId: scope.repositoryId,
         branches: [scope.branch],
         engines: scope.engines,
-        scannerTimeoutMs: 45000,
-        jobTimeoutMs: 300000,
+        scannerTimeoutMs: 90000, // per-engine specs decide their own (45 s; OSV 90 s); this is the ceiling
+        jobTimeoutMs: 580000,
         maxAttempts: 1,
       },
     ],

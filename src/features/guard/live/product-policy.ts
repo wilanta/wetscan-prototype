@@ -51,6 +51,9 @@ export interface ScannerQualification {
   kernelVersion: string;
   controls: readonly (typeof sandboxControls)[number][];
 }
+/** Exact names, plus one trailing "/*" prefix wildcard chosen by the server-owned runtime configuration (never by a request). */
+export const branchAllowed = (allowed: readonly string[], branch: string) =>
+  allowed.some((a) => (a.endsWith("/*") ? a.length > 2 && branch.startsWith(a.slice(0, -1)) && branch.length > a.length - 1 : a === branch));
 const sha = (value: unknown) =>
   typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
 export function validateProductPolicy(
@@ -78,7 +81,7 @@ export function validateProductPolicy(
     job.repository.provider !== "github" ||
     !/^[a-f0-9]{40}$/.test(job.repository.commit) ||
     !Array.isArray(policy.branches) ||
-    !policy.branches.includes(job.repository.branch) ||
+    !branchAllowed(policy.branches, job.repository.branch) ||
     !Array.isArray(policy.engines) ||
     !policy.engines.length ||
     policy.engines.some((e) => !repositoryEngines.includes(e)) ||
@@ -92,7 +95,7 @@ export function validateProductPolicy(
     policy.maxAttempts !== 1 ||
     !Number.isInteger(policy.scannerTimeoutMs) ||
     policy.scannerTimeoutMs < 100 ||
-    policy.scannerTimeoutMs > 45000 ||
+    policy.scannerTimeoutMs > 90000 ||
     !Number.isInteger(policy.jobTimeoutMs) ||
     policy.jobTimeoutMs < 60000 ||
     policy.jobTimeoutMs > 600000 ||

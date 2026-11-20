@@ -19,19 +19,17 @@ export const securityHeaders = [
   },
 ];
 const config: NextConfig = {
-  // G03 browser checks own a separate disposable output directory in this same worktree.
-  distDir:
-    process.env.G03_TEST_ISOLATED_BUILD === "1"
-      ? ".local/g03-next-e2e"
-      : undefined,
   devIndicators: false,
+  // Preserve isolated UI suites and G03's dedicated disposable browser-build output.
+  distDir: process.env.G03_TEST_ISOLATED_BUILD === "1"
+    ? ".local/g03-next-e2e"
+    : process.env.UI_TEST_DIST_DIR || ".next",
   // `next build` type-checks the application graph only. Whole-repo type checking (tests, scripts, physical-scanner tooling)
   // stays in `npm run typecheck`/CI; the large tooling files do not belong in a deployment build.
   typescript: {
-    tsconfigPath:
-      process.env.G03_TEST_ISOLATED_BUILD === "1"
-        ? ".local/g03-e2e.tsconfig.json"
-        : "tsconfig.build.json",
+    tsconfigPath: process.env.G03_TEST_ISOLATED_BUILD === "1"
+      ? ".local/g03-e2e.tsconfig.json"
+      : "tsconfig.build.json",
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];

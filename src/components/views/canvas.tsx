@@ -44,6 +44,7 @@ import {
   SentinelCoverage,
   coverageLabel,
 } from "@/features/canvas/components/sentinel-coverage";
+import { GuardCoverage } from "@/features/canvas/components/guard-coverage";
 import { TrustLens } from "@/features/canvas/components/trust-lens";
 import { WorkflowLens } from "@/features/canvas/components/workflow-lens";
 import { ManualEditor } from "@/features/canvas/components/manual-editor";
@@ -90,6 +91,8 @@ function CanvasWorkspace({
   const [lens, setLens] = useState("Architecture");
   const [role, setRole] = useState("Customer");
   const [filters, setFilters] = useState(emptyFilters);
+  const [engineFilter, setEngineFilter] = useState("");
+  const [showRiskOverlay, setShowRiskOverlay] = useState(true);
   const [list, setList] = useState(false);
   const [environment, setEnvironment] = useState("current");
   const [trace, setTrace] = useState<"direct" | "upstream" | "downstream">(
@@ -112,9 +115,10 @@ function CanvasWorkspace({
           (!filters.severity || f.severity === filters.severity) &&
           (!filters.status || f.status === filters.status) &&
           (!filters.source || f.source === filters.source) &&
-          (!filters.priority || f.priority === filters.priority),
+          (!filters.priority || f.priority === filters.priority) &&
+          (!engineFilter || f.engine === engineFilter),
       ),
-    [security, filters],
+    [security, filters, engineFilter],
   );
   const visibleGraph = projected;
   const visible = visibleGraph
@@ -413,6 +417,7 @@ function CanvasWorkspace({
                   graph.nodes.find((n) => n.id === id)?.label ?? id
                 }
               />
+              <GuardCoverage overlay={security} />
               <div className="canvas-form-row">
                 {(
                   [
@@ -443,6 +448,37 @@ function CanvasWorkspace({
                     </select>
                   </label>
                 ))}
+                {security.findings.some((f) => Boolean(f.engine)) && (
+                  <label>
+                    Security engine
+                    <select
+                      aria-label="Security engine"
+                      value={engineFilter}
+                      onChange={(e) => setEngineFilter(e.target.value)}
+                    >
+                      <option value="">All engine</option>
+                      {Array.from(
+                        new Set(
+                          security.findings
+                            .map((f) => f.engine)
+                            .filter((e): e is string => Boolean(e)),
+                        ),
+                      ).map((eng) => (
+                        <option key={eng} value={eng}>
+                          {eng}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+                <label className="check-line">
+                  <input
+                    type="checkbox"
+                    checked={showRiskOverlay}
+                    onChange={(e) => setShowRiskOverlay(e.target.checked)}
+                  />
+                  Show risk overlay on nodes
+                </label>
                 <label className="check-line">
                   <input
                     type="checkbox"
@@ -757,7 +793,7 @@ function CanvasWorkspace({
                         lens={lens}
                         dark={dark}
                         overlay={overlay}
-                        findings={findings}
+                        findings={showRiskOverlay ? findings : []}
                         onSelect={choose}
                         onEdge={(id) => {
                           setEdgeId(id);
