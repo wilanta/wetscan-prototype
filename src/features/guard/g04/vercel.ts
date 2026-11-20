@@ -15,7 +15,7 @@ export interface VercelMapping {
 export type VercelFetch = (url: string, init: { method: string; headers: Record<string, string>; body?: string; signal: AbortSignal; redirect: "error"; cache: "no-store" }) => Promise<Response>;
 
 /** Token comes from the process environment or a private file, never from the database or request. */
-export async function vercelToken(env: NodeJS.ProcessEnv = process.env): Promise<string> {
+export async function vercelToken(env: Record<string, string | undefined> = process.env): Promise<string> {
   let t = env.GUARD_VERCEL_TOKEN;
   const file = env.GUARD_VERCEL_TOKEN_FILE;
   if (!t && file) {

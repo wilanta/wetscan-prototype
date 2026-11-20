@@ -19,7 +19,7 @@ const err = (code: WebhookError["code"], status: number): never => {
 };
 
 /** Secrets are read from the environment only. The previous secret allows rotation without dropping deliveries. */
-export function webhookSecrets(env: NodeJS.ProcessEnv = process.env): string[] {
+export function webhookSecrets(env: Record<string, string | undefined> = process.env): string[] {
   const out = [env.GITHUB_APP_WEBHOOK_SECRET, env.GITHUB_APP_WEBHOOK_SECRET_PREVIOUS].filter((s): s is string => !!s);
   if (!out.length || out.some((s) => Buffer.byteLength(s) < 20)) return err("not_configured", 503);
   return out;

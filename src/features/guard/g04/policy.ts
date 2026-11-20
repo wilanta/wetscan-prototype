@@ -77,8 +77,8 @@ export function validatePolicy(input: unknown): SecurityPolicy {
   const v = input as Record<string, unknown>,
     keys = Object.keys(defaultPolicy);
   if (Object.keys(v).some((k) => !keys.includes(k))) fail("policy_unknown_field");
-  const t = v.triggers as Record<string, unknown> | undefined;
-  if (!t || typeof t !== "object" || Object.keys(t).some((k) => !["pullRequest", "push", "manual", "schedule"].includes(k)) || ["pullRequest", "push", "manual", "schedule"].some((k) => typeof t[k] !== "boolean")) fail("policy_triggers");
+  const t = (v.triggers ?? {}) as Record<string, unknown>;
+  if (!v.triggers || typeof t !== "object" || Object.keys(t).some((k) => !["pullRequest", "push", "manual", "schedule"].includes(k)) || ["pullRequest", "push", "manual", "schedule"].some((k) => typeof t[k] !== "boolean")) fail("policy_triggers");
   if (v.version !== 1 || typeof v.enabled !== "boolean" || typeof v.blockPotential !== "boolean" || typeof v.requireCompleteSourceCoverage !== "boolean") fail("policy_invalid");
   if (!Array.isArray(v.protectedBranches) || !v.protectedBranches.length || v.protectedBranches.length > 20 || new Set(v.protectedBranches).size !== v.protectedBranches.length || !v.protectedBranches.every(validBranchPattern)) fail("policy_branches");
   const profile = only(v.scanProfile, ["quick", "standard", "full"] as const, "policy_profile");
@@ -92,7 +92,7 @@ export function validatePolicy(input: unknown): SecurityPolicy {
   if (block.some((s) => warn.includes(s))) fail("policy_severity_overlap");
   return {
     version: 1,
-    enabled: v.enabled,
+    enabled: v.enabled as boolean,
     protectedBranches: [...(v.protectedBranches as string[])],
     triggers: { pullRequest: t.pullRequest as boolean, push: t.push as boolean, manual: t.manual as boolean, schedule: t.schedule as boolean },
     scanProfile: profile,
@@ -100,8 +100,8 @@ export function validatePolicy(input: unknown): SecurityPolicy {
     blockSeverities: block,
     warnSeverities: warn,
     minBlockConfidence: only(v.minBlockConfidence, ["low", "medium", "high"] as const, "policy_confidence"),
-    blockPotential: v.blockPotential,
-    requireCompleteSourceCoverage: v.requireCompleteSourceCoverage,
+    blockPotential: v.blockPotential as boolean,
+    requireCompleteSourceCoverage: v.requireCompleteSourceCoverage as boolean,
     onMissingCoverage: only(v.onMissingCoverage, ["incomplete", "block"] as const, "policy_missing_coverage"),
     onUnknownSeverity: only(v.onUnknownSeverity, ["incomplete", "warn", "block"] as const, "policy_unknown_severity"),
     warnConclusion: only(v.warnConclusion, ["neutral", "success"] as const, "policy_warn_conclusion"),
