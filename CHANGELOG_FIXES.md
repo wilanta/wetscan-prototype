@@ -1,5 +1,19 @@
 # CHANGELOG_FIXES
 
+### Fix #24 — Stranded G02 scans: no recovery, and a wedged scheduler/registry after a failed cleanup (found by the merge-gate acceptance, 2026-11-20)
+
+| Field | Detail |
+| --- | --- |
+| Tanggal | 2026-11-20 |
+| File | `src/features/guard/g04/recovery.ts` (new), `service.ts`, `store.ts`, `g02-port.ts`, `policy.ts` (`onNotApplicable`); tests `recovery.postgres.integration.ts`, `service.postgres.integration.ts`, `policy.test.ts` |
+| Masalah | Scans `ddb0daf0`, `955da2fd`, `78e4af1d`, `876b630f` stayed `running`/`leased` with no worker (dispatcher restarted, or a session hung after an OSV timeout). The G04 trigger then waited 45 minutes and failed closed; afterwards no replacement scan could be admitted (`execution_not_ready`). |
+| Akar | G02 has no reaper: the platform job is `leased` with an expired lease (or `failed`) while `guard.scans` stays non-terminal (`max_attempts` is 1). After a `cleanup_failed`, G02 latches `ProductScheduler.quarantined` in-process and keeps an unresolved owned-resource record in the private runtime root, so later sessions answer `execution_not_ready` until the process restarts AND the record is resolved. |
+| Fix | G04 recovery uses only G02's own evidence-preserving `cancel` (one transaction: job cancelled, attempt closed, scan cancelled with an audit entry), and only when the durable rows prove the worker is gone (lease expired by more than 90 s, or job failed/cancelled while the scan row is open). A trigger gets ONE automatic replacement scan (new idempotency identity), then fails closed. A scan that stayed `queued` for 2 minutes is re-admitted idempotently. The quarantine/registry latch is deliberately NOT bypassed. |
+| Verifikasi | 5 recovery tests on real PostgreSQL (live lease untouched, dead lease recovered, failed job recovered, evidence and audit preserved, idempotent, other project cannot see it) plus 3 dispatcher tests (replacement succeeds, second strand fails closed, queued re-admission). Real: scan `876b630f` recovered with its runs intact. |
+| Pelajaran | A recovery that does not need the dead worker must reuse the owner's own state transition, never write job JSON. Host memory pressure (100-800 MB free, 2 GB OSV budget) caused the OSV timeouts and hung container calls behind most stranded scans. |
+| Log Keyword | `stranded_scan_recovered`, `execution_not_ready`, `cleanup_failed`, `scan_recovery:1`, `lease_expired` |
+| Deploy | NOT deployed. |
+
 ### Fix #23 — Real GitHub run: a stale trigger's INCOMPLETE overwrote an evaluated BLOCK check; `check_suite` deliveries were answered 400 (2026-11-20)
 
 | Field | Detail |

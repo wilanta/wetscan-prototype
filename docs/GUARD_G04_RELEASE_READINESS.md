@@ -15,11 +15,15 @@ Written for: the owner. Decision as of 20 November 2026: **`G04 PARTIALLY_VERIFI
 | --- | --- | --- |
 | ~~Real GitHub Check Runs~~ | **CLOSED 20 Nov:** permission accepted; real check run `136130925467` published and completed (`failure`, BLOCK) | none |
 | ~~Deliveries originating from GitHub~~ | **CLOSED 20 Nov** for ping, push, pull_request (and check_run/check_suite acknowledgements) via the Cloudflare quick tunnel. The tunnel URL is temporary: update the App webhook URL if it changes | none |
-| Required-check enforcement on a test branch | No ruleset requires `WetScan Guard / Security gate` | Create a ruleset on a **dedicated test branch/repository**, then run the "blocked/permitted merge" check in [provider setup §2](GUARD_G04_PROVIDER_SETUP.md). Guard never edits rules |
+| ~~Required-check enforcement on a test branch~~ | **CLOSED 20 Nov (BLOCK case):** ruleset `27707416` on `g04/gate-test-target`; PR #2 (BLOCK) was refused with HTTP 405 "Required status check ... is failing". PASS and WARN PRs were `CLEAN` (not merged). Default/production branches untouched | Decide whether to keep or delete the ruleset and sandbox branches/PRs |
 | Vercel verification, hold/release evidence | No Vercel token/team/project supplied; plan eligibility for Deployment Checks not confirmed from public docs | Provide a token for a **dedicated preview/staging project**, then run read-only verification; approve registration of the Deployment Check only if you want to test promotion holding |
-| Real PASS / WARN verdict and the fixed-commit verdict (a real BLOCK with full coverage now exists) | SCA (OSV) hung/timed out under this machine's load in G02's sandbox (documented 2 GB/45 s budget) | Re-run on a quiet machine inside the one-hour scanner qualification window; do nothing else on it meanwhile |
+| Real PASS under the FULL five-engine policy (real BLOCK, real WARN and a reduced-policy PASS exist) | SCA (OSV) hung/timed out under this machine's load in G02's sandbox (documented 2 GB/45 s budget) | Re-run on a quiet machine inside the one-hour scanner qualification window; do nothing else on it meanwhile |
 | Real-login browser acceptance | An agent cannot complete a GitHub OAuth login | Owner logs in at `http://localhost:3000` against the G04 environment and opens Guard → CI/CD Gate; optional |
 | Staging / production / Vercel-hosted acceptance | Out of scope; production not touched | Separate owner-approved window |
+
+## Scanner host capacity (important)
+
+OSV (SCA/SBOM) needs a 2 GB container inside a 3.9 GB Docker VM. With the host at 100-800 MB free RAM it timed out on most scans and sometimes hung container cleanup, which latches G02's quarantine (see Fix #24). Run acceptance scans on a host with several GB free (browsers and IDE closed) and restart the dispatcher with a freshly measured private root after any `cleanup_failed`.
 
 ## Known limitations
 

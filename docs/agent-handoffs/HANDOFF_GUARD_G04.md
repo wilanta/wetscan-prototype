@@ -65,6 +65,12 @@ node --conditions=react-server --env-file=.env.local --import ./scripts/server-o
 * A missing Checks permission does not stop scanning; it fails check publication visibly.
 * G02 seams: `githubSourceAccess(..., authorizer?)`, `productHostService(..., automationSource?)`, `branchAllowed` (trailing `/*`), `GUARD_LOCAL_ENV` in `scripts/guard-g02-local-env.ts`.
 
+## Sandbox objects created for the merge-gate acceptance (visible to the owner, in `wilanta/wetscan-g02-acceptance`)
+
+Ruleset `27707416` (active, only `refs/heads/g04/gate-test-target`); branches `g04/gate-test-target`, `g04/gate-vuln`, `g04/gate-clean`, `g04/gate-warn`, `g04/vulnerable`, `g04/webhook-probe`; open PRs #2 (BLOCK), #3 (clean), #4 (WARN), all unmerged and titled do-not-merge; PR #1 closed. To remove: `gh api -X DELETE repos/wilanta/wetscan-g02-acceptance/rulesets/27707416`, close the PRs, delete the branches (needs your approval; nothing here deletes them).
+
+Helper scripts (git-ignored, in `.local/`): `manual.ts` (queue a manual trigger), `setpolicy.ts` (policy revision), `rerequest.ts` (GitHub check re-request with the App token), `cancel.ts` (G02 cancel of one stranded scan). The G04 policy history shows each acceptance revision (2 satisfy, 3 reduced engines, 4 warn, 5 unknown severity warns, 6 restored to defaults).
+
 ## Do not
 
 Change GitHub App settings, repository rules or Vercel projects silently; call `gate` (the Vercel write) without owner approval; reuse the G02 database for G04; enable `GUARD_G04_ENABLED` globally; restart the dispatcher mid-scan (it strands the G02 job); touch G03 files.

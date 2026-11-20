@@ -69,6 +69,30 @@ Installation `181791848` now reports `checks: write, contents: read, metadata: r
 
 Not yet real: a required-check rule blocking a merge (owner decision, no rule exists), a PASS/WARN verdict, the GitHub "Re-run" button path (the API token available here may not rerequest an App's check run; the signed `check_run.rerequested` handling is tested with synthetic deliveries), Vercel.
 
+## Merge-gate acceptance on a real GitHub ruleset (20 November 2026)
+
+Sandbox `wilanta/wetscan-g02-acceptance` only. Ruleset id `27707416` "g04-gate-test-target (G04 acceptance)": `enforcement: active`, `ref_name.include = [refs/heads/g04/gate-test-target]`, one rule `required_status_checks` with context `WetScan Guard / Security gate` and `integration_id` 5753484 (the `wetscan-local` App). `main` has no rules (`GET rules/branches/main` returns 0); no plan restriction blocked ruleset creation. No PR was merged.
+
+| Case | Head | Guard verdict | GitHub Check Run | GitHub merge state (evidence) |
+| --- | --- | --- | --- | --- |
+| **Vulnerable (PR #2)** | `g04/gate-vuln` `0b8aea79` (tree identical to the known vulnerable commit `c1330c63`) | **BLOCK** (6 high; SBOM timed out, BLOCK outranks) | `failure` | `mergeStateStatus: BLOCKED`, `mergeable_state: blocked`. `PUT /pulls/2/merge` returned **HTTP 405 "Repository rule violations found. Required status check "WetScan Guard / Security gate" is failing."**; `merged: false`. Re-confirmed at the end of the session |
+| **Clean (PR #3)** | `g04/gate-clean` `a2bfa77d` | **PASS** (required engines `sast`, `secrets`; 0 findings; source coverage complete; policy revision 3) | id `136165171756`, `success`, `PASS: 0 blocking, 0 warning` | `mergeStateStatus: CLEAN`, `mergeable: true`, `mergeable_state: clean` (not merged) |
+| **WARN (PR #4)** | `g04/gate-warn` `e968043e` (vulnerable tree) | **WARN** (policy revision 5: block=critical, warn=high+medium; 14 warnings, 0 blocking) | id `136171615495`, `neutral`, `WARN: 0 blocking, 14 warning` | `mergeStateStatus: CLEAN`, `mergeable_state: clean` (not merged). The same check run was updated in place from `action_required` (revision 4: unknown severity is INCOMPLETE) to `neutral` (revision 5) |
+
+Limits of the PASS/WARN evidence, stated plainly:
+
+* The scanner host was memory-starved (100-800 MB free RAM): OSV (SCA and SBOM) timed out on every clean-candidate scan although the same engines passed qualification minutes earlier. PASS therefore uses a **documented reduced policy** (`requiredEngines: [sast, secrets]`). The very same commit under the full required set was **INCOMPLETE** (policy revision 2: `sca` and `sbom` missing, `iac` not applicable). A PASS under the full five-engine policy was NOT obtained.
+* IaC was `not_applicable` on the clean tree. A policy option `onNotApplicable: incomplete (default) | satisfy` was added; `satisfy` still requires at least one engine to have genuinely completed.
+* PR #3's check later flipped to `action_required` (INCOMPLETE) because a GitHub-requested re-run of that check could not scan (below). The PASS and `CLEAN` observations above were made before that flip.
+* PASS/WARN merge permission is GitHub's reported merge state; nothing was merged, as instructed.
+* The default policy was restored afterwards (revision 6).
+
+### Check re-request (real GitHub)
+`POST /repos/.../check-runs/{id}/rerequest` with the App's own installation token (checks: write) returned **HTTP 201**; GitHub delivered `check_run rerequested` through the tunnel (**202**); a `check_rerun` trigger and a fresh commit-bound scan followed. (The earlier 404 came from the personal CLI token, which cannot rerequest an App's check run.) The re-run scans then hit G02's cleanup quarantine, so the final verdict of that re-run was INCOMPLETE: request, delivery, trigger and scan start are verified, a successful re-run verdict is not.
+
+### Stranded scans and dispatcher restart (Fix #24)
+Observed: `ddb0daf0` (dispatcher killed mid-scan), `955da2fd` and `78e4af1d` (session hung after an engine), `876b630f` (job `failed`, scan still `running`, never-started container left in `Created`). G04 now recovers such scans through G02's own cancel without deleting evidence (tested on real PostgreSQL) and starts one replacement scan. Not solved, by design: after `cleanup_failed` G02 quarantines its scheduler in-process and the private runtime root keeps an unresolved owned-resource record, so later sessions answer `execution_not_ready` until the dispatcher is restarted AND a fresh private root is measured (done twice here; removing the never-started container alone was not enough). Three of the four historical stranded scans were left untouched; `876b630f` was cancelled with its data intact.
+
 ## Security-negative coverage (selected)
 
 Signature: missing/malformed/sha1/wrong secret/one-byte change/rotation secret; secret unset ⇒ 503 (no unauthenticated fallback). Limits: 413 on declared and on lying Content-Length; 415; event allowlist 400. Replay: duplicate no-op, conflict 409. Authorization: installation mismatch, suspended installation, removed repository, unprotected branch, disabled policy, fork pull request (never fetched), Guard's own check events ignored. Policy: unknown fields, severity overlap, engines outside the profile, `onMissingCoverage: pass` rejected. Checks: `INCOMPLETE`/`BLOCK` never map to a passing conclusion; token without `checks: write` refused; late `in_progress` cannot downgrade `completed`. Vercel: other-project/other-repo deployment refused; 401/403/404/429/5xx/network mapped; missing token ⇒ nothing called. RLS: cross-project read/write, forged scope columns, app role cannot call `g04_work`, no DELETE, no credential-looking provider config. Enforcement: wrong commit, stale, outage, missing commit metadata, promoted-while-BLOCK mismatch.
