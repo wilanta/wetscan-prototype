@@ -40,7 +40,7 @@ export interface Deps {
   provider?: (rec: PolicyRecord) => Promise<{ provider: DeploymentProvider; repositoryId: string } | null>;
   now?: () => number;
 }
-export const LIMITS = { maxAttempts: 5, leaseMs: 10 * 60_000, maxPending: 50, maxPerHour: 200, scanWaitMs: 45 * 60_000, retryBaseMs: 30_000 };
+export const LIMITS = { maxAttempts: 5, leaseMs: 3 * 60_000, maxPending: 50, maxPerHour: 200, scanWaitMs: 45 * 60_000, retryBaseMs: 30_000 };
 
 const checkExternalId = (commit: string) => "g04:" + commit;
 const sha = (v: unknown) => createHash("sha256").update(JSON.stringify(v)).digest("hex");

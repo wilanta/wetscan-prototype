@@ -27,6 +27,7 @@ async function repairHost() {
 const once = process.argv.includes("--once"),
   intervalMs = Math.max(2000, Number(process.env.GUARD_G04_POLL_MS ?? 5000));
 let stopping = false,
+  lastRepair = Date.now(),
   unhealthy: string | null = null;
 for (const sig of ["SIGINT", "SIGTERM"] as const) process.on(sig, () => (stopping = true));
 async function main() {
@@ -42,6 +43,12 @@ async function main() {
     } catch {
       // Fixed code only: never SQL, provider text, tokens or source.
       console.warn(JSON.stringify({ event: "g04_dispatch_failed" }));
+    }
+    // every minute: an expired lock left by a dead session is released (only ever the exact, expired, owned record) BEFORE a trigger meets it
+    if (Date.now() - lastRepair > 60_000) {
+      lastRepair = Date.now();
+      const r = await repairHost().catch(() => ({ action: "error" as const }));
+      if (r.action === "released" || r.action === "error") console.log(JSON.stringify({ event: "g04_host_repair", ...r }));
     }
     if (unhealthy) {
       console.warn(JSON.stringify({ event: "g04_host_unhealthy", reason: unhealthy, action: "repair_and_exit_for_restart" }));
