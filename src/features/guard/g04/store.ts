@@ -296,6 +296,10 @@ export class G04Store {
   cancelAllOpen(scope: Pick<Scope, "workspaceId" | "projectId">, note: string) {
     return this.q(scope, async (run) => (await run("UPDATE guard.g04_triggers SET status='cancelled', note=$3, lease_until=NULL, updated_at=clock_timestamp() WHERE workspace_id=$1 AND project_id=$2 AND status IN('pending','running') RETURNING id", [scope.workspaceId, scope.projectId, note])).length);
   }
+  /** A re-run request for this exact commit is already queued or running: another click must not queue another scan. */
+  hasOpenRerun(scope: Pick<Scope, "workspaceId" | "projectId">, commit: string) {
+    return this.q(scope, async (run) => (await run("SELECT 1 FROM guard.g04_triggers WHERE workspace_id=$1 AND project_id=$2 AND commit_sha=$3 AND source='check_rerun' AND status IN('pending','running') LIMIT 1", [scope.workspaceId, scope.projectId, commit])).length === 1);
+  }
   /** Concurrency/rate bounds for admission: running triggers and triggers created in the last hour. */
   load(scope: Pick<Scope, "workspaceId" | "projectId">) {
     return this.q(scope, async (run) => {

@@ -138,6 +138,10 @@ export class G04Service {
       await s.audit(scope, "github-webhook", "rate_limited", env.deliveryId, load);
       return { status: 429, delivery: "rejected", reason: "rate_limited", scope };
     }
+    if (n.source === "check_rerun" && (await s.hasOpenRerun(scope, n.commit))) {
+      await s.audit(scope, "github-webhook", "rerun_coalesced", n.commit.slice(0, 12), { delivery: env.deliveryId });
+      return { status: 200, delivery: "accepted", reason: "rerun_already_queued", scope };
+    }
     const fork = n.unsupported === "fork_pull_request";
     const ins = await s.insertTrigger(scope, {
       source: n.source,

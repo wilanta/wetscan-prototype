@@ -364,6 +364,16 @@ describe("G04 pipeline: webhook → trigger → scan → policy → GitHub check
     expect(h.ensured.length).toBe(ensuredBefore + 1);
     expect(await rt.appStore.getCheck(s, COMMIT)).toMatchObject({ decision: "BLOCK", conclusion: "failure" });
   });
+  it("repeated re-run requests for the same commit while one is open coalesce into one trigger (distinct delivery ids)", async () => {
+    const { s, h } = await setup();
+    const rerun = () => delivery("check_run", { action: "rerequested", installation: { id: INST }, repository: { id: Number(s.repositoryId), full_name: "o/r" }, check_run: { head_sha: COMMIT, app: { id: APP }, check_suite: { head_branch: "main" }, pull_requests: [] } });
+    expect((await h.intake.ingest(rerun())).outcome).toBe("enqueued");
+    expect((await h.intake.ingest(rerun())).outcome).toBe("rerun_already_queued");
+    expect((await h.intake.ingest(rerun())).outcome).toBe("rerun_already_queued");
+    expect((await rt.appStore.listTriggers(s)).filter((t) => t.source === "check_rerun")).toHaveLength(1);
+    await rt.appStore.cancelAllOpen(s, "done");
+    expect((await h.intake.ingest(rerun())).outcome).toBe("enqueued"); // once the earlier one is finished, a new request is honoured
+  });
   it("installation suspension disables automation, cancels open work and schedules", async () => {
     // own installation id: installationScopes() is bounded (200), and this shared development database accumulates test policies on id 9
     const s = freshScope(),
