@@ -72,6 +72,25 @@ describe("G04 policy evaluator", () => {
   });
 });
 
+describe("G04 not-applicable engines", () => {
+  const na = job({ runs: engineSet.map((e) => run(e, e === "iac" ? "not_applicable" : "completed")) });
+  it("default: a not_applicable required engine is NOT clean coverage (INCOMPLETE)", () => {
+    expect(ev(na).decision).toBe("INCOMPLETE");
+  });
+  it("opt-in satisfy: vacuously covered, still PASS only if something genuinely completed", () => {
+    const p = { ...policy, onNotApplicable: "satisfy" as const };
+    expect(ev(na, p)).toMatchObject({ decision: "PASS", coverage: { notApplicable: ["iac"], missing: [] } });
+    expect(ev(job({ runs: engineSet.map((e) => run(e, "not_applicable")) }), p).decision).toBe("INCOMPLETE");
+    expect(ev(job({ runs: engineSet.map((e) => run(e, e === "iac" ? "not_applicable" : "completed")), findings: [finding("high")] }), p).decision).toBe("BLOCK");
+  });
+  it("revisions stored before the field existed validate with the conservative default", () => {
+    const old: Record<string, unknown> = { ...defaultPolicy };
+    delete old.onNotApplicable;
+    expect(validatePolicy(old).onNotApplicable).toBe("incomplete");
+    expect(() => validatePolicy({ ...defaultPolicy, onNotApplicable: "pass" })).toThrow(PolicyError);
+  });
+});
+
 describe("G04 policy validation", () => {
   it("accepts the default and rejects unknown fields, overlaps and engines outside the profile", () => {
     expect(validatePolicy(defaultPolicy)).toEqual(defaultPolicy);

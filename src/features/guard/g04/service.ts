@@ -25,6 +25,8 @@ export interface ScanPort {
   /** Idempotent: starts (or finds) the G02 scan for this exact commit/branch/profile/engines. Never runs a scanner in the caller's HTTP context. */
   ensureScan(rec: PolicyRecord, t: TriggerRecord, rerun: number): Promise<{ scanId: string }>;
   readScan(rec: PolicyRecord, scanId: string): Promise<StoredScan | null>;
+  /** If the scan can provably no longer progress (dead worker / abandoned job), moves it to `cancelled` WITHOUT deleting evidence. */
+  recover?(rec: PolicyRecord, scanId: string): Promise<{ recovered: boolean; reason: string }>;
 }
 export interface Deps {
   store: G04Store;
@@ -281,13 +283,31 @@ export class G04Service {
           return true;
         }
       }
-      const rerun = t.source === "manual" || t.source === "check_rerun" ? rerunNumber(t.idempotencyKey) : 0;
+      // A deliberate recheck has its own scan identity; so does the ONE automatic replacement after a stranded scan was recovered.
+      const recoveredBefore = !!t.note?.startsWith("scan_recovery"),
+        rerun = (t.source === "manual" || t.source === "check_rerun" ? rerunNumber(t.idempotencyKey) : 0) + (recoveredBefore ? 1_000_000 : 0);
       const scanId = t.scanId ?? (await this.d.scans.ensureScan(pol, t, rerun)).scanId;
       if (!t.scanId) await s.setScan(scope, t.id, scanId);
       await s.planCheck(scope, { commit: t.commit, externalId: checkExternalId(t.commit), status: "in_progress", triggerId: t.id });
-      const scan = await this.d.scans.readScan(pol, scanId);
+      let scan = await this.d.scans.readScan(pol, scanId);
       if (!scan) throw new G04Error("not_found", 404);
-      const terminal = ["completed", "completed_partial", "failed", "cancelled"].includes(scan.job.status);
+      const isTerminal = (st: string) => ["completed", "completed_partial", "failed", "cancelled"].includes(st);
+      if (!isTerminal(scan.job.status)) {
+        // Restart/crash recovery: a scan whose worker is gone would otherwise sit "running" until the 45-minute bound.
+        const rec = await this.d.scans.recover?.(pol, scanId);
+        if (rec?.recovered) {
+          await s.audit(scope, "g04-dispatcher", "stranded_scan_recovered", scanId.slice(0, 12), { reason: rec.reason, commit: t.commit, replacement: !recoveredBefore });
+          if (!recoveredBefore) {
+            await s.resetScanForRecovery(scope, t.id);
+            return true;
+          }
+          scan = (await this.d.scans.readScan(pol, scanId)) ?? scan;
+        } else if (scan.job.status === "queued" && this.now() - Date.parse(scan.job.createdAt) > 120_000) {
+          // admitted but never picked up (e.g. the process that scheduled it died before running it): idempotent re-admission
+          await this.d.scans.ensureScan(pol, t, rerun);
+        }
+      }
+      const terminal = isTerminal(scan.job.status);
       if (!terminal) {
         if (this.now() - Date.parse(t.createdAt) > LIMITS.scanWaitMs) {
           await incomplete("scan_timeout", "scan_did_not_finish");

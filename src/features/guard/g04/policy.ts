@@ -29,6 +29,12 @@ export interface SecurityPolicy {
   /** What a failed/unavailable/partial required engine produces. There is deliberately no "pass" option. */
   onMissingCoverage: "incomplete" | "block";
   onUnknownSeverity: "incomplete" | "warn" | "block";
+  /**
+   * A required engine that reports `not_applicable` (it found nothing of its kind to scan, e.g. no IaC files). "incomplete" (default) is the
+   * conservative reading: unsupported file types are not clean coverage. "satisfy" treats it as vacuously covered, but at least one required
+   * engine must still have genuinely completed.
+   */
+  onNotApplicable: "incomplete" | "satisfy";
   /** GitHub conclusion for WARN. "neutral" and "success" both let a required check pass: WARN never blocks a merge. */
   warnConclusion: "neutral" | "success";
   incompleteConclusion: "action_required" | "failure";
@@ -48,6 +54,7 @@ export const defaultPolicy: SecurityPolicy = {
   requireCompleteSourceCoverage: true,
   onMissingCoverage: "incomplete",
   onUnknownSeverity: "incomplete",
+  onNotApplicable: "incomplete",
   warnConclusion: "neutral",
   incompleteConclusion: "action_required",
 };
@@ -104,6 +111,8 @@ export function validatePolicy(input: unknown): SecurityPolicy {
     requireCompleteSourceCoverage: v.requireCompleteSourceCoverage as boolean,
     onMissingCoverage: only(v.onMissingCoverage, ["incomplete", "block"] as const, "policy_missing_coverage"),
     onUnknownSeverity: only(v.onUnknownSeverity, ["incomplete", "warn", "block"] as const, "policy_unknown_severity"),
+    // absent in revisions stored before this field existed: the conservative default applies
+    onNotApplicable: only(v.onNotApplicable ?? "incomplete", ["incomplete", "satisfy"] as const, "policy_not_applicable"),
     warnConclusion: only(v.warnConclusion, ["neutral", "success"] as const, "policy_warn_conclusion"),
     incompleteConclusion: only(v.incompleteConclusion, ["action_required", "failure"] as const, "policy_incomplete_conclusion"),
   };
@@ -145,7 +154,7 @@ export interface PolicyEvaluation {
   policyRevision: number;
   policyDigest: string;
   counts: Record<Severity, number> & { active: number; blocking: number; warning: number; unknownSeverity: number };
-  coverage: { required: Engine[]; completed: Engine[]; missing: Engine[]; partial: Engine[]; source: "complete" | "partial" | "unverified" };
+  coverage: { required: Engine[]; completed: Engine[]; notApplicable?: Engine[]; missing: Engine[]; partial: Engine[]; source: "complete" | "partial" | "unverified" };
   /** Digest of every input that determined the decision; identical inputs give identical digests. */
   digest: string;
 }
@@ -182,6 +191,7 @@ export function evaluatePolicy(
   for (const e of policy.requiredEngines) {
     const run = job.runs.find((r) => r.engine === e);
     if (run?.status === "completed" && (!run.coverage || run.coverage.status === "complete")) coverage.completed.push(e);
+    else if (run?.status === "not_applicable" && policy.onNotApplicable === "satisfy") (coverage.notApplicable ??= []).push(e);
     else if (run?.status === "completed") {
       coverage.partial.push(e);
       reasons.push({ code: "engine_partial", message: e + " completed with partial file coverage." });
@@ -191,6 +201,10 @@ export function evaluatePolicy(
     }
   }
   if (coverage.missing.length || coverage.partial.length) incomplete = true;
+  if (!coverage.completed.length && !incomplete) {
+    incomplete = true;
+    reasons.push({ code: "engine_missing", message: "No required engine genuinely completed; \"not applicable\" alone is not coverage." });
+  }
   if (policy.requireCompleteSourceCoverage && coverage.source !== "complete") {
     incomplete = true;
     reasons.push({ code: "source_partial", message: "Source coverage is " + coverage.source + "; files were excluded or the repository tree was truncated." });

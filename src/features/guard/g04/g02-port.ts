@@ -6,6 +6,7 @@ import { PostgresGuardStore } from "../live/persistence";
 import { repositoryScanKind } from "../live/product-policy";
 import { repositoryProfiles } from "../live/scan-profiles";
 import { githubSourceAccess } from "../live/github-source";
+import { recoverStranded } from "./recovery";
 import { GhError, revokeToken, type GhTransport, type InstallationTokens } from "./github";
 import { gateEngines } from "./policy";
 import type { AccessReport, ScanPort } from "./service";
@@ -91,6 +92,10 @@ export class G02ScanPort implements ScanPort {
     const svc = await this.d.service(authority, source);
     const out = await svc.create(authority, { profile: rec.policy.scanProfile, engines: scanEngines(rec), branch: t.branch, commit: t.commit, idempotencyKey: scanIdempotencyKey(rec, t, rerun) }, AbortSignal.timeout(120_000));
     return { scanId: out.scanId };
+  }
+  recover(rec: PolicyRecord, scanId: string) {
+    const g = automationAuthority(rec, rec.policy.protectedBranches[0] ?? "main").grant;
+    return recoverStranded(this.d.db, g, { mode: "live", workspaceId: rec.workspaceId, projectId: rec.projectId }, scanId);
   }
   async readScan(rec: PolicyRecord, scanId: string): Promise<StoredScan | null> {
     const g = automationAuthority(rec, rec.policy.protectedBranches[0] ?? "main").grant;

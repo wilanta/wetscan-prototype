@@ -505,6 +505,22 @@ function PolicySection({
           </select>
         </label>
         <label className="field">
+          A required engine reports &ldquo;not applicable&rdquo; (nothing of its kind to
+          scan)
+          <select
+            value={p.onNotApplicable}
+            onChange={(e) =>
+              set(
+                "onNotApplicable",
+                e.target.value as SecurityPolicy["onNotApplicable"],
+              )
+            }
+          >
+            <option value="incomplete">INCOMPLETE (not clean coverage, default)</option>
+            <option value="satisfy">Covered (at least one engine must still complete)</option>
+          </select>
+        </label>
+        <label className="field">
           Reason for this change
           <input
             value={reason}

@@ -33,6 +33,7 @@ function harness(over: { access?: Partial<AccessReport>; permissions?: Partial<A
     ghCalls: { method: string; path: string; body?: any }[] = []; // eslint-disable-line @typescript-eslint/no-explicit-any
   let ghFail: GhError | null = null,
     ensureFail: Error | null = null,
+    recoverFn: (id: string) => boolean = () => false,
     access: AccessReport = { ok: true, permissions: { contents: true, metadata: true, checks: true, ...over.permissions }, ...over.access };
   const port: ScanPort = {
     verifyAccess: async () => access,
@@ -43,6 +44,7 @@ function harness(over: { access?: Partial<AccessReport>; permissions?: Partial<A
       ensured.push(id);
       return { scanId: id };
     },
+    recover: async (_r: PolicyRecord, id: string) => ({ recovered: recoverFn(id), reason: "lease_expired" }),
     readScan: async (_r: PolicyRecord, id: string) => {
       const j = scans.get(id);
       return j ? { job: j, revision: 1, coverage: null } : null;
@@ -62,6 +64,7 @@ function harness(over: { access?: Partial<AccessReport>; permissions?: Partial<A
     service, intake, heads, scans, ensured, ghCalls,
     setGhFail: (e: GhError | null) => (ghFail = e),
     setEnsureFail: (e: Error | null) => (ensureFail = e),
+    setRecover: (f: (id: string) => boolean) => (recoverFn = f),
     setAccess: (a: AccessReport) => (access = a),
     checkWrites: () => ghCalls.filter((c) => c.path.includes("/check-runs") && c.method !== "GET" && c.body),
   };
@@ -192,6 +195,59 @@ describe("G04 pipeline: webhook → trigger → scan → policy → GitHub check
     await rt.app.scoped({ mode: "live", ...s }, (tx) => rt.app.query(tx, "UPDATE guard.g04_triggers SET next_attempt_at=clock_timestamp() WHERE id=$3 AND workspace_id=$1 AND project_id=$2", [s.workspaceId, s.projectId, t.id]));
     await h.service.runTrigger(s, t.id);
     expect(await rt.appStore.getCheck(s, COMMIT)).toMatchObject({ decision: "BLOCK", conclusion: "failure" });
+  });
+  const due = (s: { workspaceId: string; projectId: string }, id: string) => rt.app.scoped({ mode: "live", ...s }, (tx) => rt.app.query(tx, "UPDATE guard.g04_triggers SET next_attempt_at=clock_timestamp() WHERE id=$3 AND workspace_id=$1 AND project_id=$2", [s.workspaceId, s.projectId, id]));
+  it("stranded scan: recovered, ONE automatic replacement scan (new identity) produces the verdict", async () => {
+    const { s, h } = await setup();
+    await h.intake.ingest(push(s, COMMIT));
+    const t = (await rt.appStore.listTriggers(s))[0],
+      first = hex(COMMIT + ":0:main"),
+      second = hex(COMMIT + ":1000000:main");
+    h.scans.set(first, complete(COMMIT, { status: "running" }));
+    h.setRecover((id) => {
+      if (id !== first) return false;
+      h.scans.set(first, complete(COMMIT, { status: "cancelled" }));
+      return true;
+    });
+    await h.service.runTrigger(s, t.id);
+    expect(await rt.appStore.getTrigger(s, t.id)).toMatchObject({ status: "pending", scanId: null, note: "scan_recovery:1", attempts: 0 });
+    h.scans.set(second, complete(COMMIT, { findings: [finding("high")] }));
+    await due(s, t.id);
+    await h.service.runTrigger(s, t.id);
+    expect(h.ensured).toEqual([first, second]);
+    expect(await rt.appStore.getTrigger(s, t.id)).toMatchObject({ status: "completed", scanId: second });
+    expect(await rt.appStore.getCheck(s, COMMIT)).toMatchObject({ decision: "BLOCK", conclusion: "failure" });
+    expect((await rt.appStore.recentAudit(s)).filter((a) => a.action === "stranded_scan_recovered")).toHaveLength(1);
+  });
+  it("stranded twice: the second recovery is NOT retried again; the gate fails closed (INCOMPLETE, never PASS)", async () => {
+    const { s, h } = await setup();
+    await h.intake.ingest(push(s, COMMIT));
+    const t = (await rt.appStore.listTriggers(s))[0],
+      ids = [hex(COMMIT + ":0:main"), hex(COMMIT + ":1000000:main")];
+    for (const id of ids) h.scans.set(id, complete(COMMIT, { status: "running" }));
+    h.setRecover((id) => {
+      h.scans.set(id, complete(COMMIT, { status: "cancelled" }));
+      return true;
+    });
+    await h.service.runTrigger(s, t.id);
+    await due(s, t.id);
+    await h.service.runTrigger(s, t.id);
+    expect(h.ensured).toEqual(ids);
+    expect(await rt.appStore.getCheck(s, COMMIT)).toMatchObject({ decision: "INCOMPLETE", conclusion: "action_required" });
+    expect(h.ensured).toHaveLength(2);
+  });
+  it("a scan that was admitted but never picked up is re-admitted idempotently after two minutes", async () => {
+    const { s, h } = await setup();
+    await h.intake.ingest(push(s, COMMIT));
+    const t = (await rt.appStore.listTriggers(s))[0],
+      id = hex(COMMIT + ":0:main");
+    h.scans.set(id, complete(COMMIT, { status: "queued", createdAt: new Date(Date.now() - 300_000).toISOString() }));
+    await h.service.runTrigger(s, t.id); // ensureScan #1 (no scan yet) then wait
+    await due(s, t.id);
+    await h.service.runTrigger(s, t.id); // scan still queued and old: ensureScan again (same identity)
+    expect(h.ensured.length).toBeGreaterThanOrEqual(2);
+    expect(new Set(h.ensured)).toEqual(new Set([id])); // always the same scan identity: never a duplicate scan
+    expect((await rt.appStore.getTrigger(s, t.id))?.status).toBe("pending");
   });
   it("missing GitHub permission or revoked access: INCOMPLETE and no scan starts", async () => {
     const { s, h } = await setup();
