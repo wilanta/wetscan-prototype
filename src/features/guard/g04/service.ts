@@ -354,6 +354,45 @@ export class G04Service {
     return this.publishCheck(scope, commit);
   }
 
+  /** Live revalidation shown in the UI: current App access + an independent observation of required-check rules per protected branch. */
+  async accessView(scope: { workspaceId: string; projectId: string }): Promise<AccessView | null> {
+    const pol = await this.d.store.getPolicy(scope);
+    if (!pol) return null;
+    const access = await this.d.scans.verifyAccess(pol),
+      branches = pol.policy.protectedBranches.filter((b) => !b.endsWith("*")).slice(0, 3);
+    const requiredChecks = access.ok ? await Promise.all(branches.map((b) => this.d.checks.requiredChecks({ installationId: pol.installationId, repositoryId: pol.repositoryId, repositoryName: pol.repositoryName }, b).catch(() => ({ observable: false, requiresGuardCheck: null, sources: { rulesets: "unreadable" as const, classic: "not_observable" as const } })))) : [];
+    return { access, requiredChecks };
+  }
+  verifyAccess(rec: PolicyRecord) {
+    return this.d.scans.verifyAccess(rec);
+  }
+  /** Reads one deployment from the provider (read-only) and ties it to the stored evaluation of ITS commit, never to "the latest". */
+  async verifyDeployment(scope: { workspaceId: string; projectId: string }, deploymentId?: string): Promise<DeploymentView> {
+    const s = this.d.store,
+      pol = await s.getPolicy(scope);
+    if (!pol) throw new G04Error("not_found", 404);
+    const mapped = await this.d.provider?.(pol);
+    if (!mapped) throw new G04Error("not_found", 404);
+    try {
+      const info = deploymentId ? await mapped.provider.getDeployment(deploymentId) : ((await mapped.provider.latestDeployments({ target: "production", limit: 1 }))[0] ?? null);
+      if (!info) throw new ProviderError("not_found");
+      const ev = info.commit ? await s.latestEvaluation(scope, info.commit) : null,
+        decision: Decision = ev ? ev.decision : "INCOMPLETE";
+      const gate = await mapped.provider.observeGate(CHECK_NAME).catch(() => null);
+      const head = await this.d.scans.branchHead(pol, pol.policy.protectedBranches.find((b) => !b.endsWith("*")) ?? "main").catch(() => null);
+      const required = await this.d.checks.requiredChecks({ installationId: pol.installationId, repositoryId: pol.repositoryId, repositoryName: pol.repositoryName }, pol.policy.protectedBranches.find((b) => !b.endsWith("*")) ?? "main").catch(() => null);
+      const enforcement = assessEnforcement({ decision, commit: info.commit ?? "", github: { checkPublished: !!(info.commit && (await s.getCheck(scope, info.commit))?.published), requiredCheckObserved: required?.requiresGuardCheck ?? null }, deployment: { info, gate, latestCommitOnBranch: head } });
+      if (!ev) enforcement.notes.push("No Guard evaluation exists for this deployment's commit: treated as INCOMPLETE.");
+      await s.saveDeployment(scope, { provider: "vercel", deploymentId: info.deploymentId, environment: info.environment, commit: info.commit, state: info.state, evaluationId: ev?.id ?? null, decision, info, enforcement, providerError: null });
+      await s.audit(scope, "g04-api", "deployment_verified", info.deploymentId, { decision, enforced: enforcement.enforced, level: enforcement.level });
+      return { deploymentId: info.deploymentId, commit: info.commit, decision, evaluated: !!ev, enforcement };
+    } catch (e) {
+      const kind = e instanceof ProviderError ? e.kind : "unavailable";
+      await s.audit(scope, "g04-api", "deployment_verify_failed", deploymentId ?? null, { kind });
+      throw e instanceof ProviderError ? e : new ProviderError("unavailable");
+    }
+  }
+
   // ===================================================================================== deployment verification / enforcement
   /** Read-only against the provider. Records evidence + the separate enforcement assessment; never changes provider state. */
   async refreshEnforcement(scope: { workspaceId: string; projectId: string }, pol: PolicyRecord, evaluationId: string, decision: Decision, commit: string, deploymentId?: string) {
@@ -383,6 +422,17 @@ export class G04Service {
     await s.audit(scope, "g04-dispatcher", "deployment_verified", info?.deploymentId ?? null, { decision, enforced: report.enforced, level: report.level, providerError });
     return report;
   }
+}
+export interface AccessView {
+  access: AccessReport;
+  requiredChecks: Awaited<ReturnType<GithubChecks["requiredChecks"]>>[];
+}
+export interface DeploymentView {
+  deploymentId: string;
+  commit: string | null;
+  decision: Decision;
+  evaluated: boolean;
+  enforcement: ReturnType<typeof assessEnforcement>;
 }
 const backoff = (attempts: number) => Math.min(30 * 60_000, LIMITS.retryBaseMs * 2 ** Math.max(0, attempts - 1));
 export type { SecurityPolicy, ScanJob };

@@ -3,7 +3,7 @@ import "server-only";
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { ApprovedPool, PlatformDatabase } from "../../../platform/database";
-import type { ProjectAuthority } from "./model";
+import type { ProjectAuthority, SourceAccess } from "./model";
 import { LiveGuardError } from "./model";
 import type { ScanJob } from "../contracts";
 import type { JobLease } from "../../sentinel/platform-contracts";
@@ -111,8 +111,10 @@ async function openHost(env: NodeJS.ProcessEnv): Promise<Host> {
 export async function productHostService(
   context: ProductRequestContext,
   env: NodeJS.ProcessEnv = process.env,
+  /** G04 automation only: supplies source access for a server-held authority (no browser token). */
+  automationSource?: (branch: string, commit: string) => SourceAccess,
 ) {
-  if (!context.token) throw new LiveGuardError("not_found", 404);
+  if (!context.token && !automationSource) throw new LiveGuardError("not_found", 404);
   if (!cached)
     cached = openHost({ ...env }).catch((error) => {
       cached = undefined;
@@ -129,8 +131,10 @@ export async function productHostService(
       context.authority.grant.workspaceId,
       context.authority.grant.projectId,
     ),
-    source = (branch: string, commit: string) =>
-      githubSourceAccess(context.token, policy.projectId, { branch, commit });
+    source =
+      automationSource ??
+      ((branch: string, commit: string) =>
+        githubSourceAccess(context.token, policy.projectId, { branch, commit }));
   return qualifiedProductService({
     db: host.app,
     policy,
