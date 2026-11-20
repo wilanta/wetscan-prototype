@@ -177,6 +177,22 @@ describe("G04 pipeline: webhook → trigger → scan → policy → GitHub check
     expect((await rt.appStore.getTrigger(s, t.id))).toMatchObject({ status: "failed", attempts: LIMITS.maxAttempts });
     expect(await rt.appStore.getCheck(s, COMMIT)).toMatchObject({ decision: "INCOMPLETE", conclusion: "action_required" });
   });
+  it("waiting for a RUNNING scan does not consume retry attempts (regression: a long scan must not become INCOMPLETE)", async () => {
+    const { s, h } = await setup();
+    await h.intake.ingest(push(s, COMMIT));
+    const t = (await rt.appStore.listTriggers(s))[0],
+      id = hex(COMMIT + ":0:main");
+    h.scans.set(id, complete(COMMIT, { status: "running" }));
+    for (let i = 0; i < LIMITS.maxAttempts + 3; i++) {
+      await rt.app.scoped({ mode: "live", ...s }, (tx) => rt.app.query(tx, "UPDATE guard.g04_triggers SET next_attempt_at=clock_timestamp() WHERE id=$3 AND workspace_id=$1 AND project_id=$2", [s.workspaceId, s.projectId, t.id]));
+      await h.service.runTrigger(s, t.id);
+    }
+    expect(await rt.appStore.getTrigger(s, t.id)).toMatchObject({ status: "pending", attempts: 0, scanId: id });
+    h.scans.set(id, complete(COMMIT, { findings: [finding("high")] }));
+    await rt.app.scoped({ mode: "live", ...s }, (tx) => rt.app.query(tx, "UPDATE guard.g04_triggers SET next_attempt_at=clock_timestamp() WHERE id=$3 AND workspace_id=$1 AND project_id=$2", [s.workspaceId, s.projectId, t.id]));
+    await h.service.runTrigger(s, t.id);
+    expect(await rt.appStore.getCheck(s, COMMIT)).toMatchObject({ decision: "BLOCK", conclusion: "failure" });
+  });
   it("missing GitHub permission or revoked access: INCOMPLETE and no scan starts", async () => {
     const { s, h } = await setup();
     h.setAccess({ ok: false, reason: "permissions_missing", permissions: { contents: false, metadata: true, checks: true } });

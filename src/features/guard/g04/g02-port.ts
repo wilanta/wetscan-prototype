@@ -42,12 +42,23 @@ export class G02ScanPort implements ScanPort {
     const none = { contents: false, metadata: false, checks: false };
     if (rec.installationState !== "active") return { ok: false, reason: "installation_suspended", permissions: none };
     try {
-      const a = await this.d.tokens(rec.installationId, rec.repositoryId, { contents: "read", metadata: "read", checks: "write" });
+      // Scanning needs only contents+metadata. checks:write is probed SEPARATELY: a missing Checks grant must not stop the scan
+      // (the evaluation is still recorded and the check publication fails visibly and is retried), but it is reported honestly.
+      const a = await this.d.tokens(rec.installationId, rec.repositoryId, { contents: "read", metadata: "read" });
+      let checks = false;
       try {
         const repo = (await this.d.transport("GET", `/repositories/${rec.repositoryId}`, a.token)).json as { id?: number; full_name?: string } | null;
         if (String(repo?.id) !== rec.repositoryId || repo?.full_name !== rec.repositoryName) return { ok: false, reason: "repository_not_accessible", permissions: none };
-        const permissions = { contents: ["read", "write"].includes(a.permissions.contents), metadata: ["read", "write"].includes(a.permissions.metadata), checks: a.permissions.checks === "write" };
-        return permissions.contents && permissions.metadata ? { ok: true, permissions } : { ok: false, reason: "permissions_missing", permissions };
+        const permissions = { contents: ["read", "write"].includes(a.permissions.contents), metadata: ["read", "write"].includes(a.permissions.metadata), checks: false };
+        if (!(permissions.contents && permissions.metadata)) return { ok: false, reason: "permissions_missing", permissions };
+        try {
+          const c = await this.d.tokens(rec.installationId, rec.repositoryId, { metadata: "read", checks: "write" });
+          checks = c.permissions.checks === "write";
+          await revokeToken(this.d.transport, c.token);
+        } catch (e) {
+          if (!(e instanceof GhError) || !["permission_denied", "validation"].includes(e.kind)) throw e;
+        }
+        return { ok: true, permissions: { ...permissions, checks } };
       } finally {
         await revokeToken(this.d.transport, a.token);
       }

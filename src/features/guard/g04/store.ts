@@ -266,14 +266,14 @@ export class G04Store {
   }
   failExhausted(scope: Pick<Scope, "workspaceId" | "projectId">, id: string, maxAttempts: number) {
     return this.q(scope, async (run) => {
-      const r = (await run("UPDATE guard.g04_triggers SET status='failed', last_error='worker_lost_retries_exhausted', lease_until=NULL, updated_at=clock_timestamp() WHERE workspace_id=$1 AND project_id=$2 AND id=$3 AND status='running' AND lease_until<clock_timestamp() AND attempts>=$4 RETURNING *", [scope.workspaceId, scope.projectId, id, maxAttempts]))[0];
+      const r = (await run("UPDATE guard.g04_triggers SET status='failed', last_error='retries_exhausted', lease_until=NULL, updated_at=clock_timestamp() WHERE workspace_id=$1 AND project_id=$2 AND id=$3 AND attempts>=$4 AND ((status='running' AND lease_until<clock_timestamp()) OR (status='pending' AND next_attempt_at<=clock_timestamp())) RETURNING *", [scope.workspaceId, scope.projectId, id, maxAttempts]))[0];
       return r ? this.triggerRow(r) : null;
     });
   }
   /** Only while still `running`: a superseded/cancelled trigger is never resurrected by a late worker. */
-  finishTrigger(scope: Pick<Scope, "workspaceId" | "projectId">, id: string, patch: { status: "pending" | "completed" | "failed" | "skipped"; scanId?: string | null; lastError?: string | null; retryInMs?: number; note?: string | null }) {
+  finishTrigger(scope: Pick<Scope, "workspaceId" | "projectId">, id: string, patch: { status: "pending" | "completed" | "failed" | "skipped"; scanId?: string | null; lastError?: string | null; retryInMs?: number; note?: string | null; /** waiting for a running scan is not a failed attempt */ refundAttempt?: boolean }) {
     return this.q(scope, async (run) => {
-      const r = await run("UPDATE guard.g04_triggers SET status=$4, scan_id=coalesce($5,scan_id), last_error=$6, next_attempt_at=clock_timestamp()+($7||' milliseconds')::interval, lease_until=NULL, note=coalesce($8,note), updated_at=clock_timestamp() WHERE workspace_id=$1 AND project_id=$2 AND id=$3 AND status='running' RETURNING id", [scope.workspaceId, scope.projectId, id, patch.status, patch.scanId ?? null, patch.lastError ?? null, String(patch.retryInMs ?? 0), patch.note ?? null]);
+      const r = await run("UPDATE guard.g04_triggers SET status=$4, attempts=CASE WHEN $9 THEN greatest(attempts-1,0) ELSE attempts END, scan_id=coalesce($5,scan_id), last_error=$6, next_attempt_at=clock_timestamp()+($7||' milliseconds')::interval, lease_until=NULL, note=coalesce($8,note), updated_at=clock_timestamp() WHERE workspace_id=$1 AND project_id=$2 AND id=$3 AND status='running' RETURNING id", [scope.workspaceId, scope.projectId, id, patch.status, patch.scanId ?? null, patch.lastError ?? null, String(patch.retryInMs ?? 0), patch.note ?? null, patch.refundAttempt === true]);
       return r.length === 1;
     });
   }

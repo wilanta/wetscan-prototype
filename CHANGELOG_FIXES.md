@@ -1,5 +1,19 @@
 # CHANGELOG_FIXES
 
+### Fix #21 — G04 dispatcher defects found by the first real run against GitHub + the G02 scanner (2026-11-20)
+
+| Field | Detail |
+| --- | --- |
+| Tanggal | 2026-11-20 |
+| File | `src/features/guard/g04/g02-port.ts`, `src/features/guard/g04/service.ts`, `src/features/guard/g04/store.ts`, `tests/guard/g04/service.postgres.integration.ts` |
+| Masalah | Three defects, all invisible to doubled tests: (a) the first real trigger ended INCOMPLETE `access_permissions_missing` and never scanned; (b) a trigger waiting for a running scan became INCOMPLETE `retries_exhausted` after five 15 s polls; (c) a trigger left `pending` with attempts = max was never picked up or failed. |
+| Akar | (a) `verifyAccess` requested `checks:write` in the same installation token as `contents`/`metadata`; the real App has no Checks permission so GitHub answered 422 for the whole request. (b) every claim incremented `attempts`, including polls of an unfinished scan. (c) `claimTrigger` refuses attempts >= max and `failExhausted` only handled expired `running` leases. |
+| Fix | (a) scan access = contents+metadata token; `checks:write` probed with a second, separate token and reported as `permissions.checks`. (b) `finishTrigger(refundAttempt)` on the wait branch. (c) `failExhausted` also fails due `pending` rows with attempts >= max, closed as INCOMPLETE. |
+| Verifikasi | Real run: `/app/installations/{id}/access_tokens` with `checks:write` returns 422 (App permissions are contents/metadata read only); after (a) the scan was admitted. Regression test "waiting for a RUNNING scan does not consume retry attempts" (PostgreSQL). |
+| Pelajaran | Do not couple an optional capability to a mandatory one in a single provider request; test long waits against the retry budget. Restarting a worker mid-scan strands a G02 job (`leased`, max_attempts 1): the G04 trigger then waits until its 45 min bound and fails closed. |
+| Log Keyword | `access_permissions_missing`, `retries_exhausted`, `refundAttempt`, `checks_permission_missing` |
+| Deploy | NOT deployed. |
+
 ### Fix #20 — Completed onboarding profiles ignored every action, so a repository could never be added after onboarding (found by the G02 product-path acceptance 2026-11-20)
 
 | Field | Detail |

@@ -238,13 +238,13 @@ export class G04Service {
       const dead = await s.failExhausted(scope, triggerId, LIMITS.maxAttempts);
       if (dead) {
         await s.planCheck(scope, { commit: dead.commit, externalId: checkExternalId(dead.commit), status: "completed", conclusion: "action_required", decision: "INCOMPLETE", triggerId: dead.id });
-        await s.audit(scope, "g04-dispatcher", "trigger_incomplete", dead.id, { reason: "worker_lost_retries_exhausted" });
+        await s.audit(scope, "g04-dispatcher", "trigger_incomplete", dead.id, { reason: "retries_exhausted" });
         await this.publishCheck(scope, dead.commit).catch(() => undefined);
       }
       return !!dead;
     }
     const pol = await s.getPolicy(scope);
-    const settle = async (status: "completed" | "failed" | "skipped" | "pending", o: { scanId?: string; error?: string; retryInMs?: number; note?: string } = {}) => s.finishTrigger(scope, t.id, { status, scanId: o.scanId, lastError: o.error, retryInMs: o.retryInMs, note: o.note });
+    const settle = async (status: "completed" | "failed" | "skipped" | "pending", o: { scanId?: string; error?: string; retryInMs?: number; note?: string; refundAttempt?: boolean } = {}) => s.finishTrigger(scope, t.id, { status, scanId: o.scanId, lastError: o.error, retryInMs: o.retryInMs, note: o.note, refundAttempt: o.refundAttempt });
     const incomplete = async (reason: string, note: string) => {
       // The gate must FAIL CLOSED: a trigger that cannot produce a verdict yields an INCOMPLETE check, never silence or success.
       const conclusion: CheckConclusion = pol ? conclusionFor("INCOMPLETE", pol.policy) : "action_required";
@@ -293,7 +293,7 @@ export class G04Service {
           await incomplete("scan_timeout", "scan_did_not_finish");
           return true;
         }
-        await settle("pending", { scanId, retryInMs: 15_000 });
+        await settle("pending", { scanId, retryInMs: 15_000, refundAttempt: true });
         await this.publishCheck(scope, t.commit).catch(() => undefined);
         return true;
       }
