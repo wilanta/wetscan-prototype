@@ -98,6 +98,15 @@ export function LiveExternalIntelligence({ projectId }: { projectId: string }) {
       retrievedAt: string;
     }[];
   } | null>(null);
+  const [guardSync, setGuardSync] = useState<{
+    syncStatus: string;
+    commitSha: string;
+    itemCount: number;
+    unsupportedCount: number;
+    sentinelSnapshotId: string | null;
+    exposureAssessment: string | null;
+    exposureCount: number;
+  } | null>(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(true);
@@ -125,13 +134,20 @@ export function LiveExternalIntelligence({ projectId }: { projectId: string }) {
       setOv(o);
       setExp(e);
       setPage(a);
+      fetch(`/api/guard/projects/${encodeURIComponent(projectId)}/g06/intelligence`, {
+        credentials: "same-origin",
+        cache: "no-store",
+      })
+        .then(async (r) => (r.ok ? r.json() : null))
+        .then((d) => setGuardSync(d?.latestSync ?? null))
+        .catch(() => setGuardSync(null));
     } catch (e) {
       setOv(null);
       setError((e as Error).message);
     } finally {
       setLoading(false);
     }
-  }, [root, q, provider, severity, kev, offset]);
+  }, [root, projectId, q, provider, severity, kev, offset]);
   useEffect(() => {
     const t = setTimeout(() => void load(), 0);
     return () => clearTimeout(t);
@@ -301,10 +317,23 @@ export function LiveExternalIntelligence({ projectId }: { projectId: string }) {
                   ? `declared dependencies from package-lock.json at commit ${ov.inventory.snapshot.commitSha.slice(0, 12)} (lockfile sha256 ${ov.inventory.snapshot.lockfileSha256.slice(0, 12)}…), ${ov.inventory.snapshot.itemCount} packages, collected ${at(ov.inventory.snapshot.collectedAt)}, ${ov.inventory.expired ? "EXPIRED" : `valid until ${at(ov.inventory.snapshot.expiresAt)}`}`
                   : "none collected"}
               </li>
-              <li>
-                Guard dependency inventory (GRD-020): not integrated. Declared
-                lockfile packages are not proof of what is deployed.
-              </li>
+              {guardSync ? (
+                <li>
+                  Guard dependency inventory (GRD-020):{" "}
+                  <strong>{guardSync.syncStatus}</strong> at commit{" "}
+                  <code>{guardSync.commitSha.slice(0, 12)}</code> (
+                  {guardSync.itemCount} items, {guardSync.unsupportedCount}{" "}
+                  non-npm, Sentinel snapshot:{" "}
+                  <code>{guardSync.sentinelSnapshotId ?? "pending"}</code>,
+                  exposure: {guardSync.exposureAssessment ?? "pending"} /{" "}
+                  {guardSync.exposureCount} matched).
+                </li>
+              ) : (
+                <li>
+                  Guard dependency inventory (GRD-020): not integrated. Declared
+                  lockfile packages are not proof of what is deployed.
+                </li>
+              )}
               {exp && exp.coverage.unsupportedEcosystems.length > 0 && (
                 <li>
                   Not assessed (no version semantics):{" "}

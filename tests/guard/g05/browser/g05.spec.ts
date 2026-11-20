@@ -63,9 +63,9 @@ test("full G05 pipeline in browser: target -> grant -> sealed accounts -> Canvas
   await expect(page.getByText("G05 · READY")).toBeVisible({ timeout: 15000 });
   await expect(page.getByText(`SYNTHETIC PIN: ${STAGING_ORIGIN}`)).toBeVisible();
 
-  // G04 CI/CD Gate and G05 DAST & Integrity extend the original six sections.
+  // G04 CI/CD Gate, G05 DAST & Integrity, and G06 Reports & Bridges extend the original six sections.
   const guardNav = page.getByRole("navigation", { name: "Live Guard sections" });
-  expect(await guardNav.getByRole("link").count()).toBe(8);
+  expect(await guardNav.getByRole("link").count()).toBe(9);
 
   // 1. Configure & Activate Staging Target and Issue Consent Grant
   await page.getByRole("button", { name: "Save & Activate Target" }).click();
