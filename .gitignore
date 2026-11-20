@@ -8,3 +8,4 @@ next-env.d.ts
 .local/sentinel/
 test-results/
 playwright-report/
+.local
