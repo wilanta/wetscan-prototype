@@ -57,7 +57,7 @@ if (cmd === "check") {
   const procs = ps("(Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" | Where-Object { $_.CommandLine -match 'guard-g04-(dispatcher|supervisor)' } | Measure-Object).Count");
   line(Number(procs) > 0, "dispatcher / supervisor running", procs + " process(es)");
   const mem = Number(ps("[int]((Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory/1024)"));
-  line(mem >= 1500, "free RAM >= 1500 MB (OSV needs headroom)", mem + " MB free");
+  line(mem >= 600, "free RAM >= 600 MB (1500+ recommended)", mem + " MB free (scans passed at 500-900 MB during rehearsal, but are more reliable with more)");
   line(spawnSync("docker", ["ps", "--format", "{{.Names}}"], { encoding: "utf8" }).stdout.includes("wetscan-g04-local-pg"), "G04 PostgreSQL container up", "127.0.0.1:55435");
   try {
     const root = readFileSync(join(process.cwd(), ".local", "g04-root4.txt"), "utf8").trim();
