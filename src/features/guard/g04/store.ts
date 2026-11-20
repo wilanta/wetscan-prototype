@@ -264,6 +264,12 @@ export class G04Store {
       return r ? this.triggerRow(r) : null;
     });
   }
+  failExhausted(scope: Pick<Scope, "workspaceId" | "projectId">, id: string, maxAttempts: number) {
+    return this.q(scope, async (run) => {
+      const r = (await run("UPDATE guard.g04_triggers SET status='failed', last_error='worker_lost_retries_exhausted', lease_until=NULL, updated_at=clock_timestamp() WHERE workspace_id=$1 AND project_id=$2 AND id=$3 AND status='running' AND lease_until<clock_timestamp() AND attempts>=$4 RETURNING *", [scope.workspaceId, scope.projectId, id, maxAttempts]))[0];
+      return r ? this.triggerRow(r) : null;
+    });
+  }
   /** Only while still `running`: a superseded/cancelled trigger is never resurrected by a late worker. */
   finishTrigger(scope: Pick<Scope, "workspaceId" | "projectId">, id: string, patch: { status: "pending" | "completed" | "failed" | "skipped"; scanId?: string | null; lastError?: string | null; retryInMs?: number; note?: string | null }) {
     return this.q(scope, async (run) => {

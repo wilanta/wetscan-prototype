@@ -2,14 +2,17 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { defaultPolicy } from "../../../src/features/guard/g04/policy";
 import type { G04Runtime } from "../../../src/features/guard/g04/db";
 import { G04Error } from "../../../src/features/guard/g04/store";
-import { freshScope, openTestRuntime } from "./pg-env";
+import { cancelLeftovers, freshScope, openTestRuntime } from "./pg-env";
 import { COMMIT, OTHER } from "./fixtures";
 
 let rt: G04Runtime;
 beforeAll(async () => {
   rt = await openTestRuntime();
 });
-afterAll(async () => rt?.close());
+afterAll(async () => {
+  if (rt) await cancelLeftovers(rt);
+  await rt?.close();
+});
 
 const identity = (s: ReturnType<typeof freshScope>) => ({ repositoryId: s.repositoryId, repositoryName: "o/r", installationId: 9, ownerActor: "github-user-1", ownerUserId: 1 });
 const policy = { ...defaultPolicy, enabled: true };

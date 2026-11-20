@@ -11,7 +11,17 @@ export function g04Env(): Record<string, string> {
 }
 export const openTestRuntime = () => openG04(g04Env());
 /** Unique scope per test run: no DELETE privilege exists, so tests isolate by data, not cleanup. */
+const used: { workspaceId: string; projectId: string }[] = [];
 export function freshScope() {
-  const n = String(Math.floor(Math.random() * 9e9) + 1e9);
-  return { workspaceId: "github-user-" + n + ":w", projectId: "github-" + n, repositoryId: n };
+  const n = String(Math.floor(Math.random() * 9e9) + 1e9),
+    s = { workspaceId: "github-user-" + n + ":w", projectId: "github-" + n, repositoryId: n };
+  used.push(s);
+  return s;
+}
+/** Leave no runnable rows behind (there is no DELETE): a later dispatcher or test must not inherit this run's work. */
+export async function cancelLeftovers(rt: { appStore: { cancelAllOpen(s: { workspaceId: string; projectId: string }, note: string): Promise<number>; disableSchedules(s: { workspaceId: string; projectId: string }): Promise<number> } }) {
+  for (const s of used) {
+    await rt.appStore.cancelAllOpen(s, "test_cleanup");
+    await rt.appStore.disableSchedules(s);
+  }
 }
