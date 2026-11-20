@@ -2,7 +2,9 @@
 
 Written for: the owner deciding whether to enable Guard anywhere. Status vocabulary: IMPLEMENTED, FIXTURE_VERIFIED, REAL_SCANNER_VERIFIED, DEV_ACCEPTED, LIVE_REPOSITORY_VERIFIED, PARTIAL, NOT_RUN, NOT_CONFIGURED, BLOCKED.
 
-**G02 overall: PARTIAL.** Merge of this package keeps Guard disabled (`GUARD_PRODUCT_ENABLED=0`, no scan route reachable without the flag and a qualified deployment).
+**G02 overall: `COMPLETE / DEV_ACCEPTED` for the new isolated local environment (20 November 2026);** the product path was run on 20 November 2026 in a NEW isolated local environment (owner-selected replacement target): real GitHub login, Guard Live, two scans (34 / 0 findings), PostgreSQL = API = UI, restart persistence, deactivation. This does not test the earlier operational database on the other computer. See [new local environment setup and record](GUARD_G02_NEW_LOCAL_ENV_SETUP.md). The table below is the 19 November baseline; the product-path gap it lists as NOT_RUN is closed for that environment only. Not `STAGING_ACCEPTED`, `PRODUCTION_READY` or `VERCEL_DEPLOYMENT_VERIFIED`.
+
+(19 November: **G02 overall: PARTIAL.** Merge of this package keeps Guard disabled (`GUARD_PRODUCT_ENABLED=0`, no scan route reachable without the flag and a qualified deployment).)
 
 | Requirement | Status | Basis |
 |---|---|---|
