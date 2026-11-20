@@ -99,16 +99,30 @@ export function ArchitectureFlow({
             selected && !related.has(n.id) && n.kind !== "service_group"
               ? "canvas-unrelated"
               : "canvas-related",
-          data: {
-            component: n,
-            security: lens === "Security",
-            findingCount: findings.filter(
+          data: (() => {
+            const nodeFindings = findings.filter(
               (f) => f.nodeId === n.id && f.priority === "review",
-            ).length,
-            demo: graph.mode === "demo",
-            boundary: overlay.trustModel.boundaryNodeIds.includes(n.id),
-            size: automatic.sizes[n.id],
-          },
+            );
+            const rank: Record<string, number> = {
+              critical: 5,
+              high: 4,
+              medium: 3,
+              low: 2,
+              info: 1,
+            };
+            const topSeverity = nodeFindings
+              .map((f) => f.severity)
+              .sort((a, b) => (rank[b] ?? 0) - (rank[a] ?? 0))[0];
+            return {
+              component: n,
+              security: lens === "Security",
+              findingCount: nodeFindings.length,
+              topSeverity,
+              demo: graph.mode === "demo",
+              boundary: overlay.trustModel.boundaryNodeIds.includes(n.id),
+              size: automatic.sizes[n.id],
+            };
+          })(),
           selected: selected === n.id,
           ariaLabel: `${n.label}, ${n.kind}, ${n.origin}${graph.mode === "demo" ? " in demo" : " in source snapshot"}`,
         })),

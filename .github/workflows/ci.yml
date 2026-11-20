@@ -137,6 +137,10 @@ jobs:
         run: npm run test:sentinel:s10:postgres
       - name: S11 cross-module hardening matrix
         run: npm run test:sentinel:s11:postgres
+      - name: Guard G06 full integration (PostgreSQL + S09 Intelligence)
+        env:
+          GUARD_G06_PG_ADMIN_URL: postgres://postgres:ci_throwaway_pw@127.0.0.1:55433/postgres
+        run: npm run test:guard:g06:postgres
 
   browser:
     name: browser (mocked transport) + accessibility

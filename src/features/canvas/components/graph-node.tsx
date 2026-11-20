@@ -35,6 +35,7 @@ export type FlowComponent = Node<
     component: ComponentNode;
     security: boolean;
     findingCount: number;
+    topSeverity?: "critical" | "high" | "medium" | "low" | "info";
     demo: boolean;
     boundary: boolean;
     size: NodeSize;
@@ -117,7 +118,10 @@ export const GraphNode = memo(function GraphNode({
       <div className="graph-node-footer">
         {data.findingCount ? (
           <>
-            <span className="severity-dot high" />
+            <span
+              className={`severity-dot ${data.topSeverity ?? "high"}`}
+              data-risk-severity={data.topSeverity ?? "high"}
+            />
             {data.findingCount} finding{data.findingCount > 1 ? "s" : ""} to
             review
           </>

@@ -651,6 +651,37 @@ ul {
   border-radius: 50%;
   background: var(--warning);
 }
+.severity-dot.critical {
+  background: var(--danger);
+}
+.severity-dot.high {
+  background: var(--danger);
+}
+.severity-dot.medium {
+  background: var(--warning);
+}
+.severity-dot.low,
+.severity-dot.info {
+  background: var(--accent);
+}
+.guard-canvas-coverage {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-subtle, var(--surface));
+  font-size: 0.85rem;
+}
+.guard-coverage-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+.guard-unmatched-details {
+  margin-top: 6px;
+}
 .origin-dot {
   display: inline-block;
   width: 6px;

@@ -189,6 +189,10 @@ export interface FindingSummary {
   href?: string;
   simulated: boolean;
   priority: "review" | "resolved";
+  engine?: string;
+  confidence?: "high" | "medium" | "low";
+  scanId?: string;
+  commitSha?: string;
 }
 export interface IncidentSummary {
   id: string;
@@ -234,6 +238,8 @@ export interface SecurityOverlay {
     unmappedCount: number;
     truncated: boolean;
   };
+  /** Present only for a Guard G06-backed live overlay (GRD-013). */
+  guardDetail?: import("../guard/g06/contracts").G06CanvasOverlayPayload;
 }
 export interface TrustVerificationResult {
   projectRef: string;
