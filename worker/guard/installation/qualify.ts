@@ -510,7 +510,8 @@ async function main() {
             engine,
             [...scannerCommands[engine]],
             "scan",
-            45000,
+            // OSV loads a 212 MB offline database on one CPU (measured 24-33 s on a quiet host): 45 s left no margin under load.
+            engine === "osv-scanner" ? 90000 : 45000,
           );
           const kind = (
             {

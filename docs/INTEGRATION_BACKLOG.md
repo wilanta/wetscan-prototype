@@ -351,6 +351,7 @@ No external issues created. Dependencies require owner handoffs. G01 adds Guard-
 
 ## GRD-019 - Actual CI release enforcement
 
+- G04 update (20 Nov 2026): IMPLEMENTED (webhook intake, durable triggers, deterministic policy, GitHub Check Runs, Vercel read-only verification, enforcement assessment) and VERIFIED against real PostgreSQL and the real G02 scanner pipeline; PARTIALLY_VERIFIED overall. Real Check Runs, real signed deliveries, required-check enforcement and Vercel hold/release are BLOCKED on owner actions (GitHub App `checks:write` + webhook; Vercel token/project). See docs/GUARD_G04_VALIDATION.md and docs/GUARD_G04_PROVIDER_SETUP.md. `enforced` stays false without provider evidence.
 - State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
 - Owner/dependency: owner/Codex (Guard implementation). External integration dependency: GitHub/GitLab integrations owner.
 - Contract: ReleaseEvaluation enforced=false; scan/commit/check-run provenance.
@@ -392,6 +393,7 @@ No external issues created. Dependencies require owner handoffs. G01 adds Guard-
 
 ## GRD-023 - Schedules and webhooks
 
+- G04 update (20 Nov 2026): IMPLEMENTED (raw-byte HMAC, size/event allowlist, delivery-id dedupe and replay-conflict detection, durable audit, bounded durable schedules with atomic slot claim). Signed deliveries from GitHub itself are BLOCKED: the App has no webhook configured. Local deliveries were self-signed. See docs/GUARD_G04_VALIDATION.md.
 - State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
 - Owner/dependency: owner/Codex (Guard implementation). External integration dependency: Platform/integrations owner.
 - Contract: QueuePort + verified delivery/commit/idempotency.
