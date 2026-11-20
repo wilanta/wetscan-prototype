@@ -1,10 +1,12 @@
 # G02 final acceptance and Vercel recovery — owner runbook (20 November 2026)
 
-Written for: the owner, who must perform the two steps an agent cannot (an interactive GitHub login in the app, and a look at one Vercel log), and for the engineer who verifies the result afterwards.
+Written for: operators who need the **historical acceptance procedure** and the still-open **Vercel preview investigation**. The product-path steps below are retained as a reproducible reference; do not rerun the historical two-scan campaign merely because this document is merged.
 
-**Status on `master` `f4a54f8`: G02 PARTIAL, `VERCEL_DEPLOYMENT_VERIFIED` not met.** An agent session on 20 November found neither gate reachable from the development machine. Nothing below was executed against the product path; no receipt in this file is a result.
+**Current interpretation (20 November 2026): G02 `COMPLETE / DEV_ACCEPTED` for the owner-selected NEW isolated local environment, NOT `VERCEL_DEPLOYMENT_VERIFIED`, `STAGING_ACCEPTED`, or `PRODUCTION_READY`.** Real GitHub login, two scans (34 / 0 findings), API/PG/UI agreement, restart persistence, and deactivation were subsequently verified and recorded in [`GUARD_G02_NEW_LOCAL_ENV_SETUP.md`](GUARD_G02_NEW_LOCAL_ENV_SETUP.md) and [`docs/acceptance/guard-g02/20261120/local-env-acceptance.json`](acceptance/guard-g02/20261120/local-env-acceptance.json). This acceptance does NOT verify the older operational database on another machine.
 
-## Why the agent could not finish
+**Historical context:** At `master@f4a54f8`, before the replacement environment was selected, G02 was PARTIAL and the agent could not reach the owner's login or previous DB. The original findings and steps below document that earlier blocked attempt, not the product's latest readiness.
+
+## Historical blockers on the previous machine (superseded for the new local environment)
 
 | Gate | What was checked (names/existence only, no secret read) | Result |
 |---|---|---|
@@ -20,7 +22,7 @@ Written for: the owner, who must perform the two steps an agent cannot (an inter
 - Historical comparison only (isolated PostgreSQL, 19 November): vulnerable 34 findings (SAST 3, SCA 5, Secrets 1, IaC 25), fixed 0 (`completed_partial`, IaC coverage partial). Not assertions.
 - Scope: exactly two NEW scans, profile Standard (SAST, SCA, Secrets, IaC, SBOM), no container. Job `e3025169…` is historical and is never replayed.
 
-## A. Product-path acceptance (owner present, ≈30 minutes)
+## A. Historical product-path acceptance procedure (already completed for the new local environment)
 
 Keep `GUARD_PRODUCT_ENABLED=0` until step 4 and return it to `0` in step 9. Never enable it globally.
 
@@ -36,7 +38,7 @@ Keep `GUARD_PRODUCT_ENABLED=0` until step 4 and return it to `0` in step 9. Neve
 
 Mapping: C1 step 2; C2 steps 5–6; C3 steps 5–8; C4 step 7 (scan A); C5 step 7 (scan B); C6 step 7 screenshots; C7 steps 7–8; C8 steps 8–9; C9 CI; C10 evidence. If counts differ from the historical comparison, investigate scanner versions/rules/coverage; never adjust expectations to fit.
 
-## B. Vercel (owner, one command)
+## B. Vercel preview investigation (still outstanding; owner credentials required)
 
 ```
 npx vercel login
@@ -53,4 +55,4 @@ Do not guess a fix beyond this without the log: the next probes should follow th
 
 ## What stays unchanged
 
-Guard disabled by default; historical evidence and the failed `e3025169` job untouched; no Sentinel migration; Guard Demo, Auth, Canvas and S11 headers unchanged; G03–G06 not started.
+Guard remains disabled by default outside explicitly enabled development runs; historical evidence and the failed `e3025169` job are untouched. This PR changes documentation only. **The last clause in the historical snapshot that G03–G06 had not started is now superseded:** G04 and G05 have been merged into `master`, G06 was merged via PR #23, and G03's independent AI-remediation integration is still pending. Vercel external deployment verification remains outstanding.
