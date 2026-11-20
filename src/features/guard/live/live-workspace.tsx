@@ -18,6 +18,7 @@ import { repositoryProfiles } from "./scan-profiles";
 import { guidance } from "../evidence";
 import { analysisReportHtml } from "./analysis-report";
 import { LiveGuardWorkbench } from "./workbench";
+import { CicdPanel } from "../g04/panel";
 import styles from "../workbench.module.css";
 import { LiveAnalysisPanel, LivePreflightButton } from "./analysis-panel";
 interface Readiness {
@@ -36,6 +37,7 @@ const tabs = [
   ["Logic & Workflows", "integrity"],
   ["Remediation", "remediation"],
   ["Release Status", "releases"],
+  ["CI/CD Gate", "cicd"],
 ];
 const terminal = ["completed", "completed_partial", "failed", "cancelled"];
 function download(body: string, name: string, type: string) {
@@ -249,6 +251,10 @@ export function LiveGuardWorkspace({
           </Link>
         ))}
       </nav>
+      {section === "cicd" && (
+        <CicdPanel projectId={projectId} defaultBranch={initialBranch} />
+      )}
+      {section !== "cicd" && (
       <Card className={styles.panel} aria-label="Guard live workspace">
         <div className={styles.toolbar}>
           <Badge tone="blue">LIVE · RECORDED DATA</Badge>
@@ -820,6 +826,7 @@ export function LiveGuardWorkspace({
             </Notice>
           )}
       </Card>
+      )}
       {section === "" && (
         <>
           <LivePreflightButton projectId={projectId} />

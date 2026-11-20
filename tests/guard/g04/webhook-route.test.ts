@@ -19,7 +19,7 @@ const req = (over: { body?: string | Uint8Array; headers?: Record<string, string
   const bytes = typeof b === "string" ? Buffer.from(b) : b;
   return new Request("http://localhost/api/guard/webhooks/github", {
     method: "POST",
-    body: bytes,
+    body: bytes as unknown as BodyInit,
     headers: { "content-type": "application/json", "x-github-event": "ping", "x-github-delivery": "11111111-2222-3333-4444-555555555555", ...(over.sign === false ? {} : { "x-hub-signature-256": signatureFor(SECRET, bytes) }), ...over.headers },
   });
 };
