@@ -52,6 +52,23 @@ Environment: Docker PostgreSQL 18 `wetscan-g04-local-pg` (127.0.0.1:55435, volum
 * **Webhook secret:** the secret on the App was not readable anywhere, so with the owner's approval it was rotated (App API `PATCH /app/hook/config`, URL unchanged) and stored only in the git-ignored `.env.local` of the G04 worktree.
 * **Still blocked (owner click):** the App definition now has Checks: write, Pull requests: read and events check_run/pull_request/push, but installation `181791848` still reports `contents: read, metadata: read` and `events: []`: the permission update has not been accepted. A real branch creation (`g04/webhook-probe` at the vulnerable commit) produced **no** push delivery for that reason. Real push / pull_request / check_run deliveries, real Check Runs and the scan-to-check pipeline therefore remain unverified. Accept the pending request under GitHub → Settings → Applications → Installed GitHub Apps → wetscan-local → Review request.
 
+## Real GitHub pipeline after the installation accepted the permissions (20 November 2026)
+
+Installation `181791848` now reports `checks: write, contents: read, metadata: read, pull_requests: read` and events `check_run, pull_request, push`. Sandbox repository `wilanta/wetscan-g02-acceptance`, fresh scanner qualification, dispatcher running.
+
+| Step | Real evidence |
+| --- | --- |
+| GitHub `push` (commit `0f8a929550143e91933989f97c322b858837a170` on `g04/webhook-probe`) | GitHub delivery log `push OK 202`; `guard.g04_deliveries` row; trigger `push` created |
+| GitHub `pull_request opened` (sandbox PR #1, later closed) | delivery `OK 202`; trigger `pull_request` completed, reusing the same commit-bound scan (idempotent) |
+| G02 scan | scan `96b2a5e400f2…` **`completed`**: sast, sca, secrets, iac, sbom all completed, source coverage complete |
+| Policy | **BLOCK**: 6 high blocking, 13 medium, 15 low, 5 unknown-severity advisories (policy revision 1, commit-bound) |
+| GitHub Check Run | id `136130925467`, `WetScan Guard / Security gate`, app `wetscan-local`, commit `0f8a9295`: `queued -> in_progress -> completed / failure`, summary + 4 annotations |
+| Own check events | `check_run created/completed` deliveries answered `200` and ignored (no feedback loop) |
+| `check_suite requested` | first answered 400 (not allow-listed) -> fixed, Fix #23 |
+| Merge enforcement | **None observed, as designed:** PR #1 was `MERGEABLE / UNSTABLE` with the failing check; repository has 0 rulesets and `main` is unprotected |
+
+Not yet real: a required-check rule blocking a merge (owner decision, no rule exists), a PASS/WARN verdict, the GitHub "Re-run" button path (the API token available here may not rerequest an App's check run; the signed `check_run.rerequested` handling is tested with synthetic deliveries), Vercel.
+
 ## Security-negative coverage (selected)
 
 Signature: missing/malformed/sha1/wrong secret/one-byte change/rotation secret; secret unset ⇒ 503 (no unauthenticated fallback). Limits: 413 on declared and on lying Content-Length; 415; event allowlist 400. Replay: duplicate no-op, conflict 409. Authorization: installation mismatch, suspended installation, removed repository, unprotected branch, disabled policy, fork pull request (never fetched), Guard's own check events ignored. Policy: unknown fields, severity overlap, engines outside the profile, `onMissingCoverage: pass` rejected. Checks: `INCOMPLETE`/`BLOCK` never map to a passing conclusion; token without `checks: write` refused; late `in_progress` cannot downgrade `completed`. Vercel: other-project/other-repo deployment refused; 401/403/404/429/5xx/network mapped; missing token ⇒ nothing called. RLS: cross-project read/write, forged scope columns, app role cannot call `g04_work`, no DELETE, no credential-looking provider config. Enforcement: wrong commit, stale, outage, missing commit metadata, promoted-while-BLOCK mismatch.

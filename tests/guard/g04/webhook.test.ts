@@ -110,6 +110,10 @@ describe("webhook normalization", () => {
     expect(n("installation_repositories", { action: "removed", installation: { id: 9 }, repositories_removed: [{ id: 42 }], repositories_added: [] })).toEqual({ kind: "installation_repositories", installationId: 9, added: [], removed: ["42"] });
     expect(code(() => n("installation", { action: "created" }))).toBe("malformed_payload");
   });
+  it("check_suite is acknowledged and ignored; only an authenticated delivery gets that far", () => {
+    expect(n("check_suite", { action: "requested", installation: { id: 9 }, repository: repo })).toEqual({ kind: "ignored", reason: "check_suite_requested" });
+    expect(code(() => open("check_suite", {}, { "x-hub-signature-256": "sha256=" + "0".repeat(64) }))).toBe("signature_invalid");
+  });
   it("events without an installation are ignored (they cannot be authorized)", () => {
     expect(n("push", { ref: "refs/heads/main", after: SHA, repository: repo })).toMatchObject({ kind: "ignored", reason: "no_installation" });
   });

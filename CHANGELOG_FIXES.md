@@ -1,5 +1,19 @@
 # CHANGELOG_FIXES
 
+### Fix #23 — Real GitHub run: a stale trigger's INCOMPLETE overwrote an evaluated BLOCK check; `check_suite` deliveries were answered 400 (2026-11-20)
+
+| Field | Detail |
+| --- | --- |
+| Tanggal | 2026-11-20 |
+| File | `src/features/guard/g04/store.ts`, `src/features/guard/g04/webhook.ts`, `tests/guard/g04/store.postgres.integration.ts`, `tests/guard/g04/webhook.test.ts` |
+| Masalah | After the installation accepted the new permissions, GitHub showed `INCOMPLETE: no verdict` on commit `c1330c63` although Guard held a real BLOCK evaluation for it; GitHub's delivery log showed `check_suite requested -> 400`. |
+| Akar | (a) An older trigger for the same commit hit its 45-minute scan bound and `planCheck(completed, INCOMPLETE)` replaced the completed, evaluation-backed row (only completed->non-completed was protected). (b) `check_suite` is sent to every App with Checks: write but was not in the event allowlist. |
+| Fix | (a) `planCheck` refuses to replace a completed row that has an `evaluation_id` with one that has none. (b) `check_suite` is signature-verified and acknowledged as ignored. |
+| Verifikasi | New PostgreSQL assertion; offline webhook tests 19/19; PG suite 32/32; GitHub now shows BLOCK/failure for `c1330c63`; no further 400 deliveries expected. |
+| Pelajaran | Idempotent "latest write wins" state needs a rule for which write class may replace which; allow-listing must include events a granted permission makes GitHub send. |
+| Log Keyword | `INCOMPLETE: no verdict`, `check_suite`, `scan_did_not_finish`, `planCheck` |
+| Deploy | NOT deployed. |
+
 ### Fix #22 — Webhook URL returned the Next.js 404 page: the tunnel pointed at a dev server from the wrong worktree (2026-11-20)
 
 | Field | Detail |

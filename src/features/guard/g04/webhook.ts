@@ -3,7 +3,7 @@ import { validGuardBranch } from "../live/revision";
 
 /** Hard cap on accepted raw bytes. GitHub allows up to 25 MB; Guard only needs a few small fields, so larger bodies are refused. */
 export const MAX_WEBHOOK_BYTES = 1024 * 1024;
-export const handledEvents = ["push", "pull_request", "installation", "installation_repositories", "check_run", "ping"] as const;
+export const handledEvents = ["push", "pull_request", "installation", "installation_repositories", "check_run", "check_suite", "ping"] as const;
 export type HandledEvent = (typeof handledEvents)[number];
 
 export class WebhookError extends Error {
@@ -117,6 +117,9 @@ export function normalize(e: Envelope, appId: number): Normalized {
   const action = typeof p.action === "string" ? p.action : "";
   const inst = p.installation === undefined ? undefined : posInt(obj(p.installation).id);
   if (e.event === "ping") return { kind: "ignored", reason: "ping" };
+  // GitHub sends check_suite to every App that holds Checks: write. Guard acts only on check_run.rerequested, so acknowledge and ignore
+  // (a 400 here would show as a failed delivery for an event Guard deliberately does not use).
+  if (e.event === "check_suite") return { kind: "ignored", reason: "check_suite_" + action.slice(0, 40) };
   if (e.event === "installation") {
     if (inst === undefined) return err("malformed_payload", 400);
     return ["created", "deleted", "suspend", "unsuspend", "new_permissions_accepted"].includes(action)

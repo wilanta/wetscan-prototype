@@ -103,9 +103,12 @@ describe("G04 store against real PostgreSQL", () => {
     await rt.appStore.planCheck(s, { commit: COMMIT, externalId: "g04:" + COMMIT, status: "queued" });
     expect((await rt.appStore.getCheck(s, COMMIT))?.published).toBe(false);
     await rt.appStore.checkPublished(s, COMMIT, { checkRunId: "555", htmlUrl: null });
-    await rt.appStore.planCheck(s, { commit: COMMIT, externalId: "g04:" + COMMIT, status: "completed", conclusion: "failure", decision: "BLOCK" });
+    await rt.appStore.planCheck(s, { commit: COMMIT, externalId: "g04:" + COMMIT, status: "completed", conclusion: "failure", decision: "BLOCK", evaluationId: "e".repeat(64) });
     const done = await rt.appStore.planCheck(s, { commit: COMMIT, externalId: "g04:" + COMMIT, status: "in_progress" });
     expect(done).toMatchObject({ status: "completed", conclusion: "failure", decision: "BLOCK" }); // late in_progress cannot downgrade
+    // a verdict backed by an evaluation of this exact commit is never replaced by an evaluation-less "incomplete" (e.g. a stale trigger timing out)
+    const kept = await rt.appStore.planCheck(s, { commit: COMMIT, externalId: "g04:" + COMMIT, status: "completed", conclusion: "action_required", decision: "INCOMPLETE" });
+    expect(kept).toMatchObject({ conclusion: "failure", decision: "BLOCK" });
     await rt.appStore.checkFailed(s, COMMIT, "rate_limited", 120000);
     const c = await rt.appStore.getCheck(s, COMMIT);
     expect(c?.attempts).toBe(1);

@@ -13,11 +13,11 @@ Written for: the owner. Decision as of 20 November 2026: **`G04 PARTIALLY_VERIFI
 
 | Gap | Blocker | Exact owner action |
 | --- | --- | --- |
-| Real GitHub Check Runs | GitHub App `wetscan-local` has `contents`/`metadata` read only; GitHub refuses a `checks: write` token (observed) | Grant **Checks: Read & write** to the App and **accept** the permission update on the installation ([provider setup §1](GUARD_G04_PROVIDER_SETUP.md)) |
-| Deliveries originating from GitHub | App has no webhook and no event subscriptions (`/app/hook/config` → 404) | Configure webhook URL (needs a public host or tunnel you control), JSON content type, secret, events Push / Pull request / Check run |
+| ~~Real GitHub Check Runs~~ | **CLOSED 20 Nov:** permission accepted; real check run `136130925467` published and completed (`failure`, BLOCK) | none |
+| ~~Deliveries originating from GitHub~~ | **CLOSED 20 Nov** for ping, push, pull_request (and check_run/check_suite acknowledgements) via the Cloudflare quick tunnel. The tunnel URL is temporary: update the App webhook URL if it changes | none |
 | Required-check enforcement on a test branch | No ruleset requires `WetScan Guard / Security gate` | Create a ruleset on a **dedicated test branch/repository**, then run the "blocked/permitted merge" check in [provider setup §2](GUARD_G04_PROVIDER_SETUP.md). Guard never edits rules |
 | Vercel verification, hold/release evidence | No Vercel token/team/project supplied; plan eligibility for Deployment Checks not confirmed from public docs | Provide a token for a **dedicated preview/staging project**, then run read-only verification; approve registration of the Deployment Check only if you want to test promotion holding |
-| Real PASS / WARN verdict and the fixed-commit verdict | SCA (OSV) hung/timed out under this machine's load in G02's sandbox (documented 2 GB/45 s budget) | Re-run on a quiet machine inside the one-hour scanner qualification window; do nothing else on it meanwhile |
+| Real PASS / WARN verdict and the fixed-commit verdict (a real BLOCK with full coverage now exists) | SCA (OSV) hung/timed out under this machine's load in G02's sandbox (documented 2 GB/45 s budget) | Re-run on a quiet machine inside the one-hour scanner qualification window; do nothing else on it meanwhile |
 | Real-login browser acceptance | An agent cannot complete a GitHub OAuth login | Owner logs in at `http://localhost:3000` against the G04 environment and opens Guard → CI/CD Gate; optional |
 | Staging / production / Vercel-hosted acceptance | Out of scope; production not touched | Separate owner-approved window |
 

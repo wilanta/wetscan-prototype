@@ -263,14 +263,18 @@ describe("G04 pipeline: webhook → trigger → scan → policy → GitHub check
     expect(await rt.appStore.getCheck(s, COMMIT)).toMatchObject({ decision: "BLOCK", conclusion: "failure" });
   });
   it("installation suspension disables automation, cancels open work and schedules", async () => {
-    const { s, h } = await setup();
-    await h.intake.ingest(push(s, COMMIT));
+    // own installation id: installationScopes() is bounded (200), and this shared development database accumulates test policies on id 9
+    const s = freshScope(),
+      h = harness(),
+      inst = 7_000_000 + Math.floor(Math.random() * 900_000);
+    await rt.appStore.savePolicy(s, { repositoryId: s.repositoryId, repositoryName: "o/r", installationId: inst, ownerActor: "github-user-1", ownerUserId: 1 }, { ...defaultPolicy, enabled: true }, 0, "u1", "init");
+    await h.intake.ingest(push(s, COMMIT, "main", inst));
     await rt.appStore.saveSchedule(s, { id: "nightly-1", enabled: true, cadence: { kind: "interval", minutes: 60 }, branch: "main", profile: "standard", nextRunAt: new Date(Date.now() - 1000), actor: "u1" });
-    await h.intake.ingest(delivery("installation", { action: "suspend", installation: { id: INST } }));
+    await h.intake.ingest(delivery("installation", { action: "suspend", installation: { id: inst } }));
     expect((await rt.appStore.getPolicy(s))?.installationState).toBe("suspended");
     expect((await rt.appStore.listTriggers(s))[0].status).toBe("cancelled");
     expect((await rt.appStore.getSchedule(s, "nightly-1"))?.enabled).toBe(false);
-    expect((await h.intake.ingest(push(s, OTHER))).outcome).toBe("installation_suspended");
+    expect((await h.intake.ingest(push(s, OTHER, "main", inst))).outcome).toBe("installation_suspended");
   });
   it("schedules: due slot enqueues exactly one trigger, advances atomically, revocation disables", async () => {
     const { s, h } = await setup({ ...defaultPolicy, enabled: true, triggers: { ...defaultPolicy.triggers, schedule: true } });
