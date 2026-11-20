@@ -1,0 +1,11 @@
+{
+  "requestSha256": "982844af1801dc5ad254be2d4fe903101f6f2fb2f13109c061d19fa50d597c1d",
+  "attemptId": "c5ca98b2-40ec-4561-b60c-fb430eae82dc",
+  "jobId": "904d08f2a392f1f9d75b48309f9e270bfbf9e2e6e3ebcb7c322d415aa18f96ba",
+  "approvedBy": "WetScan owner/operator (explicit chat recovery approval)",
+  "approvalSource": "Explicit reply: Setujui recovery sampai 22.35.34 WIB",
+  "approvedAt": "2026-11-15T15:02:58.530Z",
+  "expiresAt": "2026-11-15T15:35:34.180Z",
+  "priorMarkerPreserved": true,
+  "scope": "ONE new source-only acceptance attempt; after verified source success resume ONLY the original unused exact-job enqueue/worker operations within their original expiry"
+}

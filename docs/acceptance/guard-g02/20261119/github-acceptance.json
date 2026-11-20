@@ -1,0 +1,180 @@
+{
+  "classification": "REAL_GITHUB_SOURCE_REAL_SCANNERS_ISOLATED_POSTGRES_NOT_PRODUCT_AUTH_NOT_OPERATIONAL_DB",
+  "repository": "wilanta/wetscan-g02-acceptance",
+  "repositoryId": "1464294716",
+  "private": true,
+  "postgresRestartVerified": true,
+  "resolvedByFix": 34,
+  "results": [
+    {
+      "label": "vulnerable",
+      "commit": "c1330c63ef9bbe7fc0dcf435c6653488f269b827",
+      "scanId": "a71050a71428c0ba044f24d0664febacb69262479d1d9fa6d4e87f69c76ae41a",
+      "status": "completed",
+      "revision": 15,
+      "findings": 34,
+      "bySource": {
+        "sast": 3,
+        "sca": 5,
+        "secrets": 1,
+        "iac": 25
+      },
+      "engines": [
+        {
+          "engine": "sast",
+          "status": "completed",
+          "scanner": "opengrep",
+          "version": "2.0.0",
+          "artifactDigest": "5e94558c614af8063b76e75ab3bbea9fa6e207bf770551005bab70ff3b7fd03a",
+          "cleanup": "VERIFIED",
+          "coverage": "complete"
+        },
+        {
+          "engine": "sca",
+          "status": "completed",
+          "scanner": "osv-scanner",
+          "version": "2.7.1",
+          "artifactDigest": "3825e63dd6ccf8d3155ef621dfb7a082343f544f5a4292d4b51e1ca5dd2f4c3d",
+          "cleanup": "VERIFIED",
+          "coverage": "complete"
+        },
+        {
+          "engine": "secrets",
+          "status": "completed",
+          "scanner": "gitleaks",
+          "version": "8.30.1",
+          "artifactDigest": "4b6d2cf9a73118ed38660fcd08cb6674fb4b54525ec9c57d2e133238b2d9c9a6",
+          "cleanup": "VERIFIED"
+        },
+        {
+          "engine": "iac",
+          "status": "completed",
+          "scanner": "trivy",
+          "version": "0.76.2",
+          "artifactDigest": "e1c075b130fe3e4a1b220194f02563ae352798c9632fb829cd8f625d91f23a6a",
+          "cleanup": "VERIFIED",
+          "coverage": "complete"
+        },
+        {
+          "engine": "sbom",
+          "status": "completed",
+          "scanner": "osv-scanner",
+          "version": "2.7.1",
+          "artifactDigest": "3825e63dd6ccf8d3155ef621dfb7a082343f544f5a4292d4b51e1ca5dd2f4c3d",
+          "cleanup": "VERIFIED",
+          "coverage": "complete"
+        }
+      ],
+      "sourceCoverage": {
+        "status": "complete",
+        "excludedFiles": 0,
+        "treeTruncated": false,
+        "retrievedFiles": 9
+      },
+      "inventory": 1,
+      "sbom": true,
+      "release": "completed",
+      "fingerprints": [
+        "0392c748c634dd0d124b5d84b4821c870e8c0e5d790133bb980b0c2dd21b7d56",
+        "0adc0585029ec71a56bc82bbe9e8735fa34f72ab04e9ff781e167743cb63f5f7",
+        "0b4813e46e0c16e001f7c582bcb660efbf49c4ff6dcbcba37588a3bd3cbc4fd7",
+        "127ad990516c85d770953973396510421c61b1c313866021abd2fa6a77d122b6",
+        "175aa96e46dc4866a1a9fa745290fcd793f1951030dbca12b308c4fba7b649d0",
+        "2191d7395ef3f8e5931513da957363b3ae30de83870afb710a49d15eccaf8b7e",
+        "2d10b79a92071ba9cd05c1a0b6ad6529adacec4a92b858dd571291578427ba26",
+        "32066c61623b361af9dcacf2c3aef91a6e8c930773af3748441eea61d62734b7",
+        "38c4f475942988029b7f59401b8eb3a2a25bf5e5c111e9a2dfaa67e28ae95327",
+        "4469772aa9d97cca7691d338ac9929d1e8609e98c1c0e3626d23ae9c424887c2",
+        "55cdad5e53d12ade3bad64c633e55fcd24edbcfec4ccb3cb328f08c6653d6136",
+        "8111db5f5e8e76d034d05b386c53cfb61bcf86fa06fd198bec8ac2c06e931365",
+        "8386a57216093a54bdd51b20041fdea8c12125fa010d372d60a1dbc2c9b5770d",
+        "85a68007e764e35fff57ce8a67fe305ddf58f397f1c0b963c6614bb3e785d350",
+        "8bc4ecc6a0b67b90288e8c4d2cae2c972d954af70ca9f26266829c0316b20df8",
+        "91358bf7121b342c2a9223216d1fa2fc48c9948a46f2da469143145ca765370e",
+        "9367ba07c82c57ed4864bbb773484925dd16913e902264b567c4ecef589991d7",
+        "9368397393084887a485b0c57aab1698fc3565cc0ad7323a68883ba79ed7f9bf",
+        "9a8ce618f90531fd734aab684fccc6b5ab3ea59e4f3b200868c2ad67768e0161",
+        "9f267989cafac8e5ef8005e5f3013b447713491f00ab3952a59cfe4a2235df10",
+        "a3de96a75c6f8cf7d1a1d7b5f28270a3d11c47d974340fcae0bb71072389dcf6",
+        "abfad3a3b88482235665a178022f564bbca2ffae378cf7800397e54de762671f",
+        "b007ea8223e23bf1f2f7565c73c9c3509d255ad086a39051ced5f1dd46f4bdcd",
+        "b3b405fe2711f1b0059476fd7ee0ae2aa4306037e38e0b38b530eb2cdc50238b",
+        "ca83b6e1bb13f795e88badd05db33ffba73ba899fee36e06aec85ba7ef770c19",
+        "cc47fd4e2e3de40bc2e6b4b8a59a36273e0c7d94677511258b9347fae03709b8",
+        "cc6665e047fb4f7e26957afc1c3b50ad541eb7ea7ff86f27b57788691a95a1fe",
+        "ce96adbdea7a21f2e66769781e827a1539eba634c61c0a3e7e1242bf09d5f9dd",
+        "d277a313f6ee47cb0a613473a34dd95b5fa8c9babd19cdb7a05ac3b8801c98e0",
+        "daaad03b75d194e9d86be1b4e8ef035e2cdc83b3c504b5fc6275b5f61e613de3",
+        "dec503f5437ba3288d783f78d503cab24ace620c06a01284a2a3ef16c407b0b3",
+        "e969f98b4572e8d4caf22ee70bdad48e67fee049277bb96e6baae34a5ed3800a",
+        "f65bab531a20cd1345e7b7ed76daa10c35c235898835259282e62dc64825bc07",
+        "fa9df402dd2231e47cdb07f15d6c4782784d1c2a048d4ce08bca9ac5df5f4782"
+      ]
+    },
+    {
+      "label": "fixed",
+      "commit": "3c6a99ec42b8259ab659a24c2f0d94822b389872",
+      "scanId": "d5be7c4b201b493580a2fef251f073f08bb28fdad556a4c2503515cd68fbbde8",
+      "status": "completed_partial",
+      "revision": 15,
+      "findings": 0,
+      "bySource": {},
+      "engines": [
+        {
+          "engine": "sast",
+          "status": "completed",
+          "scanner": "opengrep",
+          "version": "2.0.0",
+          "artifactDigest": "c401b3189906ffd72a899f98ca5b69c62d244902fc177bce52591b89340f3582",
+          "cleanup": "VERIFIED",
+          "coverage": "complete"
+        },
+        {
+          "engine": "sca",
+          "status": "completed",
+          "scanner": "osv-scanner",
+          "version": "2.7.1",
+          "artifactDigest": "e6b508656b2305dd7cffe562dee36827c37d1ef4613757c4d3fc47a81eb61f0a",
+          "cleanup": "VERIFIED",
+          "coverage": "complete"
+        },
+        {
+          "engine": "secrets",
+          "status": "completed",
+          "scanner": "gitleaks",
+          "version": "8.30.1",
+          "artifactDigest": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+          "cleanup": "VERIFIED"
+        },
+        {
+          "engine": "iac",
+          "status": "completed",
+          "scanner": "trivy",
+          "version": "0.76.2",
+          "artifactDigest": "315fa6108d8223ec7576f2453fc961361f013963ec59da4831a131043e9cf1ec",
+          "cleanup": "VERIFIED",
+          "coverage": "partial"
+        },
+        {
+          "engine": "sbom",
+          "status": "completed",
+          "scanner": "osv-scanner",
+          "version": "2.7.1",
+          "artifactDigest": "e6b508656b2305dd7cffe562dee36827c37d1ef4613757c4d3fc47a81eb61f0a",
+          "cleanup": "VERIFIED",
+          "coverage": "complete"
+        }
+      ],
+      "sourceCoverage": {
+        "status": "complete",
+        "excludedFiles": 0,
+        "treeTruncated": false,
+        "retrievedFiles": 9
+      },
+      "inventory": 1,
+      "sbom": true,
+      "release": "completed_partial",
+      "fingerprints": []
+    }
+  ]
+}

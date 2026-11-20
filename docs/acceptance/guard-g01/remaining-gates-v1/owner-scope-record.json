@@ -1,0 +1,37 @@
+{
+  "recordedAt": "2026-11-15T16:47:35.384Z",
+  "provenance": "Explicit owner reply in this conversation; this records a scope decision, not a network availability test",
+  "allowedDatabase": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "wetscan_s01_test_guardg01",
+    "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f",
+    "owner": "wetscan_guard_migrator",
+    "pgAdminAvailable": true,
+    "classification": "G01_FIXTURE_ONLY"
+  },
+  "externalSentinel": {
+    "status": "NOT_VERIFIED",
+    "reason": "TARGET_NOT_IDENTIFIED",
+    "noEndpointProbePerformed": true,
+    "notAnAcceptancePass": true
+  },
+  "historicalEndpoint": {
+    "host": "127.0.0.1",
+    "port": 55432,
+    "status": "NOT_AUTHORIZED_TO_PROBE_OR_ASSUME_ACTIVE"
+  },
+  "createAdditionalDatabases": false,
+  "mutateSentinelForAcceptance": false,
+  "previousJob": {
+    "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+    "terminal": true,
+    "allowedNewRuntimeActions": []
+  },
+  "publication": {
+    "permission": "NOT_YET_GRANTED",
+    "commit": false,
+    "push": false,
+    "stageIndex": false
+  }
+}

@@ -45,6 +45,8 @@ export interface Scope {
   mode: Mode;
 }
 export interface Grant extends Scope {
+  /** Guard-issued timestamp; optional for legacy/demo ports. Never supplied by the browser. */
+  issuedAt?: number;
   actorId: string;
   operations: readonly ("read" | "scan" | "triage" | "report")[];
   expiresAt: number;
@@ -63,6 +65,8 @@ export interface Provenance {
   rulePack: string;
 }
 export interface Location {
+  artifactKind?: "image";
+  imageDigest?: string;
   path?: string;
   line?: number;
   package?: string;
@@ -70,6 +74,7 @@ export interface Location {
   endpoint?: string;
 }
 export interface Evidence {
+  imageDigest?: string;
   id: string;
   commit: string;
   recordedAt: string;
@@ -77,10 +82,20 @@ export interface Evidence {
   artifactDigest: string;
   synthetic: boolean;
 }
+export interface AdvisoryMetadata {
+  id: string;
+  ecosystem: string;
+  aliases: string[];
+  fixedVersions: string[];
+  cvss: { type: string; vector: string }[];
+}
 export interface Finding extends Scope {
+  advisory?: AdvisoryMetadata;
   id: string;
   title: string;
   severity: Severity;
+  /** false means the displayed category is only a placeholder, not an advisory/CVSS assessment. */
+  severityKnown?: boolean;
   confidence: "low" | "medium" | "high";
   status: FindingStatus;
   source: Provenance;
@@ -88,6 +103,22 @@ export interface Finding extends Scope {
   evidence: Evidence[];
 }
 export interface EngineRun {
+  image?: ImageProvenance;
+  coverage?: {
+    status: "complete" | "partial" | "not_applicable";
+    scannedFiles: number;
+    eligibleFiles: number;
+    scope: string;
+  };
+  artifactDigest?: string;
+  executionEvidence?: {
+    version: 1;
+    runId: string;
+    imageId: string;
+    specDigest: string;
+    installationArtifactSha256: string;
+    cleanup: "VERIFIED";
+  };
   engine: Engine;
   status: EngineStatus;
   reason: string;
@@ -112,6 +143,8 @@ export interface SourceCoverageSummary {
   treeTruncated: boolean;
 }
 export interface ScanJob extends Scope {
+  inventory?: InventoryItem[];
+  sbom?: import("./sbom").RepositorySbom;
   sourceCoverage?: SourceCoverageSummary;
   id: string;
   idempotencyKey: string;
@@ -136,7 +169,9 @@ export interface SnapshotFile {
   size: number;
   sha256: string;
 }
+export interface ImageProvenance { reference:string; digest:string; configDigest:string; archiveSha256:string; archiveBytes:number; commitAssociation:"OPERATOR_POLICY_NOT_BUILD_ATTESTATION"; }
 export interface AuthorizedSnapshot extends Scope {
+  image?: ImageProvenance;
   coverage?: {
     status: "complete" | "partial";
     retrievedFiles: number;
@@ -149,6 +184,11 @@ export interface AuthorizedSnapshot extends Scope {
   expiresAt: number;
 }
 export interface SnapshotPort {
+  /** Reauthorize an already-owned immutable source without changing any grant TTL. */
+  refresh?(
+    snapshot: AuthorizedSnapshot,
+    grant: Grant,
+  ): Promise<AuthorizedSnapshot>;
   acquire(
     grant: Grant,
     request: ScanRequest,
@@ -170,7 +210,12 @@ export interface ScannerPort {
   execute(
     snapshot: AuthorizedSnapshot,
     signal: AbortSignal,
-  ): Promise<{ run: EngineRun; findings: Finding[] }>;
+  ): Promise<{
+    run: EngineRun;
+    findings: Finding[];
+    inventory?: InventoryItem[];
+    sbom?: import("./sbom").RepositorySbom;
+  }>;
 }
 export interface SandboxPort {
   ready: boolean;

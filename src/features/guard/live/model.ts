@@ -18,6 +18,8 @@ export class LiveGuardError extends Error {
       | "lease_lost"
       | "approval_required"
       | "not_configured"
+      | "retry_backoff"
+      | "retry_not_allowed"
       | "execution_not_ready",
     public readonly status = 503,
   ) {
@@ -52,6 +54,7 @@ export interface SourceLease {
   blob(
     sha: string,
     signal: AbortSignal,
+    responseLimit?: number,
   ): Promise<{ sha: string; size: number; encoding: string; content: string }>;
   close(): Promise<void>;
 }

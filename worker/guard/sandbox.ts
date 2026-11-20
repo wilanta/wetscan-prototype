@@ -24,11 +24,12 @@ export const sandboxControls = [
 ] as const;
 export interface SandboxSpec {
   docker: string;
+  endpoint: string;
   image: string;
   executable: string;
   args: readonly string[];
   cpu: 1;
-  memoryMb: 256;
+  memoryMb: 256 | 2048;
   pids: 64;
   timeoutMs: number;
   outputBytes: number;
@@ -37,6 +38,9 @@ export interface SandboxAttestation {
   verify(input: {
     specDigest: string;
     daemonVersion: string;
+    daemonId: string;
+    kernelVersion: string;
+    imageId: string;
     image: string;
   }): Promise<{
     expiresAt: number;
@@ -52,11 +56,32 @@ export interface DockerDriver {
       timeoutMs: number;
       maxBytes: number;
       configDirectory: string;
+      acceptedExitCodes?: readonly number[];
     },
   ): Promise<string>;
 }
-export function dockerDriver(executable: string): DockerDriver {
+/** Docker reports official-library references without a docker.io prefix on some versions. */
+export function pinnedImagePresent(
+  reference: string,
+  repoDigests: readonly string[],
+) {
+  if (repoDigests.includes(reference)) return true;
+  const official = reference.match(
+    /^docker\.io\/library\/([a-z0-9_-]+)(@sha256:[a-f0-9]{64})$/,
+  );
+  return (
+    !!official &&
+    [official[1], "library/" + official[1]].some((name) =>
+      repoDigests.includes(name + official[2]),
+    )
+  );
+}
+export function dockerDriver(
+  executable: string,
+  endpoint: string,
+): DockerDriver {
   if (
+    !validEndpoint(endpoint) ||
     !isAbsolute(executable) ||
     !/^docker(?:\.exe)?$/i.test(basename(executable))
   )
@@ -71,7 +96,7 @@ export function dockerDriver(executable: string): DockerDriver {
         let settled = false,
           bytes = 0,
           output = "";
-        const child = spawn(executable, [...args], {
+        const child = spawn(executable, ["--host", endpoint, ...args], {
           windowsHide: true,
           shell: false,
           signal: input.signal,
@@ -115,14 +140,28 @@ export function dockerDriver(executable: string): DockerDriver {
         );
         child.once("close", (code) =>
           finish(
-            code === 0 ? undefined : new LiveGuardError("source_unavailable"),
+            code === 0 ||
+              (args[0] === "start" &&
+                args[1] === "--attach" &&
+                code === 1 &&
+                input.acceptedExitCodes?.includes(1))
+              ? undefined
+              : new LiveGuardError("source_unavailable"),
           ),
         );
       }),
   };
 }
+function validEndpoint(value: string) {
+  return (
+    typeof value === "string" &&
+    (/^unix:\/\/\/[A-Za-z0-9_./-]+$/.test(value) ||
+      /^npipe:\/\/\/\/\.\/pipe\/[A-Za-z0-9_.-]+$/.test(value))
+  );
+}
 export function validateSandboxSpec(spec: SandboxSpec) {
   if (
+    !validEndpoint(spec.endpoint) ||
     !isAbsolute(spec.docker) ||
     !/^docker(?:\.exe)?$/i.test(basename(spec.docker)) ||
     !/^ghcr\.io\/[a-z0-9._/-]+@sha256:[a-f0-9]{64}$/.test(spec.image) ||
@@ -143,17 +182,46 @@ export function validateSandboxSpec(spec: SandboxSpec) {
   )
     throw new LiveGuardError("not_configured");
 }
+/** Operational-only local build identity. Legacy G01 validator remains registry-digest-only. */
+export function validateOperationalSandboxSpec(spec: SandboxSpec) {
+  const local = /^sha256:[a-f0-9]{64}$/.test(spec.image);
+  if (
+    spec.memoryMb !== 256 &&
+    !(
+      spec.memoryMb === 2048 && (spec.executable === "/usr/local/bin/osv-scanner" || (spec.executable === "/usr/local/bin/trivy" && spec.args[0] === "image"))
+    )
+  )
+    throw new LiveGuardError("not_configured");
+  validateSandboxSpec({
+    ...spec,
+    memoryMb: 256,
+    image: local
+      ? "ghcr.io/wetscan-local/content-addressed@" + spec.image
+      : spec.image,
+  });
+}
 /** Arguments are server-reviewed spec, never source scripts, Dockerfiles, package hooks or client input. */
 export function sandboxCreateArgs(
   spec: SandboxSpec,
   source: string,
   name: string,
+  policy: (spec: SandboxSpec) => void = validateSandboxSpec,
+  labels: Readonly<Record<string, string>> = {},
+  deadline = Date.now() + spec.timeoutMs,
 ) {
-  validateSandboxSpec(spec);
+  policy(spec);
   if (
     !isAbsolute(source) ||
     /[\r\n,\0]/.test(source) ||
-    !/^wetscan-guard-[a-f0-9-]{36}$/.test(name)
+    !/^wetscan-guard-[a-f0-9-]{36}$/.test(name) ||
+    !Number.isFinite(deadline) ||
+    deadline <= Date.now() ||
+    deadline > Date.now() + spec.timeoutMs ||
+    Object.entries(labels).some(
+      ([k, v]) =>
+        !["wetscan.run", "wetscan.job", "wetscan.spec"].includes(k) ||
+        !/^[a-zA-Z0-9_-]{1,100}$/.test(v),
+    )
   )
     throw new LiveGuardError("invalid_input", 400);
   return [
@@ -162,8 +230,9 @@ export function sandboxCreateArgs(
     name,
     "--label",
     "wetscan.module=guard",
+    ...Object.entries(labels).flatMap(([k, v]) => ["--label", `${k}=${v}`]),
     "--label",
-    `wetscan.deadline=${Date.now() + spec.timeoutMs}`,
+    `wetscan.deadline=${deadline}`,
     "--pull=never",
     "--network=none",
     "--read-only",
@@ -197,8 +266,26 @@ export class DockerGuardSandbox {
     private readonly spec: SandboxSpec,
     private readonly driver: DockerDriver,
     private readonly evidence: SandboxAttestation,
+    private readonly extension?: {
+      validate(spec: SandboxSpec): void;
+      name: string;
+      labels: Readonly<Record<string, string>>;
+      deadline?: number;
+      acceptedExitCodes?: readonly number[];
+      completed?(
+        output: string,
+        state: { Running: boolean; ExitCode: number; OOMKilled: boolean },
+      ): Promise<void>;
+      reserve(): Promise<void>;
+      inspect(metadata: unknown): Promise<void>;
+      started?(configDirectory: string, signal: AbortSignal): Promise<void>;
+      beforeRemove(configDirectory: string): Promise<void>;
+      removed(configDirectory: string): Promise<void>;
+    },
   ) {
-    validateSandboxSpec(spec);
+    (extension?.validate ?? validateSandboxSpec)(spec);
+    if (extension?.acceptedExitCodes?.some((code) => code !== 0 && code !== 1))
+      throw new LiveGuardError("not_configured");
   }
   private async ready(configDirectory: string) {
     const version = JSON.parse(
@@ -210,23 +297,35 @@ export class DockerGuardSandbox {
     ) as { Os?: string; Version?: string };
     if (version.Os !== "linux" || !version.Version)
       throw new LiveGuardError("execution_not_ready");
-    const digests: unknown = JSON.parse(
+    const daemon = JSON.parse(
+      await this.driver.call(["info", "--format", "{{json .}}"], {
+        configDirectory,
+        timeoutMs: 5000,
+        maxBytes: 64000,
+      }),
+    ) as { ID?: string; KernelVersion?: string };
+    const image = JSON.parse(
       await this.driver.call(
-        [
-          "image",
-          "inspect",
-          "--format",
-          "{{json .RepoDigests}}",
-          this.spec.image,
-        ],
+        ["image", "inspect", "--format", "{{json .}}", this.spec.image],
         { configDirectory, timeoutMs: 5000, maxBytes: 32000 },
       ),
-    );
-    if (!Array.isArray(digests) || !digests.includes(this.spec.image))
+    ) as { Id?: string; RepoDigests?: string[] };
+    if (
+      !daemon.ID ||
+      !daemon.KernelVersion ||
+      !/^sha256:[a-f0-9]{64}$/.test(image.Id ?? "") ||
+      !Array.isArray(image.RepoDigests) ||
+      !(this.extension && /^sha256:[a-f0-9]{64}$/.test(this.spec.image)
+        ? this.spec.image === image.Id
+        : pinnedImagePresent(this.spec.image, image.RepoDigests))
+    )
       throw new LiveGuardError("execution_not_ready");
     const proof = await this.evidence.verify({
       specDigest: fingerprint(this.spec),
       daemonVersion: version.Version,
+      daemonId: daemon.ID,
+      kernelVersion: daemon.KernelVersion,
+      imageId: image.Id!,
       image: this.spec.image,
     });
     if (
@@ -236,13 +335,15 @@ export class DockerGuardSandbox {
       sandboxControls.some((c) => !proof.verified.includes(c))
     )
       throw new LiveGuardError("execution_not_ready");
+    return image.Id!;
   }
   async execute(source: string, signal: AbortSignal): Promise<string> {
+    if (signal.aborted) throw new LiveGuardError("execution_not_ready");
     const config = await mkdtemp(join(tmpdir(), "wetscan-g01-docker-")),
-      name = `wetscan-guard-${randomUUID()}`;
+      name = this.extension?.name ?? `wetscan-guard-${randomUUID()}`;
     let created = false;
     try {
-      await this.ready(config);
+      const imageId = await this.ready(config);
       if (signal.aborted) throw new LiveGuardError("execution_not_ready");
       const actual = await realpath(source);
       const equalPath = (a: string, b: string) =>
@@ -255,12 +356,23 @@ export class DockerGuardSandbox {
         (await lstat(source)).isSymbolicLink()
       )
         throw new LiveGuardError("invalid_input", 400);
+      await this.extension?.reserve();
       created = true; // Name is owned before create; even a timed-out create may have created the container.
-      await this.driver.call(sandboxCreateArgs(this.spec, actual, name), {
-        configDirectory: config,
-        timeoutMs: 5000,
-        maxBytes: 32000,
-      });
+      await this.driver.call(
+        sandboxCreateArgs(
+          this.spec,
+          actual,
+          name,
+          this.extension?.validate,
+          this.extension?.labels,
+          this.extension?.deadline,
+        ),
+        {
+          configDirectory: config,
+          timeoutMs: 5000,
+          maxBytes: 32000,
+        },
+      );
       created = true;
       const enforced = JSON.parse(
         await this.driver.call(["inspect", "--format", "{{json .}}", name], {
@@ -269,6 +381,7 @@ export class DockerGuardSandbox {
           maxBytes: 64000,
         }),
       ) as {
+        Image: string;
         Config: { User: string };
         HostConfig: {
           Privileged: boolean;
@@ -280,51 +393,90 @@ export class DockerGuardSandbox {
           NanoCpus: number;
           CapDrop: string[];
           SecurityOpt: string[];
+          IpcMode: string;
+          Tmpfs: Record<string, string>;
         };
-        Mounts: { Source: string; Destination: string; RW: boolean }[];
+        Mounts: {
+          Type: string;
+          Source: string;
+          Destination: string;
+          RW: boolean;
+        }[];
       };
       const host = enforced.HostConfig;
+      const binds = enforced.Mounts.filter((m) => m.Type === "bind");
+      await this.extension?.inspect(enforced);
       if (
+        enforced.Image !== imageId ||
         enforced.Config.User !== "65532:65532" ||
         host.Privileged ||
         !host.ReadonlyRootfs ||
         host.NetworkMode !== "none" ||
-        host.Memory !== 256 * 1024 * 1024 ||
+        host.IpcMode !== "none" ||
+        host.Tmpfs?.["/tmp"] !== "rw,noexec,nosuid,nodev,size=16777216" ||
+        host.Memory !== this.spec.memoryMb * 1024 * 1024 ||
         host.MemorySwap !== host.Memory ||
         host.PidsLimit !== 64 ||
         host.NanoCpus !== 1e9 ||
         !host.CapDrop.includes("ALL") ||
         !host.SecurityOpt.some((v) => v.startsWith("no-new-privileges")) ||
-        enforced.Mounts.length !== 1 ||
-        enforced.Mounts[0].Destination !== "/source" ||
-        enforced.Mounts[0].RW ||
-        !equalPath(enforced.Mounts[0].Source, actual)
+        binds.length !== 1 ||
+        binds[0].Destination !== "/source" ||
+        binds[0].RW ||
+        !equalPath(binds[0].Source, actual) ||
+        enforced.Mounts.some(
+          (m) =>
+            m.Type !== "bind" &&
+            !(m.Type === "tmpfs" && m.Destination === "/tmp"),
+        )
       )
         throw new LiveGuardError("execution_not_ready");
-      const output = await this.driver.call(["start", "--attach", name], {
+      const running = new AbortController();
+      const runSignal = AbortSignal.any([signal, running.signal]);
+      const attached = this.driver.call(["start", "--attach", name], {
         configDirectory: config,
-        signal,
+        signal: runSignal,
         timeoutMs: this.spec.timeoutMs,
         maxBytes: this.spec.outputBytes,
+        acceptedExitCodes: this.extension?.acceptedExitCodes,
       });
+      let output: string;
+      try {
+        const results = await Promise.all([
+          attached,
+          this.extension?.started?.(config, runSignal),
+        ]);
+        output = results[0];
+      } catch (error) {
+        running.abort();
+        await attached.catch(() => undefined);
+        throw error;
+      }
       const state = JSON.parse(
         await this.driver.call(
           ["inspect", "--format", "{{json .State}}", name],
           { configDirectory: config, timeoutMs: 5000, maxBytes: 16000 },
         ),
       ) as { Running: boolean; ExitCode: number; OOMKilled: boolean };
-      if (state.Running || state.ExitCode !== 0 || state.OOMKilled)
+      if (
+        state.Running ||
+        !(this.extension?.acceptedExitCodes ?? [0]).includes(state.ExitCode) ||
+        state.OOMKilled
+      )
         throw new LiveGuardError("source_unavailable");
+      await this.extension?.completed?.(output, state);
       return output;
     } finally {
       let failed = false;
       if (created)
         try {
+          await this.extension?.beforeRemove(config);
           await this.driver.call(["rm", "--force", name], {
             configDirectory: config,
             timeoutMs: 5000,
             maxBytes: 32000,
           });
+          await this.extension?.removed(config);
         } catch {
           failed = true;
         }
@@ -426,3 +578,16 @@ export const unavailableSandbox = {
   status: "BLOCKED" as const,
   reason: "runtime_image_and_real_isolation_acceptance_required",
 };
+
+/** Production factory always pins the CLI to the reviewed local daemon; ambient Docker contexts are ignored. */
+export function createDockerGuardSandbox(
+  spec: SandboxSpec,
+  evidence: SandboxAttestation,
+) {
+  validateSandboxSpec(spec);
+  return new DockerGuardSandbox(
+    spec,
+    dockerDriver(spec.docker, spec.endpoint),
+    evidence,
+  );
+}

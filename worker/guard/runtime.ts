@@ -1,8 +1,9 @@
+import { guardPreparationTiming } from "./timing";
 import { setTimeout as delay } from "node:timers/promises";
 import type { WorkerControl } from "../sentinel/lifecycle";
 import { within } from "../sentinel/lifecycle";
 import { executeLease } from "../sentinel/executor";
-import type { JobHandler } from "../sentinel/executor";
+import type { LeaseAwareJobHandler } from "../sentinel/executor";
 import type { DurableJobPort } from "../../src/features/sentinel/platform-contracts";
 import type { Scope } from "../../src/features/guard/contracts";
 import { LiveGuardError } from "../../src/features/guard/live/model";
@@ -11,14 +12,23 @@ export interface GuardWorkerDependencies {
   control: WorkerControl;
   scopes(): Promise<Scope[]>;
   queue(scope: Scope): DurableJobPort;
-  handler: JobHandler;
+  handler: LeaseAwareJobHandler;
   verifyReady(): Promise<void>;
   close(): Promise<void>;
   report(event: { module: "guard"; phase: string; reason?: string }): void;
   once?: boolean;
+  /** Trusted G01 acceptance composition only; prepare_only keeps its default budget. */
+  handlerTimeoutMs?: number;
 }
 /** Guard-owned lifecycle/channel; shared S01 executor and bounded drain, no Sentinel scheduler or handlers. */
 export async function runGuardWorker(input: GuardWorkerDependencies) {
+  if (
+    input.handlerTimeoutMs !== undefined &&
+    (!Number.isInteger(input.handlerTimeoutMs) ||
+      input.handlerTimeoutMs < guardPreparationTiming.handlerMs ||
+      input.handlerTimeoutMs > 120000)
+  )
+    throw new LiveGuardError("invalid_input");
   const stop = new AbortController();
   const listeners: [string, (...args: unknown[]) => void][] = [];
   const listen = (name: string, fn: (...args: unknown[]) => void) => {
@@ -52,8 +62,10 @@ export async function runGuardWorker(input: GuardWorkerDependencies) {
     listen("disconnect", requestStop);
   }
   const inFlight = new Set<Promise<void>>();
-  const trackedHandler: JobHandler = (job, signal) => {
-    const task = Promise.resolve().then(() => input.handler(job, signal));
+  const trackedHandler: LeaseAwareJobHandler = (job, signal, currentLease) => {
+    const task = Promise.resolve().then(() =>
+      input.handler(job, signal, currentLease),
+    );
     inFlight.add(task);
     void task.finally(() => inFlight.delete(task)).catch(() => undefined);
     return task;
@@ -95,7 +107,8 @@ export async function runGuardWorker(input: GuardWorkerDependencies) {
               await executeLease(queue, lease, trackedHandler, {
                 signal: stop.signal,
                 heartbeatMs: 5000,
-                timeoutMs: 20000,
+                timeoutMs:
+                  input.handlerTimeoutMs ?? guardPreparationTiming.handlerMs,
               });
               try {
                 await within(Promise.allSettled([...inFlight]), 5000);

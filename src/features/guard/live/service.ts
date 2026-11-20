@@ -8,13 +8,18 @@ import {
   type GuardStorage,
   type ProjectAuthority,
 } from "./model";
+import { validGuardBranch } from "./revision";
+import type { ProductAdmission } from "./product-admission";
+import type { PostgresGuardArtifacts } from "./product-artifacts";
+import { storedScanView } from "./product-view";
+import { requireOperationalJob } from "./product-policy";
 export interface FoundationReadiness {
   database: "approved" | "approval_required" | "not_configured";
   schema: "verified" | "unverified";
   queue: "verified" | "unverified";
   sandbox: "verified" | "BLOCKED";
   workerAuthorization: "configured" | "not_configured";
-  execution: "G02_NOT_CONFIGURED";
+  execution: "G02_NOT_CONFIGURED" | "REPOSITORY_SCAN_CONFIGURED";
 }
 export const defaultReadiness: FoundationReadiness = {
   database: "approval_required",
@@ -28,6 +33,7 @@ export function scanInput(value: unknown): {
   profile: ScanJob["profile"];
   engines: Engine[];
   commit?: string;
+  branch?: string;
   idempotencyKey: string;
 } {
   if (!value || typeof value !== "object" || Array.isArray(value))
@@ -35,7 +41,10 @@ export function scanInput(value: unknown): {
   const v = value as Record<string, unknown>;
   if (
     Object.keys(v).some(
-      (k) => !["profile", "engines", "commit", "idempotencyKey"].includes(k),
+      (k) =>
+        !["profile", "engines", "commit", "branch", "idempotencyKey"].includes(
+          k,
+        ),
     ) ||
     !["quick", "standard", "full"].includes(String(v.profile)) ||
     !Array.isArray(v.engines) ||
@@ -45,6 +54,7 @@ export function scanInput(value: unknown): {
     v.engines.some((e) => !engines.includes(e)) ||
     typeof v.idempotencyKey !== "string" ||
     !/^[a-zA-Z0-9_-]{8,128}$/.test(v.idempotencyKey) ||
+    (v.branch !== undefined && !validGuardBranch(v.branch)) ||
     (v.commit !== undefined &&
       (typeof v.commit !== "string" || !/^[a-f0-9]{40}$/.test(v.commit)))
   )
@@ -55,7 +65,21 @@ export class GuardLiveService {
   constructor(
     private readonly storage: GuardStorage | undefined,
     readonly readiness: FoundationReadiness = defaultReadiness,
+    private readonly product?: ProductAdmission,
+    private readonly artifacts?: PostgresGuardArtifacts,
   ) {}
+  capabilities() {
+    return {
+      repositoryScanning:
+        this.product && this.storage ? "CONFIGURED" : "BLOCKED",
+      reason: this.product
+        ? null
+        : "qualified_scanner_and_owner_session_broker_not_configured",
+      operationalApprovalWindow: false,
+      allowedEngines:[...(this.product?.allowedEngines??[])],
+      imageReference:this.product?.imageReference??null,
+    };
+  }
   private store(
     authority: ProjectAuthority,
     operation: Grant["operations"][number],
@@ -71,11 +95,34 @@ export class GuardLiveService {
       throw new LiveGuardError("approval_required");
     return this.storage;
   }
-  async create(authority: ProjectAuthority, input: unknown) {
+  async create(
+    authority: ProjectAuthority,
+    input: unknown,
+    signal = new AbortController().signal,
+  ) {
     scanInput(input);
     this.store(authority, "scan");
-    // G01 never turns a missing G02 engine into an accepted scan or simulated Live result.
+    if (this.product) return this.product.create(authority, input, signal);
+    // Missing qualified production composition never accepts a scan.
     throw new LiveGuardError("execution_not_ready");
+  }
+  async resumeProduct(
+    authority: ProjectAuthority,
+    id: string,
+    signal: AbortSignal,
+  ) {
+    this.store(authority, "scan");
+    if (!this.product?.resume) throw new LiveGuardError("execution_not_ready");
+    return this.product.resume(authority, id, signal);
+  }
+  async retryProduct(
+    authority: ProjectAuthority,
+    id: string,
+    signal: AbortSignal,
+  ) {
+    this.store(authority, "scan");
+    if (!this.product?.retry) throw new LiveGuardError("execution_not_ready");
+    return this.product.retry(authority, id, signal);
   }
   async list(authority: ProjectAuthority, params: URLSearchParams) {
     if (
@@ -108,6 +155,157 @@ export class GuardLiveService {
     if (!value) throw new LiveGuardError("not_found", 404);
     return value;
   }
+  async view(authority: ProjectAuthority, id: string) {
+    return storedScanView(authority, await this.get(authority, id));
+  }
+  async triage(authority: ProjectAuthority, id: string, value: unknown) {
+    this.store(authority, "triage");
+    if (!this.artifacts) throw new LiveGuardError("not_configured");
+    return this.artifacts.triage(authority.grant, authority.grant, id, value);
+  }
+  async createReport(authority: ProjectAuthority, id: string, value: unknown) {
+    this.store(authority, "report");
+    if (!this.artifacts) throw new LiveGuardError("not_configured");
+    return this.artifacts.createReport(
+      authority.grant,
+      authority.grant,
+      id,
+      value,
+    );
+  }
+  async reports(authority: ProjectAuthority, id: string) {
+    this.store(authority, "report");
+    if (!this.artifacts) throw new LiveGuardError("not_configured");
+    return this.artifacts.reports(authority.grant, authority.grant, id);
+  }
+  async remediationState(authority: ProjectAuthority, id: string) {
+    this.store(authority, "read");
+    if (!this.artifacts) throw new LiveGuardError("not_configured");
+    const { providerMetadata } = await import("./remediation-provider");
+    return {
+      ...(await this.artifacts.extensions(
+        authority.grant,
+        authority.grant,
+        id,
+      )),
+      provider: providerMetadata(),
+    };
+  }
+  async proposeRemediation(
+    authority: ProjectAuthority,
+    id: string,
+    input: unknown,
+    signal: AbortSignal,
+    revalidate: () => Promise<ProjectAuthority>,
+  ) {
+    this.store(authority, "triage");
+    if (!this.artifacts) throw new LiveGuardError("not_configured");
+    const reservation = await this.artifacts.reserveAdvice(
+      authority.grant,
+      authority.grant,
+      id,
+      input,
+    );
+    if (reservation.reused)
+      return {
+        recordId: reservation.record.id,
+        state: reservation.record.state,
+        revision: reservation.revision,
+        reused: true,
+      };
+    const { adviceInput, deterministicAdvice } =
+      await import("./product-remediation");
+    let result: {
+      advice: import("./product-remediation").RemediationAdvice;
+      provider?: NonNullable<
+        import("./product-remediation").RemediationRecord["provider"]
+      >;
+    } | null = null;
+    try {
+      if (reservation.record.aiConsent) {
+        const { remediationProvider } = await import("./remediation-provider");
+        result = await remediationProvider().explain(
+          adviceInput(reservation.finding),
+          signal,
+        );
+      } else result = { advice: deterministicAdvice(reservation.finding) };
+    } catch {
+      /* An attempted/unknown provider request stays consumed. Never retry. */
+    }
+    const fresh = await revalidate();
+    if (
+      fresh.grant.actorId !== authority.grant.actorId ||
+      fresh.repositoryId !== authority.repositoryId ||
+      fresh.installationId !== authority.installationId
+    )
+      throw new LiveGuardError("not_found", 404);
+    return this.artifacts.finishAdvice(
+      fresh.grant,
+      fresh.grant,
+      id,
+      reservation.revision,
+      reservation.record.id,
+      result,
+    );
+  }
+  async reviewRemediation(
+    authority: ProjectAuthority,
+    id: string,
+    input: unknown,
+  ) {
+    this.store(authority, "triage");
+    if (!this.artifacts) throw new LiveGuardError("not_configured");
+    return this.artifacts.reviewAdvice(
+      authority.grant,
+      authority.grant,
+      id,
+      input,
+    );
+  }
+  async compareRetest(authority: ProjectAuthority, id: string, input: unknown) {
+    this.store(authority, "triage");
+    if (!this.artifacts) throw new LiveGuardError("not_configured");
+    const v = input as {
+      revision: number;
+      afterScanId: string;
+      findingId: string;
+    };
+    if (
+      !v ||
+      Object.keys(v).sort().join() !== "afterScanId,findingId,revision" ||
+      typeof v.findingId !== "string"
+    )
+      throw new LiveGuardError("invalid_input", 400);
+    const after = await this.get(authority, v.afterScanId);
+    return this.artifacts.recordRetest(
+      authority.grant,
+      authority.grant,
+      id,
+      v.revision,
+      after.job,
+      v.findingId,
+    );
+  }
+  async prepareIntegrations(
+    authority: ProjectAuthority,
+    id: string,
+    input: unknown,
+  ) {
+    this.store(authority, "report");
+    if (!this.artifacts) throw new LiveGuardError("not_configured");
+    return this.artifacts.prepareIntegration(
+      authority.grant,
+      authority.grant,
+      id,
+      input,
+    );
+  }
+
+  async cancelProduct(authority: ProjectAuthority, id: string) {
+    const current = await this.get(authority, id);
+    requireOperationalJob(authority.grant, current.job);
+    return this.cancel(authority, id);
+  }
   async cancel(authority: ProjectAuthority, id: string) {
     const current = await this.get(authority, id);
     const store = this.store(authority, "scan") as GuardStorage & {
@@ -128,7 +326,7 @@ export class GuardLiveService {
     };
   }
 }
-/** Only for a future approved producer; scope and repository fields are always server-derived. */
+/** Shared preparation metadata for review drafts and approved producer; scope/repository remain server-derived. */
 export async function prepareAuthorizedScan(
   authority: ProjectAuthority,
   input: unknown,

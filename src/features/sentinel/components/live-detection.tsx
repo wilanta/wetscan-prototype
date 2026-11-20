@@ -82,6 +82,7 @@ export function LiveDetection({
   const [rules, setRules] = useState<DetectionRule[]>([]),
     [page, setPage] = useState<AlertPage | null>(null),
     [error, setError] = useState(""),
+    [formError, setFormError] = useState(""),
     [loading, setLoading] = useState(true),
     [busy, setBusy] = useState(false),
     [refresh, setRefresh] = useState(0);
@@ -196,6 +197,7 @@ export function LiveDetection({
     }
   }
   function edit(rule: DetectionRule) {
+    setFormError("");
     setEditing(rule);
     setDraft(rule.definition);
     setConditions(JSON.stringify(rule.definition.conditions));
@@ -214,7 +216,9 @@ export function LiveDetection({
         labelled. A matched rule does not establish that an attack succeeded.
         Worker activation requires owner approval.
       </Notice>
-      {error && <p role="alert">{error}</p>}
+      {(error || formError) && (
+        <p role="alert">{[error, formError].filter(Boolean).join(" ")}</p>
+      )}
       <Button
         variant="secondary"
         disabled={busy || loading}
@@ -296,6 +300,7 @@ export function LiveDetection({
             <form
               onSubmit={(e) => {
                 e.preventDefault();
+                setFormError("");
                 try {
                   const config = {
                     ...draft,
@@ -313,7 +318,7 @@ export function LiveDetection({
                       : { action: "create", definition: config },
                   );
                 } catch {
-                  setError(
+                  setFormError(
                     "Conditions and suppression windows must be valid JSON.",
                   );
                 }
@@ -470,6 +475,7 @@ export function LiveDetection({
                   type="button"
                   variant="secondary"
                   onClick={() => {
+                    setFormError("");
                     setEditing(null);
                     setDraft(initial);
                     setConditions(JSON.stringify(initial.conditions));

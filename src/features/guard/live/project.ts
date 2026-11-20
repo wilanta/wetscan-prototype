@@ -10,7 +10,8 @@ export async function authorizeGuardProject(
   projectId: string,
 ): Promise<ProjectAuthority> {
   const context = await authorizeCanvasProject(token, projectId),
-    { profile, repo, session } = context;
+    { profile, repo, session } = context,
+    issuedAt = Date.now();
   return {
     grant: {
       mode: "live",
@@ -18,7 +19,8 @@ export async function authorizeGuardProject(
       projectId: `github-${repo.id}`,
       actorId: `github-user-${profile.githubId}`,
       operations: ["read", "scan", "triage", "report"],
-      expiresAt: Math.min(session.expiresAt, Date.now() + 60000),
+      issuedAt,
+      expiresAt: Math.min(session.expiresAt, issuedAt + 60000),
     },
     repositoryId: String(repo.id),
     repositoryName: repo.full_name,

@@ -1,0 +1,23 @@
+{
+  "checkedAt": "2026-11-15T16:52:18.526Z",
+  "status": "PASS_OFFLINE_PACKAGE_VALIDATION_ONLY",
+  "intentDigestsVerified": 16,
+  "allIntentsInactive": true,
+  "reviewOnlyModuleNotAcceptedByRuntimeLoader": true,
+  "proposedIdentitiesUnique": 11,
+  "oldJobNotReused": true,
+  "baselineCodeAndSqlHashesUnchanged": 52,
+  "oldCompletedEvidenceFilesUnchanged": 33,
+  "localLinksVerified": 62,
+  "onlyExistingFixtureTarget": true,
+  "readonlySqlContainsNoDdlDml": true,
+  "sqlExecutionOrDatabaseSyntaxTestPerformed": false,
+  "newRuntimeTestsRun": 0,
+  "dbConnections": 0,
+  "dockerCalls": 0,
+  "providerCalls": 0,
+  "permitsActivated": 0,
+  "publicationActions": 0,
+  "userIndexPreserved": true,
+  "externalSentinel": "NOT_VERIFIED / TARGET_NOT_IDENTIFIED"
+}

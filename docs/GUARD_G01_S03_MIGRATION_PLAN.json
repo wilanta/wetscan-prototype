@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "candidateBase": "f7bfeef29488c3f997e9444555039514f55fa0a3",
+  "candidateBranch": "feat/guard-g01-s03-integration",
+  "plan": {
+    "status": "PREPARATION_ONLY",
+    "sha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d",
+    "migrationChecksum": "8bdea256cdd5ab79b1525f43bd40508acf25e57502a72162ae6b5233dd55693b",
+    "platformPlanSha256": "c3e39f6fd43ee6eb2fbf5b244778955aab4cabb8a11ed3c66d791cf99a252a94",
+    "platformVersions": [
+      {
+        "version": "0001_foundation",
+        "checksum": "dd061a60b123284882f154c438de3a171d60967b7b07a4e07200b6693f4eb778"
+      },
+      {
+        "version": "0002_telemetry",
+        "checksum": "d1b67dc680f5bf3c2cbe585dca2427abf9d7ba9f29479c69b851f66b91c1f5a3"
+      },
+      {
+        "version": "0003_detection",
+        "checksum": "4f0ee1cebdbdc81b835f719ef13c9cb703dfb5f440193765dfa0a61635fb6168"
+      }
+    ],
+    "artifacts": [
+      {
+        "name": "roles.proposed.sql",
+        "sha256": "a0a4d924d8bd15ceb708f47ad9efff7e10df46ce0d99ff5c91a15077c6081645"
+      },
+      {
+        "name": "platform-access.proposed.sql",
+        "sha256": "1aa2d83eaba396d645e1ba684819a8999ab60eea49fb0bfc656eb175c5f7fb2d"
+      },
+      {
+        "name": "platform-access.rollback.proposed.sql",
+        "sha256": "d4025c6965fa1c23eac358d341a9bc51013090471e9403fcb22a08bd4332d52c"
+      },
+      {
+        "name": "0001_guard.up.sql",
+        "sha256": "542fa52a97c2b498b01ea06613a589c284e254ecd6de863574327d9780e18315"
+      },
+      {
+        "name": "0001_guard.down.sql",
+        "sha256": "9e7b7f8f5b1f5bea5b53f9c8865695d20dfbf09769086e505bb3d1329edee3b3"
+      }
+    ],
+    "databaseMutation": "NOT_EXECUTED"
+  },
+  "approval": "NOT_GRANTED",
+  "databaseConnections": 0
+}

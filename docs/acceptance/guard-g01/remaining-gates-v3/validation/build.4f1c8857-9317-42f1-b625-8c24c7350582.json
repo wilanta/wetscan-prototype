@@ -1,0 +1,19 @@
+{
+  "classification": "OFFLINE_VALIDATION",
+  "kind": "build",
+  "startedAt": "2026-11-16T06:29:14.543Z",
+  "endedAt": "2026-11-16T06:29:31.629Z",
+  "exitCode": 0,
+  "command": [
+    "node",
+    "node_modules/next/dist/bin/next",
+    "build"
+  ],
+  "dotenvLoaded": false,
+  "runtimeMutation": "NOT_RUN",
+  "scannerExecution": "NOT_RUN",
+  "counts": {
+    "nftFiles": 33,
+    "sensitiveLocalReferences": 0
+  }
+}

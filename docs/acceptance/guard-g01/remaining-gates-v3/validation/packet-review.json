@@ -1,0 +1,95 @@
+{
+  "classification": "OFFLINE_PACKET_REVIEW",
+  "observedAt": "2026-11-16T06:34:36.137Z",
+  "runtimeOperations": 0,
+  "scannerExecution": "NOT_RUN",
+  "oldN04RequestRejected": true,
+  "results": [
+    {
+      "caseId": "Q00",
+      "status": "TEMPLATE_HASH_VERIFIED_EXECUTION_DENIED",
+      "reason": "DOCKER_VERSION_UNAVAILABLE"
+    },
+    {
+      "caseId": "I01",
+      "status": "TEMPLATE_HASH_VERIFIED_EXECUTION_DENIED",
+      "reason": "DOCKER_VERSION_UNAVAILABLE"
+    },
+    {
+      "caseId": "N00",
+      "status": "TEMPLATE_HASH_VERIFIED_EXECUTION_DENIED",
+      "reason": "DOCKER_VERSION_UNAVAILABLE"
+    },
+    {
+      "caseId": "N01",
+      "requestSha256": "f38f3078919b46e72738fceb440f9cac936b16bd22d1ad9ac2f06d32a355cc2b",
+      "status": "ARTIFACTS_AND_PACKET_VERIFIED",
+      "artifacts": 242
+    },
+    {
+      "caseId": "N02",
+      "status": "TEMPLATE_HASH_VERIFIED_EXECUTION_DENIED",
+      "reason": "DOCKER_VERSION_UNAVAILABLE"
+    },
+    {
+      "caseId": "N03",
+      "status": "TEMPLATE_HASH_VERIFIED_EXECUTION_DENIED",
+      "reason": "DOCKER_VERSION_UNAVAILABLE"
+    },
+    {
+      "caseId": "N04",
+      "requestSha256": "1e96dbf4c6a92af63e3e7e6af68d790f189d08edcd003fdc5fe739f38e406612",
+      "status": "ARTIFACTS_AND_PACKET_VERIFIED",
+      "artifacts": 242
+    },
+    {
+      "caseId": "N05",
+      "status": "TEMPLATE_HASH_VERIFIED_EXECUTION_DENIED",
+      "reason": "DOCKER_VERSION_UNAVAILABLE"
+    },
+    {
+      "caseId": "N06",
+      "requestSha256": "9e3c9ec8fec8b44cb75119e3f2634a91f866e7ecd53e4eecf0e104b24bdd5a3b",
+      "status": "ARTIFACTS_AND_PACKET_VERIFIED",
+      "artifacts": 242
+    },
+    {
+      "caseId": "N07",
+      "status": "TEMPLATE_HASH_VERIFIED_EXECUTION_DENIED",
+      "reason": "DOCKER_VERSION_UNAVAILABLE"
+    },
+    {
+      "caseId": "N08",
+      "requestSha256": "4cf5bab1451ad5e9b0edf9b496a1281aa95a6988383387877cc67e9eea69b2b4",
+      "status": "ARTIFACTS_AND_PACKET_VERIFIED",
+      "artifacts": 242
+    },
+    {
+      "caseId": "C01",
+      "status": "TEMPLATE_HASH_VERIFIED_EXECUTION_DENIED",
+      "reason": "DOCKER_VERSION_UNAVAILABLE"
+    },
+    {
+      "caseId": "C02A",
+      "status": "TEMPLATE_HASH_VERIFIED_EXECUTION_DENIED",
+      "reason": "DOCKER_VERSION_UNAVAILABLE"
+    },
+    {
+      "caseId": "C02B",
+      "status": "TEMPLATE_HASH_VERIFIED_EXECUTION_DENIED",
+      "reason": "ACTUAL_WINDOW_A_AND_ONE_HOUR_REQUIRED"
+    },
+    {
+      "caseId": "L01",
+      "requestSha256": "a0c987ec7efc3e1106a19f44ef5eb68a4117bd57dd3bba4dff58ac1c9c149c74",
+      "status": "ARTIFACTS_AND_PACKET_VERIFIED",
+      "artifacts": 242
+    },
+    {
+      "caseId": "L02",
+      "requestSha256": "80e4f434030152138f874ed4b71a6ff9490be271c4b13d0683a3bcc286d60e81",
+      "status": "ARTIFACTS_AND_PACKET_VERIFIED",
+      "artifacts": 242
+    }
+  ]
+}

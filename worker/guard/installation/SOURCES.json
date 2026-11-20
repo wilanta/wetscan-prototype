@@ -1,0 +1,96 @@
+{
+  "classification": "PUBLIC_INSTALLATION_PROVENANCE_NOT_OWNER_SCAN",
+  "releases": [
+    {
+      "repository": "opengrep/opengrep",
+      "version": "v2.0.0",
+      "name": "opengrep_linux_x86",
+      "bytes": 161274624,
+      "sha256": "37e93f4da5fd04a18c5c1febbdd12f7e98dfccd4d0c9cf2593bcb25eeb462da0",
+      "url": "https://github.com/opengrep/opengrep/releases/download/v2.0.0/opengrep_linux_x86"
+    },
+    {
+      "repository": "google/osv-scanner",
+      "version": "v2.7.1",
+      "name": "osv-scanner_linux_amd64",
+      "bytes": 58187936,
+      "sha256": "fb7dab19a8bd9bbe5c3189f09d4b7ee1820c9553a23bac202648a56efd2f6ee8",
+      "url": "https://github.com/google/osv-scanner/releases/download/v2.7.1/osv-scanner_linux_amd64"
+    },
+    {
+      "repository": "gitleaks/gitleaks",
+      "version": "v8.30.1",
+      "name": "gitleaks_8.30.1_linux_x64.tar.gz",
+      "bytes": 8230402,
+      "sha256": "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb",
+      "url": "https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz"
+    },
+    {
+      "repository": "aquasecurity/trivy",
+      "version": "v0.76.2",
+      "name": "trivy_0.76.2_Linux-64bit.tar.gz",
+      "bytes": 52714130,
+      "sha256": "bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf",
+      "url": "https://github.com/aquasecurity/trivy/releases/download/v0.76.2/trivy_0.76.2_Linux-64bit.tar.gz"
+    }
+  ],
+  "rules": {
+    "source": "https://github.com/opengrep/opengrep-rules",
+    "commit": "f1d2b562b414783763fd02a6ed2736eaed622efa",
+    "coverage": "EXPLICIT_JS_PY_SUBSET_NOT_FULL_RULE_LIBRARY",
+    "files": [
+      {
+        "path": "javascript/browser/security/eval-detected.yaml",
+        "file": "javascript__browser__security__eval-detected.yaml",
+        "gitBlob": "06f92ab355e1846d37ba11d27fff7094656d58f5",
+        "sha256": "9f6d12dbcdb47679876d212e044ec6db9710d88b987e30c90dbdc10fca47dfc9"
+      },
+      {
+        "path": "javascript/lang/security/detect-eval-with-expression.yaml",
+        "file": "javascript__lang__security__detect-eval-with-expression.yaml",
+        "gitBlob": "f8a81f96ce715b7b39d9f0d329f890084645ba68",
+        "sha256": "0978788b5f6fc6ec12cbf12e7a6ab6e90f15ca1f4473749cd37eb250d5c2c3df"
+      },
+      {
+        "path": "python/lang/security/audit/dangerous-asyncio-create-exec-audit.yaml",
+        "file": "python__lang__security__audit__dangerous-asyncio-create-exec-audit.yaml",
+        "gitBlob": "b5003d5946f39c9f321820119b770bd8c20b1b86",
+        "sha256": "3bf7440ee9f389add4ad1f9543664e4a426637e5a9db7003c79a21b5a222f737"
+      },
+      {
+        "path": "python/lang/security/audit/dangerous-asyncio-create-exec-tainted-env-args.yaml",
+        "file": "python__lang__security__audit__dangerous-asyncio-create-exec-tainted-env-args.yaml",
+        "gitBlob": "d2951b2d247aa9cb09f8ae81248caa01c1f3eefd",
+        "sha256": "d44affe8855088d6b76565e60514ecd24918bd0b0fb7f0a86cb9a2786dff0638"
+      },
+      {
+        "path": "python/lang/security/audit/dangerous-asyncio-exec-audit.yaml",
+        "file": "python__lang__security__audit__dangerous-asyncio-exec-audit.yaml",
+        "gitBlob": "80d7ff4e33d53570389085c08f0de9a0cf8db293",
+        "sha256": "5451d515e9275a5385e6f9d739c3ecedddf7d2466d2d4cd9f2132f195765b5b5"
+      },
+      {
+        "path": "python/lang/security/audit/dangerous-asyncio-exec-tainted-env-args.yaml",
+        "file": "python__lang__security__audit__dangerous-asyncio-exec-tainted-env-args.yaml",
+        "gitBlob": "6c2fef3c9a46316a475618d8b0292521ba551bd5",
+        "sha256": "5cee303e9b1b0ec5e5277509a566c8396fa49dc855a1d9812f88a41d11ff7990"
+      }
+    ]
+  },
+  "osv": {
+    "source": "https://osv-vulnerabilities.storage.googleapis.com/npm/all.zip",
+    "generation": "1794983596211906",
+    "bytes": 221682569,
+    "officialMd5Base64": "yoO2+pyMJvoumAeckKk3Lg==",
+    "sha256": "3c5b93576d37e8b6ffeda671cddb4861b088a41798dde5f692ad400efad421ac",
+    "ecosystems": ["npm"],
+    "downloadedAt": "2026-11-18T09:23:30.4220171Z"
+  },
+  "gitleaksConfig": {
+    "source": "https://github.com/gitleaks/gitleaks/blob/v8.30.1/config/gitleaks.toml",
+    "gitBlob": "256f64790ea6d954f0041024be2938089ae1e7a7",
+    "sha256": "e163e53b9e7e8a8511e77271e2b323ed057759542a6d988258afe3a1fa329caf"
+  },
+  "imageId": "sha256:3608834fae5f966e6380af0c7b2acf71a46af2ac2bac8591be2b0851d501fa51",
+  "ownerRepositoryAccessed": false
+}

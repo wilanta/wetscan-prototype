@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 2,
+  "module": "guard-g01-acceptance-approval",
+  "status": "NOT_AUTHORIZED",
+  "packetSha256": "OWNER_MUST_SELECT_ONE_VERIFIED_PACKET",
+  "approvedBy": null,
+  "approvedAt": null,
+  "expiresAt": null,
+  "note": "This example is deliberately rejected by runtime. Never self-approve or invent timestamps."
+}

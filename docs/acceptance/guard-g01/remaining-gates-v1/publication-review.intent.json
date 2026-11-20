@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "module": "guard-g01-publication-review",
+  "status": "NOT_AUTHORIZED_AWAITING_GATE_DECISION_AND_EXPLICIT_PUBLICATION_PERMISSION",
+  "preparedAt": "2026-11-15T16:47:35.384Z",
+  "branch": "feat/guard-g01-s03-integration",
+  "currentParent": "1b28fb88ae65a29902e0f1f314efdce44ed3c643",
+  "remote": null,
+  "reviewedFileManifest": null,
+  "commitTitle": null,
+  "commitBody": null,
+  "commitSha": null,
+  "pushSha": null,
+  "stagingChanged": false,
+  "commitExecuted": false,
+  "pushExecuted": false,
+  "forbid": [
+    "force push",
+    "master mutation",
+    "merge",
+    "deploy",
+    "G02-G06 start",
+    "private/secret artifact publication"
+  ],
+  "prerequisites": [
+    "Complete safe gates or retain demonstrated blockers with explicit owner decision",
+    "Actual final artifact/test/evidence manifest",
+    "Explicit publication approval containing remote/branch/files/actions"
+  ]
+}

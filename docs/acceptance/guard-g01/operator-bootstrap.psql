@@ -1,0 +1,28 @@
+-- Operator-run wrapper for approved SQL only; never contains a password.
+\set ON_ERROR_STOP on
+\o 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/postgres-bootstrap-00.txt'
+\i 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/docs/acceptance/guard-g01/00-maintenance-preflight.sql'
+\o 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/postgres-bootstrap-01.txt'
+\i 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/docs/acceptance/guard-g01/01-new-roles.sql'
+\o 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/postgres-bootstrap-02.txt'
+\i 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/docs/acceptance/guard-g01/02-create-database.sql'
+\o
+\connect wetscan_s01_test_guardg01 postgres localhost 5432
+\o 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/postgres-bootstrap-03.txt'
+\i 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/docs/acceptance/guard-g01/03-target-and-privileges.sql'
+\o 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/postgres-bootstrap-04.txt'
+\i 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/docs/acceptance/guard-g01/04-fresh-platform-baseline.sql'
+\o 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/postgres-bootstrap-05.txt'
+\i 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/docs/acceptance/guard-g01/05-preservation-fixture.sql'
+\o 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/postgres-bootstrap-06-before.txt'
+\i 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/docs/acceptance/guard-g01/06-preservation-observer.sql'
+\o 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/postgres-bootstrap-07.txt'
+\i 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/docs/acceptance/guard-g01/07-guard-platform-access.sql'
+\o 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/postgres-bootstrap-08.txt'
+\i 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/docs/acceptance/guard-g01/08-guard-schema.sql'
+\o 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/postgres-bootstrap-09.txt'
+\i 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/docs/acceptance/guard-g01/09-readonly-security-verification.sql'
+\o 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/.local/sentinel/guard-g01-unblock/postgres-bootstrap-06-after-schema.txt'
+\i 'C:/laragon/www/wetscan-2/wetscan-guard-g01-s03-candidate/docs/acceptance/guard-g01/06-preservation-observer.sql'
+\o
+\echo G01 approved bootstrap finished. Runtime credentials and PostgreSQL acceptance are separate remaining steps.

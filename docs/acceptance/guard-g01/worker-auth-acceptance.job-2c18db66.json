@@ -1,0 +1,212 @@
+{
+  "updatedAt": "2026-11-15T16:25:19.845Z",
+  "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+  "jobId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+  "status": "CONNECTED_WORKER_AUTH_ACCEPTANCE_PASS_PREPARE_ONLY_G01_PARTIAL",
+  "approvedAt": "2026-11-15T16:00:19.000Z",
+  "expiresAt": "2026-11-15T16:54:19.000Z",
+  "permitActivation": "FOUR_ACTIVE_OLD_BYTES_ARCHIVED",
+  "restrictedActivationAttempt": "EPERM before first write; normal reviewed execution succeeded",
+  "beforeObserver": {
+    "artifact": "worker-auth-observer-before.job-2c18db66.json",
+    "sha256": "88124f595054a9b5059d6c681d477d0eee7584752507fe26cbb7faa97223a728",
+    "sourceArtifact": "C:\\laragon\\www\\wetscan-2\\wetscan-guard-g01-s03-candidate\\.local\\sentinel\\guard-g01-unblock\\worker-49f2240c-10eb-47c8-9d08-2d8d06cc81a7\\observer-1794758524044.json",
+    "scan": null,
+    "queueCount": 0,
+    "attemptCount": 0,
+    "heartbeatCount": 0,
+    "readOnly": true
+  },
+  "unauthenticatedCheck": {
+    "requestSha256": "7f014b026d5e83634f4a2f07b17ffc9a27aabfe5a50f6c7dd029c7d977a2145a",
+    "startedAt": "2026-11-15T16:02:03.115Z",
+    "finishedAt": "2026-11-15T16:02:05.708Z",
+    "method": "GET",
+    "path": "/api/guard/projects/github-839286157/scans",
+    "cookiesSent": false,
+    "tokensSent": false,
+    "httpStatus": 401,
+    "contentType": "application/json",
+    "error": "unauthenticated",
+    "passed": true
+  },
+  "enqueueResponses": [
+    {
+      "phase": "first_enqueue",
+      "httpStatus": 200,
+      "scanId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+      "status": "queued",
+      "execution": "prepare_only",
+      "scannerExecution": "NOT_RUN",
+      "exactJobMatches": true
+    },
+    {
+      "phase": "second_enqueue",
+      "httpStatus": 200,
+      "scanId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18",
+      "status": "queued",
+      "execution": "prepare_only",
+      "scannerExecution": "NOT_RUN",
+      "exactJobMatches": true
+    }
+  ],
+  "workerLaunches": 1,
+  "currentAuthProof": "OWNER_HTTP200_FINAL_FRESH_AUTH_RESULT_PLUS_MATCHING_STORED_AUDIT_COVERAGE_AND_LIVE_QUEUE_LEASE_HEARTBEAT",
+  "scannerExecution": "NOT_RUN",
+  "sandboxExecution": "NOT_RUN",
+  "g02Started": false,
+  "sentinelMutation": false,
+  "sourceOnlyRepeat": false,
+  "stopOnFailure": true,
+  "ownerReport": {
+    "serverStopped": true,
+    "pageRefreshed": true,
+    "commitInputEmpty": true,
+    "preparationReferenceMissing": true,
+    "queueButtonMissing": true,
+    "verifyAfterRefresh": false,
+    "enqueueAfterRefresh": false,
+    "replayAfterRefresh": false,
+    "workerAfterRefresh": false,
+    "provenance": "Explicit owner report; server-stop cause not independently established"
+  },
+  "afterRefreshObserver": {
+    "observedAt": "2026-11-15T16:06:09.189Z",
+    "file": "worker-auth-observer-after-refresh.job-2c18db66.json",
+    "sha256": "413b5922d2435051a6f63ee9124254ca01b12707e6ac59c0b8d54c487995a320",
+    "scan": null,
+    "queueCount": 0,
+    "attemptCount": 0,
+    "heartbeatCount": 0
+  },
+  "draftRecoveryPlan": "draft-recovery-plan.job-2c18db66.json",
+  "recoveryExecuted": true,
+  "preRecoveryEnqueueObserver": {
+    "file": "worker-auth-observer-before-recovery-enqueue.job-2c18db66.json",
+    "sha256": "a66033ec58a2e666a479418486fd873055e8e0fd12e7b8674eb981a30b3a5cdb",
+    "observedAt": "2026-11-15T16:09:42.992Z",
+    "queueCount": 0,
+    "scan": null
+  },
+  "authenticatedReadiness": {
+    "phase": "authenticated_readiness",
+    "httpStatus": 200,
+    "status": "BLOCKED",
+    "database": "approved",
+    "schema": "verified",
+    "execution": "G02_NOT_CONFIGURED",
+    "scanAccepted": false
+  },
+  "firstEnqueueEvidence": "worker-auth-first-enqueue-response.job-2c18db66.json",
+  "afterFirstEnqueueObserver": {
+    "artifact": "worker-auth-observer-after-first-enqueue.job-2c18db66.json",
+    "sha256": "fdf6f29e7e94177d76349de40d4ca802df4da788edce031f65b0947680aa6771",
+    "observedAt": "2026-11-15T16:14:19.379Z",
+    "bindingMatches": true,
+    "scanCount": 1,
+    "queueCount": 1,
+    "scanStatus": "queued",
+    "scanRevision": 1,
+    "attempts": 0,
+    "fence": "0",
+    "leaseOwner": null,
+    "leaseUntil": null,
+    "attemptRows": 0,
+    "heartbeatRows": 0,
+    "queuedAuditAt": "2026-11-15T16:12:37.120Z"
+  },
+  "confirmedEnqueueCalls": 2,
+  "remainingEnqueueCalls": 0,
+  "remainingWorkerLaunches": 0,
+  "idempotentReplayVerified": true,
+  "workerPreparationVerified": true,
+  "nextOwnerSnippet": {
+    "file": "OWNER_LAUNCH_WORKER_2c18db66.js",
+    "sha256": "6ae3d77d555b1c0f1bd5a5c1507ed2947bb13243b92ee1eaeabebf08e422d230",
+    "body": {
+      "action": "launch",
+      "scanId": "2c18db662dcf8fec6052e05d02ed1362802facd839fca81a71a888c37b09ee18"
+    },
+    "maximumPostCalls": 1,
+    "enqueueCalls": 0,
+    "mode": "prepare_only",
+    "executed": true
+  },
+  "secondEnqueueEvidence": "worker-auth-second-enqueue-response.job-2c18db66.json",
+  "afterSecondEnqueueObserver": {
+    "artifact": "worker-auth-observer-after-second-enqueue.job-2c18db66.json",
+    "sha256": "9b51b986abfcdb2ac61cef6a06052117dae251e084851cbf175540568bdaac86",
+    "observedAt": "2026-11-15T16:16:47.578Z",
+    "bindingMatches": true,
+    "scanCount": 1,
+    "queueCount": 1,
+    "scanRevision": 1,
+    "attempts": 0,
+    "fence": "0",
+    "leaseOwner": null,
+    "leaseUntil": null,
+    "attemptRows": 0,
+    "heartbeatRows": 0,
+    "scanAndQueueUnchangedSinceFirstEnqueue": true,
+    "originalQueuedAuditAt": "2026-11-15T16:12:37.120Z"
+  },
+  "preWorkerPermitRecheck": {
+    "at": "2026-11-15T16:17:55.334Z",
+    "permits": [
+      {
+        "name": "db-app-approval.json",
+        "scopeMatches": true,
+        "expiresAt": "2026-11-15T16:54:19.000Z"
+      },
+      {
+        "name": "db-worker-approval.json",
+        "scopeMatches": true,
+        "expiresAt": "2026-11-15T16:54:19.000Z"
+      },
+      {
+        "name": "preparation-approval.json",
+        "scopeMatches": true,
+        "expiresAt": "2026-11-15T16:54:19.000Z"
+      },
+      {
+        "name": "worker-approval.json",
+        "scopeMatches": true,
+        "expiresAt": "2026-11-15T16:54:19.000Z"
+      }
+    ],
+    "implementationHashesMatch": 41
+  },
+  "workerLaunchResponse": "worker-auth-launch-response.job-2c18db66.json",
+  "finalObserver": "worker-auth-observer-final.job-2c18db66.json",
+  "result": "worker-auth-acceptance-result.job-2c18db66.json",
+  "postRunPreservation": {
+    "status": "LIVE_VERIFIED_ISOLATED_FIXTURE",
+    "artifact": "worker-auth-sql18-postrun.job-2c18db66.json",
+    "sha256": "357d5e03fc7995b09ada6cc220e4700fda04f31fbc6637add0b0310744825464",
+    "ownerActualPgAdminResult": true,
+    "rollbackConfirmed": true,
+    "beforeSha256": "45e7cfe26767e26ad96ceda0dd2a53649a10ea7a5453844ac50ee30867e1095d",
+    "afterSha256": "45e7cfe26767e26ad96ceda0dd2a53649a10ea7a5453844ac50ee30867e1095d",
+    "differentSections": [],
+    "guardScans": 3,
+    "activeGuardLeases": 0,
+    "fullTargetMarkerIndependentlyVerified": true,
+    "copyFormattingLimitationsDisclosed": true,
+    "externalSentinel": "NOT_OBSERVED"
+  },
+  "openGates": [
+    "Worker-to-enforcing-sandbox integration on the actual job/snapshot with exact image/command/spec/provenance/operator evidence",
+    "Remaining live revocation/access-change/cancellation/timeout and negative cleanup cases not proven by this positive run",
+    "Actual DB-backed worker crash/lease-expiry/restart/recovery and orphan cleanup gates",
+    "Schema lifecycle/down/recovery beyond previously tested transaction rollback remains unproven and needs separate scoped approval",
+    "External Sentinel preservation remains unobserved; isolated fixture evidence does not cover external targets"
+  ],
+  "operationBudget": {
+    "approvedEnqueueCalls": 2,
+    "usedEnqueueCalls": 2,
+    "approvedWorkerLaunches": 1,
+    "usedWorkerLaunches": 1,
+    "additionalEnqueueOrLaunchAuthorized": false,
+    "permitWindowExtended": false
+  }
+}

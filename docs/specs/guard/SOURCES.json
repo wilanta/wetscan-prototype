@@ -1,0 +1,32 @@
+[
+    {
+        "file":  "G02.md",
+        "source":  "owner attachment",
+        "sha256":  "afb63ec0a56e846f446b2530675a2d95372cd351bcc2a84204ffdd7692f14cc2",
+        "bytes":  6077
+    },
+    {
+        "file":  "G03.md",
+        "source":  "owner attachment",
+        "sha256":  "3129f169ff090d0089b0653259d4659a2e6bfa6152af42cbafa5167af8cc2521",
+        "bytes":  5917
+    },
+    {
+        "file":  "G04.md",
+        "source":  "owner attachment",
+        "sha256":  "f58ddbc4c93415a8ab2b4a8f73009b03591d7606806d1f2a7fbaea77f6b4f8f3",
+        "bytes":  7356
+    },
+    {
+        "file":  "G05.md",
+        "source":  "owner attachment",
+        "sha256":  "f086564d29eeeca6a71c65e0716ba451bec8e6f27ce88d286241d26f67d6c425",
+        "bytes":  5737
+    },
+    {
+        "file":  "G06.md",
+        "source":  "owner attachment",
+        "sha256":  "4ebb3685a4711a74443f30a6ec4df48bf3b45c69661ad3327c3d5dd1eb4ee6b2",
+        "bytes":  8226
+    }
+]

@@ -1,0 +1,72 @@
+{
+  "status": "WAITING_USER",
+  "generatedAt": "2026-11-15T11:47:25.198228+00:00",
+  "approvalWindow": "60 minutes from explicit owner approval; no approval granted by generation",
+  "bundleSha256": "e6f3b28cd49ac8c875a20b034338645dc4e14a8f81036e200f453f0337a05f01",
+  "binding": {
+    "target": {
+      "host": "localhost",
+      "port": 5432,
+      "database": "wetscan_s01_test_guardg01",
+      "marker": "wetscan-s01:aa8b15a6-7ed3-4f19-81f0-07d9759ec62f"
+    },
+    "expectedServerVersionNum": 180006,
+    "owner": "wetscan_guard_migrator",
+    "guardPlanSha256": "b63e1e8568babcf8d7811fe0fa735ecbec11ade64df19bdea78deb030a85869d",
+    "platformPlanSha256": "c3e39f6fd43ee6eb2fbf5b244778955aab4cabb8a11ed3c66d791cf99a252a94",
+    "artifacts": [
+      {
+        "file": "00-maintenance-preflight.sql",
+        "sha256": "12cee91db79813167f5585890ba5f7f692fc54b85db08697ff5eaa172351bebd"
+      },
+      {
+        "file": "01-new-roles.sql",
+        "sha256": "6cd2f13e626967731a0645e20058f479c323ebffb4f89cdf5c218f9d38c1acbf"
+      },
+      {
+        "file": "02-create-database.sql",
+        "sha256": "33077422484a3b0a91fa77c07cbaf6b1bc12902be8e18e078eff7b0544b2fcbb"
+      },
+      {
+        "file": "03-target-and-privileges.sql",
+        "sha256": "9ddf931f910dcc1dd00858a98904ac98087e7dc38d7053acd90c35643660148d"
+      },
+      {
+        "file": "04-fresh-platform-baseline.sql",
+        "sha256": "89a807649702bada0c74224f8604368079d52791e1757152c68f008935ab5a34"
+      },
+      {
+        "file": "05-preservation-fixture.sql",
+        "sha256": "bdf82dc091073cf901fadc30409139a73004dc057fb8cd2b9e30c2032765df4c"
+      },
+      {
+        "file": "06-preservation-observer.sql",
+        "sha256": "f2980a8f2a7a8d84a2f58227ef7312fc4fdda994b85fe652079e094fe53c579d"
+      },
+      {
+        "file": "07-guard-platform-access.sql",
+        "sha256": "428da44cb4e4e75134b9f60ca33d5c1254c4ec6bedf81d2c36113b3e049400b4"
+      },
+      {
+        "file": "08-guard-schema.sql",
+        "sha256": "b175b543b7c34d09c70b0d45830cba2aeb0957d2aef5267ba7bcd660155f7af2"
+      },
+      {
+        "file": "09-readonly-security-verification.sql",
+        "sha256": "1204b774908a22ea8372fb91c3415c4dcb7c830f011256c131a3b8c0bd1d15e4"
+      },
+      {
+        "file": "90-empty-guard-rollback.REQUIRES-SEPARATE-APPROVAL.sql",
+        "sha256": "721ab1235e951f25a7a923b9653b59a5215f8d7e8daf66125bff004754a1835d"
+      },
+      {
+        "file": "tests/guard/g01/postgres.acceptance.ts",
+        "sha256": "19c5621ee5fdc95c19ba18bdc71fe65cd8fcb25c3cfa54c765e4576adfbdf564"
+      }
+    ]
+  },
+  "databaseConnections": 0,
+  "executedSqlFiles": [],
+  "runtimeTesting": "Separate app/worker purpose permits runtime+integration_test; credentials through existing guarded file mechanism only",
+  "rollback": "Separate exact target/down approval; refuse retained rows/active workers; no DROP DATABASE/ROLE or automatic cleanup"
+}

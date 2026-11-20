@@ -184,5 +184,6 @@ describe("S11 secret scan: the repository", () => {
       incomplete: [],
     });
     expect(report.scanned).toBeGreaterThan(500);
-  });
+    // Repo-wide scan: ~1.6s alone, but exceeds the 5s default when ~100 test workers contend for I/O.
+  }, 30000);
 });

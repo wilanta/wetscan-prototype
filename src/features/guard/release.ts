@@ -37,7 +37,12 @@ export function evaluate(
     };
   const missing = policy.required.filter(
     (engine) =>
-      !job.runs.some((r) => r.engine === engine && r.status === "completed"),
+      !job.runs.some(
+        (r) =>
+          r.engine === engine &&
+          r.status === "completed" &&
+          (!r.coverage || r.coverage.status === "complete"),
+      ),
   );
   if (
     !["completed", "completed_partial"].includes(job.status) ||
@@ -54,6 +59,14 @@ export function evaluate(
     (f) =>
       !["verified_fixed", "false_positive", "risk_accepted"].includes(f.status),
   );
+  if (job.mode === "live" && active.some((f) => f.severityKnown === false))
+    return {
+      decision: "INCOMPLETE",
+      reasons: [
+        "Advisory severity is unknown; no trusted severity/CVSS assessment was recorded.",
+      ],
+      enforced: false,
+    };
   const blockers = active.filter(
     (f) =>
       policy.blockSeverities.includes(f.severity) &&
@@ -87,6 +100,8 @@ export function report(grant: Grant, job: ScanJob, policy: ReleasePolicy) {
     finishedAt: job.finishedAt ?? null,
     status: job.status,
     ...(job.sourceCoverage ? { sourceCoverage: job.sourceCoverage } : {}),
+    ...(job.inventory ? { inventory: job.inventory } : {}),
+    ...(job.sbom ? { sbom: job.sbom } : {}),
     coverage: job.runs.map((r) => ({ ...r, reason: redact(r.reason) })),
     findings: job.findings.map((f) => ({
       ...f,

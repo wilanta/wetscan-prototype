@@ -1,0 +1,201 @@
+{
+  "classification": "REAL_SCANNERS_ISOLATED_POSTGRES_CONTROLLED_SOURCE_NOT_OWNER_ACCEPTANCE",
+  "fixtureDatabaseOnly": true,
+  "ownerRepositoryAccessed": false,
+  "ownerDatabaseAccessed": false,
+  "postgresRestartVerified": true,
+  "profiles": [
+    {
+      "profile": "quick",
+      "scanId": "014c033bade2fb191d0cbfbbe2940654f75fdb50e1f6d66ca982b4bce1288389",
+      "status": "completed",
+      "revision": 13,
+      "findings": 7,
+      "engines": [
+        {
+          "engine": "sast",
+          "status": "completed",
+          "artifactDigest": "d5fb8172cdbf8c516037b528c3597045a956a4316b4fc2da7034d768e5022369",
+          "cleanup": "VERIFIED",
+          "coverage": {
+            "scope": "Configured Opengrep JS/TS/Python rule subset only",
+            "status": "complete",
+            "scannedFiles": 5,
+            "eligibleFiles": 2
+          }
+        },
+        {
+          "engine": "sca",
+          "status": "completed",
+          "artifactDigest": "2a9126dbd1665268cdf23ccd3d341ba327c55c7bb41a953425e12c3edddab549",
+          "cleanup": "VERIFIED",
+          "coverage": {
+            "scope": "npm lockfiles in the authorized snapshot; unsupported or unreported manifests remain partial; no reachability analysis",
+            "status": "complete",
+            "scannedFiles": 1,
+            "eligibleFiles": 1
+          }
+        },
+        {
+          "engine": "secrets",
+          "status": "completed",
+          "artifactDigest": "5c882702a32f7c1875207d2177b92f9bc7da583239eff4d261a250f1f6f42241",
+          "cleanup": "VERIFIED"
+        }
+      ],
+      "inventory": 1,
+      "sbom": false,
+      "triagePersisted": true,
+      "reportPersisted": true,
+      "duplicateCoalesced": true,
+      "crossWorkspaceRlsVerified": true,
+      "rawSecretAbsent": true
+    },
+    {
+      "profile": "standard",
+      "scanId": "d98629e828059e7bd1627750d3d20bec175ae00e65f5e3ba4466034430fbee7f",
+      "status": "completed",
+      "revision": 17,
+      "findings": 10,
+      "engines": [
+        {
+          "engine": "sast",
+          "status": "completed",
+          "artifactDigest": "d5fb8172cdbf8c516037b528c3597045a956a4316b4fc2da7034d768e5022369",
+          "cleanup": "VERIFIED",
+          "coverage": {
+            "scope": "Configured Opengrep JS/TS/Python rule subset only",
+            "status": "complete",
+            "scannedFiles": 5,
+            "eligibleFiles": 2
+          }
+        },
+        {
+          "engine": "sca",
+          "status": "completed",
+          "artifactDigest": "2a9126dbd1665268cdf23ccd3d341ba327c55c7bb41a953425e12c3edddab549",
+          "cleanup": "VERIFIED",
+          "coverage": {
+            "scope": "npm lockfiles in the authorized snapshot; unsupported or unreported manifests remain partial; no reachability analysis",
+            "status": "complete",
+            "scannedFiles": 1,
+            "eligibleFiles": 1
+          }
+        },
+        {
+          "engine": "secrets",
+          "status": "completed",
+          "artifactDigest": "5c882702a32f7c1875207d2177b92f9bc7da583239eff4d261a250f1f6f42241",
+          "cleanup": "VERIFIED"
+        },
+        {
+          "engine": "iac",
+          "status": "completed",
+          "artifactDigest": "2b6e2b38f4da0abf81f20450cbf40813a96a089558c40f549b41eeef017d6e9e",
+          "cleanup": "VERIFIED",
+          "coverage": {
+            "scope": "Trivy reported manifest-bound IaC targets only; unreported/unsupported files are not clean coverage",
+            "status": "complete",
+            "scannedFiles": 1,
+            "eligibleFiles": 1
+          }
+        },
+        {
+          "engine": "sbom",
+          "status": "completed",
+          "artifactDigest": "2a9126dbd1665268cdf23ccd3d341ba327c55c7bb41a953425e12c3edddab549",
+          "cleanup": "VERIFIED",
+          "coverage": {
+            "scope": "npm lockfiles in the authorized snapshot; unsupported or unreported manifests remain partial; no reachability analysis",
+            "status": "complete",
+            "scannedFiles": 1,
+            "eligibleFiles": 1
+          }
+        }
+      ],
+      "inventory": 1,
+      "sbom": true,
+      "triagePersisted": true,
+      "reportPersisted": true,
+      "duplicateCoalesced": true,
+      "crossWorkspaceRlsVerified": true,
+      "rawSecretAbsent": true
+    },
+    {
+      "profile": "full",
+      "scanId": "e85619fafb1cabe5a9fa18a229c334720c68e198b8eaa17f4d5b183007c67b96",
+      "status": "completed",
+      "revision": 19,
+      "findings": 16,
+      "engines": [
+        {
+          "engine": "sast",
+          "status": "completed",
+          "artifactDigest": "d5fb8172cdbf8c516037b528c3597045a956a4316b4fc2da7034d768e5022369",
+          "cleanup": "VERIFIED",
+          "coverage": {
+            "scope": "Configured Opengrep JS/TS/Python rule subset only",
+            "status": "complete",
+            "scannedFiles": 5,
+            "eligibleFiles": 2
+          }
+        },
+        {
+          "engine": "sca",
+          "status": "completed",
+          "artifactDigest": "2a9126dbd1665268cdf23ccd3d341ba327c55c7bb41a953425e12c3edddab549",
+          "cleanup": "VERIFIED",
+          "coverage": {
+            "scope": "npm lockfiles in the authorized snapshot; unsupported or unreported manifests remain partial; no reachability analysis",
+            "status": "complete",
+            "scannedFiles": 1,
+            "eligibleFiles": 1
+          }
+        },
+        {
+          "engine": "secrets",
+          "status": "completed",
+          "artifactDigest": "5c882702a32f7c1875207d2177b92f9bc7da583239eff4d261a250f1f6f42241",
+          "cleanup": "VERIFIED"
+        },
+        {
+          "engine": "iac",
+          "status": "completed",
+          "artifactDigest": "6baa242f7b0e5973e07ae48c3e0731912a57b1b47ac000b37e2789404d048926",
+          "cleanup": "VERIFIED",
+          "coverage": {
+            "scope": "Trivy reported manifest-bound IaC targets only; unreported/unsupported files are not clean coverage",
+            "status": "complete",
+            "scannedFiles": 1,
+            "eligibleFiles": 1
+          }
+        },
+        {
+          "engine": "container",
+          "status": "completed",
+          "artifactDigest": "54dce255d4b2805657ea018daaa7aeb561c2537328594fdab6a152aa7abd6e31",
+          "cleanup": "VERIFIED"
+        },
+        {
+          "engine": "sbom",
+          "status": "completed",
+          "artifactDigest": "2a9126dbd1665268cdf23ccd3d341ba327c55c7bb41a953425e12c3edddab549",
+          "cleanup": "VERIFIED",
+          "coverage": {
+            "scope": "npm lockfiles in the authorized snapshot; unsupported or unreported manifests remain partial; no reachability analysis",
+            "status": "complete",
+            "scannedFiles": 1,
+            "eligibleFiles": 1
+          }
+        }
+      ],
+      "inventory": 1,
+      "sbom": true,
+      "triagePersisted": true,
+      "reportPersisted": true,
+      "duplicateCoalesced": true,
+      "crossWorkspaceRlsVerified": true,
+      "rawSecretAbsent": true
+    }
+  ]
+}

@@ -56,7 +56,10 @@ export async function POST(request: NextRequest) {
       throw new AuthError("unauthenticated", 401);
     if (!session) ({ token, session } = await newSession());
     const profile = await profileFor(session);
-    if (profile?.completedAt) return json(state(session, profile));
+    // A completed profile may still change its repository selection (same session + GitHub grant checks below);
+    // every other action stays a no-op for it.
+    if (profile?.completedAt && input.action !== "repositories")
+      return json(state(session, profile));
     if (input.action === "workspace") {
       if (
         typeof input.workspace !== "string" ||
