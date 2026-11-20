@@ -73,3 +73,10 @@ it("generated approvals can only ever name the dedicated Guard database, never a
   expect(app.target.database).not.toBe("wetscan_dev");
   // The product deployment loader additionally pins this exact database name (product-deployment.ts).
 });
+
+it("runtime configuration is single-repository and refuses container scope or malformed ids", async () => {
+  const { productConfig } = await import("../../../scripts/guard-g02-local-env");
+  const t = localTarget(55434, NEW_MARKER), ws = "github-user-187839747:test";
+  expect(() => productConfig(t, "C:/x/wetscan-g02-runtime-meas-1", { deployments: [] }, { workspaceId: ws, repositoryId: "1464294716", branch: "main", engines: ["sast", "container"] })).toThrow("LOCAL_SCOPE_INVALID");
+  expect(() => productConfig(t, "C:/x/wetscan-g02-runtime-meas-1", { deployments: [] }, { workspaceId: ws, repositoryId: "0", branch: "main", engines: ["sast"] })).toThrow("LOCAL_SCOPE_INVALID");
+});

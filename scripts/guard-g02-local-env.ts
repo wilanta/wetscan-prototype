@@ -25,6 +25,7 @@ import {
 } from "../src/features/guard/live/migrations";
 import { validateGuardApproval } from "../src/features/guard/live/database-config";
 import { assertPrivateRuntimeRoot } from "../src/features/guard/live/product-preflight";
+import { validateDeployment, type ProductDeployment } from "../src/features/guard/live/product-deployment";
 
 const run = promisify(execFile);
 export const LOCAL_DATABASE = "wetscan_dev_guardg02";
@@ -261,6 +262,39 @@ export async function verify() {
   }
 }
 
+/** Exact-scope runtime configuration for ONE repository, built only from a fresh measured deployment file. */
+export function productConfig(
+  target: Target,
+  privateRoot: string,
+  measured: { deployments: ProductDeployment["deployments"] },
+  scope: { workspaceId: string; repositoryId: string; branch: string; engines: ProductDeployment["policies"][0]["engines"] },
+): ProductDeployment {
+  if (!/^[1-9]d*$/.test(scope.repositoryId) || scope.engines.includes("container")) throw Error("LOCAL_SCOPE_INVALID");
+  return validateDeployment({
+    version: 1,
+    module: "guard-product-runtime",
+    hosting: "self_hosted_node",
+    target,
+    privateRoot,
+    policies: [
+      {
+        version: 1,
+        id: "g02-local-acceptance-" + scope.repositoryId,
+        workspaceId: scope.workspaceId,
+        projectId: "github-" + scope.repositoryId,
+        repositoryId: scope.repositoryId,
+        branches: [scope.branch],
+        engines: scope.engines,
+        scannerTimeoutMs: 45000,
+        jobTimeoutMs: 300000,
+        maxAttempts: 1,
+      },
+    ],
+    // Container is excluded from this campaign: its deployment is not part of the runtime file.
+    deployments: measured.deployments.filter((d) => scope.engines.includes(d.engine)),
+  });
+}
+
 async function main() {
   const [cmd, ...rest] = process.argv.slice(2);
   let out: unknown;
@@ -268,7 +302,21 @@ async function main() {
     const i = rest.indexOf("--port");
     out = await provision(i >= 0 ? Number(rest[i + 1]) : 55434);
   } else if (cmd === "verify") out = await verify();
-  else if (cmd === "start" || cmd === "stop") {
+  else if (cmd === "runtime-root") {
+    // Fresh private root for ONE measurement + its runtime configuration (qualifications expire after one hour).
+    const root = join(parentDir(), "wetscan-g02-runtime-meas-" + randomUUID());
+    await securePrivateRoot(root);
+    out = { runtimeRoot: root.replaceAll("\\", "/") };
+  } else if (cmd === "config") {
+    // config <runtimeRoot> <workspaceId> <repositoryId> <branch>
+    const [root, workspaceId, repositoryId, branch] = rest;
+    const p = await pointer();
+    await assertPrivateRuntimeRoot(resolve(root));
+    const measured = JSON.parse(await readFile(join(resolve(root), "deployments.measured.json"), "utf8"));
+    const cfg = productConfig(p.target, resolve(root), measured, { workspaceId, repositoryId, branch, engines: ["sast", "sca", "secrets", "iac", "sbom"] });
+    await writeFile(join(resolve(root), "product.runtime.json"), JSON.stringify(cfg, null, 2) + "\n", { flag: "wx", mode: 0o600 });
+    out = { configured: true, workspaceId, projectId: "github-" + repositoryId, branch, engines: cfg.policies[0].engines, qualificationExpiresAt: cfg.deployments[0].qualification.expiresAt };
+  } else if (cmd === "start" || cmd === "stop") {
     await docker([cmd, CONTAINER]);
     out = { container: CONTAINER, action: cmd };
   } else if (cmd === "status") {
