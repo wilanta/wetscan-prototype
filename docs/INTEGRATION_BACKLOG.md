@@ -271,23 +271,23 @@ No external issues created. Dependencies require owner handoffs. G01 adds Guard-
 
 ## GRD-011 - Scoped staging DAST
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
-- Owner/dependency: owner/Codex (Guard implementation). External integration dependency: Platform/security owner.
-- Contract: DastScope, EgressPort, ScannerPort dast.
-- Source (relative to src/features/guard unless explicitly prefixed): security.ts (allowDast), dast-scope-form.tsx, contracts.ts (DastScope/EgressPort).
-- Safety/storage/environment: Disabled; origin/path/method/consent/window/rate restrictions; DNS/IP/rebind/redirect enforcement at socket layer.
-- Tests / acceptance / definition of done: Private/metadata/rebind/redirect denied; authorized synthetic baseline executed.
-- Issue reference: not created.
+- State: REAL_LOCAL_SYNTHETIC_VERIFIED (`feat/guard-g05-dast-integrity`). Disabled by default (`GUARD_G05_ENABLED !== "1"`); external staging awaits target-specific HTTPS approval.
+- Owner/dependency: Guard G05 implementation (`src/features/guard/g05/egress.ts`, `dast-engine.ts`, `service.ts`, `worker.ts`, `migrations/guard/g05/0002_g05.up.sql`).
+- Contract: `G05TargetRecord`, `G05ExecutionGrant`, `EnforcedHttpClient`, `G05PostgresQueue`.
+- Source (relative to src/features/guard unless explicitly prefixed): `g05/{contracts,egress,dast-engine,service,store,worker,http,panel}.ts*`, `security.ts (allowDast)`, `dast-scope-form.tsx`.
+- Safety/storage/environment: Disabled by default; revisioned target + consent grant; DNS/IP/rebinding/metadata/private CIDR blocking at socket layer; method/route/cap/timeout bounds; local loopback strictly requires pin + synthetic health identity header.
+- Tests / acceptance / definition of done: `tests/guard/g05/egress.test.ts`, `worker.postgres.integration.ts`, `tests/guard/g05/browser/g05.spec.ts` PASS against isolated PG 18 (`55436`) and Docker synthetic staging (`4115`).
+- Issue reference: PR on `feat/guard-g05-dast-integrity`.
 
 ## GRD-012 - Authenticated DAST accounts
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
-- Owner/dependency: owner/Codex (Guard implementation). External integration dependency: Security/test owner.
-- Contract: DastScope syntheticAccounts; encrypted expiring handles.
-- Source (relative to src/features/guard unless explicitly prefixed): contracts.ts (DastScope/TestPlan), dast-scope-form.tsx.
-- Safety/storage/environment: No real users/payment/production mutations; no account secrets in reports.
-- Tests / acceptance / definition of done: Dummy account rotation/cleanup, approved scope and safe stop verified.
-- Issue reference: not created.
+- State: REAL_LOCAL_SYNTHETIC_VERIFIED (`feat/guard-g05-dast-integrity`). Disabled by default.
+- Owner/dependency: Guard G05 implementation (`src/features/guard/g05/vault.ts`, `dast-engine.ts`, `store.ts`).
+- Contract: `G05TestAccountView`, `sealCredential` / `unsealCredential`, `G05SessionManager`.
+- Source (relative to src/features/guard unless explicitly prefixed): `g05/{vault,dast-engine,store,panel}.ts*`.
+- Safety/storage/environment: Synthetic non-production accounts only; AES-256-GCM AAD sealing; worker-only unsealing (`loadSealedAccountsForWorker`); session expiration/revocation verification & logout cleanup; zero secret leakage across reports/API/DOM.
+- Tests / acceptance / definition of done: `tests/guard/g05/vault.test.ts`, `store.postgres.integration.ts`, `worker.postgres.integration.ts`, `g05.spec.ts` PASS.
+- Issue reference: PR on `feat/guard-g05-dast-integrity`.
 
 ## GRD-013 - Canvas risk overlays
 
@@ -301,33 +301,33 @@ No external issues created. Dependencies require owner handoffs. G01 adds Guard-
 
 ## GRD-014 - Canvas Trust plans
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
-- Owner/dependency: owner/Codex (Guard implementation). External integration dependency: Canvas owner.
-- Contract: CanvasPort.plans; InvariantPlan confirmedBy/kind/expectedStatus.
-- Source (relative to src/features/guard unless explicitly prefixed): contracts.ts (TestPlan/InvariantPlan/CanvasPort), adapters.ts.
-- Safety/storage/environment: User confirmation required; AI does not authorize execution.
-- Tests / acceptance / definition of done: Unconfirmed/mismatched plans denied; ownership tests.
-- Issue reference: not created.
+- State: REAL_LOCAL_SYNTHETIC_VERIFIED (`feat/guard-g05-dast-integrity`).
+- Owner/dependency: Guard G05 implementation (`src/features/guard/g05/canvas-bridge.ts`, `service.ts`, `store.ts`, `panel.tsx`).
+- Contract: `G05CanvasTrustPlan`, `evaluateCanvasTrustPlan`, `buildG05TestPlan`.
+- Source (relative to src/features/guard unless explicitly prefixed): `g05/canvas-bridge.ts`, `contracts.ts`, `../canvas/trust/model.ts`.
+- Safety/storage/environment: Cross-project/workspace reuse rejected 403 (`NOT_AUTHORIZED`), stale revision/expired rejected 409 (`STALE`), unconfirmed rules rejected (`UNCONFIRMED`/blocked).
+- Tests / acceptance / definition of done: `tests/guard/g05/engine.test.ts`, `worker.postgres.integration.ts`, `g05.spec.ts` PASS.
+- Issue reference: PR on `feat/guard-g05-dast-integrity`.
 
 ## GRD-015 - Canvas Workflow import
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
-- Owner/dependency: owner/Codex (Guard implementation). External integration dependency: Canvas owner.
-- Contract: InvariantPlan; workflow version/transitions.
-- Source (relative to src/features/guard unless explicitly prefixed): contracts.ts (TestPlan), integrity.ts (synthetic only).
-- Safety/storage/environment: No invented graph inference; explicit versioned handoff required.
-- Tests / acceptance / definition of done: Confirmed transitions trace to source workflow/version.
-- Issue reference: not created.
+- State: REAL_LOCAL_SYNTHETIC_VERIFIED (`feat/guard-g05-dast-integrity`).
+- Owner/dependency: Guard G05 implementation (`src/features/guard/g05/canvas-bridge.ts`, `service.ts`, `panel.tsx`).
+- Contract: `G05WorkflowImport`, `importCanvasWorkflow`, `buildG05TestPlan`.
+- Source (relative to src/features/guard unless explicitly prefixed): `g05/canvas-bridge.ts`, `../canvas/workflows/model.ts`.
+- Safety/storage/environment: Explicit state-graph integrity validation (acyclic progression, valid state refs, endpoint/method mapping check), Plan Preview generated before queueing execution.
+- Tests / acceptance / definition of done: `tests/guard/g05/engine.test.ts`, `worker.postgres.integration.ts`, `g05.spec.ts` PASS.
+- Issue reference: PR on `feat/guard-g05-dast-integrity`.
 
 ## GRD-016 - Live Integrity runner
 
-- State: PORT_READY / WAITING_ON_DEPENDENCY. Fixture verification never enables live.
-- Owner/dependency: owner/Codex (Guard implementation). External integration dependency: Guard/security owner.
-- Contract: InvariantPlan, IntegrityResult, RetestResult.
-- Source (relative to src/features/guard unless explicitly prefixed): integrity.ts, contracts.ts (TestPlan), tests/guard/core.test.ts.
-- Safety/storage/environment: Only in-memory fixtures now; GRD-005/011/012 required for live.
-- Tests / acceptance / definition of done: Five invariants on approved staging dummy resources; expected/observed evidence and cleanup.
-- Issue reference: not created.
+- State: REAL_LOCAL_SYNTHETIC_VERIFIED (`feat/guard-g05-dast-integrity`).
+- Owner/dependency: Guard G05 implementation (`src/features/guard/g05/integrity-engine.ts`, `worker.ts`, `service.ts`, `panel.tsx`).
+- Contract: `executeIntegrityCases` covering all 5 families (`ownership`, `workflow_bypass`, `state_transition`, `replay`, `unauthorized_modification`).
+- Source (relative to src/features/guard unless explicitly prefixed): `g05/{integrity-engine,worker,service,store,panel}.ts*`, `worker/guard/g05-staging/server.ts`.
+- Safety/storage/environment: Persisted pre/post state diffs catch false-error mutations; mandatory synthetic record deletion & verified cleanup before completion; targeted retest promotes resolved findings to `verified_fixed`.
+- Tests / acceptance / definition of done: `tests/guard/g05/engine.test.ts`, `worker.postgres.integration.ts`, `tests/guard/g05/browser/g05.spec.ts` PASS against hardened + all fault-injected modes on real Docker synthetic staging.
+- Issue reference: PR on `feat/guard-g05-dast-integrity`.
 
 ## GRD-017 - AI provider/privacy opt-in
 

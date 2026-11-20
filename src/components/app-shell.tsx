@@ -54,7 +54,7 @@ const manage = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const realProject =
-    /^\/app\/projects\/github-[1-9]\d*\/(?:canvas|guard(?:\/(?:scans|findings|integrity|remediation|releases))?|sentinel(?:\/(?:activity|sources|rules|alerts|incidents(?:\/[a-f0-9-]+)?|responses|notifications|ghost|intelligence|reports))?)$/.test(
+    /^\/app\/projects\/github-[1-9]\d*\/(?:canvas|guard(?:\/(?:scans|findings|integrity|dast|remediation|releases))?|sentinel(?:\/(?:activity|sources|rules|alerts|incidents(?:\/[a-f0-9-]+)?|responses|notifications|ghost|intelligence|reports))?)$/.test(
       pathname,
     );
   const accountState = useDashboardAccount();

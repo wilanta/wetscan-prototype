@@ -38,6 +38,7 @@ export function validateGuardApproval(
       "wetscan_dev",
       "wetscan_dev_guardg01",
       "wetscan_dev_guardg02",
+      "wetscan_dev_guardg05",
       "wetscan_s01_test_guardg01",
     ].includes(value.target.database)
   )
