@@ -284,7 +284,7 @@ export class G04Service {
         }
       }
       // A deliberate recheck has its own scan identity; so does the ONE automatic replacement after a stranded scan was recovered.
-      const recoveredBefore = !!t.note?.startsWith("scan_recovery"),
+      const recoveredBefore = /^scan_(recovery|retry)/.test(t.note ?? ""),
         rerun = (t.source === "manual" || t.source === "check_rerun" ? rerunNumber(t.idempotencyKey) : 0) + (recoveredBefore ? 1_000_000 : 0);
       const scanId = t.scanId ?? (await this.d.scans.ensureScan(pol, t, rerun)).scanId;
       if (!t.scanId) await s.setScan(scope, t.id, scanId);
@@ -308,6 +308,13 @@ export class G04Service {
         }
       }
       const terminal = isTerminal(scan.job.status);
+      // A REQUIRED engine that merely timed out is usually host load, not a property of the commit. One bounded, audited retry with a new
+      // scan identity; a second timeout is evaluated as it is (INCOMPLETE). Never skipped, never turned into a pass.
+      if (terminal && !recoveredBefore && scan.job.status !== "cancelled" && pol.policy.requiredEngines.some((e) => scan.job.runs.find((r) => r.engine === e)?.status === "timed_out")) {
+        await s.audit(scope, "g04-dispatcher", "transient_engine_timeout_retry", scanId.slice(0, 12), { engines: pol.policy.requiredEngines.filter((e) => scan.job.runs.find((r) => r.engine === e)?.status === "timed_out"), commit: t.commit });
+        await s.resetScanForRecovery(scope, t.id, "scan_retry_timeout:1");
+        return true;
+      }
       if (!terminal) {
         if (this.now() - Date.parse(t.createdAt) > LIMITS.scanWaitMs) {
           await incomplete("scan_timeout", "scan_did_not_finish");

@@ -95,7 +95,7 @@ export function validateProductPolicy(
     policy.maxAttempts !== 1 ||
     !Number.isInteger(policy.scannerTimeoutMs) ||
     policy.scannerTimeoutMs < 100 ||
-    policy.scannerTimeoutMs > 45000 ||
+    policy.scannerTimeoutMs > 90000 ||
     !Number.isInteger(policy.jobTimeoutMs) ||
     policy.jobTimeoutMs < 60000 ||
     policy.jobTimeoutMs > 600000 ||

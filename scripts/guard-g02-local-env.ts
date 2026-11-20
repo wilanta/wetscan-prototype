@@ -287,8 +287,8 @@ export function productConfig(
         repositoryId: scope.repositoryId,
         branches: [scope.branch],
         engines: scope.engines,
-        scannerTimeoutMs: 45000,
-        jobTimeoutMs: 300000,
+        scannerTimeoutMs: 90000, // per-engine specs decide their own (45 s; OSV 90 s); this is the ceiling
+        jobTimeoutMs: 580000,
         maxAttempts: 1,
       },
     ],

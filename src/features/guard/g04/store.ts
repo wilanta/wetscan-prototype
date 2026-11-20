@@ -271,8 +271,8 @@ export class G04Store {
     });
   }
   /** One automatic replacement scan after a stranded scan was recovered: new scan identity on the next claim, attempt refunded. */
-  resetScanForRecovery(scope: Pick<Scope, "workspaceId" | "projectId">, id: string) {
-    return this.q(scope, async (run) => (await run("UPDATE guard.g04_triggers SET status='pending', scan_id=NULL, note='scan_recovery:1', attempts=greatest(attempts-1,0), next_attempt_at=clock_timestamp(), lease_until=NULL, updated_at=clock_timestamp() WHERE workspace_id=$1 AND project_id=$2 AND id=$3 AND status='running' RETURNING id", [scope.workspaceId, scope.projectId, id])).length === 1);
+  resetScanForRecovery(scope: Pick<Scope, "workspaceId" | "projectId">, id: string, note = "scan_recovery:1") {
+    return this.q(scope, async (run) => (await run("UPDATE guard.g04_triggers SET status='pending', scan_id=NULL, note=$4, attempts=greatest(attempts-1,0), next_attempt_at=clock_timestamp(), lease_until=NULL, updated_at=clock_timestamp() WHERE workspace_id=$1 AND project_id=$2 AND id=$3 AND status='running' RETURNING id", [scope.workspaceId, scope.projectId, id, note])).length === 1);
   }
   /** Only while still `running`: a superseded/cancelled trigger is never resurrected by a late worker. */
   finishTrigger(scope: Pick<Scope, "workspaceId" | "projectId">, id: string, patch: { status: "pending" | "completed" | "failed" | "skipped"; scanId?: string | null; lastError?: string | null; retryInMs?: number; note?: string | null; /** waiting for a running scan is not a failed attempt */ refundAttempt?: boolean }) {

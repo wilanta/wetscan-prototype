@@ -236,6 +236,33 @@ describe("G04 pipeline: webhook → trigger → scan → policy → GitHub check
     expect(await rt.appStore.getCheck(s, COMMIT)).toMatchObject({ decision: "INCOMPLETE", conclusion: "action_required" });
     expect(h.ensured).toHaveLength(2);
   });
+  it("a REQUIRED engine that timed out gets ONE audited retry (new scan identity); a second timeout stays INCOMPLETE, never PASS", async () => {
+    const { s, h } = await setup();
+    await h.intake.ingest(push(s, COMMIT));
+    const t = (await rt.appStore.listTriggers(s))[0],
+      first = hex(COMMIT + ":0:main"),
+      second = hex(COMMIT + ":1000000:main");
+    const timedOut = () => complete(COMMIT, { status: "completed_partial", runs: engineSet.map((e) => run(e, e === "sca" ? "timed_out" : "completed")) });
+    h.scans.set(first, timedOut());
+    await h.service.runTrigger(s, t.id);
+    expect(await rt.appStore.getTrigger(s, t.id)).toMatchObject({ status: "pending", scanId: null, note: "scan_retry_timeout:1" });
+    expect((await rt.appStore.getCheck(s, COMMIT))?.decision).not.toBe("PASS");
+    h.scans.set(second, timedOut());
+    await due(s, t.id);
+    await h.service.runTrigger(s, t.id);
+    expect(h.ensured).toEqual([first, second]);
+    expect(await rt.appStore.getCheck(s, COMMIT)).toMatchObject({ decision: "INCOMPLETE", conclusion: "action_required" });
+    expect((await rt.appStore.recentAudit(s)).filter((a) => a.action === "transient_engine_timeout_retry")).toHaveLength(1);
+  });
+  it("a timeout of a NON-required engine is not retried (policy decides what matters)", async () => {
+    const { s, h } = await setup({ ...defaultPolicy, enabled: true, requiredEngines: ["sast", "secrets"] });
+    await h.intake.ingest(push(s, COMMIT));
+    const t = (await rt.appStore.listTriggers(s))[0];
+    h.scans.set(hex(COMMIT + ":0:main"), complete(COMMIT, { status: "completed_partial", runs: engineSet.map((e) => run(e, e === "sca" ? "timed_out" : "completed")) }));
+    await h.service.runTrigger(s, t.id);
+    expect(h.ensured).toHaveLength(1);
+    expect((await rt.appStore.getCheck(s, COMMIT))?.decision).toBe("PASS");
+  });
   it("a scan that was admitted but never picked up is re-admitted idempotently after two minutes", async () => {
     const { s, h } = await setup();
     await h.intake.ingest(push(s, COMMIT));
