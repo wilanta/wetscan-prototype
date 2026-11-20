@@ -390,6 +390,22 @@ describe("server auth and onboarding security", () => {
       ).status,
     ).toBe(400);
   });
+  it("lets a completed profile change its repository selection only through verified grants", async () => {
+    mockGitHub();
+    const { token, session } = await signedIn();
+    const done = { ...fixtureProfile, completedAt: new Date().toISOString(), workspace: "Test" };
+    await writeRecord("user-42", done);
+    const post = (body: unknown) => onboarding(request("/api/onboarding", token, body));
+    // Forged/ungranted id is still refused (previously a silent 200 no-op).
+    expect((await post({ action: "repositories", repositoryIds: [2] })).status).toBe(403);
+    // A granted id is accepted and persisted; completion is kept.
+    expect((await post({ action: "repositories", repositoryIds: [1] })).status).toBe(200);
+    expect((await profileFor(session))?.repositories.map((r) => r.id)).toEqual([1]);
+    expect((await profileFor(session))?.completedAt).toBeTruthy();
+    // Other actions remain no-ops once completed.
+    await post({ action: "workspace", workspace: "Changed" });
+    expect((await profileFor(session))?.workspace).toBe("Test");
+  });
   it("saves account drafts, completes onboarding, and skips it on returning login", async () => {
     mockGitHub();
     const { token, session } = await signedIn();
