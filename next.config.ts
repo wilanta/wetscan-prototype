@@ -20,6 +20,8 @@ export const securityHeaders = [
 ];
 const config: NextConfig = {
   devIndicators: false,
+  // Lets the isolated UI test server run beside a developer's own `next dev` (separate lock + cache).
+  distDir: process.env.UI_TEST_DIST_DIR || ".next",
   // `next build` type-checks the application graph only. Whole-repo type checking (tests, scripts, physical-scanner tooling)
   // stays in `npm run typecheck`/CI; the large tooling files do not belong in a deployment build.
   typescript: { tsconfigPath: "tsconfig.build.json" },

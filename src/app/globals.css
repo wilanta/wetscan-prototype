@@ -4180,8 +4180,9 @@ tbody tr:hover {
   .landing-nav .logo > span {
     font-size: 23px;
   }
-  .landing-nav .logo > svg {
+  .landing-nav .logo > img {
     width: 26px;
+    height: auto;
   }
   .landing-nav nav {
     display: none;

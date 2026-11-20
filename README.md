@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="src/app/icon.svg" alt="WetScan logo" width="52" height="56" />
+  <img src="src/public/WetScan_logo.svg" alt="WetScan logo" width="64" height="64" />
   <h1>WetScan</h1>
   <p><strong>Understand your application. Secure what matters.</strong></p>
   <p>
@@ -20,9 +20,22 @@
 
 ---
 
-![WetScan Canvas architecture workspace in interactive demo mode](evidence/canvas-master-integration/integrated-canvas-1440.png)
+![WetScan Canvas architecture workspace in interactive demo mode](evidence/readme/canvas-1440.png)
 
 > _WetScan Canvas inspecting the built-in `Orderly Demo` interactive workspace (`Demo mode`)._
+
+<details>
+<summary>More screenshots (Landing, Workspace Overview, Guard, Sentinel)</summary>
+
+| Landing                                                   | Workspace Overview                                                                        |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| ![WetScan landing page](evidence/readme/landing-1440.png) | ![WetScan workspace overview in interactive demo mode](evidence/readme/overview-1440.png) |
+
+| WetScan Guard (`Orderly Demo`)                                                      | WetScan Sentinel (`Orderly Demo`)                                                        |
+| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| ![WetScan Guard workbench in interactive demo mode](evidence/readme/guard-1440.png) | ![WetScan Sentinel overview in interactive demo mode](evidence/readme/sentinel-1440.png) |
+
+</details>
 
 ---
 
@@ -287,26 +300,6 @@ WetScan is under active development. The table below summarizes what is usable t
 - [Ghost Decoys](docs/SENTINEL_S07_ARCHITECTURE.md) — Opt-in decoy paths and privacy guarantees
 - [Internal Case Library](docs/SENTINEL_S08_ARCHITECTURE.md) & [External Advisories](docs/SENTINEL_S09_ARCHITECTURE.md) — Evidence-backed grouping, draft rules, and KEV/GHSA/OSV exposure matching
 - [Live Canvas Overlay & Reports](docs/SENTINEL_S10_ARCHITECTURE.md) — Route-matched incident overlays and JSON/CSV exports
-
----
-
-## Contributing
-
-Contributions are welcome via GitHub pull requests against `master`:
-
-1. Fork the repository and create a feature branch from `master`.
-2. Keep demo fixtures (`orderly-demo`) isolated from live project routes and APIs, and avoid committing `.env*` secrets or `.local/` artifacts.
-3. Run verification checks before opening a pull request:
-
-```bash
-npm run typecheck
-npm run lint
-npm test
-npm run sentinel:secret-scan
-npm run format
-```
-
-4. Include a clear description of the change, affected modules, and the checks you ran.
 
 ---
 
