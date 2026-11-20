@@ -1,5 +1,33 @@
 # CHANGELOG_FIXES
 
+### Fix #20 — Completed onboarding profiles ignored every action, so a repository could never be added after onboarding (found by the G02 product-path acceptance 2026-11-20)
+
+| Field | Detail |
+| --- | --- |
+| Tanggal | 2026-11-20 |
+| File | `src/app/api/onboarding/route.ts`, `tests/auth-onboarding.test.ts` |
+| Masalah | The owner added `wilanta/wetscan-g02-acceptance` to the GitHub App but it never appeared in WetScan; `/app/projects/github-1464294716/guard` showed "That page isn't on this map". "Connect repository" links to `/onboarding`, which is a dead end once onboarding is complete. A POST `{action:"repositories"}` returned 200 and saved nothing (my own earlier instruction assumed it would save). |
+| Akar | `POST /api/onboarding` returned the current state immediately when `profile.completedAt` was set, for every action. The Guard page authorizes through `profile.repositories`, so the repository was denied (403 -> notFound). Diagnosed with a temporary server log line: `repository_denied 403` in ~125 ms (no GitHub call), and the POST itself took 30 ms. |
+| Fix | A completed profile may run the `repositories` action (same session, same `accessibleRepositories` GitHub grant check, `completedAt` kept). All other actions stay no-ops. |
+| Verifikasi | New test: completed profile + forged id -> 403 (was silent 200); granted id saved and completion kept; workspace action still ignored. `tests/auth-onboarding.test.ts` 16/16. Live: owner re-ran the selection, repository saved (200, list includes id 1464294716), Guard page opened and two real scans ran. |
+| Pelajaran | Do not tell an owner to call an API without reading its guard clauses; a 30 ms "200" on a call that must reach GitHub is a no-op signal. |
+| Log Keyword | `repository_denied`, `completedAt`, `That page isn't on this map`, `api/onboarding` |
+| Deploy | NOT deployed. |
+
+### Fix #19 — Fresh isolated local Guard target: helper bug (scope regex lost its backslash) found while running the acceptance (2026-11-20)
+
+| Field | Detail |
+| --- | --- |
+| Tanggal | 2026-11-20 |
+| File | `scripts/guard-g02-local-env.ts`, `tests/guard/live/local-env.test.ts` |
+| Masalah | `config` for the new local environment failed with `LOCAL_SCOPE_INVALID` for the valid repository id 1464294716. |
+| Akar | My own helper's repository-id regex was written `/^[1-9]d*$/` (the backslash was lost while patching through a script). The first test only asserted that id "0" is rejected, which that broken regex also satisfied. |
+| Fix | `/^[1-9][0-9]*$/` plus a positive test (a valid id passes the scope check and fails later only on missing deployments). |
+| Verifikasi | `local-env.test.ts` 6/6; `config` then produced the single-repository policy and the preflight returned policyBinding VERIFIED. |
+| Pelajaran | A validator needs a positive test as well as a negative one; write scripts with the editor, not escaped heredocs. |
+| Log Keyword | `LOCAL_SCOPE_INVALID`, `productConfig`, `guard-g02-local-env` |
+| Deploy | NOT deployed. |
+
 ### Fix #18 — Guard private-directory ACL check could never pass on an elevated Windows account and took 20-37 s per call; 25 Guard tests failed on the hosted Windows CI job (verified on windows-2025 runner 2026-11-19)
 
 | Field | Detail |

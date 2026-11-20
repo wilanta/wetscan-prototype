@@ -2,7 +2,9 @@
 
 Written for: the engineer or owner who continues Guard after this PR, and who must know exactly what is proven and what is not.
 
-**Status: PARTIAL — not COMPLETE.** Everything that can be proven without the owner's interactive GitHub login and the operational database is now `REAL_SCANNER_VERIFIED`. One acceptance gate is `NOT_RUN`: a scan started through the product (owner Auth session, operational `wetscan_dev_guardg02`, Live UI showing the stored result). `GUARD_PRODUCT_ENABLED` stays `0` by default; nothing in this work enables it.
+**Update 20 November 2026: `G02 COMPLETE / DEV_ACCEPTED — NEW LOCAL ENVIRONMENT`** — the product path was run on 20 November 2026 in a NEW isolated local environment (owner-selected replacement target): real GitHub login, Guard Live, two scans (34 / 0 findings), PostgreSQL = API = UI, restart persistence, deactivation. This does not test the earlier operational database on the other computer. See [new local environment setup and record](GUARD_G02_NEW_LOCAL_ENV_SETUP.md). Not `VERCEL_DEPLOYMENT_VERIFIED`, `STAGING_ACCEPTED` or `PRODUCTION_READY`.
+
+**Status as of 19 November (superseded for the product path by the line above): PARTIAL — not COMPLETE.** Everything that can be proven without the owner's interactive GitHub login and the operational database is now `REAL_SCANNER_VERIFIED`. One acceptance gate is `NOT_RUN`: a scan started through the product (owner Auth session, operational `wetscan_dev_guardg02`, Live UI showing the stored result). `GUARD_PRODUCT_ENABLED` stays `0` by default; nothing in this work enables it.
 
 ## What changed in this package (branch `feat/guard-g02-completion`, based on master `8aa17b1`)
 

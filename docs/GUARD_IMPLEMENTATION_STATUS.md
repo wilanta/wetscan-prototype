@@ -2,7 +2,9 @@
 
 ## G02 completion campaign — 19 November 2026
 
-**G02 PARTIAL.** Engines (SAST, SCA, Secrets, IaC, SBOM) are REAL_SCANNER_VERIFIED on a real private GitHub repository (vulnerable vs fixed commit) with real worker lease and isolated PostgreSQL 18; Container is FIXTURE_VERIFIED on a digest-bound OCI fixture; failed-scan Retry is implemented. NOT_RUN: scan through the product Auth session and operational database, and Live UI over that real data. Guard remains disabled by default. See [handoff](G02_HANDOFF.md), [release readiness](GUARD_G02_RELEASE_READINESS.md), [validation](GUARD_G02_VALIDATION.md). G03-G06 not started.
+**G02 COMPLETE / DEV_ACCEPTED (new isolated local environment, 20 November 2026).** the product path was run on 20 November 2026 in a NEW isolated local environment (owner-selected replacement target): real GitHub login, Guard Live, two scans (34 / 0 findings), PostgreSQL = API = UI, restart persistence, deactivation. This does not test the earlier operational database on the other computer. See [new local environment setup and record](GUARD_G02_NEW_LOCAL_ENV_SETUP.md). Not staging/production/Vercel-verified; Guard stays disabled by default.
+
+Earlier status (19 November): **G02 PARTIAL.** Engines (SAST, SCA, Secrets, IaC, SBOM) are REAL_SCANNER_VERIFIED on a real private GitHub repository (vulnerable vs fixed commit) with real worker lease and isolated PostgreSQL 18; Container is FIXTURE_VERIFIED on a digest-bound OCI fixture; failed-scan Retry is implemented. NOT_RUN: scan through the product Auth session and operational database, and Live UI over that real data. Guard remains disabled by default. See [handoff](G02_HANDOFF.md), [release readiness](GUARD_G02_RELEASE_READINESS.md), [validation](GUARD_G02_VALIDATION.md). G03-G06 not started.
 
 > Verified offline continuation: [16-case readiness, current test evidence, approval packets and remaining blockers](GUARD_CONTINUATION_VERIFICATION_20261116.md). Overall G01 remains PARTIALLY COMPLETE; no new live case ran.
 
