@@ -27,7 +27,7 @@ export default async function Page({
   if (
     !/^github-[1-9]\d{0,15}$/.test(projectId) ||
     section.length > 1 ||
-    !["", "scans", "findings", "integrity", "remediation", "releases", "cicd"].includes(
+    !["", "scans", "findings", "integrity", "dast", "remediation", "releases", "cicd"].includes(
       section.join("/"),
     )
   )

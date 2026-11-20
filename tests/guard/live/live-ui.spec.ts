@@ -193,9 +193,10 @@ test("six Live tabs render scoped stored API data; no demo or scanner action is 
     name: "Live Guard sections",
     exact: true,
   });
-  // The six original Live tabs plus the G04 "CI/CD Gate" tab (additive; none of the six was changed or removed).
-  expect(await nav.getByRole("link").count()).toBe(7);
+  // Six original Live tabs plus the additive G04 CI/CD Gate and G05 DAST & Integrity tabs.
+  expect(await nav.getByRole("link").count()).toBe(8);
   await expect(nav.getByRole("link", { name: "CI/CD Gate", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "DAST & Integrity", exact: true })).toBeVisible();
   await nav.getByRole("link", { name: "Findings", exact: true }).click();
   await expect(
     panel.getByRole("heading", { name: "API fixture finding", exact: true }),
