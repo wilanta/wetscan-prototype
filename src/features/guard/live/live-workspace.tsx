@@ -19,6 +19,7 @@ import { guidance } from "../evidence";
 import { analysisReportHtml } from "./analysis-report";
 import { LiveGuardWorkbench } from "./workbench";
 import { CicdPanel } from "../g04/panel";
+import { G05Workbench } from "../g05/panel";
 import styles from "../workbench.module.css";
 import { LiveAnalysisPanel, LivePreflightButton } from "./analysis-panel";
 interface Readiness {
@@ -35,6 +36,7 @@ const tabs = [
   ["Scan History", "scans"],
   ["Findings", "findings"],
   ["Logic & Workflows", "integrity"],
+  ["DAST & Integrity", "dast"],
   ["Remediation", "remediation"],
   ["Release Status", "releases"],
   ["CI/CD Gate", "cicd"],
@@ -251,10 +253,11 @@ export function LiveGuardWorkspace({
           </Link>
         ))}
       </nav>
+      {section === "dast" && <G05Workbench projectId={projectId} />}
       {section === "cicd" && (
         <CicdPanel projectId={projectId} defaultBranch={initialBranch} />
       )}
-      {section !== "cicd" && (
+      {section !== "cicd" && section !== "dast" && (
       <Card className={styles.panel} aria-label="Guard live workspace">
         <div className={styles.toolbar}>
           <Badge tone="blue">LIVE · RECORDED DATA</Badge>
@@ -665,6 +668,11 @@ export function LiveGuardWorkspace({
                   enforcing DNS/IP/redirect controls are required. No model or
                   fixture is presented as an HTTP observation.
                 </Notice>
+                <p>
+                  <Link className="button secondary" href={base + "/dast"}>
+                    Open Live DAST &amp; Integrity Workbench
+                  </Link>
+                </p>
                 <h3>Recorded scan audit</h3>
                 {view.audit.map((a, i) => (
                   <p key={i}>
