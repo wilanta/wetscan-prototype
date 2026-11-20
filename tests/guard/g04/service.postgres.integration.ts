@@ -290,6 +290,19 @@ describe("G04 pipeline: webhook → trigger → scan → policy → GitHub check
     await h.service.runSchedule(s, "nightly-2");
     expect((await rt.appStore.getSchedule(s, "nightly-2"))).toMatchObject({ lastStatus: "access_repository_not_accessible", consecutiveFailures: 1 });
   });
+  it("manual request: exact commit, idempotent, refused for unprotected branches / disabled policy / suspended installation", async () => {
+    const { s, h } = await setup();
+    const input = { branch: "main", commit: OTHER, idempotencyKey: "manual-key-12345678", actor: "github-user-1" };
+    const a = await h.intake.requestScan(s, input),
+      b = await h.intake.requestScan(s, input);
+    expect(a.created).toBe(true);
+    expect(b.created).toBe(false);
+    expect(a.trigger).toMatchObject({ source: "manual", commit: OTHER, branch: "main", status: "pending" });
+    expect(await rt.appStore.getCheck(s, OTHER)).toMatchObject({ status: "queued", published: false });
+    await expect(h.intake.requestScan(s, { ...input, branch: "scratch/x", idempotencyKey: "manual-key-2222222" })).rejects.toMatchObject({ code: "invalid_input" });
+    await rt.appStore.setInstallationState(s, "suspended");
+    await expect(h.intake.requestScan(s, { ...input, idempotencyKey: "manual-key-3333333" })).rejects.toMatchObject({ code: "invalid_input" });
+  });
   it("admission is bounded: too many pending triggers are refused with 429", async () => {
     const { s, h } = await setup();
     for (let i = 0; i < LIMITS.maxPending; i++) await rt.appStore.insertTrigger(s, { source: "manual", repositoryId: s.repositoryId, installationId: INST, branch: "main", protectBranch: "main", commit: sha40(i + 100), policyRevision: 1, idempotencyKey: "fill-" + i + "-" + Math.random(), actor: "u" });

@@ -20,7 +20,9 @@ const g04 = { GUARD_G04_ENABLED: "1", WETSCAN_GUARD_G04_E2E: "1", GITHUB_APP_WEB
 const next = join(root, "node_modules/next/dist/bin/next");
 const run = (args, environment) => new Promise((ok, no) => { const c = spawn(process.execPath, args, { cwd: root, env: environment, stdio: "inherit", windowsHide: true }); c.once("error", no); c.once("exit", (code) => (code === 0 ? ok() : no(new Error("command failed: " + code)))); });
 let server;
+const cleanup = () => run([join(root, "tests/guard/g04/browser/cleanup.mjs")], process.env);
 try {
+  await cleanup();
   await new Promise((ok, no) => { const p = createServer(); p.once("error", () => no(new Error("Port 3109 must be unused"))); p.listen(3109, "127.0.0.1", () => p.close(ok)); });
   const buildEnv = { ...env, GITHUB_APP_ID: "123", GITHUB_APP_SLUG: "wetscan-test-app", GITHUB_APP_CLIENT_ID: "fixture-client", GITHUB_APP_CLIENT_SECRET: "fixture-only", GITHUB_APP_PRIVATE_KEY: generateKeyPairSync("rsa", { modulusLength: 2048 }).privateKey.export({ type: "pkcs8", format: "pem" }).toString() };
   if (!process.env.G04_SKIP_BUILD) await run([next, "build", "--webpack"], buildEnv);
@@ -36,5 +38,6 @@ try {
   if (!ready) throw new Error("G04 fixture server not ready");
   await run([join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", "tests/guard/g04/browser/playwright.config.ts"], { ...env, ...g04 });
 } finally {
+  await cleanup().catch(() => {});
   if (server && server.exitCode === null) await new Promise((r) => { server.once("exit", r); server.kill(); });
 }

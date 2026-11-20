@@ -8,10 +8,11 @@ globalThis.fetch = async (input, init) => {
   if (url.hostname === "api.github.com") {
     if (/^\/app\/installations\/77\/access_tokens$/.test(url.pathname)) {
       const body = JSON.parse(init?.body ?? "{}");
-      if (body.permissions?.checks === "write")
-        return json({ token: "fixture-checks", expires_at: new Date(Date.now() + 3600000).toISOString(), permissions: { checks: "write", metadata: "read" }, repository_selection: "selected" }, 201);
+      // Real GitHub echoes the granted permissions in the token response; the base fixture does not.
+      if (body.permissions && Object.keys(body.permissions).every((k) => ["checks", "metadata", "contents"].includes(k)))
+        return json({ token: "fixture-g04", expires_at: new Date(Date.now() + 3600000).toISOString(), permissions: body.permissions, repository_selection: "selected" }, 201);
     }
-    if (url.pathname === "/repositories/101") return json({ id: 101, full_name: "fixture/wetscan-web" });
+    if (url.pathname === "/repositories/101") return json({ id: 101, full_name: "fixture/wetscan-web", private: true, default_branch: "main" });
     if (/^\/repos\/fixture\/wetscan-web\/commits\/[a-f0-9]{40}\/check-runs$/.test(url.pathname)) return json({ check_runs: [] });
     if (url.pathname === "/repos/fixture/wetscan-web/check-runs" && init?.method === "POST") return json({ id: 9001, html_url: "https://github.com/fixture/wetscan-web/runs/9001" }, 201);
     if (/^\/repos\/fixture\/wetscan-web\/(rules\/branches|branches\/[^/]+\/protection)/.test(url.pathname)) return json([]);

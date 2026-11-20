@@ -17,7 +17,7 @@ async function login(page: Page) {
   await page.route("https://github.com/login/oauth/authorize?*", async (route) => {
     const url = new URL(route.request().url()),
       callback = new URL("/api/auth/github/callback", base);
-    callback.search = new URLSearchParams({ code: "fixture-single-g04", state: url.searchParams.get("state")! }).toString();
+    callback.search = new URLSearchParams({ code: "fixture-single-" + (40000 + Math.floor(Math.random() * 9999)), state: url.searchParams.get("state")! }).toString();
     await route.fulfill({ contentType: "text/html", body: "<script>location.replace(" + JSON.stringify(callback.toString()) + ")</script>" });
   });
   await page.goto("/onboarding");
@@ -47,10 +47,22 @@ const api = (page: Page, path: string, init?: { method?: string; data?: unknown 
 test.describe.configure({ mode: "serial" });
 let page: Page;
 test.beforeAll(async ({ browser }) => {
-  page = await browser.newPage();
+  page = await (await browser.newContext()).newPage();
+  page.on("response", (r) => r.url().includes("/g04/") && r.status() >= 400 && r.request().method() !== "GET" && console.log("G04 HTTP", r.status(), r.request().method(), new URL(r.url()).pathname));
+  page.on("pageerror", (e) => console.log("PAGEERROR", e.message.slice(0, 200)));
   await login(page);
 });
-test.afterAll(async () => page.close());
+test.afterAll(async () => {
+  // Never leave repository 101 automated by this throwaway workspace (the database allows one automating workspace per repository).
+  try {
+    const o = await api(page, "/api/guard/projects/" + project + "/g04/policy");
+    if (o.body?.policy?.policy?.enabled)
+      await api(page, "/api/guard/projects/" + project + "/g04/policy", { method: "PUT", data: { policy: { ...o.body.policy.policy, enabled: false }, expectedRevision: o.body.policy.revision, reason: "afterAll cleanup" } });
+  } catch {
+    /* best effort */
+  }
+  await page.close();
+});
 
 test("tab is part of the existing Guard Live workspace; unconfigured state is explicit, never green", async () => {
   await page.goto("/app/projects/" + project + "/guard");
@@ -77,7 +89,7 @@ test("policy: edit, save, revision recorded, audit trail and history persist", a
   // invalid configuration is refused by the server, nothing changes
   await page.getByLabel(/Protected branches/).fill("refs/heads/main");
   await page.getByRole("button", { name: "Save policy" }).click();
-  await expect(page.getByRole("alert")).toContainText("nothing was changed");
+  await expect(page.locator('p[role="alert"]')).toContainText("nothing was changed");
   await page.reload();
   await expect(page.getByText("revision 1")).toBeVisible();
   const hist = await api(page, "/api/guard/projects/" + project + "/g04/policy");
@@ -151,7 +163,7 @@ test("schedules are gated by the policy trigger and bounded", async () => {
   await page.getByLabel("Schedule id").fill("nightly-scan");
   await page.getByRole("button", { name: "Save schedule" }).click();
   await expect(page.getByRole("status")).toContainText("Schedule saved");
-  const row = page.getByRole("row", { name: /nightly-scan/ });
+  const row = page.getByRole("row", { name: /nightly-scan true every/ });
   await expect(row).toContainText("every 1440 min");
   await expect(row).toContainText("true");
   await shot(page, "06-schedules");
@@ -163,7 +175,8 @@ test("deployments: unmapped provider and missing token are explicit; nothing is 
   await expect(page.getByText("No deployment evidence")).toBeVisible();
   await page.getByLabel(/Vercel project id/).fill("prj_fixture123");
   await page.getByRole("button", { name: "Verify and map project" }).click();
-  await expect(page.getByRole("alert")).toContainText("provider_not_configured");
+  await expect(page.locator('p[role="alert"]')).toContainText("provider_not_configured");
+  await page.getByText(/Register Guard as a required Vercel Deployment Check/).click();
   await expect(page.getByRole("button", { name: "Register deployment check" })).toBeDisabled();
   // the write action refuses without the exact confirmation, even via the API
   expect((await api(page, "/api/guard/projects/" + project + "/g04/gate", { method: "POST", data: { confirm: "yes", blocks: "deployment-alias", targets: ["production"] } })).status).toBe(400);
@@ -215,4 +228,15 @@ test("dark theme renders the tab", async () => {
   await expect(page.getByRole("heading", { name: /Security policy/ })).toBeVisible();
   await shot(page, "09-dark");
   await page.emulateMedia({ colorScheme: "light" });
+});
+
+test("cleanup: automation is switched off again through the UI so the next run starts clean (one workspace may automate a repository)", async () => {
+  await page.goto(cicd);
+  await page.getByLabel(/Enable automated scanning/).uncheck();
+  await page.getByLabel("Reason for this change").fill("browser acceptance cleanup");
+  await page.getByRole("button", { name: "Save policy" }).click();
+  await expect(page.getByRole("status")).toContainText("Policy saved");
+  const o = await api(page, "/api/guard/projects/" + project + "/g04/overview");
+  expect(o.body.policy.policy.enabled).toBe(false);
+  expect(o.body.schedules.every((s: { enabled: boolean }) => !s.enabled)).toBe(true);
 });
