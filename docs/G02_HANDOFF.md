@@ -66,11 +66,11 @@ G02_MEASURED_ROOT=<private-root> node --import tsx worker/guard/installation/git
 
 Measurements expire after one hour. OSV (2 GB budget) is load-sensitive: a clean-variant SBOM run timed out at 45 s once while other processes ran; it passed alone. Do not run other work during physical runs.
 
-## Final acceptance attempt — 20 November 2026 (still PARTIAL, nothing executed on the product path)
+## Historical final-acceptance attempt — 20 November 2026 (superseded by new local environment)
 
-A follow-up agent session confirmed the two blocked gates are reachable only by the owner: the app's GitHub login, the operational `wetscan_dev_guardg02` references/config (not on the development machine) and a Vercel login. It re-verified the acceptance targets directly on GitHub (full SHAs in the runbook) and ran one more Vercel probe (`.vercelignore` for `worker/guard/installation/`: still red). The exact owner steps, evidence list and what is known about the Vercel failure are in [GUARD_G02_FINAL_ACCEPTANCE_RUNBOOK.md](GUARD_G02_FINAL_ACCEPTANCE_RUNBOOK.md). `VERCEL_DEPLOYMENT_VERIFIED` is not met; G02 is not `COMPLETE / DEV_ACCEPTED`.
+A follow-up agent session confirmed the two blocked gates are reachable only by the owner: the app's GitHub login, the operational `wetscan_dev_guardg02` references/config (not on the development machine) and a Vercel login. It re-verified the acceptance targets directly on GitHub (full SHAs in the runbook) and ran one more Vercel probe (`.vercelignore` for `worker/guard/installation/`: still red). The exact owner steps, evidence list and what is known about the Vercel failure are in [GUARD_G02_FINAL_ACCEPTANCE_RUNBOOK.md](GUARD_G02_FINAL_ACCEPTANCE_RUNBOOK.md). `VERCEL_DEPLOYMENT_VERIFIED` is not met; **at the time of this older attempt**, G02 was not yet `COMPLETE / DEV_ACCEPTED`. Later on 20 November, the new isolated environment passed owner-authenticated product-path acceptance (34 / 0 findings, API/PG/UI parity, restart and deactivation); see `GUARD_G02_NEW_LOCAL_ENV_SETUP.md` for the authoritative local DEV status.
 
-## Next owner actions
+## Historical next-owner actions (completed for new local environment)
 
 1. Start the app in the owner process with the existing reviewed config, `GUARD_PRODUCT_ENABLED=0` during preflight; select `wilanta/wetscan-g02-acceptance` and pin `c1330c63…`, then `3c6a99ec…`; approve exactly those two runs; deactivate afterwards.
 2. Decide whether container acceptance is wanted (needs an owner OCI archive + `image` scope).
