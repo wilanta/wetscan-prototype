@@ -1,3 +1,7 @@
+## G04 CI/CD security gate - 20 November 2026
+
+**G04 PARTIALLY_VERIFIED** (branch `feat/guard-g04-cicd`, base `5e52ac2`). Implemented and verified: signed-webhook intake, durable commit-pinned triggers, deterministic project policies, dispatcher over the unchanged G02 scanners, GitHub Check Run publisher, Vercel read-only adapter, enforcement assessment, bounded schedules, CI/CD Gate tab. Verified against real PostgreSQL (isolated G04 environment), a real browser (13/13) and one real scanner run (vulnerable commit -> BLOCK). **BLOCKED on owner actions:** real Check Runs (the App lacks the Checks permission), GitHub-originated deliveries (no webhook), required-check enforcement, Vercel hold/release. A decision is never "enforced" without provider evidence. See [validation](GUARD_G04_VALIDATION.md), [readiness](GUARD_G04_RELEASE_READINESS.md), [handoff](agent-handoffs/HANDOFF_GUARD_G04.md).
+
 > Latest N04 review repair: [revision3 offline verification and inactive approval packet](acceptance/guard-g01/remaining-gates-v3/N04_REPAIR_REVIEW.md). DESIGN_REVIEW_ACCEPTED / RUNTIME_NOT_AUTHORIZED;913 offline tests pass. Revision2 packets are retained historical artifacts; changed implementation hashes require a new exact runtime approval.
 
 ## G02 completion campaign — 19 November 2026
