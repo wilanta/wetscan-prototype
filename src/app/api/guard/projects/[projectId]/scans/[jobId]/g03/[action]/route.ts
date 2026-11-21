@@ -3,7 +3,8 @@ import { g03Route } from "@/features/guard/g03/http";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 // Retest uses the same deferred G02 worker budget as the existing scan resource route.
-export const maxDuration = 660;
+// Vercel Hobby with Fluid Compute allows at most 300 seconds per invocation.
+export const maxDuration = 300;
 type Context = {
   params: Promise<{ projectId: string; jobId: string; action: string }>;
 };
