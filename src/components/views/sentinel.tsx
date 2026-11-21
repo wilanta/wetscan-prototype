@@ -462,6 +462,39 @@ export function IncidentDetail({ id }: { id: string }) {
             <SectionHeading title="What happened, step by step">
               <Badge tone="blue">Simulated timeline</Badge>
             </SectionHeading>
+            <div className="response-stepper">
+              {[
+                ["evaluating", "1. Detected"],
+                ["applied", "2. Action applied"],
+                ["verification_pending", "3. Verification queued"],
+                ["neutralization_verified", "4. Verification passed"],
+              ].map(([stepKey, label]) => {
+                const order = [
+                  "evaluating",
+                  "applied",
+                  "verification_pending",
+                  "neutralization_verified",
+                ];
+                const currentIdx = order.indexOf(i.responseState);
+                const stepIdx = order.indexOf(stepKey);
+                const isDone =
+                  currentIdx > stepIdx ||
+                  (stepKey === "neutralization_verified" &&
+                    i.responseState === "neutralization_verified");
+                const isActive =
+                  currentIdx === stepIdx &&
+                  i.responseState !== "neutralization_verified";
+                return (
+                  <span
+                    key={stepKey}
+                    className={`response-step-pill ${isDone ? "done" : isActive ? "active" : ""}`}
+                  >
+                    {isDone && <Check size={13} />}
+                    {label}
+                  </span>
+                );
+              })}
+            </div>
             <div className="incident-timeline">
               {i.timeline.map((e, index) => (
                 <div key={e.id} className="timeline-event">

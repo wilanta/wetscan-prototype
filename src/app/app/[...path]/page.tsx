@@ -1,4 +1,5 @@
-import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
+import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Canvas } from "@/components/views/canvas";
 import {
@@ -19,9 +20,17 @@ import {
   Reports,
   Settings,
 } from "@/components/views/manage";
-import { Projects, WorkspaceActivity } from "@/components/views/projects";
+import {
+  LiveProjectHub,
+  Projects,
+  WorkspaceActivity,
+} from "@/components/views/projects";
 import { ProjectCanvas } from "@/features/canvas/server/project-canvas";
 import { CanvasLoading } from "@/features/canvas/components/canvas-loading";
+import { AuthError } from "@/lib/auth/config";
+import { SESSION_COOKIE } from "@/lib/auth/session";
+import { canvasIdentity } from "@/features/canvas/server/github-reader";
+
 export default async function Page({
   params,
   searchParams,
@@ -37,6 +46,35 @@ export default async function Page({
   if (route === "integrations") return <Integrations />;
   if (route === "reports") return <Reports />;
   if (route === "settings") return <Settings />;
+
+  if (
+    path.length === 2 &&
+    path[0] === "projects" &&
+    /^github-[1-9]\d*$/.test(path[1])
+  ) {
+    const token = (await cookies()).get(SESSION_COOKIE)?.value;
+    let repo;
+    try {
+      const { profile } = await canvasIdentity(token);
+      repo = profile.repositories.find((r) => `github-${r.id}` === path[1]);
+    } catch (error) {
+      if (error instanceof AuthError) {
+        if (error.code === "unauthenticated") redirect("/login");
+        if (error.code === "onboarding_incomplete") redirect("/onboarding");
+      }
+      notFound();
+    }
+    if (!repo) notFound();
+    return (
+      <LiveProjectHub
+        projectId={path[1]}
+        fullName={repo.fullName}
+        defaultBranch={repo.defaultBranch}
+        isPrivate={repo.private}
+      />
+    );
+  }
+
   if (
     path.length === 3 &&
     path[0] === "projects" &&
@@ -51,6 +89,7 @@ export default async function Page({
       </Suspense>
     );
   }
+
   if (path[0] !== "projects" || path[1] !== "orderly-demo") notFound();
   const rest = path.slice(2).join("/");
   if (!rest) return <Projects hub />;
@@ -67,9 +106,14 @@ export default async function Page({
       "guard/findings",
       "guard/inventory",
       "guard/releases",
+      "guard/cicd",
     ].includes(rest)
   )
-    return <Guard section={rest.replace("guard", "")} />;
+    return (
+      <Guard
+        section={rest === "guard/cicd" ? "/releases" : rest.replace("guard", "")}
+      />
+    );
   if (/^guard\/findings\/FIND-10[234]$/.test(rest))
     return <FindingDetail id={path.at(-1)} />;
   if (rest === "guard/integrity") return <Integrity />;

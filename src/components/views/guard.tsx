@@ -648,13 +648,47 @@ export function FindingDetail({ id = "FIND-102" }: { id?: string }) {
                   Prewritten demo suggestion. AI is not configured. No code is
                   changed and no pull request is created.
                 </Notice>
-                <pre>
-                  <code>
-                    {id === "FIND-102"
-                      ? `// Example only — adapt and review before use\nconst session = await auth();\nif (!session.userId) return forbidden();\nconst order = await db.order.findFirst({\n  where: { id: params.id, customerId: session.userId }\n});\nif (!order) return forbidden();\nreturn Response.json(order);`
-                      : "Review the affected version and request a scoped retest.\nSet an explicit policy based on your actual application."}
-                  </code>
-                </pre>
+                {id === "FIND-102" ? (
+                  <div className="diff-viewer">
+                    <div className="diff-pane before">
+                      <div className="diff-pane-head">
+                        <span>Before · Vulnerable Handler</span>
+                        <span>CWE-639</span>
+                      </div>
+                      <pre>
+                        <code>{`const session = await auth();
+const order = await db.order.findUnique({
+  where: { id: params.id }
+});
+return Response.json(order);`}</code>
+                      </pre>
+                    </div>
+                    <div className="diff-pane after">
+                      <div className="diff-pane-head">
+                        <span>After · Owner-Scoped Query</span>
+                        <span>Example fix</span>
+                      </div>
+                      <pre>
+                        <code>{`// Example only — adapt and review before use
+const session = await auth();
+if (!session.userId) return forbidden();
+const order = await db.order.findFirst({
+  where: { id: params.id, customerId: session.userId }
+});
+if (!order) return forbidden();
+return Response.json(order);`}</code>
+                      </pre>
+                    </div>
+                  </div>
+                ) : (
+                  <pre>
+                    <code>
+                      {
+                        "Review the affected version and request a scoped retest.\nSet an explicit policy based on your actual application."
+                      }
+                    </code>
+                  </pre>
+                )}
                 {id === "FIND-102" && (
                   <Button
                     onClick={() => {

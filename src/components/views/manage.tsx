@@ -20,6 +20,7 @@ import {
 import { PROJECT } from "@/data/demo";
 import type { Channel, Trigger } from "@/domain/types";
 import { useDemo, toast } from "../demo-provider";
+import { useDashboardAccountView } from "../dashboard-account";
 import {
   Badge,
   Button,
@@ -42,6 +43,7 @@ const triggerLabels: Record<Trigger, string> = {
 };
 export function Notifications() {
   const { state, dispatch } = useDemo();
+  const { account } = useDashboardAccountView();
   const [preview, setPreview] = useState<Channel | null>(null);
   const [filter, setFilter] = useState("all");
   return (
@@ -51,6 +53,15 @@ export function Notifications() {
         title="The right update. In the right place."
         description="Choose how you hear about detections and what happened after a response."
       />
+      {account.repositories.length > 0 && (
+        <Notice tone="blue">
+          Live notification delivery channels and history are managed per GitHub repository:{" "}
+          <Link href={`/app/projects/github-${account.repositories[0].id}/sentinel/notifications`}>
+            Open live Sentinel notifications for {account.repositories[0].fullName}
+          </Link>
+          .
+        </Notice>
+      )}
       <Notice>
         All channels use local previews. No Telegram, email, or WhatsApp
         messages are sent. Provider acceptance and recipient delivery are
@@ -446,6 +457,7 @@ export function Integrations() {
 }
 export function Reports() {
   const { state } = useDemo();
+  const { account } = useDashboardAccountView();
   const summary = `WetScan demo review — ${state.projectName}\nMode: local synthetic fixtures. No live protection.\nRepository: ${state.provider} / ${state.branch} / a1b2c3d (fictional)\nFIND-102: ${state.findingStatus}\nOther findings: 2 inferred demo records\nDAST: not run. Production telemetry: not connected.\nIncidents: ${state.incidents.length}; synthetic verified outcomes: ${state.incidents.filter((i) => i.responseState === "neutralization_verified").length}\nNotification previews: ${state.notifications.length}; actual delivery: not attempted\nNo production deployment enforcement. Not a pentest certification.`;
   return (
     <div className="page report-page">
@@ -478,6 +490,18 @@ export function Reports() {
           </>
         }
       />
+      {account.repositories.length > 0 && (
+        <Notice tone="blue">
+          Unified live audit bundles and S09 Intelligence reports are scoped per connected repository:{" "}
+          <Link href={`/app/projects/github-${account.repositories[0].id}/guard/reports`}>
+            Guard Reports &amp; Bridges ({account.repositories[0].fullName})
+          </Link>{" "}
+          ·{" "}
+          <Link href={`/app/projects/github-${account.repositories[0].id}/sentinel/reports`}>
+            Sentinel Live Report
+          </Link>
+        </Notice>
+      )}
       <Card className="report-document">
         <div className="report-heading">
           <ShieldCheck size={30} />

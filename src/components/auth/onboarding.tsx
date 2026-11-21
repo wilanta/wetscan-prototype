@@ -1,12 +1,14 @@
 "use client";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
   Check,
   GitBranch,
+  Search,
   ShieldCheck,
 } from "lucide-react";
 import { Logo } from "@/components/logo";
@@ -31,6 +33,7 @@ const stepNumber = {
   account: 3,
   complete: 3,
 };
+
 export function Onboarding({ initialError = "" }: { initialError?: string }) {
   const router = useRouter();
   const [state, setState] = useState<OnboardingState>();
@@ -38,10 +41,12 @@ export function Onboarding({ initialError = "" }: { initialError?: string }) {
   const [workspace, setWorkspace] = useState("");
   const [repos, setRepos] = useState<Repository[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
+  const [repoSearch, setRepoSearch] = useState("");
   const [email, setEmail] = useState("");
   const [security, setSecurity] = useState(true);
   const [updates, setUpdates] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [completing, setCompleting] = useState(false);
   const [loadingRepos, setLoadingRepos] = useState(false);
   const [reposLoaded, setReposLoaded] = useState(false);
   const [error, setError] = useState(
@@ -75,7 +80,7 @@ export function Onboarding({ initialError = "" }: { initialError?: string }) {
 
   // Save partial account input on the server; never put credentials in browser storage.
   useEffect(() => {
-    if (step !== 3 || !state?.authenticated) return;
+    if (step !== 3 || !state?.authenticated || busy || completing) return;
     const timer = setTimeout(() => {
       setSaved("Saving preferences...");
       void authFetch<OnboardingState>("/api/onboarding", {
@@ -91,7 +96,7 @@ export function Onboarding({ initialError = "" }: { initialError?: string }) {
         });
     }, 600);
     return () => clearTimeout(timer);
-  }, [step, state?.authenticated, email, security, updates]);
+  }, [step, state?.authenticated, busy, completing, email, security, updates]);
 
   async function loadRepositories() {
     setLoadingRepos(true);
@@ -112,6 +117,7 @@ export function Onboarding({ initialError = "" }: { initialError?: string }) {
       setLoadingRepos(false);
     }
   }
+
   useEffect(() => {
     if (step !== 2 || !state?.connected) return;
     let active = true;
@@ -134,6 +140,14 @@ export function Onboarding({ initialError = "" }: { initialError?: string }) {
     };
   }, [step, state?.connected]);
 
+  const filteredRepos = useMemo(() => {
+    const q = repoSearch.trim().toLowerCase();
+    if (!q) return repos;
+    return repos.filter((r) =>
+      `${r.fullName} ${r.defaultBranch}`.toLowerCase().includes(q),
+    );
+  }, [repos, repoSearch]);
+
   async function run(work: () => Promise<void>) {
     setBusy(true);
     setError("");
@@ -145,6 +159,7 @@ export function Onboarding({ initialError = "" }: { initialError?: string }) {
       setBusy(false);
     }
   }
+
   async function connect(installationId?: number) {
     await run(async () => {
       const result = await authFetch<
@@ -164,6 +179,7 @@ export function Onboarding({ initialError = "" }: { initialError?: string }) {
         );
     });
   }
+
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     await run(async () => {
@@ -182,28 +198,37 @@ export function Onboarding({ initialError = "" }: { initialError?: string }) {
         setState(data);
         setStep(3);
       } else if (step === 3) {
-        await authFetch("/api/onboarding", {
-          action: "complete",
-          email,
-          securityNotifications: security,
-          productUpdates: updates,
-        });
-        router.push("/app");
-        router.refresh();
+        setCompleting(true);
+        try {
+          await authFetch("/api/onboarding", {
+            action: "complete",
+            email,
+            securityNotifications: security,
+            productUpdates: updates,
+          });
+          router.push("/app");
+        } catch (err) {
+          setCompleting(false);
+          throw err;
+        }
       }
     });
   }
+
   return (
     <div className="onboarding">
       <header className="landing-nav">
         <Link href="/" aria-label="WetScan home">
           <Logo />
         </Link>
-        {state?.authenticated ? (
-          <Link href="/account">Account & sign out</Link>
-        ) : (
-          <Link href="/login">Sign in</Link>
-        )}
+        <nav aria-label="Onboarding navigation">
+          <Link href="/">Home</Link>
+          {state?.authenticated ? (
+            <Link href="/account">Account &amp; sign out</Link>
+          ) : (
+            <Link href="/login">Sign in</Link>
+          )}
+        </nav>
       </header>
       <main id="main" className="onboarding-layout">
         <aside>
@@ -241,9 +266,9 @@ export function Onboarding({ initialError = "" }: { initialError?: string }) {
           <span className="eyebrow">STEP {step + 1} OF 4</span>
           <h2>{steps[step]}</h2>
           {error && (
-            <div role="alert">
+            <div role="alert" style={{ margin: "12px 0" }}>
               <Notice tone="amber">{error}</Notice>
-              <p>
+              <p style={{ marginTop: 6, fontSize: 12 }}>
                 <Link href="/login">Sign in again</Link> ·{" "}
                 <Link href="/onboarding">Reload setup</Link>
               </p>
@@ -263,10 +288,11 @@ export function Onboarding({ initialError = "" }: { initialError?: string }) {
                       Give your team a workspace name. You can connect GitHub in
                       the next step.
                     </p>
-                    <label className="field">
+                    <label className="field" style={{ marginTop: 18 }}>
                       Workspace name
                       <input
                         name="workspace"
+                        placeholder="e.g. Northstar Studio"
                         required
                         maxLength={60}
                         autoComplete="organization"
@@ -340,13 +366,15 @@ export function Onboarding({ initialError = "" }: { initialError?: string }) {
                       </Button>
                     </div>
                     {state.connected && (
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => setStep(2)}
-                      >
-                        Continue with connected GitHub App
-                      </Button>
+                      <div style={{ marginTop: 12 }}>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => setStep(2)}
+                        >
+                          Continue with connected GitHub App
+                        </Button>
+                      </div>
                     )}
                   </>
                 )}
@@ -357,50 +385,99 @@ export function Onboarding({ initialError = "" }: { initialError?: string }) {
                       verified installation and account. Select up to 100
                       repositories.
                     </p>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      disabled={loadingRepos}
-                      onClick={loadRepositories}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: 10,
+                        marginTop: 14,
+                        flexWrap: "wrap",
+                      }}
                     >
-                      {loadingRepos ? "Refreshing..." : "Refresh repositories"}
-                    </Button>
+                      <div
+                        className="search-input"
+                        style={{ flex: 1, minWidth: 180 }}
+                      >
+                        <Search size={14} />
+                        <input
+                          aria-label="Search repositories"
+                          placeholder="Search repositories or branches…"
+                          value={repoSearch}
+                          onChange={(e) => setRepoSearch(e.target.value)}
+                        />
+                      </div>
+                      <Badge tone={selected.length > 0 ? "blue" : "neutral"}>
+                        {selected.length} selected
+                      </Badge>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        disabled={loadingRepos}
+                        onClick={loadRepositories}
+                      >
+                        {loadingRepos ? "Refreshing..." : "Refresh repositories"}
+                      </Button>
+                    </div>
                     {!reposLoaded && !error && (
-                      <p role="status">Loading repositories from GitHub...</p>
+                      <p role="status" style={{ marginTop: 10 }}>
+                        Loading repositories from GitHub...
+                      </p>
                     )}
                     {reposLoaded && !repos.length && (
-                      <Notice>
-                        No accessible repositories were returned. Check your
-                        GitHub installation grants or organization approval,
-                        then refresh.
-                      </Notice>
+                      <div style={{ marginTop: 12 }}>
+                        <Notice>
+                          No accessible repositories were returned. Check your
+                          GitHub installation grants or organization approval,
+                          then refresh.
+                        </Notice>
+                      </div>
                     )}
                     <div className="repository-options">
-                      {repos.map((repo) => (
-                        <label key={repo.id}>
-                          <input
-                            type="checkbox"
-                            name="repositories"
-                            checked={selected.includes(repo.id)}
-                            disabled={
-                              !selected.includes(repo.id) &&
-                              selected.length >= 100
-                            }
-                            onChange={(e) =>
-                              setSelected((ids) =>
-                                e.target.checked
-                                  ? [...ids, repo.id]
-                                  : ids.filter((id) => id !== repo.id),
-                              )
-                            }
-                          />
-                          <div>
-                            <strong>{repo.fullName}</strong>
-                            <small>{repo.defaultBranch}</small>
-                          </div>
-                          <Badge>{repo.private ? "Private" : "Public"}</Badge>
-                        </label>
-                      ))}
+                      {filteredRepos.map((repo) => {
+                        const checked = selected.includes(repo.id);
+                        return (
+                          <label
+                            key={repo.id}
+                            style={{
+                              borderColor: checked
+                                ? "var(--primary)"
+                                : undefined,
+                              background: checked
+                                ? "var(--primary-soft)"
+                                : undefined,
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              name="repositories"
+                              checked={checked}
+                              disabled={
+                                !checked && selected.length >= 100
+                              }
+                              onChange={(e) =>
+                                setSelected((ids) =>
+                                  e.target.checked
+                                    ? [...ids, repo.id]
+                                    : ids.filter((id) => id !== repo.id),
+                                )
+                              }
+                            />
+                            <div>
+                              <strong>{repo.fullName}</strong>
+                              <small>branch {repo.defaultBranch}</small>
+                            </div>
+                            <Badge tone={repo.private ? "amber" : "neutral"}>
+                              {repo.private ? "Private" : "Public"}
+                            </Badge>
+                          </label>
+                        );
+                      })}
+                      {reposLoaded && repos.length > 0 && !filteredRepos.length && (
+                        <p className="muted" style={{ fontSize: 12 }}>
+                          No repositories match &ldquo;{repoSearch}&rdquo;.
+                        </p>
+                      )}
                     </div>
                     <Button
                       type="button"
@@ -414,15 +491,17 @@ export function Onboarding({ initialError = "" }: { initialError?: string }) {
                 {step === 3 && (
                   <>
                     <p>
-                      Choose where to receive workspace notifications. GitHub
+                      Choose where to receive workspace notifications for{" "}
+                      <strong>{workspace || "your workspace"}</strong>. GitHub
                       remains your sign-in method.
                     </p>
-                    <label className="field">
+                    <label className="field" style={{ marginTop: 16 }}>
                       Email address
                       <input
                         type="email"
                         name="email"
                         autoComplete="email"
+                        placeholder="you@company.com"
                         required
                         maxLength={254}
                         value={email}
@@ -435,7 +514,8 @@ export function Onboarding({ initialError = "" }: { initialError?: string }) {
                         checked={security}
                         onChange={(e) => setSecurity(e.target.checked)}
                       />
-                      Security notifications
+                      Security notifications (Guard gate blocks &amp; critical
+                      Sentinel alerts)
                     </label>
                     <label className="check-line">
                       <input
@@ -443,13 +523,15 @@ export function Onboarding({ initialError = "" }: { initialError?: string }) {
                         checked={updates}
                         onChange={(e) => setUpdates(e.target.checked)}
                       />
-                      Product updates
+                      Product updates &amp; advisories digest
                     </label>
-                    <p role="status">{saved}</p>
+                    <p role="status" className="muted" style={{ fontSize: 12 }}>
+                      {saved}
+                    </p>
                     <Notice>
                       Preferences are saved here. Email delivery is not
-                      configured. The existing dashboard currently displays demo
-                      scan data; connecting GitHub does not start a scan.
+                      configured. Connecting GitHub does not start an automatic
+                      scan until you authorize one inside Guard or Canvas.
                     </Notice>
                   </>
                 )}

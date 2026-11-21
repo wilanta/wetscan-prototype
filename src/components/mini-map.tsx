@@ -1,16 +1,35 @@
 import {
   AppWindow,
   Braces,
-  Database,
-  KeyRound,
-  GitBranch,
   Cloud,
+  Database,
+  GitBranch,
+  KeyRound,
 } from "lucide-react";
-export function MiniMap() {
+
+export interface MiniMapProps {
+  apiName?: string;
+  frontendLabel?: string;
+  frontendSub?: string;
+  apiIssues?: number;
+  webIssues?: number;
+  repoLabel?: string;
+  envLabel?: string;
+}
+
+export function MiniMap({
+  apiName = "Orders API",
+  frontendLabel = "Web application",
+  frontendSub = "Next.js · TypeScript",
+  apiIssues = 1,
+  webIssues = 0,
+  repoLabel = "northstar-studio/orderly-demo",
+  envLabel = "staging",
+}: MiniMapProps) {
   return (
     <div
       className="mini-map"
-      aria-label="Demo architecture: web application calls Orders API, which accesses authentication and the database"
+      aria-label="Application architecture preview: web application calls API, which accesses authentication and the database"
     >
       <svg viewBox="0 0 650 260" preserveAspectRatio="none" aria-hidden="true">
         <path
@@ -25,15 +44,23 @@ export function MiniMap() {
       </svg>
       <div className="mini-node mini-web">
         <AppWindow />
-        <strong>Web application</strong>
-        <small>Next.js frontend</small>
-        <span className="tiny-status">Verified in demo</span>
+        <strong>{frontendLabel}</strong>
+        <small>{frontendSub}</small>
+        <span className={`tiny-status ${webIssues > 0 ? "warning-dot" : ""}`}>
+          {webIssues > 0
+            ? `${webIssues} finding${webIssues > 1 ? "s" : ""}`
+            : "Verified in demo"}
+        </span>
       </div>
-      <div className="mini-node mini-api">
+      <div
+        className={`mini-node mini-api ${apiIssues === 0 ? "mini-api-clean" : ""}`}
+      >
         <Braces />
-        <strong>Orders API</strong>
+        <strong>{apiName}</strong>
         <small>REST · 6 endpoints</small>
-        <span className="tiny-status warning-dot">1 needs review</span>
+        <span className={`tiny-status ${apiIssues > 0 ? "warning-dot" : ""}`}>
+          {apiIssues > 0 ? `${apiIssues} needs review` : "All checks passing"}
+        </span>
       </div>
       <div className="mini-node mini-db">
         <Database />
@@ -42,14 +69,14 @@ export function MiniMap() {
         <span className="tiny-status">Verified in demo</span>
       </div>
       <div className="mini-auth">
-        <KeyRound size={14} /> Clerk Auth
+        <KeyRound size={14} /> Auth Boundary
       </div>
       <div className="mini-support">
         <span>
-          <GitBranch size={14} /> Repository
+          <GitBranch size={14} /> {repoLabel}
         </span>
         <span>
-          <Cloud size={14} /> Staging hosting
+          <Cloud size={14} /> {envLabel}
         </span>
       </div>
     </div>
