@@ -3,7 +3,7 @@ import { DemoProvider } from "@/components/demo-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "WetScan — Application Security Intelligence Platform",
+  title: "WetScan | Application Security Intelligence Platform",
   description:
     "Unified application security platform connecting interactive architecture mapping (Canvas), pre-merge Guard scans & CI/CD gates, and Sentinel runtime detection.",
 };
