@@ -70,7 +70,7 @@ export function Inspector({
                   : "Architecture context. Review the source evidence; runtime behavior is unverified."))
               : `${graph.nodes.find((n) => n.id === edge?.source)?.label ?? "Unknown source"} → ${graph.nodes.find((n) => n.id === edge?.target)?.label ?? "Unknown target"}`}
           </p>
-          <Badge>
+          <Badge tone={item.origin === "verified" ? "blue" : "neutral"}>
             {item.origin.replace("_", " ")} ·{" "}
             {graph.mode === "demo" ? "demo fixture" : "source observation"}
           </Badge>
@@ -99,7 +99,15 @@ export function Inspector({
                 .filter((f) => f.nodeId === node.id)
                 .map((f) => (
                   <div className="inspector-finding" key={f.id}>
-                    <Badge tone="amber">
+                    <Badge
+                      tone={
+                        f.severity === "critical"
+                          ? "red"
+                          : f.severity === "high"
+                            ? "amber"
+                            : "blue"
+                      }
+                    >
                       {f.severity} · {f.status.replaceAll("_", " ")}
                     </Badge>
                     <strong>{f.title}</strong>

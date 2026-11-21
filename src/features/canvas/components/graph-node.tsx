@@ -14,8 +14,12 @@ import {
   Cloud,
   Database,
   GitBranch,
+  Globe,
+  HardDrive,
   KeyRound,
+  Layers,
   Radio,
+  Server,
   Workflow,
   CheckCircle2,
 } from "lucide-react";
@@ -23,12 +27,16 @@ import type { ComponentNode } from "../types";
 export const icons: Record<string, typeof Braces> = {
   frontend: AppWindow,
   api: Braces,
+  backend: Server,
   auth: KeyRound,
   database: Database,
+  cache: HardDrive,
+  external_service: Globe,
   repository: GitBranch,
   ci: Workflow,
   hosting: Cloud,
   telemetry: Radio,
+  service_group: Layers,
 };
 export type FlowComponent = Node<
   {

@@ -273,6 +273,40 @@ export function LiveGuardWorkspace({
           </Link>
         ))}
       </nav>
+      {section === "" && (
+        <div className="four-columns" style={{ marginBottom: 18 }}>
+          <Card className="compact-stat">
+            <small>Scan telemetry</small>
+            <h2>{scans.length} retained</h2>
+            <span>
+              {view ? `Selected: ${view.status}` : "Select a scan to inspect"}
+            </span>
+          </Card>
+          <Card className="compact-stat">
+            <small>Recorded findings</small>
+            <h2>{view ? view.findings.length : "--"}</h2>
+            <span>
+              {view
+                ? `${view.findings.filter((f) => f.severity === "critical" || f.severity === "high").length} critical/high`
+                : "Requires retained scan"}
+            </span>
+          </Card>
+          <Card className="compact-stat">
+            <small>Source coverage</small>
+            <h2>{view?.sourceCoverage?.status ?? "UNVERIFIED"}</h2>
+            <span>
+              {view
+                ? `${view.engines.filter((e) => e.status === "completed").length}/${view.engines.length} engines completed`
+                : "Coverage required"}
+            </span>
+          </Card>
+          <Card className="compact-stat">
+            <small>Release evaluation</small>
+            <h2>{view?.release.decision ?? "INCOMPLETE"}</h2>
+            <span>Evaluation only · GitHub Checks not enforced</span>
+          </Card>
+        </div>
+      )}
       {section === "dast" && <G05Workbench projectId={projectId} />}
       {section === "cicd" && (
         <CicdPanel projectId={projectId} defaultBranch={initialBranch} />

@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import {
   ArrowRight,
@@ -9,10 +10,13 @@ import {
   Circle,
   GitBranch,
   Network,
+  Play,
   Plus,
   Radar,
+  ShieldAlert,
   ShieldCheck,
-  TriangleAlert,
+  Sparkles,
+  Wrench,
 } from "lucide-react";
 import { useDemo } from "../demo-provider";
 import { useDashboardAccountView } from "../dashboard-account";
@@ -27,6 +31,7 @@ import {
 } from "../ui";
 import { MiniMap } from "../mini-map";
 import { PROJECT } from "@/data/demo";
+
 export function Overview() {
   const { state } = useDemo();
   const { account, status, refresh, setOpen } = useDashboardAccountView();
@@ -34,6 +39,7 @@ export function Overview() {
   const repositories = account.repositories;
   const hasRepositories = repositoriesReady && repositories.length > 0;
   const loadingRepositories = status === "loading";
+
   const repositoryAction = repositoriesReady ? (
     hasRepositories ? (
       <Button type="button" variant="secondary" onClick={() => setOpen(true)}>
@@ -55,37 +61,57 @@ export function Overview() {
       {loadingRepositories ? "Loading repositories..." : "Retry repositories"}
     </Button>
   );
-  const open = state.incidents.filter((i) => i.status === "open").length;
+
+  const openIncidents = state.incidents.filter((i) => i.status === "open").length;
+  const openFindingsCount = state.findingStatus === "verified_fixed" ? 2 : 3;
   const progress =
     1 +
     Number(state.findingStatus !== "potential") +
     Number(!!state.staging.url) +
     Number(state.notifications.length > 0);
+
+  const primaryLiveRepo = hasRepositories ? repositories[0] : null;
+  const radius = 26;
+  const circumference = 2 * Math.PI * radius;
+  const strokeOffset = circumference - (progress / 4) * circumference;
+
   return (
     <div className="page overview-page">
       <PageHeader
         eyebrow="YOUR SECURITY WORKSPACE"
         title="A little clarity for your next big thing."
-        description="Here’s what’s happening across your apps. Let’s take it one step at a time."
+        description="Unified visibility across connected GitHub repositories and the interactive Orderly Demo walkthrough."
         action={repositoryAction}
       />
+
       <div className="welcome-strip">
         <span className="welcome-icon">
-          <SparkleIcon />
+          <Sparkles size={20} />
         </span>
         <div>
-          <strong>Welcome to your workspace.</strong>
+          <strong>
+            {primaryLiveRepo
+              ? `${primaryLiveRepo.fullName} is connected.`
+              : "Welcome to your workspace."}
+          </strong>{" "}
           <span>
-            {" "}
-            You’re exploring Orderly, a fictional commerce app. Follow the
-            connections and see what needs a closer look.
+            {primaryLiveRepo
+              ? "Inspect live source architecture in Canvas, run Guard repository checks, or explore the Orderly Demo walkthrough."
+              : "You’re exploring Orderly, a fictional commerce app. Follow the connections and see what needs a closer look."}
           </span>
         </div>
-        <Link href={`${PROJECT}/canvas`}>
+        <Link
+          href={
+            primaryLiveRepo
+              ? `/app/projects/github-${primaryLiveRepo.id}/canvas`
+              : `${PROJECT}/canvas`
+          }
+        >
           Take a look <ArrowRight size={16} />
         </Link>
       </div>
-      <div className="stats-grid">
+
+      <div className="four-columns">
         <Card
           className="stat-card repository-summary"
           aria-label="Connected repositories summary"
@@ -93,7 +119,7 @@ export function Overview() {
           <div className="stat-label">
             <span>Connected repositories</span>
             <span className="stat-icon blue">
-              <Network size={20} />
+              <Network size={19} />
             </span>
           </div>
           <div className="stat-value">
@@ -147,44 +173,111 @@ export function Overview() {
             )}
           </div>
         </Card>
+
         <Card className="stat-card">
           <div className="stat-label">
             <span>Findings needing review</span>
             <span className="stat-icon amber">
-              <ShieldCheck size={20} />
+              <ShieldAlert size={19} />
             </span>
           </div>
           <div className="stat-value">
-            {state.findingStatus === "verified_fixed" ? "02" : "03"}
+            <span>{String(openFindingsCount).padStart(2, "0")}</span>
             <small>
               <span className="severity-dot high" />
               {state.findingStatus === "verified_fixed"
                 ? "High finding retested"
-                : "1 high priority"}
+                : "1 high priority · demo"}
             </small>
           </div>
           <div className="stat-bottom">
-            A clear next step for each finding
+            <span>Orderly Demo findings</span>
             <TextLink href={`${PROJECT}/guard/findings`}>Review</TextLink>
           </div>
         </Card>
+
         <Card className="stat-card">
           <div className="stat-label">
             <span>Open incidents</span>
             <span className="stat-icon green">
-              <Radar size={20} />
+              <Radar size={19} />
             </span>
           </div>
           <div className="stat-value">
-            {String(open).padStart(2, "0")}
-            <small>{open ? "Demo investigation" : "Ready to explore"}</small>
+            <span>{String(openIncidents).padStart(2, "0")}</span>
+            <small>
+              {openIncidents ? "Demo investigation" : "Ready to explore"}
+            </small>
           </div>
           <div className="stat-bottom">
-            Runtime telemetry not connected
-            <TextLink href={`${PROJECT}/sentinel`}>Sentinel</TextLink>
+            <span>
+              {primaryLiveRepo
+                ? "Live Sentinel available per repo"
+                : "Runtime telemetry not connected"}
+            </span>
+            <TextLink
+              href={
+                primaryLiveRepo
+                  ? `/app/projects/github-${primaryLiveRepo.id}/sentinel`
+                  : `${PROJECT}/sentinel`
+              }
+            >
+              Sentinel
+            </TextLink>
+          </div>
+        </Card>
+
+        <Card className="stat-card">
+          <div className="stat-label">
+            <span>Walkthrough progress</span>
+            <Badge tone={progress === 4 ? "green" : "blue"}>
+              {progress} / 4
+            </Badge>
+          </div>
+          <div className="posture-meter" style={{ margin: "10px 0 12px" }}>
+            <div className="posture-ring" style={{ width: 60, height: 60 }}>
+              <svg width="60" height="60" viewBox="0 0 60 60">
+                <circle
+                  cx="30"
+                  cy="30"
+                  r={radius}
+                  fill="none"
+                  stroke="var(--border)"
+                  strokeWidth="5"
+                />
+                <circle
+                  cx="30"
+                  cy="30"
+                  r={radius}
+                  fill="none"
+                  stroke={progress === 4 ? "var(--good)" : "var(--primary)"}
+                  strokeWidth="5"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={strokeOffset}
+                  strokeLinecap="round"
+                  transform="rotate(-90 30 30)"
+                />
+              </svg>
+              <strong style={{ position: "absolute", fontSize: 13 }}>
+                {progress * 25}%
+              </strong>
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600 }}>
+                {state.projectName}
+              </div>
+              <small>
+                {state.scans} demo scan{state.scans === 1 ? "" : "s"} run
+              </small>
+            </div>
+          </div>
+          <div className="stat-bottom">
+            <span>Demo guide</span>
+            <TextLink href={`${PROJECT}`}>Open hub</TextLink>
           </div>
         </Card>
       </div>
+
       <div className="overview-columns">
         <div className="overview-primary">
           <Card className="application-preview">
@@ -193,7 +286,7 @@ export function Overview() {
             </SectionHeading>
             <div className="app-identity">
               <span className="project-icon">
-                <BoxesIcon />
+                <Network size={20} />
               </span>
               <div>
                 <Link href={PROJECT}>
@@ -210,14 +303,16 @@ export function Overview() {
                   <span>·</span>Next.js
                 </p>
               </div>
-              <Badge>Staging</Badge>
+              <Badge>Staging · Demo</Badge>
             </div>
             <Link
               href={`${PROJECT}/canvas`}
               className="map-link"
               aria-label="Explore application map"
             >
-              <MiniMap />
+              <MiniMap
+                apiIssues={state.findingStatus === "verified_fixed" ? 0 : 1}
+              />
             </Link>
             <div className="preview-bottom">
               <span>
@@ -230,6 +325,7 @@ export function Overview() {
               </Link>
             </div>
           </Card>
+
           <Card className="attention-card">
             <SectionHeading title="A good place to start">
               <span className="muted small-text">Prioritized for you</span>
@@ -250,29 +346,56 @@ export function Overview() {
                   Orders API may allow customers to access someone else’s order.
                 </p>
                 <small>
-                  Orderly Demo<span>·</span>Access control<span>·</span>Needs
-                  verification
+                  Orderly Demo<span>·</span>Access control<span>·</span>
+                  {state.findingStatus === "verified_fixed"
+                    ? "Verified fixed"
+                    : "Needs verification"}
                 </small>
               </div>
               <ChevronRight size={20} />
             </Link>
-            <Link className="attention-item" href="/app/integrations">
-              <span className="attention-icon blue">
-                <Radar size={21} />
-              </span>
-              <div>
-                <strong>Complete the picture with runtime data</strong>
-                <p>
-                  See the setup boundary before enabling continuous monitoring.
-                </p>
-                <small>
-                  Sentinel<span>·</span>Not connected
-                </small>
-              </div>
-              <ChevronRight size={20} />
-            </Link>
+            {primaryLiveRepo ? (
+              <Link
+                className="attention-item"
+                href={`/app/projects/github-${primaryLiveRepo.id}/guard`}
+              >
+                <span className="attention-icon blue">
+                  <ShieldCheck size={21} />
+                </span>
+                <div>
+                  <div className="attention-title">
+                    <strong>Inspect {primaryLiveRepo.fullName} in Live Guard</strong>
+                    <Badge tone="green">Live GitHub</Badge>
+                  </div>
+                  <p>
+                    Run repository scans, review SAST/SCA coverage, or configure CI/CD release gates.
+                  </p>
+                  <small>
+                    Guard<span>·</span>Branch {primaryLiveRepo.defaultBranch}
+                  </small>
+                </div>
+                <ChevronRight size={20} />
+              </Link>
+            ) : (
+              <Link className="attention-item" href="/app/integrations">
+                <span className="attention-icon blue">
+                  <Radar size={21} />
+                </span>
+                <div>
+                  <strong>Complete the picture with runtime data</strong>
+                  <p>
+                    See the setup boundary before enabling continuous monitoring.
+                  </p>
+                  <small>
+                    Sentinel<span>·</span>Not connected
+                  </small>
+                </div>
+                <ChevronRight size={20} />
+              </Link>
+            )}
           </Card>
         </div>
+
         <div className="overview-secondary">
           <Card className="setup-card">
             <SectionHeading title="Small steps. Safer apps.">
@@ -327,9 +450,54 @@ export function Overview() {
             ))}
             <div className="setup-footnote">
               <ShieldCheck size={15} />
-              Progress you can understand. No security scores.
+              Progress you can understand. Explicit coverage boundaries.
             </div>
           </Card>
+
+          <Card>
+            <SectionHeading title="Quick actions" />
+            <div className="stack" style={{ gap: 10 }}>
+              <LinkButton
+                secondary
+                href={
+                  primaryLiveRepo
+                    ? `/app/projects/github-${primaryLiveRepo.id}/guard`
+                    : `${PROJECT}/guard`
+                }
+                className="justify-between"
+              >
+                <span>
+                  {primaryLiveRepo ? "Run live Guard scan" : "Open Guard workbench"}
+                </span>
+                <Play size={14} />
+              </LinkButton>
+              <LinkButton
+                secondary
+                href={
+                  primaryLiveRepo
+                    ? `/app/projects/github-${primaryLiveRepo.id}/guard/remediation`
+                    : `${PROJECT}/guard/remediation`
+                }
+                className="justify-between"
+              >
+                <span>AI remediation &amp; retests</span>
+                <Wrench size={14} />
+              </LinkButton>
+              <LinkButton
+                secondary
+                href={
+                  primaryLiveRepo
+                    ? `/app/projects/github-${primaryLiveRepo.id}/sentinel/ghost`
+                    : `${PROJECT}/sentinel/ghost`
+                }
+                className="justify-between"
+              >
+                <span>Inspect Ghost decoys</span>
+                <Radar size={14} />
+              </LinkButton>
+            </div>
+          </Card>
+
           <Card className="recent-card">
             <SectionHeading title="The latest">
               <Link href="/app/activity" aria-label="View all activity">
@@ -348,7 +516,7 @@ export function Overview() {
             </div>
             <div className="recent-event">
               <span className="event-marker amber">
-                <TriangleAlert size={14} />
+                <ShieldAlert size={14} />
               </span>
               <div>
                 <strong>A finding worth reviewing</strong>
@@ -374,80 +542,16 @@ export function Overview() {
             ))}
             <TextLink href="/app/activity">View workspace activity</TextLink>
           </Card>
+
           <div className="coverage-note">
             <Circle size={14} />
             <p>
-              <strong>A note on coverage</strong>This is a demo. Scans,
-              incidents, and protection outcomes use synthetic evidence.
+              <strong>A note on coverage</strong>Live GitHub repositories stay strictly separated
+              from Orderly Demo fixtures.
             </p>
           </div>
         </div>
       </div>
     </div>
-  );
-}
-function SparkleIcon() {
-  return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 22 22"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="m11 2 2.5 6.5L20 11l-6.5 2.5L11 20l-2.5-6.5L2 11l6.5-2.5L11 2Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
-}
-function BoxesIcon() {
-  return (
-    <svg
-      width="25"
-      height="25"
-      viewBox="0 0 25 25"
-      fill="none"
-      aria-hidden="true"
-    >
-      <rect
-        x="3"
-        y="3"
-        width="8"
-        height="8"
-        rx="2"
-        stroke="currentColor"
-        strokeWidth="1.6"
-      />
-      <rect
-        x="14"
-        y="3"
-        width="8"
-        height="8"
-        rx="2"
-        stroke="currentColor"
-        strokeWidth="1.6"
-      />
-      <rect
-        x="3"
-        y="14"
-        width="8"
-        height="8"
-        rx="2"
-        stroke="currentColor"
-        strokeWidth="1.6"
-      />
-      <rect
-        x="14"
-        y="14"
-        width="8"
-        height="8"
-        rx="2"
-        stroke="currentColor"
-        strokeWidth="1.6"
-      />
-    </svg>
   );
 }

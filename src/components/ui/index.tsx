@@ -17,14 +17,16 @@ export function LinkButton({
   href,
   children,
   secondary = false,
+  className,
 }: {
   href: string;
   children: ReactNode;
   secondary?: boolean;
+  className?: string;
 }) {
   return (
     <Link
-      className={cn("button", secondary ? "secondary" : "primary")}
+      className={cn("button", secondary ? "secondary" : "primary", className)}
       href={href}
     >
       {children}
@@ -34,11 +36,13 @@ export function LinkButton({
 export function Badge({
   children,
   tone = "neutral",
+  className,
 }: {
   children: ReactNode;
   tone?: "neutral" | "blue" | "green" | "amber" | "red";
+  className?: string;
 }) {
-  return <span className={`badge ${tone}`}>{children}</span>;
+  return <span className={cn("badge", tone, className)}>{children}</span>;
 }
 export function Card({
   children,
