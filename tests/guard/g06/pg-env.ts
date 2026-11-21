@@ -409,6 +409,24 @@ async function createFromAdminUrl(
     SENTINEL_DB_APP_PASSWORD_FILE: join(scratchBase, "sentinel-app.password"),
   };
 
+  // The disposable CI fixture deliberately terminates remaining sessions before
+  // dropping its two ephemeral databases. An idle pg.Pool client emits an 'error'
+  // event when PostgreSQL sends 57P01; without a pool listener, Node reports an
+  // uncaught exception even though all test assertions passed. Limit this handler
+  // to *this fixture* and only to administrator termination during cleanup.
+  let cleaningUp = false;
+  const disposablePools = [
+    guardAdminPool, guardAppPool, guardWorkerPool, guardMigratorPool,
+    sentinelAdminPool, sentinelAppPool, sentinelWorkerPool,
+  ];
+  for (const pool of disposablePools) {
+    pool.on("error", (error: Error & { code?: string }) => {
+      if (cleaningUp && error.code === "57P01") return;
+      // Unexpected connection failures must continue to fail the test suite.
+      throw error;
+    });
+  }
+
   return {
     env,
     guardPool: guardAdminPool,
@@ -423,6 +441,7 @@ async function createFromAdminUrl(
     guardMarker,
     sentinelMarker,
     async cleanup() {
+      cleaningUp = true;
       await closeG06HostForTests();
       await Promise.allSettled([
         guardAppPool.end(),
