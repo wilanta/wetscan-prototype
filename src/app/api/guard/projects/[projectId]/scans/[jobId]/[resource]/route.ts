@@ -2,7 +2,8 @@ import { guardRoute } from "@/features/guard/live/http";
 import type { NextRequest } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 660;
+// Vercel Hobby with Fluid Compute allows at most 300 seconds per invocation.
+export const maxDuration = 300;
 export async function GET(
   request: NextRequest,
   context: {
